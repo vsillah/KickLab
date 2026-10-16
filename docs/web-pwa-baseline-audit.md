@@ -53,15 +53,17 @@ The Math HUD is derived from the active mode definitions (`M.vars()`, `M.LIVE()`
 
 Modal ownership is exclusive. When results, replay, Coach review, a cinematic replay sequence, or a level-up overlay owns the stage, Dials cannot open. The Math HUD keeps a disabled `Dials after round` control and an in-context recovery instruction; keyboard `P` follows the same guard. After the owner closes, Dials re-enables and still returns the singular live-equation and variable nodes to Math.
 
+At mobile and tablet widths, the same canonical inspector moves into an in-flow Utility belt directly below the external control deck. Its five 44 px tabs remain visible together; Setup and Math open the existing paused sheet at that location, while Review, Goals, and Learn keep deeper material behind the same tabs. The sheet grows with the document instead of creating a nested scroll region, and its keyboard events stop before the gameplay handler. Above 980 px, that same inspector returns to the persistent desktop side column.
+
 ### Cockpit validation matrix
 
 | Viewport | Mode/state exercised | Result |
 | --- | --- | --- |
-| 390 × 844 | Fight and Kick; active play, knockout result, blocked Dials, Math HUD, challenge, coach, inspector return | No horizontal overflow or stage/control overlap. Results remain the sole modal owner, Dials presents a recovery instruction without opening, the essential play surfaces fit the initial active-play viewport, and inspector dismissal restored focus. |
-| 768 × 1,024 | Race; active play and responsive inspector | No horizontal overflow. Stage, controls, live math, challenge, coach, and inspector remained usable in a single-column tablet layout. |
+| 390 × 844 | Fight and Kick/free kick; active play, Utility belt, Setup/Math sheet, knockout result, blocked Dials, Math HUD, challenge, coach, inspector return | No horizontal overflow or stage/control overlap. The belt sits directly below the controls, all five tabs meet the 44 px target, inspector keystrokes do not trigger moves, results remain the sole modal owner, and dismissal restores focus. |
+| 768 × 1,024 | Fight and Kick/free kick; active play, Utility belt, Setup sheet and Dials recovery | No horizontal overflow. The belt remains directly below the controls, its five tabs and Return action meet the 44 px target, the sheet uses document scrolling, and Dials returns the canonical Math nodes exactly once. |
 | 1,440 × 1,000 | 1v1 Dribble; active play, Setup, Dials, Review, and replay | The stage/control deck and context column remained visible beside the persistent inspector. Canonical Math nodes returned from Dials with no duplicates. |
 
-Focused regression checks cover singular canonical IDs, complete inspector tab/panel wiring, controls outside the stage, definition-derived Math HUD values, exclusive result/replay ownership, Dials node return, and readable control labels. The existing shared-core, build, syntax, and web-contract checks also remain green. Browser review found no console errors or warnings.
+Focused regression checks cover singular canonical IDs, complete inspector tab/panel wiring, controls outside the stage, responsive Utility-belt ownership and tap targets, definition-derived Math HUD values, exclusive result/replay ownership, Dials node return, and readable control labels. The existing shared-core, build, syntax, and web-contract checks also remain green. Browser review found no console errors or warnings.
 
 Remaining evidence limits: viewport emulation is not a physical-device test, browser automation covered pointer and keyboard paths but not a physical touchscreen, and this slice does not add PWA packaging or offline navigation.
 

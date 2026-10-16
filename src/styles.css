@@ -255,6 +255,7 @@ canvas#cv{display:block;width:100%;height:auto;aspect-ratio:16/9;touch-action:no
 .control-deck{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;align-items:center;padding:10px 12px;border-top:1px solid var(--line);background:linear-gradient(180deg,#0a1222,#070d1c)}
 .control-deck .pad{position:static;display:flex;justify-content:space-between;align-items:center;padding:0;background:none;border:0;min-width:0}
 .control-deck .rbar{position:static;grid-column:1/-1;transform:none;width:auto;border-radius:10px;margin:0}
+.utility-slot{display:none}
 .stage-context{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(220px,.85fr);gap:10px;align-items:stretch}
 .math-hud,.challenge-hud{border:1px solid #34507f;border-radius:12px;background:#0b1630;padding:10px 12px;min-width:0}
 .math-hud{grid-row:span 2;display:grid;align-content:start;gap:7px}
@@ -285,6 +286,7 @@ canvas#cv{display:block;width:100%;height:auto;aspect-ratio:16/9;touch-action:no
 .left{display:grid;gap:10px;min-width:0;align-content:start}
 .panel.inspector{position:sticky;top:calc(env(safe-area-inset-top,0px) + 10px);display:grid;grid-template-rows:auto minmax(0,1fr);gap:0;padding:0;max-height:calc(100vh - env(safe-area-inset-top,0px) - 20px);overflow:hidden}
 .inspector-head{display:grid;gap:8px;padding:10px;border-bottom:1px solid var(--line);background:var(--panel)}
+.utility-label{display:none;font-family:var(--f-display);font-size:12px;letter-spacing:.08em;color:var(--xray)}
 .inspector-tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
 .inspector-tabs button,.inspector-close{appearance:none;border:1px solid var(--line);border-radius:8px;background:var(--panel-2);color:var(--muted);font:inherit;font-size:11px;font-weight:700;padding:7px 4px;cursor:pointer;min-width:0}
 .inspector-tabs button[aria-selected="true"]{border-color:var(--xray);color:var(--ink);background:#17304d;box-shadow:inset 0 -2px 0 var(--xray)}
@@ -313,12 +315,19 @@ canvas#cv{display:block;width:100%;height:auto;aspect-ratio:16/9;touch-action:no
   .play{grid-template-columns:minmax(0,1fr)}
   .left{display:grid}
   .stage{position:relative;top:auto;z-index:auto;box-shadow:none}
-  .panel.inspector{position:static;max-height:none}
-  .inspector-head{position:sticky;bottom:0;z-index:20;grid-template-columns:minmax(0,1fr) auto;align-items:center;border:1px solid var(--line);border-radius:12px;background:rgba(16,25,45,.98);box-shadow:0 -8px 24px rgba(0,0,0,.35)}
+  .utility-slot{display:block;border-top:1px solid var(--line);background:#0a1222}
+  .panel.inspector{position:static;grid-template-rows:auto auto;max-height:none;border:0;border-radius:0;background:transparent;overflow:visible}
+  .inspector-head{position:static;z-index:auto;grid-template-columns:minmax(0,1fr) auto;align-items:center;border:0;border-radius:0;background:linear-gradient(180deg,#10192d,#0a1222);box-shadow:none}
+  .utility-label{display:block;grid-column:1;grid-row:1}
+  .inspector-tabs{grid-column:1/-1;grid-row:2}
+  .inspector-close{grid-column:2;grid-row:1}
+  .inspector-state{grid-row:3}
+  .inspector-tabs button,.inspector-close{min-height:44px}
   .inspector-close{display:block}
   .inspector:not(.open) .inspector-close{display:none}
   .inspector:not(.open) .inspector-body{display:none}
-  .inspector.open .inspector-body{max-height:55vh;border:1px solid var(--line);border-top:0;border-radius:0 0 12px 12px;background:var(--panel)}
+  .inspector-body{overflow:visible;overscroll-behavior:auto;scrollbar-gutter:auto}
+  .inspector.open .inspector-body{max-height:none;border:0;border-top:1px solid var(--line);border-radius:0;background:var(--panel)}
 }
 
 @media (max-width:700px){
@@ -346,7 +355,7 @@ canvas#cv{display:block;width:100%;height:auto;aspect-ratio:16/9;touch-action:no
   .stage-context .coach{padding:7px 9px}
   .stage-context .coach p{-webkit-line-clamp:2;max-height:2.8em}
   .inspector-head{padding:7px;gap:5px}
-  .inspector-tabs{gap:3px;overflow-x:auto;grid-template-columns:repeat(5,minmax(60px,1fr));scrollbar-width:thin}
+  .inspector-tabs{gap:3px;overflow:visible;grid-template-columns:repeat(5,minmax(0,1fr))}
   .inspector-tabs button{font-size:10px;padding:7px 3px}
   .inspector-close{font-size:10px;padding:7px}
   .inspector-body{padding:9px}

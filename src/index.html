@@ -65,6 +65,7 @@
           <div class="pad" id="pad"><div class="grp l" id="padL"></div><div class="grp r" id="padR"></div></div>
           <div class="rbar" id="rbar" hidden><span class="rb-tag">REPLAY</span><button type="button" id="rbBack" aria-label="Back 3 seconds">Back 3s</button><button type="button" id="rbPlay" aria-label="Play or pause">Pause</button><div class="rb-sp"><button type="button" data-sp="0.25">¼×</button><button type="button" data-sp="0.5" aria-pressed="true">½×</button><button type="button" data-sp="1">1×</button></div><input type="range" id="rbScrub" min="0" max="1000" value="0" aria-label="Scrub replay"><span class="rb-t" id="rbTime">0:00.0</span><button type="button" id="rbReview">Review</button><button type="button" id="rbExit">Exit replay</button></div>
         </div>
+        <div class="utility-slot" id="utilitySlot" aria-label="In-game utility belt"></div>
         <div class="dials" id="dials" hidden role="dialog" aria-modal="true" aria-label="Dials, game paused"><div class="dh"><b>TIME-OUT · YOUR CORNER</b><button type="button" id="dialsClose">Back in <span aria-hidden="true">▶</span></button></div><div class="db" id="dialsBody"></div></div>
       </div>
       <div class="stage-context" aria-label="Live game guidance">
@@ -82,6 +83,7 @@
     </div>
     <aside class="panel inspector" id="inspector" aria-label="Game inspector">
       <div class="inspector-head">
+        <span class="utility-label">Utility belt</span>
         <div class="inspector-tabs" role="tablist" aria-label="Game information">
           <button type="button" role="tab" id="ins-tab-setup" aria-controls="ins-pane-setup" aria-selected="false" data-pane="setup">Setup</button>
           <button type="button" role="tab" id="ins-tab-math" aria-controls="ins-pane-math" aria-selected="true" data-pane="math">Math</button>

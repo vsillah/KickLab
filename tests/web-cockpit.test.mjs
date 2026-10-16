@@ -9,6 +9,7 @@ const html=readFileSync(join(root,'src','index.html'),'utf8');
 const cockpit=readFileSync(join(root,'src','game','54-web-cockpit.js'),'utf8');
 const replay=readFileSync(join(root,'src','game','60-pause-replay.js'),'utf8');
 const ui=readFileSync(join(root,'src','game','41-ui.js'),'utf8');
+const css=readFileSync(join(root,'src','styles.css'),'utf8');
 
 test('keeps relocated feature roots canonical and singular',()=>{
   for(const id of ['opts','liveEq','vars','chart','ticker','mlList','chal','missions','eqs','steps','idea','quiz']){
@@ -28,6 +29,17 @@ test('keeps gameplay controls outside the canvas stage',()=>{
   assert.ok(stageEnd>html.indexOf('<div class="stage">'));
   assert.ok(html.indexOf('id="pad"')>stageEnd);
   assert.ok(html.indexOf('id="mathHud"')>stageEnd);
+});
+
+test('anchors one responsive utility belt directly after the control deck',()=>{
+  const deck=html.indexOf('class="control-deck"'),slot=html.indexOf('id="utilitySlot"'),dials=html.indexOf('id="dials"');
+  assert.ok(deck<slot&&slot<dials);
+  assert.equal((html.match(/id="utilitySlot"/g)||[]).length,1);
+  assert.match(cockpit,/utilitySlot\.appendChild\(inspector\)/);
+  assert.match(cockpit,/desktopInspectorHost\.appendChild\(inspector\)/);
+  assert.match(cockpit,/inspector\.addEventListener\('keydown',e=>\{e\.stopPropagation\(\)/);
+  assert.match(css,/\.inspector-tabs button,\.inspector-close\{min-height:44px\}/);
+  assert.match(css,/\.inspector-body\{overflow:visible;overscroll-behavior:auto/);
 });
 
 test('derives compact math from mode definitions and explicit equation data',()=>{

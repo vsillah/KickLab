@@ -1,6 +1,7 @@
 /* ---------- responsive web cockpit ---------- */
 const INSPECTOR={pane:'math',trigger:null,mq:window.matchMedia('(max-width:980px)')};
 const inspector=$('#inspector');
+const desktopInspectorHost=$('#game-cockpit'),utilitySlot=$('#utilitySlot');
 
 function inspectorNeedsPause(name){return name==='setup'||name==='math';}
 function setInspectorPause(on){
@@ -36,8 +37,8 @@ function closeInspector({restore=true}={}){
   requestAnimationFrame(resize);
 }
 function syncInspectorLayout(){
-  if(INSPECTOR.mq.matches){inspector.classList.remove('open');setInspectorPause(false);}
-  else{inspector.classList.add('open');setInspectorPause(false);}
+  if(INSPECTOR.mq.matches){if(inspector.parentElement!==utilitySlot)utilitySlot.appendChild(inspector);inspector.classList.remove('open');setInspectorPause(false);}
+  else{if(inspector.parentElement!==desktopInspectorHost)desktopInspectorHost.appendChild(inspector);inspector.classList.add('open');setInspectorPause(false);}
   requestAnimationFrame(resize);
 }
 
@@ -50,7 +51,7 @@ inspector.querySelectorAll('[role="tab"]').forEach(tab=>{
   });
 });
 $('#inspectorClose').addEventListener('click',()=>closeInspector());
-inspector.addEventListener('keydown',e=>{if(e.key==='Escape'&&INSPECTOR.mq.matches&&inspector.classList.contains('open')){e.preventDefault();closeInspector();}});
+inspector.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'&&INSPECTOR.mq.matches&&inspector.classList.contains('open')){e.preventDefault();closeInspector();}});
 inspector.addEventListener('pointerdown',e=>{
   if(INSPECTOR.mq.matches||!e.target.closest('[data-pane="setup"],[data-pane="math"]'))return;
   if(e.target.closest('button,input'))setInspectorPause(true);
