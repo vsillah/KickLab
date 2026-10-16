@@ -87,12 +87,16 @@
           </section>
         </div>
         <div class="control-deck" aria-label="Game controls">
+          <div class="physics-mode-control">
+            <button type="button" class="physics-mode-switch" id="physicsModeSwitch" role="switch" aria-checked="false" aria-describedby="physicsModeStatus"><span aria-hidden="true">⌁</span><span><b>D-pad Math</b><small>Manual Physics off</small></span></button>
+            <span class="physics-mode-status" id="physicsModeStatus" role="status" aria-live="polite">D-pad controls choose the live math.</span>
+          </div>
           <div class="pad" id="pad"><div class="grp l" id="padL"></div><div class="grp r" id="padR"></div></div>
           <div class="rbar" id="rbar" hidden><span class="rb-tag">REPLAY</span><button type="button" id="rbBack" aria-label="Back 3 seconds">Back 3s</button><button type="button" id="rbPlay" aria-label="Play or pause">Pause</button><div class="rb-sp"><button type="button" data-sp="0.25">¼×</button><button type="button" data-sp="0.5" aria-pressed="true">½×</button><button type="button" data-sp="1">1×</button></div><input type="range" id="rbScrub" min="0" max="1000" value="0" aria-label="Scrub replay"><span class="rb-t" id="rbTime">0:00.0</span><button type="button" id="rbReview">Review</button><button type="button" id="rbExit">Exit replay</button></div>
         </div>
         <section class="math-console" id="mathConsole" aria-label="Gameplay Math Console">
           <div class="math-console-panel" id="mathConsolePanel" hidden>
-            <div class="math-console-head"><div><span>Live controls</span><b id="mathConsoleHeading">Adjust the math you play</b></div><button type="button" id="mathConsoleClose">Close</button></div>
+            <div class="math-console-head"><div><span>Live controls</span><b id="mathConsoleHeading">Adjust the math you play</b><small id="mathConsolePauseState"></small></div><button type="button" id="mathConsoleClose">Close</button></div>
             <div class="math-console-controls" id="mathConsoleControls"></div>
             <button type="button" class="math-console-more" id="mathConsoleMore">More math</button>
           </div>

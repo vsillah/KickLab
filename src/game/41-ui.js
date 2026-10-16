@@ -41,7 +41,7 @@ function setupLabel(id,label){return`<span class="setup-label">${setupIcon(id)}<
 function setupChoice(id,label,sub,locked=false){return`${setupIcon(id)}<span class="choice-copy">${locked?'<span class="lock-mark" aria-hidden="true">LOCKED</span> ':''}<b>${label}</b><small>${sub}</small></span>`;}
 function padEls(id){return document.querySelectorAll(`#pad [data-id="${id}"]`);}
 function setLabel(){M.actions().forEach(x=>{padEls(x.id).forEach(el=>{el.classList.toggle('sel',!!x.sel);el.classList.toggle('pulse',!!x.pulse);el.disabled=!!x.disabled;if(x.icon&&el._icon!==x.icon){const c=el.querySelector('.cap');if(c){c.innerHTML=ICONS[x.icon];el._icon=x.icon;}}const label=x.label||String(x.aria||x.id).replace(/\s*\(.*/, '');const vl=el.querySelector('.action-label');if(vl)vl.textContent=label;el.setAttribute('aria-label',x.aria||x.label||x.id);});});}
-function adjustVar(id,delta){const e=varEls.find(v=>v.def.id===id);if(!e||e.inp.disabled)return false;const d=e.def,nv=clamp(Math.round((M.V[id]+delta)/d.step)*d.step,d.min,d.max);e.inp.value=nv;e.inp.dispatchEvent(new Event('input'));
+function adjustVar(id,delta,allowManualPause=false){const e=varEls.find(v=>v.def.id===id);if(!e||(e.inp.disabled&&!(allowManualPause&&PAUSE.why==='manual-physics'&&!isLocked(M.key,id))))return false;const d=e.def,nv=clamp(Math.round((M.V[id]+delta)/d.step)*d.step,d.min,d.max);e.inp.value=nv;e.inp.dispatchEvent(new Event('input'));
   DP.flash={id,t:performance.now()};const box=e.inp.closest('.var');if(box){box.classList.remove('dflash');void box.offsetWidth;box.classList.add('dflash');}return true;}
 const DP={sel:0,flash:null};
 function dialVars(){return M.vars().filter(v=>!isLocked(M.key,v.id));}

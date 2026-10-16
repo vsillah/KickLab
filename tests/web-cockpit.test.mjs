@@ -40,7 +40,7 @@ test('attaches one Math Console directly to the gameplay controls',()=>{
   assert.ok(deck<consoleRoot&&consoleRoot<utility);
   for(const id of ['mathConsole','mathConsolePanel','mathConsolePull','mathConsoleControls'])assert.equal((html.match(new RegExp(`id="${id}"`,'g'))||[]).length,1);
   assert.match(cockpit,/function quickMathDefs\(\).*M\.vars\(\)/);
-  assert.match(cockpit,/adjustVar\(def\.id,def\.step\*\+b\.dataset\.step\)/);
+  assert.match(cockpit,/adjustVar\(def\.id,def\.step\*\+b\.dataset\.step,manual\)/);
   assert.match(cockpit,/setInspectorPane\('math',\{focus:true,open:true\}\)/);
   assert.doesNotMatch(cockpit,/mathConsoleControls[^\n]+appendChild\(\$\('#(?:liveEq|vars)'\)\)/);
 });
@@ -120,6 +120,25 @@ test('lets D-pad selection own the adjacent exact quick variable',()=>{
   assert.match(cockpit,/D-pad selected variable/);
   assert.match(cockpit,/data-step="-1"[^>]+aria-label="Less/);
   assert.match(cockpit,/data-step="1"[^>]+aria-label="More/);
+});
+
+test('switches the canonical console into guarded Manual Physics',()=>{
+  assert.match(html,/id="physicsModeSwitch" role="switch" aria-checked="false"/);
+  assert.match(html,/id="physicsModeStatus" role="status" aria-live="polite"/);
+  assert.match(cockpit,/function manualMathDefs\(\)\{return M\.vars\(\)/);
+  assert.match(cockpit,/type="range" min="\$\{def\.min\}" max="\$\{def\.max\}" step="\$\{def\.step\}"/);
+  assert.match(cockpit,/aria-valuenow="\$\{M\.V\[def\.id\]\}"/);
+  assert.match(cockpit,/def\.pre&&def\.pre\.length/);
+  assert.match(cockpit,/pauseGame\('manual-physics'\)/);
+  assert.match(cockpit,/PAUSE\.why==='manual-physics'/);
+  assert.match(cockpit,/function manualUnavailableReason\(\)/);
+  assert.match(cockpit,/if\(resOpen\(\)\)return'Manual Physics is unavailable while results are open/);
+  assert.match(cockpit,/setManualPhysics\(false,\{restore:false,reason\}\)/);
+  assert.match(cockpit,/e\.key==='Escape'.*setManualPhysics\(false\)/);
+  assert.match(ui,/function adjustVar\(id,delta,allowManualPause=false\)/);
+  assert.match(css,/\.physics-mode-switch\{[^}]*min-height:54px/);
+  assert.match(css,/\.math-console-var\.manual input\[type="range"\]/);
+  assert.match(css,/\.math-console-var\.manual select\{[^}]*min-height:44px/);
 });
 
 test('pauses and resumes through canonical settings ownership',()=>{
