@@ -720,5 +720,20 @@ header.top .brand p{display:none}
 .game-order{position:absolute;left:9px;top:50%;transform:translateY(-50%);display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--xray);color:#07101f;font:700 12px var(--f-mono)}
 @media (max-width:700px){.gamebar{gap:5px;padding:4px 0}.experience-tabs{gap:5px}.experience-tabs button{min-height:52px;padding:7px 8px;font-size:13px}.experience-tabs button small{font-size:8px}.gamebar-tools{grid-template-columns:minmax(0,1fr) auto}.continuous-guide{grid-column:1/-1}.continuous-summary{grid-column:1;text-align:left;max-width:210px}.continuous-start{grid-column:1;grid-row:3}.continuous-cancel{grid-column:2;grid-row:3}.gamebar-track{gap:5px}.gamebar .gt{min-width:108px;min-height:48px;padding:6px 9px}.gamebar .gt.ordered{padding-left:37px}.game-order{left:7px}}
 
-/* Wide cockpit balance must win the final cascade without changing compact geometry. */
-@container (min-width:980px){.control-deck .pad{grid-template-columns:minmax(220px,1fr) minmax(380px,520px) minmax(220px,1fr);gap:24px;min-height:190px}.control-deck .dpad{grid-template-columns:repeat(3,54px);grid-template-rows:repeat(3,54px)}.control-deck .dpad .arm svg{width:27px;height:27px}.control-deck .abtn .cap{width:76px;height:76px}.control-deck .abtn .cap svg{width:39px;height:39px}.control-deck .abtn.big .cap{width:96px;height:96px}.control-deck .abtn.big .cap svg{width:48px;height:48px}.control-deck .abtn .action-label{max-width:104px;font-size:11px}}
+/* Wide cockpit balance and recessed docks must win the final cascade without changing compact geometry. */
+@container (min-width:980px){
+  .control-deck .pad{grid-template-columns:minmax(220px,1fr) minmax(380px,520px) minmax(220px,1fr);gap:24px;min-height:190px}
+  .control-left-slot,.wide-manual-controller,.control-deck #padR{box-sizing:border-box;border:1px solid rgba(87,126,176,.34);border-radius:16px;background:radial-gradient(circle at 50% 0,rgba(127,220,255,.055),transparent 48%),linear-gradient(180deg,rgba(10,21,40,.96),rgba(5,11,23,.98));box-shadow:inset 0 2px 12px rgba(0,0,0,.52),inset 0 1px 0 rgba(190,229,255,.05),0 1px 0 rgba(110,151,205,.12)}
+  .control-left-slot,.control-deck #padR{padding:10px}
+  .wide-manual-controller{padding:8px 10px;border-radius:14px}
+  .control-deck .dpad{grid-template-columns:repeat(3,54px);grid-template-rows:repeat(3,54px)}
+  .control-deck .dpad .arm{box-sizing:border-box;display:grid;grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) 10px;align-items:center;justify-items:center;padding:5px 4px 3px}
+  .control-deck .dpad .arm svg{grid-column:1;grid-row:1;width:27px;height:27px;align-self:center;justify-self:center;margin:0;transform:none}
+  .control-deck .dpad .arm .tag,.control-deck .dpad .arm .dir-label{position:static!important;inset:auto!important;grid-column:1;grid-row:2;align-self:center;justify-self:stretch;width:100%;max-width:46px;transform:none;text-align:center;font-size:7.5px;line-height:10px}
+  .control-deck .abtn .cap{--cap-inset:6px;box-sizing:border-box;position:relative;width:76px;height:76px;border:1px solid rgba(224,235,255,.18);background:linear-gradient(180deg,#141d31,#09101f);overflow:visible}
+  .control-deck .abtn .cap::before{content:"";position:absolute;inset:var(--cap-inset);border-radius:50%;background:radial-gradient(circle at 34% 27%,rgba(255,255,255,.72) 0 9%,transparent 25%),linear-gradient(180deg,color-mix(in srgb,var(--bc) 92%,#fff),var(--bc) 58%,color-mix(in srgb,var(--bc) 70%,#000));box-shadow:inset 0 1px 0 rgba(255,255,255,.32),inset 0 -4px 7px rgba(0,0,0,.28),0 0 0 1px color-mix(in srgb,var(--bc) 55%,#0b1120)}
+  .control-deck .abtn .cap svg{position:relative;z-index:1;width:39px;height:39px;margin:0;transform:none}
+  .control-deck .abtn.big .cap{--cap-inset:8px;width:96px;height:96px}
+  .control-deck .abtn.big .cap svg{width:48px;height:48px}
+  .control-deck .abtn .action-label{max-width:104px;font-size:11px;text-align:center}
+}

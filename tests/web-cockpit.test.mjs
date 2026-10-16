@@ -202,6 +202,10 @@ test('projects every canonical manual variable into the wide control gap',()=>{
   assert.match(css,/\.control-deck \.dpad\{grid-template-columns:repeat\(3,54px\);grid-template-rows:repeat\(3,54px\)\}/);
   assert.match(css,/\.control-deck \.abtn \.cap\{width:76px;height:76px\}/);
   assert.match(css,/\.control-deck \.abtn\.big \.cap\{width:96px;height:96px\}/);
+  assert.match(css,/\.control-left-slot,\.wide-manual-controller,\.control-deck #padR\{box-sizing:border-box;border:1px solid rgba\(87,126,176,\.34\);border-radius:16px/);
+  assert.match(css,/\.control-deck \.dpad \.arm\{box-sizing:border-box;display:grid;grid-template-columns:1fr;grid-template-rows:minmax\(0,1fr\) 10px/);
+  assert.match(css,/\.control-deck \.dpad \.arm \.tag,\.control-deck \.dpad \.arm \.dir-label\{position:static!important;inset:auto!important/);
+  assert.match(css,/\.control-deck \.abtn \.cap::before\{content:"";position:absolute;inset:var\(--cap-inset\);border-radius:50%/);
   assert.match(css,/\.wide-manual-row\{display:grid;grid-template-columns:82px 76px minmax\(120px,1fr\)/);
 });
 
