@@ -34,8 +34,11 @@ src/
     70-main-loop.js         wrapper closes here
 scripts/build.mjs     joins everything into dist/kicklab.html
 src/shared/           deterministic, DOM-free game core shared by every platform
+src/services/         provider-neutral child-safe service boundary
+tests/                shared-core, authorization, and sync tests
 docs/architecture/    canonical web/iOS/Android integration contract
 docs/decisions/       architecture decision records
+docs/                 privacy, threat-model, and service contracts
 ```
 
 All the `game/` files form a single script scope once joined, so a constant defined in `10-fight.js` is visible in `70-main-loop.js`. Files are ordered by their number prefix. To add a feature, drop in a new file with a number that puts it after whatever it depends on (for example `54-stamina.js`).
@@ -50,7 +53,7 @@ npm test         # runs the DOM-free shared-core tests
 npm run check    # build + syntax check + tests (what CI runs)
 ```
 
-Open `dist/kicklab.html` in a browser to play. The family leaderboard and weekly challenge use the Claude artifact runtime's shared database, so those only light up when the built file is published as a Claude artifact. Everything else runs anywhere.
+Open `dist/kicklab.html` in a browser to play. The current family leaderboard still uses the Claude artifact runtime's shared database and is documented as legacy-only. It must not be treated as a production-safe child data service. The provider-neutral service seam under `src/services/` is intentionally not wired to the game until an identity provider, persistence adapter, consent flow, and provider-level authorization rules pass review.
 
 ## Working with branches
 
