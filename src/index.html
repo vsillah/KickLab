@@ -1,10 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a1020">
+<meta name="description" content="KickLab is a physics game for ages 9–15 where punches, racing and soccer turn equations into playable experiments.">
 <title>KickLab</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=JetBrains+Mono:wght@500;700&family=Lexend:wght@400;500;600;700&display=swap">
 <style>{{STYLES}}</style>
+</head>
+<body>
+<a class="skip-link" href="#game-content">Skip to the game</a>
 
-<div class="wrap">
+<main class="wrap" id="game-content" tabindex="-1">
   <header class="top">
     <div class="brand">
       <h1>KICK<span>LAB</span></h1>
@@ -13,9 +23,9 @@
   </header>
 
   <nav class="tabs" role="tablist" aria-label="Choose a lab">
-    <button class="tab" role="tab" data-mode="fight" aria-selected="true"><span class="n">Fight</span><span class="d">Momentum, impulse, pressure</span></button>
-    <button class="tab" role="tab" data-mode="race" aria-selected="false"><span class="n">Race</span><span class="d">Steering, grip, cornering</span></button>
-    <button class="tab" role="tab" data-mode="kick" aria-selected="false"><span class="n">Kick</span><span class="d">Vectors, gravity, projectiles</span></button>
+    <button class="tab" id="lab-tab-fight" role="tab" data-mode="fight" aria-controls="game-cockpit" aria-selected="true" tabindex="0"><span class="n">Fight</span><span class="d">Momentum, impulse, pressure</span></button>
+    <button class="tab" id="lab-tab-race" role="tab" data-mode="race" aria-controls="game-cockpit" aria-selected="false" tabindex="-1"><span class="n">Race</span><span class="d">Steering, grip, cornering</span></button>
+    <button class="tab" id="lab-tab-kick" role="tab" data-mode="kick" aria-controls="game-cockpit" aria-selected="false" tabindex="-1"><span class="n">Kick</span><span class="d">Vectors, gravity, projectiles</span></button>
   </nav>
 
   <div class="hudbar" aria-label="Your progress">
@@ -41,60 +51,98 @@
     <p class="fb-eq" id="fbEq"></p>
     <ul class="fb-list" id="fbList"></ul>
   </div></div>
-  <div class="play">
+  <div class="play" id="game-cockpit" role="tabpanel" aria-labelledby="lab-tab-fight">
     <div class="left">
       <div class="gamebar" id="gameBar" hidden></div>
-      <div class="stage"><canvas id="cv" width="960" height="540" aria-label="Game stage"></canvas>
-        <div class="results" id="results" hidden><div class="rc" id="rc"><div class="grade" id="rGrade">A<small>GRADE</small></div><div class="rmain"><div class="rlvl" id="rLvl" hidden></div><div class="rtitle" id="rTitle"></div><div class="rsub" id="rSub"></div><ul class="rrows" id="rRows"></ul><div class="rtotal"><span>XP earned</span><b id="rTotal">+0</b></div><div class="rhint" id="rHint"></div><div class="rboard" id="rBoard" hidden></div><div class="rgo"><div class="racts" id="racts" hidden><button type="button" id="rReview">Coach review</button><button type="button" id="rReplay">▶ Replay</button></div><button type="button" class="rnext" id="rNext">Next round ▶ <kbd>Space</kbd></button></div></div></div></div>
-        <div class="lvlup" id="lvlup" hidden><div class="lu"><span class="lu-k">LEVEL UP</span><div class="lu-n" id="luNum">2</div><div class="lu-t" id="luTitle"></div><div class="lu-u" id="luUnlock"></div></div></div>
-        <div class="feed" id="feed" aria-hidden="true"></div>
-        <div class="toasts" id="toasts"></div>
-        <button class="dialtop" id="dialTop" type="button" aria-label="Pause and open dials">❚❚ DIALS <span class="k">P</span></button>
-        <div class="dials" id="dials" hidden role="dialog" aria-label="Dials, game paused"><div class="dh"><b>TIME-OUT · YOUR CORNER</b><button type="button" id="dialsClose">Back in ▶</button></div><div class="db" id="dialsBody"></div></div>
-        <div class="rbar" id="rbar" hidden><span class="rb-tag">REPLAY</span><button type="button" id="rbBack" aria-label="Back 3 seconds">⟲ 3s</button><button type="button" id="rbPlay" aria-label="Play or pause">❚❚</button><div class="rb-sp"><button type="button" data-sp="0.25">¼×</button><button type="button" data-sp="0.5" aria-pressed="true">½×</button><button type="button" data-sp="1">1×</button></div><input type="range" id="rbScrub" min="0" max="1000" value="0" aria-label="Scrub replay"><span class="rb-t" id="rbTime">0:00.0</span><button type="button" id="rbReview">Review</button><button type="button" id="rbExit">Exit ✕</button></div>
-        <div class="pad" id="pad"><div class="grp l" id="padL"></div><div class="grp r" id="padR"></div></div>
+      <div class="game-frame">
+        <div class="stage"><canvas id="cv" width="960" height="540" aria-label="Game stage"></canvas>
+          <div class="results" id="results" hidden><div class="rc" id="rc"><div class="grade" id="rGrade">A<small>GRADE</small></div><div class="rmain"><div class="rlvl" id="rLvl" hidden></div><div class="rtitle" id="rTitle"></div><div class="rsub" id="rSub"></div><ul class="rrows" id="rRows"></ul><div class="rtotal"><span>XP earned</span><b id="rTotal">+0</b></div><div class="rhint" id="rHint"></div><div class="rboard" id="rBoard" hidden></div><div class="rgo"><div class="racts" id="racts" hidden><button type="button" id="rReview">Coach review</button><button type="button" id="rReplay">Replay</button></div><button type="button" class="rnext" id="rNext">Next round <span aria-hidden="true">▶</span> <kbd>Space</kbd></button></div></div></div></div>
+          <div class="lvlup" id="lvlup" hidden><div class="lu"><span class="lu-k">LEVEL UP</span><div class="lu-n" id="luNum">2</div><div class="lu-t" id="luTitle"></div><div class="lu-u" id="luUnlock"></div></div></div>
+          <div class="feed" id="feed" aria-hidden="true"></div>
+          <div class="toasts" id="toasts"></div>
+        </div>
+        <div class="control-deck" aria-label="Game controls">
+          <div class="pad" id="pad"><div class="grp l" id="padL"></div><div class="grp r" id="padR"></div></div>
+          <div class="rbar" id="rbar" hidden><span class="rb-tag">REPLAY</span><button type="button" id="rbBack" aria-label="Back 3 seconds">Back 3s</button><button type="button" id="rbPlay" aria-label="Play or pause">Pause</button><div class="rb-sp"><button type="button" data-sp="0.25">¼×</button><button type="button" data-sp="0.5" aria-pressed="true">½×</button><button type="button" data-sp="1">1×</button></div><input type="range" id="rbScrub" min="0" max="1000" value="0" aria-label="Scrub replay"><span class="rb-t" id="rbTime">0:00.0</span><button type="button" id="rbReview">Review</button><button type="button" id="rbExit">Exit replay</button></div>
+        </div>
+        <div class="utility-slot" id="utilitySlot" aria-label="In-game utility belt"></div>
+        <div class="dials" id="dials" hidden role="dialog" aria-modal="true" aria-label="Dials, game paused"><div class="dh"><b>TIME-OUT · YOUR CORNER</b><button type="button" id="dialsClose">Back in <span aria-hidden="true">▶</span></button></div><div class="db" id="dialsBody"></div></div>
       </div>
-      <div class="ticker" id="ticker"><span class="tk-l">LIVE</span><div class="tk" id="tk"><span class="tkc sys"><span class="w">LOG</span>Every move and its math will scroll here.</span></div></div>
-      <div class="chal" id="chal"></div>
-      <div class="coach" id="coach" aria-live="polite">
-        <div class="av" id="coachAv">DR</div>
-        <div><div class="cn"><b id="coachName">Coach Dre</b><span id="coachRole">boxing coach</span><span class="streak" id="streak"></span></div><p id="coachMsg"></p></div>
-      </div>
-      <div class="dock">
-        <div class="opts" id="opts"></div>
+      <div class="stage-context" aria-label="Live game guidance">
+        <section class="math-hud" id="mathHud" aria-label="Current math">
+          <div class="context-head"><span>Current math</span><b id="mathHudTitle">Get ready</b><button class="dialtop" id="dialTop" type="button" aria-label="Pause and open Dials" aria-describedby="dialTopStatus">Dials <span class="k">P</span></button><span class="dial-status" id="dialTopStatus" aria-live="polite"></span></div>
+          <div class="math-hud-equation" id="mathHudEquation"></div>
+          <dl class="math-hud-values" id="mathHudValues"></dl>
+        </section>
+        <section class="challenge-hud" id="challengeHud" aria-label="Active goal"></section>
+        <div class="coach" id="coach" aria-live="polite" aria-atomic="true">
+          <div class="av" id="coachAv">DR</div>
+          <div><div class="cn"><b id="coachName">Coach Dre</b><span id="coachRole">boxing coach</span><span class="streak" id="streak"></span></div><p id="coachMsg"></p></div>
+        </div>
       </div>
     </div>
-    <aside class="panel" aria-label="Move log, live math and variables">
-      <div class="mlog"><div class="ml-h"><span class="rec" id="mlRec" hidden></span><h2>MOVE LOG</h2><span class="clk" id="mlClock">0:00.0</span><button type="button" id="mlReview" disabled>Review</button><button type="button" id="mlReplay" disabled>▶ Replay</button></div><ol class="ml" id="mlList"></ol></div>
-      <div class="ph"><h2>Live math</h2><p id="cHint"></p></div>
-      <div class="live" id="liveEq"></div>
-      <div class="vars" id="vars"></div>
-      <figure class="chart"><canvas id="chart" aria-label="Relationship chart"></canvas><figcaption id="chartCap"></figcaption></figure>
+    <aside class="panel inspector" id="inspector" aria-label="Game inspector">
+      <div class="inspector-head">
+        <span class="utility-label">Utility belt</span>
+        <div class="inspector-tabs" role="tablist" aria-label="Game information">
+          <button type="button" role="tab" id="ins-tab-setup" aria-controls="ins-pane-setup" aria-selected="false" data-pane="setup">Setup</button>
+          <button type="button" role="tab" id="ins-tab-math" aria-controls="ins-pane-math" aria-selected="true" data-pane="math">Math</button>
+          <button type="button" role="tab" id="ins-tab-review" aria-controls="ins-pane-review" aria-selected="false" data-pane="review">Review</button>
+          <button type="button" role="tab" id="ins-tab-goals" aria-controls="ins-pane-goals" aria-selected="false" data-pane="goals">Goals</button>
+          <button type="button" role="tab" id="ins-tab-learn" aria-controls="ins-pane-learn" aria-selected="false" data-pane="learn">Learn</button>
+        </div>
+        <button type="button" class="inspector-close" id="inspectorClose">Return to game</button>
+        <p class="inspector-state" id="inspectorState" hidden>Game paused while you adjust this panel.</p>
+      </div>
+      <div class="inspector-body" id="inspectorBody">
+        <section class="inspector-pane" id="ins-pane-setup" role="tabpanel" aria-labelledby="ins-tab-setup" data-pane="setup" hidden>
+          <div class="pane-heading"><h2>Setup</h2><p>Mode, environment, equipment and style.</p></div>
+          <div class="opts" id="opts"></div>
+        </section>
+        <section class="inspector-pane" id="ins-pane-math" role="tabpanel" aria-labelledby="ins-tab-math" data-pane="math">
+          <div class="ph"><h2>Live math</h2><p id="cHint"></p></div>
+          <div class="live" id="liveEq"></div>
+          <div class="vars" id="vars"></div>
+          <figure class="chart"><canvas id="chart" aria-label="Relationship chart"></canvas><figcaption id="chartCap"></figcaption></figure>
+        </section>
+        <section class="inspector-pane" id="ins-pane-review" role="tabpanel" aria-labelledby="ins-tab-review" data-pane="review" hidden>
+          <div class="pane-heading"><h2>Review</h2><p>Your latest moves and replay controls.</p></div>
+          <div class="ticker" id="ticker"><span class="tk-l">LIVE</span><div class="tk" id="tk"><span class="tkc sys"><span class="w">LOG</span>Every move and its math will scroll here.</span></div></div>
+          <div class="mlog"><div class="ml-h"><span class="rec" id="mlRec" hidden></span><h2>Move log</h2><span class="clk" id="mlClock">0:00.0</span><button type="button" id="mlReview" disabled>Review</button><button type="button" id="mlReplay" disabled>Replay</button></div><ol class="ml" id="mlList"></ol></div>
+        </section>
+        <section class="inspector-pane" id="ins-pane-goals" role="tabpanel" aria-labelledby="ins-tab-goals" data-pane="goals" hidden>
+          <div class="pane-heading"><h2>Goals</h2><p>Challenge, progress and missions.</p></div>
+          <div class="goals-summary" id="goalsSummary"></div>
+          <div class="chal" id="chal"></div>
+          <div class="card missions"><span class="tag" id="misTitle">Missions</span><div class="records"><span class="score">Punch <b id="sPunch">—</b></span><span class="score">Run <b id="sLap">—</b></span><span class="score">Goals <b id="sGoals">0</b></span></div><ul id="missions"></ul></div>
+        </section>
+        <section class="inspector-pane" id="ins-pane-learn" role="tabpanel" aria-labelledby="ins-tab-learn" data-pane="learn" hidden>
+          <div class="pane-heading"><h2>Learn</h2><p>Full working, notebook and quick check.</p></div>
+          <div class="full"><h2>Full working</h2><div class="eqs" id="eqs"></div></div>
+          <section class="notebook" aria-live="polite">
+            <div class="nb-head">
+              <div class="row"><h2 id="nbTitle">Lab notebook</h2><span class="big" id="nbBig"></span></div>
+              <p class="nb-sub" id="nbSub"></p>
+            </div>
+            <div class="nb-grid">
+              <ol class="steps" id="steps"></ol>
+              <div class="nb-side">
+                <div class="card" id="idea"></div>
+                <div class="card" id="quiz"></div>
+              </div>
+            </div>
+            <p class="foot">Real-world values: a size-5 ball is 0.43 kg, a free-kick wall stands 9.15 m back, the crossbar is 2.44 m high, a car's steering ratio is about 15:1. Air resistance is left out of the ball flight to keep the math clean.</p>
+          </section>
+        </section>
+      </div>
     </aside>
   </div>
 
   <div class="rv-back" id="rvBack" hidden><div class="review" id="review" role="dialog" aria-modal="true" aria-label="Coach review"><div class="rv-h"><div class="av" id="rvAv">DR</div><div class="tt"><span id="rvKick">COACH REVIEW</span><b id="rvTitle"></b></div><div class="gr" id="rvGrade"></div><button type="button" id="rvClose">Close ✕</button></div><div class="rv-b" id="rvBody"></div></div></div>
 
-  <section class="lower">
-    <div class="card missions"><span class="tag" id="misTitle">Missions</span><div class="records"><span class="score">Punch <b id="sPunch">—</b></span><span class="score">Run <b id="sLap">—</b></span><span class="score">Goals <b id="sGoals">0</b></span></div><ul id="missions"></ul></div>
-    <div class="full"><h2>Full working</h2><div class="eqs" id="eqs"></div></div>
-  </section>
-
-  <section class="notebook" aria-live="polite">
-    <div class="nb-head">
-      <div class="row"><h2 id="nbTitle">Lab notebook</h2><span class="big" id="nbBig"></span></div>
-      <p class="nb-sub" id="nbSub"></p>
-    </div>
-    <div class="nb-grid">
-      <ol class="steps" id="steps"></ol>
-      <div class="nb-side">
-        <div class="card" id="idea"></div>
-        <div class="card" id="quiz"></div>
-      </div>
-    </div>
-    <p class="foot">Real-world values: a size-5 ball is 0.43 kg, a free-kick wall stands 9.15 m back, the crossbar is 2.44 m high, a car's steering ratio is about 15:1. Air resistance is left out of the ball flight to keep the math clean.</p>
-  </section>
-</div>
+</main>
 
 {{VENDOR}}
 <script>{{GAME}}</script>
+</body>
+</html>

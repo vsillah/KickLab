@@ -4,20 +4,19 @@ function pausable(){return M.key==='fight'?!!(Fight.bout&&!Fight.bout.over&&Figh
 function pauseGame(why){if(why!=='dials'&&!pausable())return;if(PAUSE.on&&PAUSE.resumeT<=0){PAUSE.why=why==='dials'?'dials':PAUSE.why;return;}PAUSE.on=true;PAUSE.why=why;PAUSE.resumeT=0;ENGINE.off();
   if(M.inp){M.inp.gas=false;M.inp.brake=false;M.inp.left=false;M.inp.right=false;}if(M.key==='fight'){Fight.blocking=false;Fight.ducking=false;Fight.queued=null;}document.querySelectorAll('#pad .on').forEach(b=>b.classList.remove('on'));}
 function resumeGame(){if(!PAUSE.on||PAUSE.resumeT>0)return;if(!$('#dials').hidden)return;PAUSE.resumeT=pausable()?0.9:0.01;}
-function openDials(){if(!$('#dials').hidden)return;$('#dialTop').hidden=true;pauseGame('dials');const body=$('#dialsBody');body.appendChild($('#liveEq'));body.appendChild($('#vars'));$('#dials').hidden=false;SND.click();}
-function closeDials(){if($('#dials').hidden)return;const panel=$('aside.panel'),fig=panel.querySelector('figure.chart');panel.insertBefore($('#liveEq'),fig);panel.insertBefore($('#vars'),fig);$('#dials').hidden=true;$('#dialTop').hidden=false;PAUSE.why='';resumeGame();SND.click();}
+function returnDialsContent(){const pane=$('#ins-pane-math'),fig=pane.querySelector('figure.chart');if($('#liveEq').parentElement!==pane)pane.insertBefore($('#liveEq'),fig);if($('#vars').parentElement!==pane)pane.insertBefore($('#vars'),fig);}
+function dialsUnavailableReason(){if(RP.on)return'Dials are unavailable during replay. Exit replay first.';if(CINE.on)return'Dials are unavailable during the replay sequence.';if(!$('#rvBack').hidden)return'Close Coach review before opening Dials.';if(!$('#lvlup').hidden)return'Finish the level-up moment before opening Dials.';if(resOpen())return'Dials are unavailable while results are open. Choose Next round first.';return'';}
+function syncDialsAvailability(){const b=$('#dialTop'),s=$('#dialTopStatus'),reason=dialsUnavailableReason(),blocked=!!reason;b.disabled=blocked;b.setAttribute('aria-disabled',String(blocked));b.title=reason;if(b.dataset.blocked!==String(blocked)){b.dataset.blocked=String(blocked);b.innerHTML=blocked?'Dials after round':'Dials <span class="k">P</span>';}s.textContent=reason;}
+function openDials(){if(!$('#dials').hidden)return;syncDialsAvailability();if(dialsUnavailableReason())return;$('#dialTop').hidden=true;pauseGame('dials');const body=$('#dialsBody');body.appendChild($('#liveEq'));body.appendChild($('#vars'));$('#dials').hidden=false;SND.click();}
+function closeDials(){if($('#dials').hidden)return;returnDialsContent();$('#dials').hidden=true;$('#dialTop').hidden=false;PAUSE.why='';resumeGame();syncDialsAvailability();SND.click();}
 $('#dialsClose').addEventListener('click',closeDials);
 $('#dialTop').addEventListener('pointerdown',e=>{e.stopPropagation();});
 $('#dialTop').addEventListener('click',e=>{e.stopPropagation();unlock();$('#dials').hidden?openDials():closeDials();});
-const panelEl=document.querySelector('aside.panel');
-panelEl.addEventListener('pointerover',e=>{if(e.pointerType!=='mouse'||!$('#dials').hidden)return;if(e.target.closest('.mlog')){if(PAUSE.why==='panel')resumeGame();}else pauseGame('panel');});
-panelEl.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse'&&PAUSE.why==='panel')resumeGame();});
-panelEl.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'&&$('#dials').hidden&&!e.target.closest('.mlog'))pauseGame('panel');});
-panelEl.addEventListener('focusin',e=>{if($('#dials').hidden&&!e.target.closest('.mlog'))pauseGame('panel');});
 function drawPause(c){if(!PAUSE.on)return;c.save();c.fillStyle='rgba(4,8,18,0.6)';c.fillRect(0,0,W,H);
   if(PAUSE.resumeT>0){const n=Math.ceil(PAUSE.resumeT/0.3);glow(c,C.hot,20);text(c,String(n),W/2,H/2,'96px '+DISP,C.hot,'center','middle');c.restore();return;}
   const cx=PAUSE.why==='dials'&&cv.clientWidth>700?W*0.3:W/2;glow(c,C.xray,18);text(c,'TIME-OUT',cx,H/2-30,'54px '+DISP,C.ink,'center','middle');c.shadowBlur=0;
-  text(c,PAUSE.why==='dials'?'Work your dials, then tap Back in':'Adjusting dials. Come back to the stage to resume.',cx,H/2+20,'600 16px '+BODY,C.xray,'center','middle');c.restore();}
+  const note=PAUSE.why==='dials'?'Work your dials, then tap Back in':PAUSE.why==='inspector'?'Game paused while this inspector panel is open. Choose Return to game when ready.':'Return to the stage to resume.';
+  text(c,note,cx,H/2+20,'600 16px '+BODY,C.xray,'center','middle');c.restore();}
 
 /* ---------- move log, recording, replay, review ---------- */
 const RECS={},LOGS={fight:[],race:[],kick:[]},LASTG={};let recSeq=0;
@@ -39,8 +38,7 @@ function pushFeed(m){const f=$('#feed');f.classList.remove('replay');f.insertAdj
 function syncFeedReplay(){const r=RECS[M.key];if(!r)return;const mv=r.moves.filter(m=>m.t<=RP.t+0.02).slice(-3),sig=mv.map(m=>m.n).join(',');if(sig===feedSig)return;feedSig=sig;const f=$('#feed');f.classList.add('replay');f.innerHTML=mv.map(feedCard).join('');}
 function resetFeed(){const f=$('#feed');f.innerHTML='';f.className='feed '+M.key;feedSig='';}
 const mqPhone=window.matchMedia('(max-width:700px)');
-function placeTicker(){const tk=$('#ticker'),st=document.querySelector('.stage');if(mqPhone.matches){if(tk.parentElement!==st)st.appendChild(tk);}else if(tk.parentElement===st){st.insertAdjacentElement('afterend',tk);}}
-try{mqPhone.addEventListener('change',placeTicker);}catch(e){mqPhone.addListener&&mqPhone.addListener(placeTicker);}
+function placeTicker(){const tk=$('#ticker'),pane=$('#ins-pane-review'),log=pane.querySelector('.mlog');if(tk.parentElement!==pane)pane.insertBefore(tk,log);}
 function resetTicker(){$('#tk').innerHTML=`<span class="tkc sys"><span class="w">LOG</span>Every move and its math will scroll here.</span>`;const L=LOGS[M.key].filter(x=>!x.sep).slice(-5);L.forEach(addTick);}
 function syncLogHead(){const r=RECS[M.key],ok=!!(r&&!r.on&&r.frames.length);$('#mlReplay').disabled=!ok;$('#mlReview').disabled=!(r&&!r.on&&r.moves.length);$('#mlRec').hidden=!(r&&r.on);}
 $('#mlList').addEventListener('click',e=>{const li=e.target.closest('.mv.click');if(!li)return;const r=RECS[M.key];if(!r||+li.dataset.id!==r.id)return;if(r.on){COACH.say('Replays unlock when this match ends. Keep fighting!','tip',4);return;}startReplay(+li.dataset.t-1.2);});
@@ -50,13 +48,13 @@ function recFrame(rdt){const r=RECS[M.key];if(!r||!r.on||PAUSE.on||RP.on||!M.sna
 const RP={on:false,t:0,playing:true,speed:0.5,mode:null,backup:null,opt:null,cam:{x:W/2,y:H/2,z:1}};
 function recEnd(r){return r.frames.length?r.frames[r.frames.length-1].t:0;}
 function startReplay(t){const r=RECS[M.key];if(!r||!r.frames.length||!M.applySnap)return;if(r.on)stopRec(M.key);if(!$('#dials').hidden)closeDials();hideResults();$('#rvBack').hidden=true;
-  if(!RP.on){RP.backup=Object.assign({},M);RP.opt=Object.assign({},M.opt);RP.on=true;RP.mode=M.key;PARTS.length=0;E.title=null;E.slow=null;ENGINE.off();$('#lvlup').hidden=true;$('#toasts').innerHTML='';$('#rbar').hidden=false;$('#pad').hidden=true;$('#dialTop').hidden=true;}
+  if(!RP.on){RP.backup=Object.assign({},M);RP.opt=Object.assign({},M.opt);RP.on=true;RP.mode=M.key;PARTS.length=0;E.title=null;E.slow=null;ENGINE.off();$('#lvlup').hidden=true;$('#toasts').innerHTML='';$('#rbar').hidden=false;$('#pad').hidden=true;$('#dialTop').hidden=true;syncDialsAvailability();}
   RP.t=clamp(t||0,0,recEnd(r));RP.playing=true;feedSig='';syncRbar();}
-function exitReplay(){if(!RP.on)return;Object.assign(M,RP.backup);Object.assign(M.opt,RP.opt);RP.on=false;E.env=0;E.ts=1;E.slow=null;$('#rbar').hidden=true;$('#pad').hidden=false;$('#dialTop').hidden=false;resetFeed();document.querySelectorAll('#mlList .cur').forEach(x=>x.classList.remove('cur'));setLabel();if(HUD.lvlPending){const n=HUD.lvlPending;HUD.lvlPending=0;showLevelUp(n);}}
+function exitReplay(){if(!RP.on)return;Object.assign(M,RP.backup);Object.assign(M.opt,RP.opt);RP.on=false;E.env=0;E.ts=1;E.slow=null;$('#rbar').hidden=true;$('#pad').hidden=false;$('#dialTop').hidden=false;syncDialsAvailability();resetFeed();document.querySelectorAll('#mlList .cur').forEach(x=>x.classList.remove('cur'));setLabel();if(HUD.lvlPending){const n=HUD.lvlPending;HUD.lvlPending=0;showLevelUp(n);}}
 function replayStep(rdt){const r=RECS[RP.mode],F=r.frames,end=recEnd(r);if(RP.playing){RP.t+=rdt*RP.speed;if(RP.t>=end){RP.t=end;RP.playing=false;syncRbar();}}
   let lo=0,hi=F.length-1;while(lo<hi){const mid=(lo+hi+1)>>1;if(F[mid].t<=RP.t)lo=mid;else hi=mid-1;}const f=F[lo];M.applySnap(f.s,r);E.env=f.env;E.ts=f.ts;RP.cam=f.cam;
   $('#rbScrub').value=String(Math.round(RP.t/Math.max(end,0.001)*1000));$('#rbTime').textContent=`${fmtT(RP.t)} / ${fmtT(end)}`;}
-function syncRbar(){$('#rbPlay').textContent=RP.playing?'❚❚':'▶';document.querySelectorAll('.rb-sp button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.sp===RP.speed)));}
+function syncRbar(){$('#rbPlay').textContent=RP.playing?'Pause':'Play';document.querySelectorAll('.rb-sp button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.sp===RP.speed)));}
 $('#rbPlay').addEventListener('click',()=>{const r=RECS[RP.mode];if(!RP.playing&&RP.t>=recEnd(r))RP.t=0;RP.playing=!RP.playing;syncRbar();});
 $('#rbBack').addEventListener('click',()=>{RP.t=Math.max(0,RP.t-3);});
 document.querySelectorAll('.rb-sp button').forEach(b=>b.addEventListener('click',()=>{RP.speed=+b.dataset.sp;syncRbar();}));

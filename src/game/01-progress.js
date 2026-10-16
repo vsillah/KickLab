@@ -27,7 +27,7 @@ function tickHUD(rdt){const now=performance.now();if(now>HUD.hold){const gap=bes
   const L=lvlOf(HUD.disp);if(L>HUD.lvl){HUD.lvl=L;showLevelUp(L);}}
 const STREAK={fight:0,race:0,kick:0};
 let resultsTimer=null,tallyTimers=[];
-function hideResults(){$('#results').hidden=true;$('#results').classList.remove('mini');clearTimeout(resultsTimer);clearTimeout(resultsDelay);tallyTimers.forEach(clearTimeout);tallyTimers=[];}
+function hideResults(){$('#results').hidden=true;$('#results').classList.remove('mini');clearTimeout(resultsTimer);clearTimeout(resultsDelay);tallyTimers.forEach(clearTimeout);tallyTimers=[];if(typeof syncDialsAvailability==='function')syncDialsAvailability();}
 let resultsDelay=null;
 function resOpen(){const el=$('#results');return!el.hidden&&!el.classList.contains('mini');}
 function roundOver(){if(M.key==='fight')return!!(M.bout&&M.bout.over);if(M.key==='kick'&&M.opt.shot==='dribble')return Drib.state==='done';return M.state==='done'||M.state==='crashed';}
@@ -48,7 +48,7 @@ const GRADE_TONE={S:'#f3e36b',A:'#5fe3a1',B:'#7fdcff',C:'#ffb04a',D:'#ff6b73'};
 function showResults(m){hideResults();const el=$('#results'),rc=$('#rc');const rr0=RECS[M.key];if(rr0)LASTG[M.key+rr0.id]=m.grade;$('#racts').hidden=!(rr0&&rr0.frames.length&&rr0.moves.length);rc.style.setProperty('--tone',GRADE_TONE[m.grade]||C.good);
   $('#rGrade').innerHTML=`${m.grade}<small>GRADE</small>`;$('#rTitle').textContent=m.title;$('#rSub').textContent=m.sub||'';$('#rHint').textContent=m.hint||'';
   const rowsHTML=m.rows.map(([l,x],i)=>`<li style="animation-delay:${0.25+i*0.13}s"><span>${l}</span><b>+${fmt(x,0)}</b></li>`).join('')+(m.mult>1?`<li class="cmb" style="animation-delay:${0.25+m.rows.length*0.13}s"><span>combo streak applied</span><b>×${m.mult}</b></li>`:'');
-  $('#rRows').innerHTML=rowsHTML;$('#rTotal').textContent='+0';el.classList.toggle('mini',!!m.auto);el.hidden=false;$('#rLvl').hidden=true;SND.grade(m.grade);if(!m.auto&&LVL_STASH){const n=LVL_STASH;LVL_STASH=0;setTimeout(()=>{if(resOpen())lvlRibbon(n);},500);}if(!m.auto){$('#rNext').innerHTML=(m.next||'Next round ▶')+' <kbd>Space</kbd>';}setTimeout(refreshResBoard,0);
+  $('#rRows').innerHTML=rowsHTML;$('#rTotal').textContent='+0';el.classList.toggle('mini',!!m.auto);el.hidden=false;if(typeof syncDialsAvailability==='function')syncDialsAvailability();$('#rLvl').hidden=true;SND.grade(m.grade);if(!m.auto&&LVL_STASH){const n=LVL_STASH;LVL_STASH=0;setTimeout(()=>{if(resOpen())lvlRibbon(n);},500);}if(!m.auto){$('#rNext').innerHTML=(m.next||'Next round ▶')+' <kbd>Space</kbd>';}setTimeout(refreshResBoard,0);
   const start=250+m.rows.length*130+(m.mult>1?130:0);for(let i=0;i<m.rows.length;i++)tallyTimers.push(setTimeout(()=>SND.tick(),250+i*130));
   const steps=14;for(let k=1;k<=steps;k++)tallyTimers.push(setTimeout(()=>{$('#rTotal').textContent='+'+fmt(Math.round(m.tot*k/steps),0);if(k%3===0)SND.tick();if(k===steps){SND.total();const md=$('#medal');md.classList.remove('bump');void md.offsetWidth;md.classList.add('bump');}},start+k*40));
   if(m.auto){$('#racts').hidden=true;resultsTimer=setTimeout(()=>{$('#results').hidden=true;$('#results').classList.remove('mini');},2100);}}
