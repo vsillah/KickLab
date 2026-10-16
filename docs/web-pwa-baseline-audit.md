@@ -51,15 +51,17 @@ The follow-on cockpit slice resolves the long-page learning hierarchy without de
 
 The Math HUD is derived from the active mode definitions (`M.vars()`, `M.LIVE()`, and `M.eqs()`), rather than scraping rendered text. Inspector interactions explicitly pause modes that could otherwise keep running beneath configuration or math controls, and mobile dismissal returns focus to the invoking tab.
 
+Modal ownership is exclusive. When results, replay, Coach review, a cinematic replay sequence, or a level-up overlay owns the stage, Dials cannot open. The Math HUD keeps a disabled `Dials after round` control and an in-context recovery instruction; keyboard `P` follows the same guard. After the owner closes, Dials re-enables and still returns the singular live-equation and variable nodes to Math.
+
 ### Cockpit validation matrix
 
 | Viewport | Mode/state exercised | Result |
 | --- | --- | --- |
-| 390 × 844 | Fight and Kick; active play, Math HUD, challenge, coach, inspector return | No horizontal overflow or stage/control overlap. The essential play surfaces fit the initial active-play viewport, and inspector dismissal restored focus. |
+| 390 × 844 | Fight and Kick; active play, knockout result, blocked Dials, Math HUD, challenge, coach, inspector return | No horizontal overflow or stage/control overlap. Results remain the sole modal owner, Dials presents a recovery instruction without opening, the essential play surfaces fit the initial active-play viewport, and inspector dismissal restored focus. |
 | 768 × 1,024 | Race; active play and responsive inspector | No horizontal overflow. Stage, controls, live math, challenge, coach, and inspector remained usable in a single-column tablet layout. |
 | 1,440 × 1,000 | 1v1 Dribble; active play, Setup, Dials, Review, and replay | The stage/control deck and context column remained visible beside the persistent inspector. Canonical Math nodes returned from Dials with no duplicates. |
 
-Focused regression checks cover singular canonical IDs, complete inspector tab/panel wiring, controls outside the stage, definition-derived Math HUD values, Dials node return, and readable control labels. The existing shared-core, build, syntax, and web-contract checks also remain green. Browser review found no console errors or warnings.
+Focused regression checks cover singular canonical IDs, complete inspector tab/panel wiring, controls outside the stage, definition-derived Math HUD values, exclusive result/replay ownership, Dials node return, and readable control labels. The existing shared-core, build, syntax, and web-contract checks also remain green. Browser review found no console errors or warnings.
 
 Remaining evidence limits: viewport emulation is not a physical-device test, browser automation covered pointer and keyboard paths but not a physical touchscreen, and this slice does not add PWA packaging or offline navigation.
 

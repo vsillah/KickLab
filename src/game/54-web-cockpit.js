@@ -106,6 +106,6 @@ function renderGoalsSummary(){
   const total=Object.values(BADGES).reduce((n,l)=>n+l.length,0),earned=Object.keys(best.badges||{}).length;
   $('#goalsSummary').innerHTML=`<span>Level <b>${lvlOf(best.xp)}</b></span><span>XP <b>${fmt(best.xp||0,0)}</b></span><span>Badges <b>${earned}/${total}</b></span><span>Mode <b>${M.key[0].toUpperCase()+M.key.slice(1)}</b></span>`;
 }
-function renderCockpit(q){renderMathHud(q);renderChallengeHud();renderGoalsSummary();}
+function renderCockpit(q){renderMathHud(q);renderChallengeHud();renderGoalsSummary();syncDialsAvailability();}
 
 setTimeout(()=>{setInspectorPane('math',{open:!INSPECTOR.mq.matches});syncInspectorLayout();},0);

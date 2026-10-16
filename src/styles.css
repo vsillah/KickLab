@@ -271,6 +271,8 @@ canvas#cv{display:block;width:100%;height:auto;aspect-ratio:16/9;touch-action:no
 .math-hud-values div{display:flex;align-items:baseline;gap:5px;border:1px solid var(--line);border-radius:8px;background:#0a1222;padding:4px 7px;min-width:0}
 .math-hud-values dt{font-family:var(--f-mono);font-size:10px;color:var(--muted)}
 .math-hud-values dd{margin:0;font-family:var(--f-mono);font-size:12px;font-weight:700;color:var(--ink);white-space:nowrap}
+.dialtop:disabled{cursor:not-allowed;opacity:.72;border-color:var(--muted);color:var(--muted)}
+.dial-status{display:none}.dial-status:not(:empty){display:block;grid-column:1/-1;color:var(--hot);font:700 10px/1.3 var(--f-mono)}
 .challenge-hud{display:grid;align-content:center;gap:3px;border-color:#6a5424;background:linear-gradient(180deg,#1f1a0e,#11141f)}
 .challenge-hud b{font-family:var(--f-display);font-weight:400;font-size:15px;line-height:1.2;color:var(--ink)}
 .challenge-hud p{margin:0;color:var(--muted);font-size:12px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}

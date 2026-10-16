@@ -43,6 +43,14 @@ test('returns Dials content to the Math pane exactly once',()=>{
   assert.match(replay,/vars'\)\.parentElement!==pane/);
 });
 
+test('blocks Dials while another result or replay surface owns the stage',()=>{
+  assert.match(replay,/function dialsUnavailableReason\(\)/);
+  assert.match(replay,/if\(RP\.on\).*during replay/);
+  assert.match(replay,/if\(resOpen\(\)\).*results are open/);
+  assert.match(replay,/function openDials\(\).*syncDialsAvailability\(\);if\(dialsUnavailableReason\(\)\)return/);
+  assert.match(html,/id="dialTopStatus" aria-live="polite"/);
+});
+
 test('renders readable labels with the existing control symbols',()=>{
   assert.match(ui,/class="action-label"/);
   assert.match(ui,/class="dir-label"/);
