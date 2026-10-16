@@ -6,8 +6,8 @@ const BCATS=[
   {id:'mwins',n:'Match wins',u:'wins',hi:true,d:0,get:()=>best.mWins||0,eq:'Win a full Match: dribble, shoot, head, keep'},
   {id:'xp',n:'Total XP',u:'XP',hi:true,d:0,get:()=>Math.round(best.xp||0),eq:'Every round, badge and level adds up'}];
 const BOARD={db:null,owner:false,rows:[],cat:'punch',ready:false,arm:null,
-  nick(){try{return(localStorage.getItem('impactlab.nick')||'').trim();}catch(e){return BOARD._n||'';}},
-  setNick(v){v=String(v||'').replace(/[<>]/g,'').trim().slice(0,16);BOARD._n=v;try{localStorage.setItem('impactlab.nick',v);}catch(e){}},
+  nick(){try{return(localStorage.getItem(GAME_CORE.STORAGE_KEYS.nickname)||'').trim();}catch(e){return BOARD._n||'';}},
+  setNick(v){v=String(v||'').replace(/[<>]/g,'').trim().slice(0,16);BOARD._n=v;try{localStorage.setItem(GAME_CORE.STORAGE_KEYS.nickname,v);}catch(e){}},
   slug(v){return String(v).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,24)||'player';},
   top(cat){const C=BCATS.find(c=>c.id===cat);return this.rows.filter(r=>r.cat===cat&&typeof r.val==='number'&&r.val>0).sort((a,b)=>C.hi?b.val-a.val:a.val-b.val).slice(0,10);},
   mine(cat){const n=this.nick();if(!n)return null;const id=cat+'~'+this.slug(n);return this.rows.find(r=>r.id===id)||null;},

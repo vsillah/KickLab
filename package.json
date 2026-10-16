@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
-    "check": "node scripts/build.mjs --emit-game && node --check dist/game.js"
+    "test": "node --test",
+    "check": "node scripts/build.mjs --emit-game && node --check dist/game.js && node --test"
   },
   "engines": { "node": ">=18" }
 }
