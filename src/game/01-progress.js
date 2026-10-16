@@ -1,5 +1,5 @@
 /* ---------- saved bests ---------- */
-const store={get(){try{return JSON.parse(localStorage.getItem('impactlab.v1'))||{}}catch(e){return{}}},set(o){try{localStorage.setItem('impactlab.v1',JSON.stringify(o))}catch(e){}}};
+const store={get(){try{return JSON.parse(localStorage.getItem(GAME_CORE.STORAGE_KEYS.progress))||{}}catch(e){return{}}},set(o){try{localStorage.setItem(GAME_CORE.STORAGE_KEYS.progress,JSON.stringify(o))}catch(e){}}};
 const best=Object.assign({punch:0,lap:0,goals:0,xp:0,badges:{}},store.get());
 function renderScores(){$('#sPunch').textContent=best.punch?fmt(best.punch,0)+' N':'—';$('#sLap').textContent=best.lap?fmt(best.lap,2)+' s':'—';$('#sGoals').textContent=String(best.goals||0);}
 function saveBest(){store.set(best);renderScores();}

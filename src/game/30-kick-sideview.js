@@ -57,16 +57,16 @@ const Kick={
   headerCalc(q){const cr=this.crossVin(),vin=cr.vin,vinM=Math.hypot(vin.x,vin.y),vHead=2+4.5*q,vout=0.35*vinM+1.8*vHead,th=this.V.thH*DEG;
     const vo={x:vout*Math.cos(th),y:vout*Math.sin(th)},dv={x:vo.x-vin.x,y:vo.y-vin.y},dvM=Math.hypot(dv.x,dv.y),d=this.D-cr.Hp.x,t=d/vo.x,g=this.g(),yg=cr.Hp.y+vo.y*t-0.5*g*t*t;
     return{kind:'header',vin,vinM,vHead,vout,vo,dv,dvM,F:this.M*dvM/this.DT_HEAD,d,t,yg,th:this.V.thH,q,g,Hp:cr.Hp};},
-  tAt(x,vx,w){if(Math.abs(w)<1e-6)return x/vx;const d=vx*vx+2*w*x;return d<0?Infinity:(-vx+Math.sqrt(d))/w;},
+  tAt(x,vx,w){return GAME_CORE.timeAtDistance(x,vx,w);},
   freeCalcBase(v,thDeg,spin,vx,vy,ga,h0,tw,yw,tg,yg,tp,hp,w,WH,kp){const clear=yw>WH+this.BR,under=yg<this.BAR-this.BR&&yg>Math.max(this.BR,kp+this.BR);return{kind:'free',v,th:thDeg,vx,vy,ga,h0,tw,yw,tg,yg,tp,hp,F:this.M*v/this.DT_KICK,clear,under,g:this.V.g,spin,w,WH,kp};},
-  freeCalc(v,thDeg,spin,g){if(spin===undefined)spin=this.V.spin;const rad=thDeg*DEG,vx=v*Math.cos(rad),vy=v*Math.sin(rad),ga=(g===undefined?this.V.g:g)+spin,h0=this.BR,w=this.wind||0,WH=this.WH||1.85,kp=this.keeper||0;
-    const tw=this.tAt(this.WX,vx,w),yw=isFinite(tw)?h0+vy*tw-0.5*ga*tw*tw:-1,tg=this.tAt(this.D,vx,w),yg=isFinite(tg)?h0+vy*tg-0.5*ga*tg*tg:-1,tp=vy/ga,hp=h0+vy*vy/(2*ga);
+  freeCalc(v,thDeg,spin,g){if(spin===undefined)spin=this.V.spin;const gravity=g===undefined?this.V.g:g,h0=this.BR,w=this.wind||0,WH=this.WH||1.85,kp=this.keeper||0;
+    const core=GAME_CORE.calculateFreeKick({speed:v,angleDegrees:thDeg,gravity,spinAcceleration:spin,startHeight:h0,horizontalAcceleration:w,wallDistance:this.WX,goalDistance:this.D,wallHeight:WH,crossbarHeight:this.BAR,ballRadius:this.BR,keeperReach:kp,ballMass:this.M,contactSeconds:this.DT_KICK});
+    const vx=core.horizontalVelocity,vy=core.verticalVelocity,ga=core.effectiveGravity,tw=core.wallTime,yw=core.wallY,tg=core.goalTime,yg=core.goalY,tp=core.peakTime,hp=core.peakHeight;
     let air=null;const kd=dragK();if(kd){let x=0,y=h0,ux=vx,uy=vy,t=0,ywA=-1,ygA=-1,twA=Infinity,tgA=Infinity,hpA=h0,vW=0,vG=0;const dt=0.004;
       while(t<8&&y>=0&&x<this.D+0.5){const sp=Math.hypot(ux,uy),px=x,py=y;ux-=kd*sp*ux*dt;uy-=kd*sp*uy*dt;uy-=ga*dt;if(w)ux+=w*dt;x+=ux*dt;y+=uy*dt;t+=dt;hpA=Math.max(hpA,y);
         if(px<this.WX&&x>=this.WX){ywA=py+(y-py)*(this.WX-px)/(x-px);twA=t;vW=Math.hypot(ux,uy);}if(px<this.D&&x>=this.D){ygA=py+(y-py)*(this.D-px)/(x-px);tgA=t;vG=Math.hypot(ux,uy);}if(ux<=0)break;}
       air={k:kd,yw0:yw,yg0:yg,vW,vG,aD:kd*v*v};return Object.assign(this.freeCalcBase(v,thDeg,spin,vx,vy,ga,h0,twA,ywA,tgA,ygA,tp,hpA,w,WH,kp),{air});}
-    const clear=yw>WH+this.BR,under=yg<this.BAR-this.BR&&yg>Math.max(this.BR,kp+this.BR);
-    return{kind:'free',v,th:thDeg,vx,vy,ga,h0,tw,yw,tg,yg,tp,hp,F:this.M*v/this.DT_KICK,clear,under,g:this.V.g,spin,w,WH,kp};},
+    return this.freeCalcBase(v,thDeg,spin,vx,vy,ga,h0,tw,yw,tg,yg,tp,hp,w,WH,kp);},
   suggest(){const V=this.V,o={};
     if(this.opt.shot==='header'){const pass=[];const save=V.thH;for(let th=-10;th<=35;th++){V.thH=th;const r=this.headerCalc(1);if(r.yg<this.BAR-this.BR&&r.yg>this.BR)pass.push(th);}V.thH=save;
       const w=runsPick(pass,V.thH,1);o.thH=w?{lo:w.lo,hi:w.hi,note:`${w.lo}°–${w.hi}° puts a well-timed header under the bar.`}:{note:'no angle scores with this gravity; try a different g.',dir:'change g first.'};return o;}

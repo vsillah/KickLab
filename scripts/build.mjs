@@ -9,7 +9,8 @@ const src = (p) => readFileSync(join(root, 'src', p), 'utf8');
 
 const gameDir = join(root, 'src', 'game');
 const parts = readdirSync(gameDir).filter((f) => f.endsWith('.js')).sort();
-const game = parts.map((f) => readFileSync(join(gameDir, f), 'utf8').replace(/\n$/, '')).join('\n') + '\n';
+const sharedCore = src('shared/game-core.js').replace(/\n$/, '');
+const game = sharedCore + '\n' + parts.map((f) => readFileSync(join(gameDir, f), 'utf8').replace(/\n$/, '')).join('\n') + '\n';
 
 const fill = { STYLES: src('styles.css'), VENDOR: '<script>' + src('vendor/three.min.js') + '</script>', GAME: game };
 const html = src('index.html').replace(/\{\{(STYLES|VENDOR|GAME)\}\}/g, (_, k) => fill[k]);
