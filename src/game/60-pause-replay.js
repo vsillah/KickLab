@@ -6,7 +6,7 @@ function pauseGame(why){if(why!=='dials'&&!pausable())return;if(PAUSE.on&&PAUSE.
 function resumeGame(){if(!PAUSE.on||PAUSE.resumeT>0)return;if(!$('#dials').hidden)return;PAUSE.resumeT=pausable()?0.9:0.01;}
 function returnDialsContent(){const pane=$('#ins-pane-math'),fig=pane.querySelector('figure.chart');if($('#liveEq').parentElement!==pane)pane.insertBefore($('#liveEq'),fig);if($('#vars').parentElement!==pane)pane.insertBefore($('#vars'),fig);}
 function dialsUnavailableReason(){if(RP.on)return'Dials are unavailable during replay. Exit replay first.';if(CINE.on)return'Dials are unavailable during the replay sequence.';if(!$('#rvBack').hidden)return'Close Coach review before opening Dials.';if(!$('#lvlup').hidden)return'Finish the level-up moment before opening Dials.';if(resOpen())return'Dials are unavailable while results are open. Choose Next round first.';return'';}
-function syncDialsAvailability(){const b=$('#dialTop'),s=$('#dialTopStatus'),reason=dialsUnavailableReason(),blocked=!!reason;b.disabled=blocked;b.setAttribute('aria-disabled',String(blocked));b.title=reason;if(b.dataset.blocked!==String(blocked)){b.dataset.blocked=String(blocked);b.innerHTML=blocked?'Dials after round':'Dials <span class="k">P</span>';}s.textContent=reason;}
+function syncDialsAvailability(){const b=$('#dialTop'),s=$('#dialTopStatus'),reason=dialsUnavailableReason(),blocked=!!reason;b.disabled=blocked;b.setAttribute('aria-disabled',String(blocked));b.title=reason;if(b.dataset.blocked!==String(blocked)){b.dataset.blocked=String(blocked);b.innerHTML=blocked?'Dials after round':'Dials <span class="k">P</span>';}s.textContent=reason;if(typeof syncManualAvailability==='function')syncManualAvailability();}
 function openDials(){if(!$('#dials').hidden)return;syncDialsAvailability();if(dialsUnavailableReason())return;$('#dialTop').hidden=true;pauseGame('dials');const body=$('#dialsBody');body.appendChild($('#liveEq'));body.appendChild($('#vars'));$('#dials').hidden=false;SND.click();}
 function closeDials(){if($('#dials').hidden)return;returnDialsContent();$('#dials').hidden=true;$('#dialTop').hidden=false;PAUSE.why='';resumeGame();syncDialsAvailability();SND.click();}
 $('#dialsClose').addEventListener('click',closeDials);
@@ -15,7 +15,7 @@ $('#dialTop').addEventListener('click',e=>{e.stopPropagation();unlock();$('#dial
 function drawPause(c){if(!PAUSE.on)return;c.save();c.fillStyle='rgba(4,8,18,0.6)';c.fillRect(0,0,W,H);
   if(PAUSE.resumeT>0){const n=Math.ceil(PAUSE.resumeT/0.3);glow(c,C.hot,20);text(c,String(n),W/2,H/2,'96px '+DISP,C.hot,'center','middle');c.restore();return;}
   const cx=PAUSE.why==='dials'&&cv.clientWidth>700?W*0.3:W/2;glow(c,C.xray,18);text(c,'TIME-OUT',cx,H/2-30,'54px '+DISP,C.ink,'center','middle');c.shadowBlur=0;
-  const note=PAUSE.why==='dials'?'Work your dials, then tap Back in':PAUSE.why==='inspector'?'Game paused while this inspector panel is open. Choose Return to game when ready.':'Return to the stage to resume.';
+  const note=PAUSE.why==='dials'?'Work your dials, then tap Back in':PAUSE.why==='manual-physics'?'Manual Physics owns this pause. Close it to return.':PAUSE.why==='settings'?'Game paused while settings are open. Close settings to return.':PAUSE.why==='inspector'?'Game paused while this inspector panel is open. Choose Return to game when ready.':'Return to the stage to resume.';
   text(c,note,cx,H/2+20,'600 16px '+BODY,C.xray,'center','middle');c.restore();}
 
 /* ---------- move log, recording, replay, review ---------- */

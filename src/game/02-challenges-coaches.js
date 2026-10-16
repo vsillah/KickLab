@@ -30,8 +30,8 @@ function curCh(m){if(best.play[m]!=='ch')return null;return CH[m][best.ch[m]]||n
 const chXP=i=>300+150*i;
 function isLocked(m,id){const c=curCh(m);return!!(c&&c.lock&&c.lock[id]!==undefined);}
 function applyCh(m){const c=curCh(m),MM=MODES[m];if(c&&c.lock)Object.entries(c.lock).forEach(([k,v])=>{MM.V[k]=v;});}
-function completeCh(m){const i=best.ch[m];best.ch[m]=i+1;saveBest();const nx=CH[m][i+1];
-  setTimeout(()=>{toast(`Challenge ${i+1} cleared`,nx?`Next up: ${nx.name}`:'Ladder complete. Champion!');SND.badge();},1800);
+function completeCh(m){const i=best.ch[m],done=CH[m][i];best.ch[m]=i+1;saveBest();const nx=CH[m][i+1];
+  setTimeout(()=>{toast(`Challenge ${i+1} complete`,`${done?done.name+' cleared. ':''}${nx?`Next: ${nx.name}.`:'Ladder complete. Champion!'}`,{action:'View goals',hold:8000,onAction:()=>{renderChal();renderGoalsSummary();INSPECTOR.trigger=$('#ins-tab-goals');setInspectorPane('goals',{focus:true,open:true});inspector.scrollIntoView({block:'nearest'});}});SND.badge();},1800);
   setTimeout(()=>{applyCh(m);if(M.key===m){renderVars();renderChal();renderOpts();}},2600);}
 function renderChal(){if(M.key==='kick'&&Kick.opt.shot==='dribble'){$('#chal').innerHTML=Drib.chalHTML();return;}const el=$('#chal'),m=M.key,c=curCh(m),n=CH[m].length,k=best.ch[m];
   const pips=`<span class="pips2">${Array.from({length:n},(_,i)=>`<i class="${i<k?'on':i===k?'cur':''}"></i>`).join('')}</span>`;

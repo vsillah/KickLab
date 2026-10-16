@@ -37,12 +37,6 @@
     <div class="hudtools"><button class="boardbtn" id="boardBtn" type="button">🏆 Family board</button><button class="mute" id="mute" type="button" aria-pressed="false">Sound on</button></div>
   </div>
 
-  <div class="fboard" id="kitroom" hidden role="dialog" aria-modal="true" aria-label="Kit Room"><div class="fb">
-    <div class="fb-h"><h2>KIT <span>ROOM</span></h2><button class="fb-x" id="kitClose" type="button">Back to the pitch ✕</button></div>
-    <div class="kit-sum" id="kitSum"></div>
-    <div id="kitBody"></div>
-    <div class="kit-foot"><button type="button" class="fb-x" id="kitReset">Reset to match kit</button></div>
-  </div></div>
   <div class="fboard" id="fboard" hidden role="dialog" aria-modal="true" aria-label="Family leaderboard"><div class="fb">
     <div class="fb-h"><h2>FAMILY <span>BOARD</span></h2><button class="fb-x" id="fbClose" type="button">Close ✕</button></div>
     <div class="fb-me"><span>Your nickname</span><input id="fbNick" maxlength="16" placeholder="Make up a nickname" autocomplete="off"><button type="button" id="fbPost">Post my bests</button><div class="fb-msg" id="fbMsg"></div></div>
@@ -60,32 +54,66 @@
           <div class="lvlup" id="lvlup" hidden><div class="lu"><span class="lu-k">LEVEL UP</span><div class="lu-n" id="luNum">2</div><div class="lu-t" id="luTitle"></div><div class="lu-u" id="luUnlock"></div></div></div>
           <div class="feed" id="feed" aria-hidden="true"></div>
           <div class="toasts" id="toasts"></div>
+          <div class="game-guidance-hud" id="gameGuidanceHud" aria-label="Live coach and challenge guidance">
+            <section class="challenge-hud" id="challengeHud" aria-label="Active goal"></section>
+            <div class="coach" id="coach" aria-live="polite" aria-atomic="true">
+              <div class="av" id="coachAv">DR</div>
+              <div><div class="cn"><b id="coachName">Coach Dre</b><span id="coachRole">boxing coach</span><span class="streak" id="streak"></span></div><p id="coachMsg"></p></div>
+            </div>
+          </div>
+          <div class="context-menu-slot" id="contextMenuSlot" aria-label="Game information menu"></div>
+          <section class="game-settings" id="gameSettings" aria-label="Game settings">
+            <div class="settings-rail">
+              <button type="button" class="settings-toggle" id="settingsToggle" aria-expanded="false" aria-controls="settingsDrawer"><span aria-hidden="true">⚙</span><b>Settings</b></button>
+              <div class="quick-settings" id="quickSettings" aria-label="Current game settings"></div>
+            </div>
+            <section class="settings-drawer" id="settingsDrawer" hidden aria-label="Game settings drawer">
+              <header class="settings-drawer-head">
+                <button type="button" class="settings-back" id="settingsBack" hidden>Back</button>
+                <div><span id="settingsBreadcrumb">Settings</span><h2 id="settingsTitle">Choose a category</h2></div>
+                <button type="button" class="settings-close" id="settingsClose">Close settings</button>
+              </header>
+              <p class="settings-state" id="settingsState">Game paused while settings are open.</p>
+              <div class="settings-drawer-body" id="settingsDrawerBody">
+                <div class="settings-categories" id="settingsCategories"></div>
+                <div class="settings-choices" id="settingsChoices" hidden></div>
+                <section class="kitroom-inline" id="kitroom" hidden aria-label="Kit Room">
+                  <div class="kitroom-head"><div><span>Equipment</span><h3>Kit Room</h3><p>Choose the ball, surface, studs, and boots while the pitch stays in view.</p></div></div>
+                  <div class="kit-sum" id="kitSum"></div>
+                  <div id="kitBody"></div>
+                  <div class="kit-foot"><button type="button" class="fb-x" id="kitReset">Reset to match kit</button></div>
+                </section>
+              </div>
+            </section>
+          </section>
         </div>
         <div class="control-deck" aria-label="Game controls">
-          <div class="pad" id="pad"><div class="grp l" id="padL"></div><div class="grp r" id="padR"></div></div>
+          <div class="pad" id="pad">
+            <div class="control-left-slot" id="controlLeftSlot">
+              <div class="controller-mode-toggle" role="group" aria-label="Controller mode" aria-describedby="controllerModeStatus"><button type="button" id="controllerModePlay" aria-pressed="true"><span aria-hidden="true">✥</span> Play</button><button type="button" id="controllerModeManual" aria-pressed="false"><span aria-hidden="true">⌁</span> Manual</button></div>
+              <span class="controller-mode-status" id="controllerModeStatus" role="status" aria-live="polite">D-pad controls active.</span>
+              <div class="grp l" id="padL"></div>
+              <section class="manual-controller" id="manualController" hidden aria-label="Manual physics controller">
+                <div class="manual-variable-head"><button type="button" id="manualPrev" aria-label="Previous physics variable">‹</button><span><b id="manualVariableName">Variable</b><output id="manualVariableValue"></output></span><button type="button" id="manualNext" aria-label="Next physics variable">›</button></div>
+                <input type="range" id="manualVariableSlider" aria-label="Manual physics variable">
+                <div class="manual-variable-steps"><button type="button" id="manualLess">Less</button><button type="button" id="manualMore">More</button></div>
+              </section>
+            </div>
+            <section class="wide-manual-controller" id="wideManualController" aria-label="Desktop manual physics controls">
+              <div class="wide-manual-head"><b>Manual physics</b><span id="wideManualStatus">Changes apply immediately.</span></div>
+              <div class="wide-manual-rows" id="wideManualRows"></div>
+            </section>
+            <div class="grp r" id="padR"></div>
+          </div>
           <div class="rbar" id="rbar" hidden><span class="rb-tag">REPLAY</span><button type="button" id="rbBack" aria-label="Back 3 seconds">Back 3s</button><button type="button" id="rbPlay" aria-label="Play or pause">Pause</button><div class="rb-sp"><button type="button" data-sp="0.25">¼×</button><button type="button" data-sp="0.5" aria-pressed="true">½×</button><button type="button" data-sp="1">1×</button></div><input type="range" id="rbScrub" min="0" max="1000" value="0" aria-label="Scrub replay"><span class="rb-t" id="rbTime">0:00.0</span><button type="button" id="rbReview">Review</button><button type="button" id="rbExit">Exit replay</button></div>
         </div>
-        <div class="utility-slot" id="utilitySlot" aria-label="In-game utility belt"></div>
         <div class="dials" id="dials" hidden role="dialog" aria-modal="true" aria-label="Dials, game paused"><div class="dh"><b>TIME-OUT · YOUR CORNER</b><button type="button" id="dialsClose">Back in <span aria-hidden="true">▶</span></button></div><div class="db" id="dialsBody"></div></div>
       </div>
-      <div class="stage-context" aria-label="Live game guidance">
-        <section class="math-hud" id="mathHud" aria-label="Current math">
-          <div class="context-head"><span>Current math</span><b id="mathHudTitle">Get ready</b><button class="dialtop" id="dialTop" type="button" aria-label="Pause and open Dials" aria-describedby="dialTopStatus">Dials <span class="k">P</span></button><span class="dial-status" id="dialTopStatus" aria-live="polite"></span></div>
-          <div class="math-hud-equation" id="mathHudEquation"></div>
-          <dl class="math-hud-values" id="mathHudValues"></dl>
-        </section>
-        <section class="challenge-hud" id="challengeHud" aria-label="Active goal"></section>
-        <div class="coach" id="coach" aria-live="polite" aria-atomic="true">
-          <div class="av" id="coachAv">DR</div>
-          <div><div class="cn"><b id="coachName">Coach Dre</b><span id="coachRole">boxing coach</span><span class="streak" id="streak"></span></div><p id="coachMsg"></p></div>
-        </div>
-      </div>
     </div>
-    <aside class="panel inspector" id="inspector" aria-label="Game inspector">
+    <aside class="panel inspector" id="inspector" aria-label="Game information menu">
       <div class="inspector-head">
-        <span class="utility-label">Utility belt</span>
+        <span class="utility-label">Game menu</span>
         <div class="inspector-tabs" role="tablist" aria-label="Game information">
-          <button type="button" role="tab" id="ins-tab-setup" aria-controls="ins-pane-setup" aria-selected="false" data-pane="setup">Setup</button>
           <button type="button" role="tab" id="ins-tab-math" aria-controls="ins-pane-math" aria-selected="true" data-pane="math">Math</button>
           <button type="button" role="tab" id="ins-tab-review" aria-controls="ins-pane-review" aria-selected="false" data-pane="review">Review</button>
           <button type="button" role="tab" id="ins-tab-goals" aria-controls="ins-pane-goals" aria-selected="false" data-pane="goals">Goals</button>
@@ -95,11 +123,18 @@
         <p class="inspector-state" id="inspectorState" hidden>Game paused while you adjust this panel.</p>
       </div>
       <div class="inspector-body" id="inspectorBody">
-        <section class="inspector-pane" id="ins-pane-setup" role="tabpanel" aria-labelledby="ins-tab-setup" data-pane="setup" hidden>
-          <div class="pane-heading"><h2>Setup</h2><p>Mode, environment, equipment and style.</p></div>
-          <div class="opts" id="opts"></div>
-        </section>
         <section class="inspector-pane" id="ins-pane-math" role="tabpanel" aria-labelledby="ins-tab-math" data-pane="math">
+          <div class="math-context-summary">
+            <div class="math-context-title"><span>Current math</span><b id="mathHudTitle">Get ready</b></div>
+            <div class="math-console-values" id="mathConsoleValues"></div>
+            <p class="math-console-status" id="mathConsoleStatus" role="status" aria-live="polite"></p>
+            <button class="dialtop" id="dialTop" type="button" aria-label="Pause and open Dials" aria-describedby="dialTopStatus">Dials <span class="k">P</span></button>
+            <span class="dial-status" id="dialTopStatus" aria-live="polite"></span>
+          </div>
+          <section class="math-context-controls" aria-label="Live math controls">
+            <div class="math-console-head"><span>Live controls</span><b id="mathConsoleHeading">Adjust the math you play</b></div>
+            <div class="math-console-controls" id="mathConsoleControls"></div>
+          </section>
           <div class="ph"><h2>Live math</h2><p id="cHint"></p></div>
           <div class="live" id="liveEq"></div>
           <div class="vars" id="vars"></div>
