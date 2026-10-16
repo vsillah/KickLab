@@ -197,7 +197,11 @@ test('projects every canonical manual variable into the wide control gap',()=>{
   assert.match(cockpit,/manualUnavailableReason\(\).*isLocked\(M\.key,def\.id\)/s);
   assert.match(cockpit,/new ResizeObserver\(entries=>\{const active=entries\[0\]\.contentRect\.width>=980/);
   assert.match(css,/\.wide-manual-controller\{display:none/);
-  assert.match(css,/@container \(min-width:980px\)\{\.control-deck \.pad\{display:grid;grid-template-columns:158px minmax\(320px,1fr\) auto/);
+  assert.match(css,/@container \(min-width:980px\)\{\.control-deck \.pad\{display:grid;grid-template-columns:minmax\(220px,1fr\) minmax\(380px,520px\) minmax\(220px,1fr\)/);
+  assert.match(css,/\.control-deck #padR\{width:100%;height:190px;align-items:center;justify-content:center\}/);
+  assert.match(css,/\.control-deck \.dpad\{grid-template-columns:repeat\(3,54px\);grid-template-rows:repeat\(3,54px\)\}/);
+  assert.match(css,/\.control-deck \.abtn \.cap\{width:76px;height:76px\}/);
+  assert.match(css,/\.control-deck \.abtn\.big \.cap\{width:96px;height:96px\}/);
   assert.match(css,/\.wide-manual-row\{display:grid;grid-template-columns:82px 76px minmax\(120px,1fr\)/);
 });
 
