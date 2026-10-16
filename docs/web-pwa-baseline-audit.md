@@ -39,12 +39,36 @@ Lane: `codex/kicklab-web-experience`
 
 Browser console review found no warnings or errors during the audit. The run used a fresh build served from this worktree at `/kicklab.html`.
 
+## Responsive cockpit revision
+
+The follow-on cockpit slice resolves the long-page learning hierarchy without deleting or duplicating the learning tools. Each canonical node now has one owner:
+
+- the stage contains only the canvas and transient game overlays;
+- the control deck owns the existing pointer/touch controls and gives every action a readable label;
+- the always-visible context column owns the live Math HUD, challenge state, and coach guidance;
+- the inspector owns Setup, detailed Math, Review, Goals, and Learn content;
+- Dials temporarily borrows the canonical live equation and variable nodes, then returns those same nodes to the Math inspector when it closes.
+
+The Math HUD is derived from the active mode definitions (`M.vars()`, `M.LIVE()`, and `M.eqs()`), rather than scraping rendered text. Inspector interactions explicitly pause modes that could otherwise keep running beneath configuration or math controls, and mobile dismissal returns focus to the invoking tab.
+
+### Cockpit validation matrix
+
+| Viewport | Mode/state exercised | Result |
+| --- | --- | --- |
+| 390 × 844 | Fight and Kick; active play, Math HUD, challenge, coach, inspector return | No horizontal overflow or stage/control overlap. The essential play surfaces fit the initial active-play viewport, and inspector dismissal restored focus. |
+| 768 × 1,024 | Race; active play and responsive inspector | No horizontal overflow. Stage, controls, live math, challenge, coach, and inspector remained usable in a single-column tablet layout. |
+| 1,440 × 1,000 | 1v1 Dribble; active play, Setup, Dials, Review, and replay | The stage/control deck and context column remained visible beside the persistent inspector. Canonical Math nodes returned from Dials with no duplicates. |
+
+Focused regression checks cover singular canonical IDs, complete inspector tab/panel wiring, controls outside the stage, definition-derived Math HUD values, Dials node return, and readable control labels. The existing shared-core, build, syntax, and web-contract checks also remain green. Browser review found no console errors or warnings.
+
+Remaining evidence limits: viewport emulation is not a physical-device test, browser automation covered pointer and keyboard paths but not a physical touchscreen, and this slice does not add PWA packaging or offline navigation.
+
 ## Prioritized web plan
 
-1. **Document contract repair (current slice).** Add UTF-8, a mobile viewport declaration, language and main-content semantics, plus checks that preserve the three labs, legacy storage markers, shared leaderboard/weekly features, Three.js, and keyboard/pointer input hooks.
-2. **Installable/offline packaging (captain and architecture gate).** Add a manifest, icons, service worker, explicit cache versioning and an offline smoke test. Keep the existing single-file artifact available.
-3. **Input and modal accessibility.** Add tablist arrow navigation, focus containment/restoration for dialogs, and focused keyboard/touch/mouse regression coverage.
-4. **Responsive learning hierarchy.** Test compact mobile/tablet access to the coach, controls, live math and notebook without deleting instructional material.
-5. **Performance budget and repeatable visual evidence.** Record load/animation budgets and capture final mobile, tablet and desktop evidence for each changed state.
+1. **Document contract repair — complete.** UTF-8, mobile viewport, language and main-content semantics, and contract checks are present.
+2. **Responsive learning hierarchy — complete for this cockpit slice.** The active stage, controls, live Math HUD, challenge, and coach are immediately visible, while one responsive inspector preserves Setup, detailed Math, Review, Goals, and Learn.
+3. **Input and inspector accessibility — complete for this cockpit slice.** Lab and inspector tabs use roving keyboard navigation, readable control labels are visible, mobile inspector dismissal restores focus, and gameplay remains available through pointer/touch hooks and keyboard mappings.
+4. **Rendered cross-viewport review — complete.** Fight, Race, Kick, 1v1 Dribble, Dials, Review, replay, locked configuration, and learning interactions were exercised at mobile, tablet, and desktop widths.
+5. **Commit-bound evidence and draft PR closeout — in progress.** Capture the final clean-origin screenshots and playable walkthrough from the exact committed revision, publish validation in the draft PR, and stop before merge or deployment.
 
-The phase count is five and finite for this lane. Only phase 1 is in implementation; phases 2–5 remain gated or unscheduled.
+The cockpit revision has five finite phases. Four are complete and one remains. Installable/offline packaging, service workers, performance budgets, physical-device touch testing, deployment, and native mobile scaffolding are separate future gates rather than hidden work in this revision.
