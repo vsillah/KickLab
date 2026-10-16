@@ -2,6 +2,8 @@
 const INSPECTOR={pane:'math',trigger:null,mq:window.matchMedia('(max-width:980px)')};
 const inspector=$('#inspector');
 const desktopInspectorHost=$('#game-cockpit'),utilitySlot=$('#utilitySlot');
+const MATH_CONSOLE={open:false,sig:''};
+const mathConsole=$('#mathConsole'),mathConsolePanel=$('#mathConsolePanel'),mathConsolePull=$('#mathConsolePull');
 
 function inspectorNeedsPause(name){return name==='setup'||name==='math';}
 function setInspectorPause(on){
@@ -70,6 +72,29 @@ function cockpitValue(def,value){
   const n=fmt(value,def.d==null?1:def.d),u=def.unit||'';
   return`${n}${u?(u==='°'?'°':' '+u):''}`;
 }
+function quickMathName(def){const names={m:'Mass',dt:'Padding',A:'Contact',mu:'Grip',R:'Radius',F:'Engine',v:'Speed',th:'Angle',thH:'Direction',g:'Gravity',spin:'Spin',jv:'Jump',run:'Run speed',grip:'Boot grip',curl:'Curve',vs:'Shot speed',pv:'Pass speed'};return names[def.id]||def.name;}
+function quickMathDefs(){const defs=M.vars().filter(d=>!isLocked(M.key,d.id)),ids=defs.map(d=>d.id);let order=M.key==='fight'?['m','dt','A']:M.key==='race'?['mu','R','F','m']:ids.includes('th')?['th','v','spin','g']:ids.includes('thH')?['thH','jv','g']:ids.includes('run')?['run','grip','curl','vs']:ids;return [...new Set([...order,...ids])].map(id=>defs.find(d=>d.id===id)).filter(Boolean).slice(0,4);}
+function plainMath(html){return String(html||'').replace(/<[^>]*>/g,' ').replace(/&(?:emsp|ensp|nbsp);/g,' ').replace(/&minus;|−/g,'-').replace(/&times;|×|·/g,' x ').replace(/&divide;|÷/g,' / ').replace(/&amp;/g,' and ').replace(/&lt;/g,' less than ').replace(/&gt;/g,' greater than ').replace(/θ/g,'Angle').replace(/μ/g,'Grip').replace(/ρ/g,'Density').replace(/δ/g,'Steering').replace(/Δt/g,'Padding time').replace(/R_turn/g,'Turn radius').replace(/\bvx\b/g,'horizontal speed').replace(/\bvy\b/g,'vertical speed').replace(/≤/g,' at most ').replace(/≥/g,' at least ').replace(/→/g,' gives ').replace(/½/g,'0.5 x ').replace(/²/g,' squared').replace(/_eff/g,' effective').replace(/x\s+x/g,'x').replace(/\s+/g,' ').trim();}
+function quickMathDisabled(def){const row=varEls.find(v=>v.def.id===def.id);return!!(row&&row.inp.disabled)||RP.on||CINE.on||resOpen();}
+function buildMathConsole(defs){$('#mathConsoleControls').innerHTML=defs.length?defs.map(def=>`<div class="math-console-var" data-var="${def.id}" style="--c:${def.col}"><span class="readout"><b>${quickMathName(def)}</b><output></output></span><button type="button" data-step="-1" aria-label="Less ${quickMathName(def)}">Less</button><button type="button" data-step="1" aria-label="More ${quickMathName(def)}">More</button></div>`).join(''):'<p class="math-console-empty">No live variable controls in this moment. Use More math for the full explanation.</p>';}
+function renderMathConsole(q){
+  const defs=quickMathDefs(),sig=`${M.key}|${Kick.opt.shot}|${Kick.opt.pso}|${defs.map(d=>d.id).join(',')}`;
+  if(sig!==MATH_CONSOLE.sig){MATH_CONSOLE.sig=sig;buildMathConsole(defs);}
+  defs.forEach(def=>{const row=$(`#mathConsoleControls [data-var="${def.id}"]`);if(!row)return;row.querySelector('output').textContent=cockpitValue(def,M.V[def.id]);row.querySelectorAll('button').forEach(b=>b.disabled=quickMathDisabled(def));});
+  $('#mathConsoleValues').innerHTML=defs.map(def=>`<span><b>${quickMathName(def)}</b> ${cockpitValue(def,M.V[def.id])}</span>`).join('')||'<span>No live dials</span>';
+  q=q||M.eqs();const live=M.LIVE(),line=q.lines[live&&live.length?live[0]:0]||q.lines[0]||M.hint;
+  $('#mathConsoleStatus').textContent=plainMath(line);
+}
+function openMathConsole(){MATH_CONSOLE.open=true;mathConsolePanel.hidden=false;mathConsolePull.setAttribute('aria-expanded','true');$('#mathConsoleState').textContent='Close';mathConsole.classList.add('open');requestAnimationFrame(resize);}
+function closeMathConsole({restore=true}={}){MATH_CONSOLE.open=false;mathConsolePanel.hidden=true;mathConsolePull.setAttribute('aria-expanded','false');$('#mathConsoleState').textContent='Open';mathConsole.classList.remove('open');if(restore)mathConsolePull.focus();requestAnimationFrame(resize);}
+mathConsolePull.addEventListener('click',()=>MATH_CONSOLE.open?closeMathConsole():openMathConsole());
+$('#mathConsoleClose').addEventListener('click',()=>closeMathConsole());
+$('#mathConsoleMore').addEventListener('click',()=>{closeMathConsole({restore:false});INSPECTOR.trigger=$('#ins-tab-math');setInspectorPane('math',{focus:true,open:true});inspector.scrollIntoView({block:'nearest'});});
+$('#mathConsoleControls').addEventListener('click',e=>{const b=e.target.closest('[data-step]'),row=b&&b.closest('[data-var]');if(!b||!row||b.disabled)return;e.stopPropagation();unlock();const def=quickMathDefs().find(d=>d.id===row.dataset.var);if(def&&adjustVar(def.id,def.step*+b.dataset.step)){SND.click();const q=M.eqs();renderMathHud(q);renderMathConsole(q);}});
+mathConsole.addEventListener('pointerdown',e=>e.stopPropagation());
+mathConsole.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'&&MATH_CONSOLE.open){e.preventDefault();closeMathConsole();}});
+mathConsole.addEventListener('focusin',()=>mathConsole.classList.add('has-focus'));
+mathConsole.addEventListener('focusout',()=>requestAnimationFrame(()=>{if(!mathConsole.contains(document.activeElement))mathConsole.classList.remove('has-focus');}));
 function cockpitValues(){
   const defs=M.vars().map(d=>({label:d.name,sym:d.sym,value:cockpitValue(d,M.V[d.id]),col:d.col}));
   const add=(label,sym,value,unit='',d=1,col=C.muted)=>{
@@ -107,6 +132,6 @@ function renderGoalsSummary(){
   const total=Object.values(BADGES).reduce((n,l)=>n+l.length,0),earned=Object.keys(best.badges||{}).length;
   $('#goalsSummary').innerHTML=`<span>Level <b>${lvlOf(best.xp)}</b></span><span>XP <b>${fmt(best.xp||0,0)}</b></span><span>Badges <b>${earned}/${total}</b></span><span>Mode <b>${M.key[0].toUpperCase()+M.key.slice(1)}</b></span>`;
 }
-function renderCockpit(q){renderMathHud(q);renderChallengeHud();renderGoalsSummary();syncDialsAvailability();}
+function renderCockpit(q){renderMathHud(q);renderMathConsole(q);renderChallengeHud();renderGoalsSummary();syncDialsAvailability();}
 
 setTimeout(()=>{setInspectorPane('math',{open:!INSPECTOR.mq.matches});syncInspectorLayout();},0);

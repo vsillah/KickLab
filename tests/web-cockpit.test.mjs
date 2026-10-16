@@ -31,6 +31,24 @@ test('keeps gameplay controls outside the canvas stage',()=>{
   assert.ok(html.indexOf('id="mathHud"')>stageEnd);
 });
 
+test('attaches one Math Console directly to the gameplay controls',()=>{
+  const deck=html.indexOf('class="control-deck"'),consoleRoot=html.indexOf('id="mathConsole"'),utility=html.indexOf('id="utilitySlot"');
+  assert.ok(deck<consoleRoot&&consoleRoot<utility);
+  for(const id of ['mathConsole','mathConsolePanel','mathConsolePull','mathConsoleControls'])assert.equal((html.match(new RegExp(`id="${id}"`,'g'))||[]).length,1);
+  assert.match(cockpit,/function quickMathDefs\(\).*M\.vars\(\)/);
+  assert.match(cockpit,/adjustVar\(def\.id,def\.step\*\+b\.dataset\.step\)/);
+  assert.match(cockpit,/setInspectorPane\('math',\{focus:true,open:true\}\)/);
+  assert.doesNotMatch(cockpit,/mathConsoleControls[^\n]+appendChild\(\$\('#(?:liveEq|vars)'\)\)/);
+});
+
+test('keeps Math Console input ownership and focus return explicit',()=>{
+  assert.match(cockpit,/mathConsole\.addEventListener\('pointerdown',e=>e\.stopPropagation\(\)\)/);
+  assert.match(cockpit,/mathConsole\.addEventListener\('keydown',e=>\{e\.stopPropagation\(\)/);
+  assert.match(cockpit,/if\(restore\)mathConsolePull\.focus\(\)/);
+  assert.match(css,/\.math-console-panel\{[^}]*max-height:[^;]+;overflow-y:auto;overscroll-behavior:contain/);
+  assert.doesNotMatch(css,/\.math-console-panel\{[^}]*position:fixed/);
+});
+
 test('anchors one responsive utility belt directly after the control deck',()=>{
   const deck=html.indexOf('class="control-deck"'),slot=html.indexOf('id="utilitySlot"'),dials=html.indexOf('id="dials"');
   assert.ok(deck<slot&&slot<dials);

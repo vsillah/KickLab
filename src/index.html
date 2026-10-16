@@ -65,6 +65,16 @@
           <div class="pad" id="pad"><div class="grp l" id="padL"></div><div class="grp r" id="padR"></div></div>
           <div class="rbar" id="rbar" hidden><span class="rb-tag">REPLAY</span><button type="button" id="rbBack" aria-label="Back 3 seconds">Back 3s</button><button type="button" id="rbPlay" aria-label="Play or pause">Pause</button><div class="rb-sp"><button type="button" data-sp="0.25">¼×</button><button type="button" data-sp="0.5" aria-pressed="true">½×</button><button type="button" data-sp="1">1×</button></div><input type="range" id="rbScrub" min="0" max="1000" value="0" aria-label="Scrub replay"><span class="rb-t" id="rbTime">0:00.0</span><button type="button" id="rbReview">Review</button><button type="button" id="rbExit">Exit replay</button></div>
         </div>
+        <section class="math-console" id="mathConsole" aria-label="Gameplay Math Console">
+          <div class="math-console-panel" id="mathConsolePanel" hidden>
+            <div class="math-console-head"><div><span>Live controls</span><b>Adjust the math you play</b></div><button type="button" id="mathConsoleClose">Close</button></div>
+            <div class="math-console-controls" id="mathConsoleControls"></div>
+            <button type="button" class="math-console-more" id="mathConsoleMore">More math</button>
+          </div>
+          <button type="button" class="math-console-pull" id="mathConsolePull" aria-expanded="false" aria-controls="mathConsolePanel">
+            <span class="math-console-label">Math Console</span><span class="math-console-values" id="mathConsoleValues"></span><span class="math-console-status" id="mathConsoleStatus" role="status" aria-live="polite"></span><span class="math-console-state" id="mathConsoleState">Open</span>
+          </button>
+        </section>
         <div class="utility-slot" id="utilitySlot" aria-label="In-game utility belt"></div>
         <div class="dials" id="dials" hidden role="dialog" aria-modal="true" aria-label="Dials, game paused"><div class="dh"><b>TIME-OUT · YOUR CORNER</b><button type="button" id="dialsClose">Back in <span aria-hidden="true">▶</span></button></div><div class="db" id="dialsBody"></div></div>
       </div>
