@@ -1,0 +1,59 @@
+/* ---------- challenge ladders ---------- */
+best.ch=Object.assign({fight:0,race:0,kick:0},best.ch||{});best.play=Object.assign({fight:'ch',race:'ch',kick:'ch'},best.play||{});
+const vmaxK=(mu,R)=>Math.sqrt(mu*G0*R)*3.6;
+const CH={
+  fight:[0,1,2,3,4,5,6].map(i=>({i,get name(){return REX[i].name;},get goal(){return `Knock out ${REX[i].name}. ${REX[i].twist}`;},lock:{},envText:[]})),
+  race:[
+    {name:'First lap',goal:'Finish in under 14.0 s.',lock:{},t:14,check:r=>r.ok&&r.t<=14,
+      intro(){const V=Race.V;return `Challenge 1: under 14 s. This ${V.R} m corner's speed limit is √(μ·g·R) = ${fmt(vmaxK(V.mu,V.R),0)} km/h. Brake down to that before the turn and hold about ${fmt(Race.needW(),0)}° of wheel.`;}},
+    {name:'Wet Monday',goal:'μ is stuck at 0.5. Finish clean (zero sliding) in under 17.5 s.',lock:{mu:0.5},t:17.5,clean:true,check:r=>r.ok&&r.slideT<0.05&&r.t<=17.5,
+      intro(){const R=Race.V.R;return `Wet road: μ = 0.5 drops the limit to √(0.5 × 9.81 × ${R}) = ${fmt(vmaxK(0.5,R),0)} km/h, and braking distance nearly doubles. Brake early. Tighter still wins overall: corner time grows like √R while the path gets longer.`;}},
+    {name:'Hairpin',goal:'R is locked at 20 m. Finish in under 10.5 s.',lock:{R:20},t:10.5,check:r=>r.ok&&r.t<=10.5,
+      intro(){const mu=Race.V.mu;return `A 20 m hairpin at μ = ${fmt(mu,2)} tops out at ${fmt(vmaxK(mu,20),0)} km/h. Too slow for 10.5 s. Grip is your dial: drag μ to 1.4 and the limit becomes ${fmt(vmaxK(1.4,20),0)} km/h. The Race car helps on the straights.`;}},
+    {name:'Heavy hauler',goal:'m = 2,000 kg and F = 6,000 N are locked. Clean run under 15.0 s.',lock:{m:2000,F:6000},t:15,clean:true,check:r=>r.ok&&r.slideT<0.05&&r.t<=15,
+      intro(){const V=Race.V;return `a = F ÷ m = 6000 ÷ 2000 = 3 m/s²: a slow launch you can't change. But mass cancels in the corner (v_max = √(μ·g·R)), so raise μ and brake later. At μ = 1.4 and R = ${V.R}, v_max = ${fmt(vmaxK(1.4,V.R),0)} km/h.`;}},
+    {name:'Narrow road',goal:'Only ±5 m of track and R = 25 m. Finish in under 10.5 s.',lock:{R:25},env:{hw:5},envText:['track ±5 m'],t:10.5,check:r=>r.ok&&r.t<=10.5,
+      intro(){return `The road is only 10 m wide, so your line has to be exact: wheel = 15 × atan(L ÷ 25) = ${fmt(Race.needW(),0)}°. For speed, raise μ: at 1.4 the limit is ${fmt(vmaxK(1.4,25),0)} km/h.`;}},
+    {name:'Black ice',goal:'μ is stuck at 0.3. Clean run under 22 s.',lock:{mu:0.3},t:22,clean:true,check:r=>r.ok&&r.slideT<0.05&&r.t<=22,
+      intro(){const R=Race.V.R;return `Ice: μ = 0.3. At R = ${R} the limit is only ${fmt(vmaxK(0.3,R),0)} km/h, and braking takes three times the distance: d = (v₁² − v₂²) ÷ (2·μ·g). Your real dials are braking early and a tight radius: the shorter path beats a higher limit.`;}},
+    {name:'Pro lap',goal:'R = 20 m on ±4.5 m of track. You steer, within 8° of the math, zero sliding, under 10 s.',lock:{R:20},env:{hw:4.5},envText:['track ±4.5 m','you steer'],t:10,clean:true,needYou:true,check:r=>r.ok&&r.slideT<0.05&&r.you&&Math.abs(r.wAvg-r.wNeed)<=8&&r.t<=10,
+      intro(){return `Final exam. The math says ${fmt(Race.needW(),0)}° of wheel. Hold it through the turn, keep v² ÷ R_turn under μ·g, and use every bit of grip you can dial in.`;}}],
+  kick:[
+    {name:'Beat the wall',goal:'Score a free kick over the 1.85 m wall.',lock:{}},
+    {name:'Soft touch',goal:'v is locked at 18 m/s. Find the angle (and spin) that scores.',lock:{v:18}},
+    {name:'Red planet',goal:'Mars gravity, g = 3.71 m/s². Score anyway.',lock:{g:3.71}},
+    {name:'Jumping wall',goal:'The wall jumps to 2.2 m. Clear it and still dip under the bar.',lock:{},env:{wh:2.2},envText:['wall 2.2 m']},
+    {name:'Headwind',goal:'A headwind pushes the ball back at 3 m/s². Score into it.',lock:{},env:{wind:-3},envText:['wind −3 m/s²']},
+    {name:'Keeper\u2019s up',goal:'The keeper covers everything below 1.7 m. Put it in the top corner.',lock:{},env:{keeper:1.7},envText:['keeper to 1.7 m']},
+    {name:'Jupiter final',goal:'Jupiter gravity, a 2.2 m wall, a 2 m/s² headwind and a keeper. Good luck.',lock:{g:24.79},env:{wh:2.2,wind:-2,keeper:1.7},envText:['wall 2.2 m','wind −2 m/s²','keeper to 1.7 m']}]};
+function curCh(m){if(best.play[m]!=='ch')return null;return CH[m][best.ch[m]]||null;}
+const chXP=i=>300+150*i;
+function isLocked(m,id){const c=curCh(m);return!!(c&&c.lock&&c.lock[id]!==undefined);}
+function applyCh(m){const c=curCh(m),MM=MODES[m];if(c&&c.lock)Object.entries(c.lock).forEach(([k,v])=>{MM.V[k]=v;});}
+function completeCh(m){const i=best.ch[m];best.ch[m]=i+1;saveBest();const nx=CH[m][i+1];
+  setTimeout(()=>{toast(`Challenge ${i+1} cleared`,nx?`Next up: ${nx.name}`:'Ladder complete. Champion!');SND.badge();},1800);
+  setTimeout(()=>{applyCh(m);if(M.key===m){renderVars();renderChal();renderOpts();}},2600);}
+function renderChal(){if(M.key==='kick'&&Kick.opt.shot==='dribble'){$('#chal').innerHTML=Drib.chalHTML();return;}const el=$('#chal'),m=M.key,c=curCh(m),n=CH[m].length,k=best.ch[m];
+  const pips=`<span class="pips2">${Array.from({length:n},(_,i)=>`<i class="${i<k?'on':i===k?'cur':''}"></i>`).join('')}</span>`;
+  if(best.play[m]!=='ch'){el.innerHTML=`<div class="ct"><span class="tier">FREE PLAY</span><b>No limits</b>${pips}</div><p>Challenge ladder: ${Math.min(k,n)}/${n} cleared. Switch Mode to Challenge to keep climbing.</p>`;return;}
+  if(!c){el.innerHTML=`<div class="ct"><span class="tier">LADDER COMPLETE</span><b>Champion</b>${pips}</div><p>You beat all ${n} challenges. ${m==='fight'?'Rematch the champion any time.':'Free play is all yours.'}</p>`;return;}
+  const defs={};M.vars().forEach(v=>defs[v.id]=v);
+  const chips=Object.entries(c.lock||{}).map(([id,v])=>{const d=defs[id];return`<span class="lk">${d?d.sym:id} = ${fmt(v,d?Math.min(d.d,2):1)}${d&&d.unit?(d.unit==='°'?'':' ')+d.unit:''}</span>`;}).concat((c.envText||[]).map(t=>`<span class="lk env">${t}</span>`)).join('');
+  el.innerHTML=`<div class="ct"><span class="tier">CHALLENGE ${k+1}/${n}</span><b>${c.name}</b><span class="rw">+${fmt(chXP(k),0)} XP</span></div><p>${c.goal}${m==='kick'?' (free kicks)':''}</p>${chips?`<div class="locks">${chips}</div>`:''}${pips}<span class="assist">Coach hints: <b>${ASSIST_TXT[assistLevel(m)]}</b>${assistLevel(m)<2?' (harder tiers hide the zones)':''}</span>`;}
+function chIntro(m){if(m==='kick'&&Kick.opt.shot==='dribble')return Drib.intro();const c=curCh(m);if(!c)return null;if(m==='fight')return Fight.introLine();if(m==='race')return c.intro();return `${c.goal} ${Kick.kickSolve()}`;}
+function raceFail(r,c){const bits=[];if(!r.ok)bits.push(r.where==='outside'?`You slid off at ${fmt(r.v*3.6,0)} km/h (limit ${fmt(r.vmax*3.6,0)})`:'You cut inside the track');
+  else{if(c.clean&&r.slideT>=0.05)bits.push(`you slid for ${fmt(r.slideT,1)} s and this one must be clean`);if(r.t>c.t)bits.push(`${fmt(r.t-c.t,2)} s too slow`);if(c.needYou&&!r.you)bits.push('autopilot doesn\u2019t count here');if(c.needYou&&r.you&&Math.abs(r.wAvg-r.wNeed)>8)bits.push(`your wheel averaged ${fmt(r.wAvg,0)}° vs the ${fmt(r.wNeed,0)}° the math needs`);}
+  let dial='';if(!isLocked('race','mu')&&Race.V.mu<1.4)dial=` Dial idea: raise μ to 1.4 and the corner limit jumps from ${fmt(r.vmax*3.6,0)} to ${fmt(vmaxK(1.4,Race.V.R),0)} km/h.`;
+  else if(r.ok&&r.v<r.vmax*0.9)dial=` You entered at ${fmt(r.v*3.6,0)} km/h but could carry ${fmt(r.vmax*3.6,0)}. Brake later.`;
+  else if(Race.opt.car!=='race'&&!isLocked('race','F'))dial=' Try the Race car: more engine force F and less mass means a = F ÷ m is almost twice as big.';
+  return `${c.name}: ${bits.join(', ')||'not quite'}.${dial}`;}
+
+/* ---------- coaches ---------- */
+const COACHES={fight:{name:'Coach Dre',role:'boxing coach',ini:'DR',col:'#ffb04a',hello:"I'm Coach Dre. Your timing sets the speed, the sliders set everything else. Land one in the green and let's see the numbers."},
+  race:{name:'Chief Nia',role:'race engineer',ini:'NI',col:'#7fdcff',hello:"Chief Nia on the radio. This car turns with real steering geometry. Match the yellow notch on the wheel and brake before the corner."},
+  kick:{name:'Coach Tomi',role:'set-piece coach',ini:'TO',col:'#5fe3a1',hello:"Coach Tomi here. Beat the wall, dip under the bar. Get both checks green in Live Math, then take the shot."}};
+const COACH={t:0,hold:8,last:'',tipI:0,
+  set(mode){const c=COACHES[mode];$('#coach').style.setProperty('--cc',c.col);$('#coachAv').textContent=c.ini;$('#coachName').textContent=c.name;$('#coachRole').textContent=c.role;this.last='';this.tipI=0;const ci=chIntro(mode);this.say(ci||c.hello,'tip',14);},
+  say(msg,mood='tip',hold=8){if(msg===this.last)return;this.last=msg;this.t=0;this.hold=hold;const el=$('#coach');el.className='coach '+mood;void el.offsetWidth;el.classList.add('pop');$('#coachMsg').textContent=msg;},
+  tick(rdt){this.t+=rdt;if(this.t>Math.max(this.hold,11)&&M.idleTips&&M.isIdle()){const tips=M.idleTips();this.say(tips[this.tipI++%tips.length],'tip',12);}}};
+

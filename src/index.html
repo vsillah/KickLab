@@ -1,0 +1,100 @@
+<title>Impact Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=JetBrains+Mono:wght@500;700&family=Lexend:wght@400;500;600;700&display=swap">
+<style>{{STYLES}}</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>IMPACT <span>LAB</span></h1>
+      <p>Punch, drive, kick. Slide a variable, watch the equation and the game change together, and earn XP from your coach.</p>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Choose a lab">
+    <button class="tab" role="tab" data-mode="fight" aria-selected="true"><span class="n">Fight</span><span class="d">Momentum, impulse, pressure</span></button>
+    <button class="tab" role="tab" data-mode="race" aria-selected="false"><span class="n">Race</span><span class="d">Steering, grip, cornering</span></button>
+    <button class="tab" role="tab" data-mode="kick" aria-selected="false"><span class="n">Kick</span><span class="d">Vectors, gravity, projectiles</span></button>
+  </nav>
+
+  <div class="hudbar" aria-label="Your progress">
+    <div class="medal" id="medal"><small>LVL</small><span id="lvlNum">1</span></div>
+    <div class="rank"><div class="rt"><b id="lvlName">Rookie</b><span id="xpTxt">0 / 400 XP</span></div><div class="xpbar"><i id="xpBar"></i></div><small id="nextUnlock"></small></div>
+    <div class="stat sess"><span>This session</span><b id="sessXP">0</b></div>
+    <div class="stat combo"><span>Combo</span><b id="comboX">×1</b><div class="pips" id="pips"><i></i><i></i><i></i><i></i><i></i></div></div>
+    <div class="stat badges"><span>Badges</span><b id="sBadges">0</b></div>
+    <div class="hudtools"><button class="boardbtn" id="boardBtn" type="button">🏆 Family board</button><button class="mute" id="mute" type="button" aria-pressed="false">Sound on</button></div>
+  </div>
+
+  <div class="fboard" id="kitroom" hidden role="dialog" aria-modal="true" aria-label="Kit Room"><div class="fb">
+    <div class="fb-h"><h2>KIT <span>ROOM</span></h2><button class="fb-x" id="kitClose" type="button">Back to the pitch ✕</button></div>
+    <div class="kit-sum" id="kitSum"></div>
+    <div id="kitBody"></div>
+    <div class="kit-foot"><button type="button" class="fb-x" id="kitReset">Reset to match kit</button></div>
+  </div></div>
+  <div class="fboard" id="fboard" hidden role="dialog" aria-modal="true" aria-label="Family leaderboard"><div class="fb">
+    <div class="fb-h"><h2>FAMILY <span>BOARD</span></h2><button class="fb-x" id="fbClose" type="button">Close ✕</button></div>
+    <div class="fb-me"><span>Your nickname</span><input id="fbNick" maxlength="16" placeholder="Make up a nickname" autocomplete="off"><button type="button" id="fbPost">Post my bests</button><div class="fb-msg" id="fbMsg"></div></div>
+    <div class="fb-week" id="fbWeek"></div>
+    <div class="fb-cats" id="fbCats"></div>
+    <p class="fb-eq" id="fbEq"></p>
+    <ul class="fb-list" id="fbList"></ul>
+  </div></div>
+  <div class="play">
+    <div class="left">
+      <div class="gamebar" id="gameBar" hidden></div>
+      <div class="stage"><canvas id="cv" width="960" height="540" aria-label="Game stage"></canvas>
+        <div class="results" id="results" hidden><div class="rc" id="rc"><div class="grade" id="rGrade">A<small>GRADE</small></div><div class="rmain"><div class="rlvl" id="rLvl" hidden></div><div class="rtitle" id="rTitle"></div><div class="rsub" id="rSub"></div><ul class="rrows" id="rRows"></ul><div class="rtotal"><span>XP earned</span><b id="rTotal">+0</b></div><div class="rhint" id="rHint"></div><div class="rboard" id="rBoard" hidden></div><div class="rgo"><div class="racts" id="racts" hidden><button type="button" id="rReview">Coach review</button><button type="button" id="rReplay">▶ Replay</button></div><button type="button" class="rnext" id="rNext">Next round ▶ <kbd>Space</kbd></button></div></div></div></div>
+        <div class="lvlup" id="lvlup" hidden><div class="lu"><span class="lu-k">LEVEL UP</span><div class="lu-n" id="luNum">2</div><div class="lu-t" id="luTitle"></div><div class="lu-u" id="luUnlock"></div></div></div>
+        <div class="feed" id="feed" aria-hidden="true"></div>
+        <div class="toasts" id="toasts"></div>
+        <button class="dialtop" id="dialTop" type="button" aria-label="Pause and open dials">❚❚ DIALS <span class="k">P</span></button>
+        <div class="dials" id="dials" hidden role="dialog" aria-label="Dials, game paused"><div class="dh"><b>TIME-OUT · YOUR CORNER</b><button type="button" id="dialsClose">Back in ▶</button></div><div class="db" id="dialsBody"></div></div>
+        <div class="rbar" id="rbar" hidden><span class="rb-tag">REPLAY</span><button type="button" id="rbBack" aria-label="Back 3 seconds">⟲ 3s</button><button type="button" id="rbPlay" aria-label="Play or pause">❚❚</button><div class="rb-sp"><button type="button" data-sp="0.25">¼×</button><button type="button" data-sp="0.5" aria-pressed="true">½×</button><button type="button" data-sp="1">1×</button></div><input type="range" id="rbScrub" min="0" max="1000" value="0" aria-label="Scrub replay"><span class="rb-t" id="rbTime">0:00.0</span><button type="button" id="rbReview">Review</button><button type="button" id="rbExit">Exit ✕</button></div>
+        <div class="pad" id="pad"><div class="grp l" id="padL"></div><div class="grp r" id="padR"></div></div>
+      </div>
+      <div class="ticker" id="ticker"><span class="tk-l">LIVE</span><div class="tk" id="tk"><span class="tkc sys"><span class="w">LOG</span>Every move and its math will scroll here.</span></div></div>
+      <div class="chal" id="chal"></div>
+      <div class="coach" id="coach" aria-live="polite">
+        <div class="av" id="coachAv">DR</div>
+        <div><div class="cn"><b id="coachName">Coach Dre</b><span id="coachRole">boxing coach</span><span class="streak" id="streak"></span></div><p id="coachMsg"></p></div>
+      </div>
+      <div class="dock">
+        <div class="opts" id="opts"></div>
+      </div>
+    </div>
+    <aside class="panel" aria-label="Move log, live math and variables">
+      <div class="mlog"><div class="ml-h"><span class="rec" id="mlRec" hidden></span><h2>MOVE LOG</h2><span class="clk" id="mlClock">0:00.0</span><button type="button" id="mlReview" disabled>Review</button><button type="button" id="mlReplay" disabled>▶ Replay</button></div><ol class="ml" id="mlList"></ol></div>
+      <div class="ph"><h2>Live math</h2><p id="cHint"></p></div>
+      <div class="live" id="liveEq"></div>
+      <div class="vars" id="vars"></div>
+      <figure class="chart"><canvas id="chart" aria-label="Relationship chart"></canvas><figcaption id="chartCap"></figcaption></figure>
+    </aside>
+  </div>
+
+  <div class="rv-back" id="rvBack" hidden><div class="review" id="review" role="dialog" aria-modal="true" aria-label="Coach review"><div class="rv-h"><div class="av" id="rvAv">DR</div><div class="tt"><span id="rvKick">COACH REVIEW</span><b id="rvTitle"></b></div><div class="gr" id="rvGrade"></div><button type="button" id="rvClose">Close ✕</button></div><div class="rv-b" id="rvBody"></div></div></div>
+
+  <section class="lower">
+    <div class="card missions"><span class="tag" id="misTitle">Missions</span><div class="records"><span class="score">Punch <b id="sPunch">—</b></span><span class="score">Run <b id="sLap">—</b></span><span class="score">Goals <b id="sGoals">0</b></span></div><ul id="missions"></ul></div>
+    <div class="full"><h2>Full working</h2><div class="eqs" id="eqs"></div></div>
+  </section>
+
+  <section class="notebook" aria-live="polite">
+    <div class="nb-head">
+      <div class="row"><h2 id="nbTitle">Lab notebook</h2><span class="big" id="nbBig"></span></div>
+      <p class="nb-sub" id="nbSub"></p>
+    </div>
+    <div class="nb-grid">
+      <ol class="steps" id="steps"></ol>
+      <div class="nb-side">
+        <div class="card" id="idea"></div>
+        <div class="card" id="quiz"></div>
+      </div>
+    </div>
+    <p class="foot">Real-world values: a size-5 ball is 0.43 kg, a free-kick wall stands 9.15 m back, the crossbar is 2.44 m high, a car's steering ratio is about 15:1. Air resistance is left out of the ball flight to keep the math clean.</p>
+  </section>
+</div>
+
+{{VENDOR}}
+<script>{{GAME}}</script>

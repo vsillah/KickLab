@@ -1,0 +1,31 @@
+const LIVEM={on:false,T:240,left:240,you:0,them:0,saves:0,passes:0,phase:null,busy:false,ft:false,tr:null,
+  begin(){Object.assign(this,{on:true,left:this.T,you:0,them:0,saves:0,passes:0,phase:null,busy:false,ft:false,tr:null});logMove('kick',{who:'sys',kind:'start',title:'Live match: kick-off!',math:'4 minutes, nonstop. Your ball: pass, beat your man, shoot. Their ball: you are the keeper.',tone:'info'});
+    COACH.say('Live match! Four minutes and the clock never stops. Pass to a runner, take on your man and shoot. Lose the ball and you are straight in goal.','hype',14);SND.whoosh();this.go('pass','KICK-OFF','your ball · find a runner');},
+  min(){return Math.min(90,Math.round(90*(1-this.left/this.T)));},
+  clock(){const s=Math.ceil(this.left);return`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;},
+  tick(rdt){if(!this.on||this.ft)return;this.left-=rdt;if(this.left<=0){this.left=0;this.ft=true;}},
+  stop(){this.on=false;this.busy=false;this.tr=null;},
+  go(ph,title,sub){this.busy=true;this.tr={t:0,text:`${this.min()}' · ${title}`,sub,score:`${this.you} – ${this.them}`};SND.whoosh();setTimeout(()=>{if(this.on)this.load(ph);},900);},
+  load(ph){this.phase=ph;hideResults();E.slow=null;Kick.opt.shot='dribble';Drib.reset();
+    if(ph==='pass')Drib.passBegin(true);else if(ph==='gk')Drib.gkBegin(true);else{const D=Drib.D();Drib.state='run';startRec('kick',`Run vs ${D.name}`);RECS.kick.meta={def:Drib.lvl()};E.title={t:0,text:`VS ${D.name.toUpperCase()}`,sub:'beat him and score'};logMove('kick',{who:'sys',kind:'start',title:`Run at ${D.name}`,math:`react ${D.tr} s · slide a = ${D.a} m/s² · reach ${D.reach} m`,tone:'info'});}
+    this.busy=false;E.title=null;renderAll(false);renderActions();setLabel();},
+  result(ok){if(!this.on||this.busy)return;const ph=this.phase;this.busy=true;let next,title,sub;
+    if(ph==='pass'){if(ok){this.passes++;next='run';title='ON THE BALL';sub='take on your man and finish';}else{next='gk';title='COUNTER-ATTACK';sub='they won it · you are in goal';}}
+    else if(ph==='run'){if(ok){this.you++;next='gk';title='GOAL!';sub='they kick off and attack';}else{next='gk';title='THEIR BALL';sub='they break · get in goal';}}
+    else{if(ok){this.saves++;next='pass';title='YOUR BALL';sub='play it out from the back';}else{this.them++;next='pass';title='THEY SCORE';sub='your kick-off';}}
+    const t0=performance.now();let saw=!!E.slow;const w=()=>{if(!this.on)return;if(E.slow||PAUSE.on){saw=saw||!!E.slow;setTimeout(w,100);return;}const now=performance.now();if(now<Math.max(t0+1300,saw?(E.slowEnd||now)+1300:0)){setTimeout(w,100);return;}const go=()=>{if(!this.on)return;if(this.ft){this.end();return;}this.go(next,title,sub);};if(V3.on&&ok&&(ph==='run'||(ph==='gk'&&Drib.outcome==='saved')))CINE.start(ph==='run'?'goal':'save',go);else go();};setTimeout(w,100);},
+  end(){const w=this.you>this.them,dr=this.you===this.them;this.on=false;this.busy=false;this.tr={t:0,text:'FULL TIME',sub:`${this.you} – ${this.them}`,score:''};SND.cheer();if(w){confetti(160);badge('k_live');badge('k_match');best.mWins=(best.mWins||0)+1;saveBest();}
+    Drib.reset();Drib.state='done';renderActions();renderGameBar();
+    award('kick',[[`goals ×${this.you}`,this.you*100],[`saves ×${this.saves}`,this.saves*80],[`passes ×${this.passes}`,this.passes*30],[w?'LIVE MATCH WON':dr?'draw':'played',w?300:dr?100:30]],w,{grade:w?(this.them===0?'S':'A'):dr?'B':'C',title:`FULL TIME ${this.you}–${this.them}`,sub:w?'You win!':dr?'Honors even':'They edged it',hint:'Next round starts a new live match',delay:1200,live:true});
+    COACH.say(`Full time, ${this.you}–${this.them}. ${this.passes} passes found a runner, ${this.saves} shots kept out.`,'hype',12);}};
+function drawLive(c){if(!(M===Kick&&(LIVEM.on||LIVEM.tr)))return;const tr=LIVEM.tr;
+  if(LIVEM.on){c.save();const x=W/2-150,y=44;c.fillStyle='rgba(6,11,24,0.92)';rr(c,x,y,300,28,6);c.fill();c.fillStyle='#2f4a86';c.fillRect(x+44,y,74,28);c.fillStyle='#c0392b';c.fillRect(x+182,y,74,28);c.fillStyle='#f3f6fb';c.fillRect(x+118,y,64,28);
+    text(c,'LIVE',x+22,y+19,'700 11px '+MONO,C.hot,'center');text(c,'YOU',x+81,y+19,'700 13px '+MONO,'#fff','center');text(c,`${LIVEM.you} – ${LIVEM.them}`,x+150,y+20,'18px '+DISP,'#0a1122','center');text(c,'THEM',x+219,y+19,'700 13px '+MONO,'#fff','center');text(c,`${LIVEM.min()}'`,x+278,y+19,'700 12px '+MONO,LIVEM.left<30?C.bad:C.good,'center');c.restore();}
+  if(tr){tr.t+=1/60;const u=tr.t,al=u<0.25?u/0.25:u>1.2?Math.max(0,1-(u-1.2)/0.3):1;if(al<=0&&u>1.2){LIVEM.tr=null;return;}c.save();c.globalAlpha=al;const x=-W+Math.min(1,u/0.25)*W;
+    const g=c.createLinearGradient(0,H*0.35,0,H*0.65);g.addColorStop(0,'rgba(6,11,24,0)');g.addColorStop(0.2,'rgba(6,11,24,0.92)');g.addColorStop(0.8,'rgba(6,11,24,0.92)');g.addColorStop(1,'rgba(6,11,24,0)');c.fillStyle=g;c.fillRect(x,H*0.33,W,H*0.34);
+    c.fillStyle=C.hot;c.fillRect(x,H*0.36,W,3);c.fillRect(x,H*0.64,W,3);text(c,tr.text,x+W/2,H*0.5,'34px '+DISP,C.ink,'center');text(c,tr.sub+(tr.score?`   ·   ${tr.score}`:''),x+W/2,H*0.5+30,'700 13px '+MONO,C.hot,'center');c.restore();}}
+function curGame(){if(M!==Kick)return null;if(LIVEM.on||Kick.opt.pso==='live'&&Kick.opt.shot==='dribble')return'live';if(MATCH.on||Kick.opt.pso==='match'&&Kick.opt.shot==='dribble')return'match';if(Kick.opt.shot!=='dribble')return Kick.opt.shot;return Kick.opt.pso;}
+function pickGame(k,silent){const G=GAMES.find(g=>g.k===k);if(!G)return;if(k!=='match'&&MATCH.on)MATCH.stop();if(LIVEM.on)LIVEM.stop();Object.assign(Kick.opt,G.set);if(Kick.onOpt)Kick.onOpt('shot',Kick.opt.shot);E.slow=null;hideResults();M.reset();renderAll(false);if(!silent)SND.click();}
+function renderGameBar(){const el=$('#gameBar');if(M!==Kick){el.hidden=true;return;}el.hidden=false;const cur=curGame();el.innerHTML='';
+  GAMES.forEach(g=>{const b=document.createElement('button');b.type='button';b.className='gt'+(g.cls?' '+g.cls:'');b.setAttribute('aria-pressed',String(cur===g.k));b.innerHTML=`<b>${g.n}</b><small>${g.d}</small>`;b.addEventListener('click',()=>{unlock();if(cur===g.k&&!MATCH.on)return;pickGame(g.k);});el.appendChild(b);});}
+function renderAll(intro=true){renderGameBar();renderOpts();renderVars();renderChal();renderActions();renderMissions();renderStreak();$('#cHint').textContent=M.hint;if(intro)notebook(INTRO[M.key]);else if(!M.res)notebook(INTRO[M.key]);lastEq='';}
