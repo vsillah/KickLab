@@ -15,16 +15,17 @@ const kit=readFileSync(join(root,'src','game','52-leaderboard.js'),'utf8');
 const css=readFileSync(join(root,'src','styles.css'),'utf8');
 
 test('keeps relocated feature roots canonical and singular',()=>{
-  for(const id of ['opts','liveEq','vars','chart','ticker','mlList','chal','missions','eqs','steps','idea','quiz']){
+  for(const id of ['quickSettings','settingsDrawer','settingsCategories','settingsChoices','kitroom','liveEq','vars','chart','ticker','mlList','chal','missions','eqs','steps','idea','quiz']){
     assert.equal((html.match(new RegExp(`id="${id}"`,'g'))||[]).length,1,`${id} must have one owner`);
   }
 });
 
 test('provides every inspector destination with an accessible tab and panel',()=>{
-  for(const name of ['setup','math','review','goals','learn']){
+  for(const name of ['math','review','goals','learn']){
     assert.match(html,new RegExp(`id="ins-tab-${name}"[^>]+aria-controls="ins-pane-${name}"`));
     assert.match(html,new RegExp(`id="ins-pane-${name}"[^>]+role="tabpanel"[^>]+aria-labelledby="ins-tab-${name}"`));
   }
+  assert.doesNotMatch(html,/id="ins-tab-setup"|id="ins-pane-setup"/);
 });
 
 test('keeps gameplay controls outside the canvas stage',()=>{
@@ -91,15 +92,26 @@ test('renders readable labels with the existing control symbols',()=>{
   assert.match(html,/>Dials <span class="k">P<\/span>/);
 });
 
-test('keeps icon and text setup choices plus the Kit Room in Setup flow',()=>{
-  const setup=html.indexOf('id="ins-pane-setup"'),kitRoom=html.indexOf('id="kitroom"',setup),setupEnd=html.indexOf('</section>',kitRoom);
-  assert.ok(setup<kitRoom&&kitRoom<setupEnd);
+test('uses one on-game hierarchical settings experience',()=>{
+  const stage=html.indexOf('<div class="stage">'),settings=html.indexOf('id="gameSettings"'),deck=html.indexOf('class="control-deck"'),kitRoom=html.indexOf('id="kitroom"',settings);
+  assert.ok(stage<settings&&settings<deck&&settings<kitRoom);
   assert.doesNotMatch(html,/id="kitroom"[^>]+aria-modal/);
+  for(const id of ['settingsToggle','quickSettings','settingsDrawer','settingsBack','settingsClose','settingsCategories','settingsChoices'])assert.equal((html.match(new RegExp(`id="${id}"`,'g'))||[]).length,1);
   assert.match(ui,/function setupLabel\(id,label\)/);
-  assert.match(ui,/className='chip setup-choice/);
-  assert.match(kit,/function openKit\(trigger=.*KITROOM\.scrollTop/);
-  assert.match(kit,/function closeKit\(\).*scrollTop=KITROOM\.scrollTop/);
-  assert.match(css,/\.inspector \.setup-choice\{min-height:48px\}/);
+  assert.match(ui,/function quickSettingSpecs\(groups\)/);
+  for(const label of ['Mode','Player','Environment','Kit'])assert.match(ui,new RegExp(`label:'${label}'`));
+  assert.match(ui,/function settingsGroups\(\)/);
+  assert.match(ui,/kind:'kit'/);
+  assert.match(cockpit,/function setSettingsLevel\(level/);
+  assert.match(cockpit,/if\(SETTINGS\.level==='kit'\).*'choices'/);
+  assert.match(cockpit,/else if\(SETTINGS\.level==='choices'\).*'categories'/);
+  assert.match(cockpit,/if\(e\.key==='Escape'\).*closeSettings\(\)/);
+  assert.match(kit,/function openKit\(trigger=.*showKitSettings\(trigger\)/);
+  assert.match(kit,/function closeKit\(\).*setSettingsLevel\('choices'/);
+  assert.match(css,/\.settings-drawer\{position:absolute/);
+  assert.match(css,/\.settings-drawer-body\{[^}]*overflow-y:auto;overscroll-behavior:contain/);
+  assert.match(css,/\.settings-drawer \.setup-choice\{min-height:48px/);
+  assert.match(css,/\.quick-setting\{min-height:48px/);
 });
 
 test('lets D-pad selection own the adjacent exact quick variable',()=>{
@@ -110,10 +122,15 @@ test('lets D-pad selection own the adjacent exact quick variable',()=>{
   assert.match(cockpit,/data-step="1"[^>]+aria-label="More/);
 });
 
-test('pauses expanded settings and resumes through existing inspector ownership',()=>{
-  assert.match(cockpit,/name==='setup'\)\);/);
-  assert.match(cockpit,/setInspectorPause\(false\)/);
-  assert.match(html,/id="inspectorState" hidden>Game paused while you adjust this panel/);
+test('pauses and resumes through canonical settings ownership',()=>{
+  assert.match(cockpit,/function setSettingsPause\(on\)/);
+  assert.match(cockpit,/pauseGame\('settings'\)/);
+  assert.match(cockpit,/PAUSE\.why==='settings'/);
+  assert.match(cockpit,/function openSettings\(category=null,trigger=settingsToggle\)/);
+  assert.match(cockpit,/function closeSettings\(\{restore=true\}=\{\}\)/);
+  assert.match(cockpit,/trigger\.isConnected/);
+  assert.match(html,/id="settingsState">Game paused while settings are open/);
+  assert.doesNotMatch(cockpit,/INSPECTOR\.pane==='setup'/);
 });
 
 test('puts coach and challenge guidance in the stage without duplicating nodes',()=>{

@@ -1,11 +1,13 @@
 /* ---------- responsive web cockpit ---------- */
 const INSPECTOR={pane:'math',trigger:null,mq:window.matchMedia('(max-width:980px)')};
+const SETTINGS={level:'categories',category:null,trigger:null,restoreCategory:null};
 const inspector=$('#inspector');
 const desktopInspectorHost=$('#game-cockpit'),utilitySlot=$('#utilitySlot');
 const MATH_CONSOLE={open:false,sig:''};
 const mathConsole=$('#mathConsole'),mathConsolePanel=$('#mathConsolePanel'),mathConsolePull=$('#mathConsolePull');
+const settingsDrawer=$('#settingsDrawer'),settingsToggle=$('#settingsToggle');
 
-function inspectorNeedsPause(name){return name==='setup'||name==='math';}
+function inspectorNeedsPause(name){return name==='math';}
 function setInspectorPause(on){
   const state=$('#inspectorState');
   if(on){
@@ -25,7 +27,7 @@ function setInspectorPane(name,{focus=false,open=true}={}){
   });
   inspector.querySelectorAll('.inspector-pane').forEach(p=>p.hidden=p!==pane);
   if(open)inspector.classList.add('open');
-  setInspectorPause(inspector.classList.contains('open')&&(INSPECTOR.mq.matches?inspectorNeedsPause(name):name==='setup'));
+  setInspectorPause(inspector.classList.contains('open')&&INSPECTOR.mq.matches&&inspectorNeedsPause(name));
   if(focus)tab.focus();
   requestAnimationFrame(resize);
 }
@@ -39,9 +41,46 @@ function closeInspector({restore=true}={}){
 }
 function syncInspectorLayout(){
   if(INSPECTOR.mq.matches){if(inspector.parentElement!==utilitySlot)utilitySlot.appendChild(inspector);inspector.classList.remove('open');setInspectorPause(false);}
-  else{if(inspector.parentElement!==desktopInspectorHost)desktopInspectorHost.appendChild(inspector);inspector.classList.add('open');setInspectorPause(INSPECTOR.pane==='setup');}
+  else{if(inspector.parentElement!==desktopInspectorHost)desktopInspectorHost.appendChild(inspector);inspector.classList.add('open');setInspectorPause(false);}
   requestAnimationFrame(resize);
 }
+
+function setSettingsPause(on){
+  if(on)pauseGame('settings');
+  else if(PAUSE.why==='settings'){PAUSE.why='';resumeGame();}
+  $('#settingsState').textContent=on&&PAUSE.on&&PAUSE.why==='settings'?'Game paused while settings are open.':'Settings open. Changes apply immediately.';
+}
+function setSettingsLevel(level,{category=SETTINGS.category,focus=true}={}){
+  SETTINGS.level=level;SETTINGS.category=category;
+  const cats=$('#settingsCategories'),choices=$('#settingsChoices'),kitRoom=$('#kitroom'),back=$('#settingsBack');
+  cats.hidden=level!=='categories';choices.hidden=level!=='choices';kitRoom.hidden=level!=='kit';back.hidden=level==='categories';
+  const group=settingsGroups().find(g=>g.id===category),label=group?group.label:'Settings';
+  $('#settingsBreadcrumb').textContent=level==='categories'?'Settings':level==='kit'?'Settings / Kit':`Settings / ${label}`;
+  $('#settingsTitle').textContent=level==='categories'?'Choose a category':level==='kit'?'Equipment details':label;
+  if(level==='categories')renderSettingsCategories();
+  else if(level==='choices')renderSettingsChoices(category);
+  else renderKit();
+  $('#settingsDrawerBody').scrollTop=0;
+  if(focus)requestAnimationFrame(()=>{const target=level==='categories'?cats.querySelector('button'):level==='choices'?choices.querySelector('button'):kitRoom.querySelector('button');(target||back).focus();});
+}
+function openSettings(category=null,trigger=settingsToggle){
+  SETTINGS.trigger=trigger;SETTINGS.restoreCategory=trigger&&trigger.dataset?trigger.dataset.category:null;settingsDrawer.hidden=false;settingsToggle.setAttribute('aria-expanded','true');setSettingsPause(true);
+  setSettingsLevel(category?'choices':'categories',{category,focus:true});requestAnimationFrame(resize);
+}
+function closeSettings({restore=true}={}){
+  if(settingsDrawer.hidden)return;settingsDrawer.hidden=true;$('#kitroom').hidden=true;settingsToggle.setAttribute('aria-expanded','false');setSettingsPause(false);
+  if(restore){const trigger=SETTINGS.trigger&&SETTINGS.trigger.isConnected?SETTINGS.trigger:SETTINGS.restoreCategory!=null?$(`#quickSettings [data-category="${SETTINGS.restoreCategory}"]`):null;(trigger||settingsToggle).focus();}requestAnimationFrame(resize);
+}
+function showKitSettings(trigger=$('#kitRoomToggle')){SETTINGS.trigger=SETTINGS.trigger||trigger;setSettingsLevel('kit',{category:'kit',focus:true});}
+function settingsBack(){if(SETTINGS.level==='kit')setSettingsLevel('choices',{category:'kit'});else if(SETTINGS.level==='choices')setSettingsLevel('categories');}
+
+settingsToggle.addEventListener('click',()=>settingsDrawer.hidden?openSettings(null,settingsToggle):closeSettings());
+$('#settingsClose').addEventListener('click',()=>closeSettings());
+$('#settingsBack').addEventListener('click',settingsBack);
+$('#quickSettings').addEventListener('click',e=>{const b=e.target.closest('[data-category]');if(!b)return;openSettings(b.dataset.category||null,b);});
+$('#settingsCategories').addEventListener('click',e=>{const b=e.target.closest('[data-category]');if(!b)return;setSettingsLevel('choices',{category:b.dataset.category});});
+settingsDrawer.addEventListener('pointerdown',e=>e.stopPropagation());
+settingsDrawer.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();closeSettings();}});
 
 inspector.querySelectorAll('[role="tab"]').forEach(tab=>{
   tab.addEventListener('click',()=>{INSPECTOR.trigger=tab;setInspectorPane(tab.dataset.pane,{open:true});});
@@ -54,16 +93,16 @@ inspector.querySelectorAll('[role="tab"]').forEach(tab=>{
 $('#inspectorClose').addEventListener('click',()=>closeInspector());
 inspector.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'&&INSPECTOR.mq.matches&&inspector.classList.contains('open')){e.preventDefault();closeInspector();}});
 inspector.addEventListener('pointerdown',e=>{
-  if(INSPECTOR.mq.matches||!e.target.closest('[data-pane="setup"],[data-pane="math"]'))return;
+  if(INSPECTOR.mq.matches||!e.target.closest('[data-pane="math"]'))return;
   if(e.target.closest('button,input'))setInspectorPause(true);
 });
 inspector.addEventListener('focusin',e=>{
-  if(INSPECTOR.mq.matches||!e.target.closest('[data-pane="setup"],[data-pane="math"]'))return;
+  if(INSPECTOR.mq.matches||!e.target.closest('[data-pane="math"]'))return;
   if(e.target.matches('button,input'))setInspectorPause(true);
 });
 inspector.addEventListener('focusout',()=>{
   if(INSPECTOR.mq.matches)return;
-  requestAnimationFrame(()=>{if(!inspector.contains(document.activeElement))setInspectorPause(INSPECTOR.pane==='setup');});
+  requestAnimationFrame(()=>{if(!inspector.contains(document.activeElement))setInspectorPause(false);});
 });
 try{INSPECTOR.mq.addEventListener('change',syncInspectorLayout);}catch(e){INSPECTOR.mq.addListener&&INSPECTOR.mq.addListener(syncInspectorLayout);}
 

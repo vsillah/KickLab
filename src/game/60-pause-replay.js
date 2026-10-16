@@ -15,7 +15,7 @@ $('#dialTop').addEventListener('click',e=>{e.stopPropagation();unlock();$('#dial
 function drawPause(c){if(!PAUSE.on)return;c.save();c.fillStyle='rgba(4,8,18,0.6)';c.fillRect(0,0,W,H);
   if(PAUSE.resumeT>0){const n=Math.ceil(PAUSE.resumeT/0.3);glow(c,C.hot,20);text(c,String(n),W/2,H/2,'96px '+DISP,C.hot,'center','middle');c.restore();return;}
   const cx=PAUSE.why==='dials'&&cv.clientWidth>700?W*0.3:W/2;glow(c,C.xray,18);text(c,'TIME-OUT',cx,H/2-30,'54px '+DISP,C.ink,'center','middle');c.shadowBlur=0;
-  const note=PAUSE.why==='dials'?'Work your dials, then tap Back in':PAUSE.why==='inspector'?'Game paused while this inspector panel is open. Choose Return to game when ready.':'Return to the stage to resume.';
+  const note=PAUSE.why==='dials'?'Work your dials, then tap Back in':PAUSE.why==='settings'?'Game paused while settings are open. Close settings to return.':PAUSE.why==='inspector'?'Game paused while this inspector panel is open. Choose Return to game when ready.':'Return to the stage to resume.';
   text(c,note,cx,H/2+20,'600 16px '+BODY,C.xray,'center','middle');c.restore();}
 
 /* ---------- move log, recording, replay, review ---------- */
