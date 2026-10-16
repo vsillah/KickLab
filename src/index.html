@@ -37,12 +37,6 @@
     <div class="hudtools"><button class="boardbtn" id="boardBtn" type="button">🏆 Family board</button><button class="mute" id="mute" type="button" aria-pressed="false">Sound on</button></div>
   </div>
 
-  <div class="fboard" id="kitroom" hidden role="dialog" aria-modal="true" aria-label="Kit Room"><div class="fb">
-    <div class="fb-h"><h2>KIT <span>ROOM</span></h2><button class="fb-x" id="kitClose" type="button">Back to the pitch ✕</button></div>
-    <div class="kit-sum" id="kitSum"></div>
-    <div id="kitBody"></div>
-    <div class="kit-foot"><button type="button" class="fb-x" id="kitReset">Reset to match kit</button></div>
-  </div></div>
   <div class="fboard" id="fboard" hidden role="dialog" aria-modal="true" aria-label="Family leaderboard"><div class="fb">
     <div class="fb-h"><h2>FAMILY <span>BOARD</span></h2><button class="fb-x" id="fbClose" type="button">Close ✕</button></div>
     <div class="fb-me"><span>Your nickname</span><input id="fbNick" maxlength="16" placeholder="Make up a nickname" autocomplete="off"><button type="button" id="fbPost">Post my bests</button><div class="fb-msg" id="fbMsg"></div></div>
@@ -60,6 +54,13 @@
           <div class="lvlup" id="lvlup" hidden><div class="lu"><span class="lu-k">LEVEL UP</span><div class="lu-n" id="luNum">2</div><div class="lu-t" id="luTitle"></div><div class="lu-u" id="luUnlock"></div></div></div>
           <div class="feed" id="feed" aria-hidden="true"></div>
           <div class="toasts" id="toasts"></div>
+          <div class="game-guidance-hud" id="gameGuidanceHud" aria-label="Live coach and challenge guidance">
+            <section class="challenge-hud" id="challengeHud" aria-label="Active goal"></section>
+            <div class="coach" id="coach" aria-live="polite" aria-atomic="true">
+              <div class="av" id="coachAv">DR</div>
+              <div><div class="cn"><b id="coachName">Coach Dre</b><span id="coachRole">boxing coach</span><span class="streak" id="streak"></span></div><p id="coachMsg"></p></div>
+            </div>
+          </div>
         </div>
         <div class="control-deck" aria-label="Game controls">
           <div class="pad" id="pad"><div class="grp l" id="padL"></div><div class="grp r" id="padR"></div></div>
@@ -67,7 +68,7 @@
         </div>
         <section class="math-console" id="mathConsole" aria-label="Gameplay Math Console">
           <div class="math-console-panel" id="mathConsolePanel" hidden>
-            <div class="math-console-head"><div><span>Live controls</span><b>Adjust the math you play</b></div><button type="button" id="mathConsoleClose">Close</button></div>
+            <div class="math-console-head"><div><span>Live controls</span><b id="mathConsoleHeading">Adjust the math you play</b></div><button type="button" id="mathConsoleClose">Close</button></div>
             <div class="math-console-controls" id="mathConsoleControls"></div>
             <button type="button" class="math-console-more" id="mathConsoleMore">More math</button>
           </div>
@@ -84,11 +85,6 @@
           <div class="math-hud-equation" id="mathHudEquation"></div>
           <dl class="math-hud-values" id="mathHudValues"></dl>
         </section>
-        <section class="challenge-hud" id="challengeHud" aria-label="Active goal"></section>
-        <div class="coach" id="coach" aria-live="polite" aria-atomic="true">
-          <div class="av" id="coachAv">DR</div>
-          <div><div class="cn"><b id="coachName">Coach Dre</b><span id="coachRole">boxing coach</span><span class="streak" id="streak"></span></div><p id="coachMsg"></p></div>
-        </div>
       </div>
     </div>
     <aside class="panel inspector" id="inspector" aria-label="Game inspector">
@@ -108,6 +104,12 @@
         <section class="inspector-pane" id="ins-pane-setup" role="tabpanel" aria-labelledby="ins-tab-setup" data-pane="setup" hidden>
           <div class="pane-heading"><h2>Setup</h2><p>Mode, environment, equipment and style.</p></div>
           <div class="opts" id="opts"></div>
+          <section class="kitroom-inline" id="kitroom" hidden aria-label="Kit Room">
+            <div class="kitroom-head"><div><span>Equipment</span><h3>Kit Room</h3><p>Choose the ball, surface, studs, and boots without leaving Setup.</p></div><button class="fb-x" id="kitClose" type="button">Collapse Kit Room</button></div>
+            <div class="kit-sum" id="kitSum"></div>
+            <div id="kitBody"></div>
+            <div class="kit-foot"><button type="button" class="fb-x" id="kitReset">Reset to match kit</button></div>
+          </section>
         </section>
         <section class="inspector-pane" id="ins-pane-math" role="tabpanel" aria-labelledby="ins-tab-math" data-pane="math">
           <div class="ph"><h2>Live math</h2><p id="cHint"></p></div>

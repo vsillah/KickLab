@@ -23,7 +23,22 @@ const ICONS={
   mv_cruyff:SV('<circle cx="22" cy="23" r="4.5" fill="currentColor" stroke="none"/><path d="M8 6v12h12" stroke-width="3"/><path d="M20 18l-3.5-3.5M20 18l-3.5 3.5" stroke-width="2.6"/>'),
   mv_nut:SV('<path d="M9 4l5 22M23 4l-5 22" stroke-width="2.8"/><circle cx="16" cy="20" r="3.6" fill="currentColor" stroke="none"/>'),
   mv_rainbow:SV('<path d="M5 25C7 6 25 6 27 25" stroke-width="2.8"/><circle cx="16" cy="10" r="4.5" fill="currentColor" stroke="none"/>'),
-  mv_spin:SV('<circle cx="16" cy="16" r="4" fill="currentColor" stroke="none"/><path d="M25 11A10.5 10.5 0 1 0 26.5 18" stroke-width="3"/><path d="M25 4v7h-7" stroke-width="3"/>')};
+  mv_spin:SV('<circle cx="16" cy="16" r="4" fill="currentColor" stroke="none"/><path d="M25 11A10.5 10.5 0 1 0 26.5 18" stroke-width="3"/><path d="M25 4v7h-7" stroke-width="3"/>'),
+  setup_mode:SV('<circle cx="16" cy="16" r="10"/><path d="M16 9v7l5 3"/><path d="M8 5l-3 5h6M24 27l3-5h-6"/>'),
+  setup_kit:SV('<path d="M6 11h20v16H6z"/><path d="M11 11V7h10v4M16 11v16"/>'),
+  setup_player:SV('<circle cx="16" cy="9" r="4"/><path d="M9 28v-6a7 7 0 0 1 14 0v6M8 18l-4 6M24 18l4 6"/>'),
+  setup_stadium:SV('<path d="M4 25V10l12-6 12 6v15M8 25V13h16v12M4 25h24"/><path d="M12 18h8"/>'),
+  setup_pitch:SV('<rect x="4" y="6" width="24" height="20" rx="2"/><path d="M16 6v20"/><circle cx="16" cy="16" r="4"/>'),
+  setup_weather:SV('<path d="M9 24h15a5 5 0 0 0 0-10 8 8 0 0 0-15-2 6 6 0 0 0 0 12z"/><path d="M10 27l-1 2M17 27l-1 2M24 27l-1 2"/>'),
+  setup_temp:SV('<path d="M14 6a3 3 0 0 1 6 0v12a6 6 0 1 1-6 0z"/><path d="M17 10v12"/>'),
+  setup_ball:SV('<circle cx="16" cy="16" r="11"/><path d="M16 10l5 4-2 6h-6l-2-6zM5 14l6 0M21 14l6-1M13 20l-3 6M19 20l3 6"/>'),
+  setup_path:SV('<path d="M4 24c8-18 16 5 24-16"/><path d="M23 7l5 1-1 5"/>'),
+  setup_controls:SV('<circle cx="16" cy="16" r="10"/><path d="M16 6v5M16 21v5M6 16h5M21 16h5"/><circle cx="16" cy="16" r="3"/>'),
+  setup_style:SV('<path d="M16 4l3.5 7 7.5 1-5.5 5 1.5 8-7-4-7 4 1.5-8-5.5-5 7.5-1z"/>')};
+const SETUP_ICON_KEY={__play:'setup_mode',kit:'setup_kit',pl:'setup_player',player:'setup_player',stad:'setup_stadium',stadium:'setup_stadium',pitch:'setup_pitch',wx:'setup_weather',weather:'setup_weather',temp:'setup_temp',press:'setup_ball',size:'setup_ball',surf:'setup_ball',ball:'setup_ball',pred:'setup_path',air:'setup_weather',shot:'setup_ball',pso:'setup_mode',style:'setup_style'};
+function setupIcon(id){return ICONS[SETUP_ICON_KEY[id]||'setup_controls'];}
+function setupLabel(id,label){return`<span class="setup-label">${setupIcon(id)}<span>${label}</span></span>`;}
+function setupChoice(id,label,sub,locked=false){return`${setupIcon(id)}<span class="choice-copy">${locked?'<span class="lock-mark" aria-hidden="true">LOCKED</span> ':''}<b>${label}</b><small>${sub}</small></span>`;}
 function padEls(id){return document.querySelectorAll(`#pad [data-id="${id}"]`);}
 function setLabel(){M.actions().forEach(x=>{padEls(x.id).forEach(el=>{el.classList.toggle('sel',!!x.sel);el.classList.toggle('pulse',!!x.pulse);el.disabled=!!x.disabled;if(x.icon&&el._icon!==x.icon){const c=el.querySelector('.cap');if(c){c.innerHTML=ICONS[x.icon];el._icon=x.icon;}}const label=x.label||String(x.aria||x.id).replace(/\s*\(.*/, '');const vl=el.querySelector('.action-label');if(vl)vl.textContent=label;el.setAttribute('aria-label',x.aria||x.label||x.id);});});}
 function adjustVar(id,delta){const e=varEls.find(v=>v.def.id===id);if(!e||e.inp.disabled)return false;const d=e.def,nv=clamp(Math.round((M.V[id]+delta)/d.step)*d.step,d.min,d.max);e.inp.value=nv;e.inp.dispatchEvent(new Event('input'));
@@ -35,7 +50,7 @@ function dialStep(v){return Math.max(v.step,Math.round((v.max-v.min)/40/v.step)*
 function dialMode(){if(M===Kick&&Kick.opt.shot!=='dribble'&&Kick.state==='aim')return assistLevel('kick')===2?'bound':'select';if(M===Kick&&Kick.opt.shot==='dribble'&&Drib.state==='ready'&&!MATCH.on)return'select';return null;}
 function dialSelectActions(){const vs=dialVars();if(!vs.length)return[];const n=vs.length,cur=vs[((DP.sel%n)+n)%n],st=dialStep(cur);
   return[{id:'dsel-',dir:'left',tag:'DIAL',aria:'previous dial'},{id:'dsel+',dir:'right',aria:'next dial'},{id:'dinc',dir:'up',tag:cur.sym,aria:`raise ${cur.name}`,step:[cur.id,st]},{id:'ddec',dir:'down',tag:cur.sym,aria:`lower ${cur.name}`,step:[cur.id,-st]}];}
-function dialSel(id){if(id!=='dsel-'&&id!=='dsel+')return false;DP.sel+=id==='dsel+'?1:-1;const vs=dialVars(),cur=vs[((DP.sel%vs.length)+vs.length)%vs.length];if(cur){DP.flash={id:cur.id,t:performance.now()};const e=varEls.find(v=>v.def.id===cur.id),box=e&&e.inp.closest('.var');if(box){box.classList.remove('dflash');void box.offsetWidth;box.classList.add('dflash');}}SND.click();renderActions();setLabel();return true;}
+function dialSel(id){if(id!=='dsel-'&&id!=='dsel+')return false;DP.sel+=id==='dsel+'?1:-1;const vs=dialVars(),cur=vs[((DP.sel%vs.length)+vs.length)%vs.length];if(cur){DP.flash={id:cur.id,t:performance.now()};const e=varEls.find(v=>v.def.id===cur.id),box=e&&e.inp.closest('.var');if(box){box.classList.remove('dflash');void box.offsetWidth;box.classList.add('dflash');}}SND.click();renderActions();setLabel();if(typeof renderMathConsole==='function')renderMathConsole();return true;}
 function drawDialHud(c){const md=dialMode();if(!md)return;const vs=dialVars();if(!vs.length)return;const acts=M.actions(),fresh=DP.flash&&performance.now()-DP.flash.t<700;
   const rows=md==='bound'?acts.filter(a=>a.step).reduce((L,a)=>{const v=vs.find(x=>x.id===a.step[0]);if(v&&!L.some(r=>r.v===v))L.push({v,keys:acts.filter(b=>b.step&&b.step[0]===v.id).map(b=>({up:'▲',down:'▼',left:'◀',right:'▶'})[b.dir]).join('')});return L;},[]):null;
   const x=14,h=md==='bound'?26+rows.length*19:62,y=360-h,w=278;c.save();c.fillStyle='rgba(6,11,24,0.86)';rr(c,x,y,w,h,9);c.fill();c.strokeStyle=C.line;c.stroke();
@@ -46,18 +61,18 @@ function drawDialHud(c){const md=dialMode();if(!md)return;const vs=dialVars();if
   c.restore();}
 function renderOpts(){const box=$('#opts');box.innerHTML='';const k=M.key,n=CH[k].length;
   const modeG={id:'__play',label:'Mode',choices:k==='fight'?[['ch','Bout vs Rex',best.ch.fight<n?REX[best.ch.fight].name:'champion rematch'],['free','Free lab','no opponent']]:[['ch','Challenge',best.ch[k]<n?`${best.ch[k]+1} of ${n}`:'complete'],['free','Free play','no limits']]};
-  {const el=document.createElement('div');el.className='group';el.innerHTML=`<span class="lbl">Mode</span>`;const ch=document.createElement('div');ch.className='chips';
-   modeG.choices.forEach(([v,l,sub])=>{const b=document.createElement('button');b.type='button';b.className='chip';b.setAttribute('aria-pressed',String(best.play[k]===v));b.innerHTML=`${l}<small>${sub}</small>`;
+  {const el=document.createElement('div');el.className='group';el.innerHTML=`<span class="lbl">${setupLabel('__play','Mode')}</span>`;const ch=document.createElement('div');ch.className='chips';
+   modeG.choices.forEach(([v,l,sub])=>{const b=document.createElement('button');b.type='button';b.className='chip setup-choice';b.setAttribute('aria-pressed',String(best.play[k]===v));b.innerHTML=setupChoice('__play',l,sub);
      b.addEventListener('click',()=>{if(best.play[k]===v)return;unlock();SND.click();best.play[k]=v;saveBest();applyCh(k);E.slow=null;hideResults();M.reset();renderAll(false);COACH.set(k);});ch.appendChild(b);});
    el.appendChild(ch);box.appendChild(el);}
-  if(M===Kick){const el=document.createElement('div');el.className='group';el.innerHTML=`<span class="lbl">Kit</span>`;const b=document.createElement('button');b.type='button';b.className='kitbtn';
-    const K=kit();b.innerHTML=`<b>🎒 Kit Room</b><small>${KI('press').n} ball · ${KI('size').n} · ${KI('surf').n} · ${KI('studs').n} · ${KI('boot').n} boots</small>`;b.addEventListener('click',()=>{unlock();SND.click();openKit();});el.appendChild(b);box.appendChild(el);}
-  M.groups().filter(g=>!(M===Kick&&(g.id==='shot'||g.id==='pso'))).forEach(g=>{const el=document.createElement('div');el.className='group';el.innerHTML=`<span class="lbl">${g.label}</span>`;
-  const ch=document.createElement('div');ch.className='chips';g.choices.forEach(([v,l,sub,lock])=>{const b=document.createElement('button');b.type='button';b.className='chip'+(lock?' locked':'');b.setAttribute('aria-pressed',String(M.opt[g.id]===v&&!lock));b.innerHTML=`${lock?'🔒 ':''}${l}<small>${sub}</small>`;
+  if(M===Kick){const el=document.createElement('div');el.className='group';el.innerHTML=`<span class="lbl">${setupLabel('kit','Kit')}</span>`;const b=document.createElement('button');b.type='button';b.className='kitbtn setup-choice';b.id='kitRoomToggle';b.setAttribute('aria-expanded',String(!$('#kitroom').hidden));b.setAttribute('aria-controls','kitroom');
+    const K=kit();b.innerHTML=`${setupIcon('kit')}<span class="choice-copy"><b>Kit Room</b><small>${KI('press').n} ball · ${KI('size').n} · ${KI('surf').n} · ${KI('studs').n} · ${KI('boot').n} boots</small></span>`;b.addEventListener('click',()=>{unlock();SND.click();$('#kitroom').hidden?openKit(b):closeKit();});el.appendChild(b);box.appendChild(el);}
+  M.groups().filter(g=>!(M===Kick&&(g.id==='shot'||g.id==='pso'))).forEach(g=>{const el=document.createElement('div');el.className='group';el.innerHTML=`<span class="lbl">${setupLabel(g.id,g.label)}</span>`;
+  const ch=document.createElement('div');ch.className='chips';g.choices.forEach(([v,l,sub,lock])=>{const b=document.createElement('button');b.type='button';b.className='chip setup-choice'+(lock?' locked':'');b.setAttribute('aria-pressed',String(M.opt[g.id]===v&&!lock));b.innerHTML=setupChoice(g.id,l,sub,!!lock);
     b.addEventListener('click',()=>{if(lock){COACH.say(lock,'tip',6);return;}if(M.opt[g.id]===v)return;unlock();SND.click();M.opt[g.id]=v;if(M.onOpt)M.onOpt(g.id,v);E.slow=null;M.reset();renderAll(false);});ch.appendChild(b);});
   el.appendChild(ch);box.appendChild(el);});
-  const cs=COSMETICS[M.key],lv=lvlOf(best.xp),el=document.createElement('div');el.className='group';el.innerHTML=`<span class="lbl">Style · unlock with levels</span>`;const ch=document.createElement('div');ch.className='chips';
-  cs.items.forEach(([id,l,need])=>{const b=document.createElement('button');b.type='button';const locked=lv<need;b.className='chip'+(locked?' locked':'');b.setAttribute('aria-pressed',String(best.style[M.key]===id&&!locked));b.innerHTML=`${l}<small>${locked?'LVL '+need:'unlocked'}</small>`;
+  const cs=COSMETICS[M.key],lv=lvlOf(best.xp),el=document.createElement('div');el.className='group';el.innerHTML=`<span class="lbl">${setupLabel('style','Style · unlock with levels')}</span>`;const ch=document.createElement('div');ch.className='chips';
+  cs.items.forEach(([id,l,need])=>{const b=document.createElement('button');b.type='button';const locked=lv<need;b.className='chip setup-choice'+(locked?' locked':'');b.setAttribute('aria-pressed',String(best.style[M.key]===id&&!locked));b.innerHTML=setupChoice('style',l,locked?'LVL '+need:'unlocked',locked);
     b.addEventListener('click',()=>{if(locked){COACH.say(`${l} unlocks at level ${need}. Keep earning XP!`,'tip',6);return;}SND.click();best.style[M.key]=id;saveBest();renderOpts();});ch.appendChild(b);});el.appendChild(ch);box.appendChild(el);}
 const varEls=[];
 function renderVars(){const box=$('#vars');box.innerHTML='';varEls.length=0;M.vars().forEach(v=>{const el=document.createElement('div');el.className='var'+(isLocked(M.key,v.id)?' locked':'');el.style.setProperty('--c',v.col);const id='var-'+M.key+'-'+v.id;
@@ -91,7 +106,7 @@ function renderActions(){$('#padL').innerHTML='';$('#padR').innerHTML='';const a
   if(a.disabled){(a.dir?dp:arc).appendChild(b);return;}
   let rep=null;
   b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();unlock();try{b.setPointerCapture(e.pointerId);}catch(_){}b.classList.add('on');
-    if(a.step){adjustVar(a.step[0],a.step[1]);SND.click();clearTimeout(rep);rep=setTimeout(function tick(){adjustVar(a.step[0],a.step[1]);rep=setTimeout(tick,90);},350);return;}
+    if(a.step){adjustVar(a.step[0],a.step[1]);if(typeof renderMathConsole==='function')renderMathConsole();SND.click();clearTimeout(rep);rep=setTimeout(function tick(){adjustVar(a.step[0],a.step[1]);if(typeof renderMathConsole==='function')renderMathConsole();rep=setTimeout(tick,90);},350);return;}
     if(a.id==='dials'){$('#dials').hidden?openDials():closeDials();return;}
     if(PAUSE.on){if($('#dials').hidden)resumeGame();return;}
     if(dialSel(a.id)){b.classList.remove('on');return;}

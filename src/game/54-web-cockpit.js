@@ -25,8 +25,7 @@ function setInspectorPane(name,{focus=false,open=true}={}){
   });
   inspector.querySelectorAll('.inspector-pane').forEach(p=>p.hidden=p!==pane);
   if(open)inspector.classList.add('open');
-  if(INSPECTOR.mq.matches)setInspectorPause(inspector.classList.contains('open')&&inspectorNeedsPause(name));
-  else setInspectorPause(false);
+  setInspectorPause(inspector.classList.contains('open')&&(INSPECTOR.mq.matches?inspectorNeedsPause(name):name==='setup'));
   if(focus)tab.focus();
   requestAnimationFrame(resize);
 }
@@ -40,7 +39,7 @@ function closeInspector({restore=true}={}){
 }
 function syncInspectorLayout(){
   if(INSPECTOR.mq.matches){if(inspector.parentElement!==utilitySlot)utilitySlot.appendChild(inspector);inspector.classList.remove('open');setInspectorPause(false);}
-  else{if(inspector.parentElement!==desktopInspectorHost)desktopInspectorHost.appendChild(inspector);inspector.classList.add('open');setInspectorPause(false);}
+  else{if(inspector.parentElement!==desktopInspectorHost)desktopInspectorHost.appendChild(inspector);inspector.classList.add('open');setInspectorPause(INSPECTOR.pane==='setup');}
   requestAnimationFrame(resize);
 }
 
@@ -64,7 +63,7 @@ inspector.addEventListener('focusin',e=>{
 });
 inspector.addEventListener('focusout',()=>{
   if(INSPECTOR.mq.matches)return;
-  requestAnimationFrame(()=>{if(!inspector.contains(document.activeElement))setInspectorPause(false);});
+  requestAnimationFrame(()=>{if(!inspector.contains(document.activeElement))setInspectorPause(INSPECTOR.pane==='setup');});
 });
 try{INSPECTOR.mq.addEventListener('change',syncInspectorLayout);}catch(e){INSPECTOR.mq.addListener&&INSPECTOR.mq.addListener(syncInspectorLayout);}
 
@@ -73,13 +72,14 @@ function cockpitValue(def,value){
   return`${n}${u?(u==='°'?'°':' '+u):''}`;
 }
 function quickMathName(def){const names={m:'Mass',dt:'Padding',A:'Contact',mu:'Grip',R:'Radius',F:'Engine',v:'Speed',th:'Angle',thH:'Direction',g:'Gravity',spin:'Spin',jv:'Jump',run:'Run speed',grip:'Boot grip',curl:'Curve',vs:'Shot speed',pv:'Pass speed'};return names[def.id]||def.name;}
-function quickMathDefs(){const defs=M.vars().filter(d=>!isLocked(M.key,d.id)),ids=defs.map(d=>d.id);let order=M.key==='fight'?['m','dt','A']:M.key==='race'?['mu','R','F','m']:ids.includes('th')?['th','v','spin','g']:ids.includes('thH')?['thH','jv','g']:ids.includes('run')?['run','grip','curl','vs']:ids;return [...new Set([...order,...ids])].map(id=>defs.find(d=>d.id===id)).filter(Boolean).slice(0,4);}
+function quickMathDefs(){const defs=M.vars().filter(d=>!isLocked(M.key,d.id));if(!defs.length)return[];const mode=dialMode();if(mode==='select'){const i=((DP.sel%defs.length)+defs.length)%defs.length;return[defs[i]];}if(mode==='bound'){const ids=[...new Set(M.actions().filter(a=>a.step).map(a=>a.step[0]))],bound=ids.map(id=>defs.find(d=>d.id===id)).filter(Boolean);if(bound.length)return bound.slice(0,4);}const ids=defs.map(d=>d.id),order=M.key==='fight'?['m','dt','A']:M.key==='race'?['mu','R','F','m']:ids.includes('th')?['th','v','spin','g']:ids.includes('thH')?['thH','jv','g']:ids.includes('run')?['run','grip','curl','vs']:ids;return [...new Set([...order,...ids])].map(id=>defs.find(d=>d.id===id)).filter(Boolean).slice(0,4);}
 function plainMath(html){return String(html||'').replace(/<[^>]*>/g,' ').replace(/&(?:emsp|ensp|nbsp);/g,' ').replace(/&minus;|−/g,'-').replace(/&times;|×|·/g,' x ').replace(/&divide;|÷/g,' / ').replace(/&amp;/g,' and ').replace(/&lt;/g,' less than ').replace(/&gt;/g,' greater than ').replace(/θ/g,'Angle').replace(/μ/g,'Grip').replace(/ρ/g,'Density').replace(/δ/g,'Steering').replace(/Δt/g,'Padding time').replace(/R_turn/g,'Turn radius').replace(/\bvx\b/g,'horizontal speed').replace(/\bvy\b/g,'vertical speed').replace(/≤/g,' at most ').replace(/≥/g,' at least ').replace(/→/g,' gives ').replace(/½/g,'0.5 x ').replace(/²/g,' squared').replace(/_eff/g,' effective').replace(/x\s+x/g,'x').replace(/\s+/g,' ').trim();}
 function quickMathDisabled(def){const row=varEls.find(v=>v.def.id===def.id);return!!(row&&row.inp.disabled)||RP.on||CINE.on||resOpen();}
 function buildMathConsole(defs){$('#mathConsoleControls').innerHTML=defs.length?defs.map(def=>`<div class="math-console-var" data-var="${def.id}" style="--c:${def.col}"><span class="readout"><b>${quickMathName(def)}</b><output></output></span><button type="button" data-step="-1" aria-label="Less ${quickMathName(def)}">Less</button><button type="button" data-step="1" aria-label="More ${quickMathName(def)}">More</button></div>`).join(''):'<p class="math-console-empty">No live variable controls in this moment. Use More math for the full explanation.</p>';}
 function renderMathConsole(q){
   const defs=quickMathDefs(),sig=`${M.key}|${Kick.opt.shot}|${Kick.opt.pso}|${defs.map(d=>d.id).join(',')}`;
   if(sig!==MATH_CONSOLE.sig){MATH_CONSOLE.sig=sig;buildMathConsole(defs);}
+  const mode=dialMode();$('#mathConsoleHeading').textContent=mode==='select'?'D-pad selected variable':mode==='bound'?'D-pad quick variables':'Adjust the math you play';
   defs.forEach(def=>{const row=$(`#mathConsoleControls [data-var="${def.id}"]`);if(!row)return;row.querySelector('output').textContent=cockpitValue(def,M.V[def.id]);row.querySelectorAll('button').forEach(b=>b.disabled=quickMathDisabled(def));});
   $('#mathConsoleValues').innerHTML=defs.map(def=>`<span><b>${quickMathName(def)}</b> ${cockpitValue(def,M.V[def.id])}</span>`).join('')||'<span>No live dials</span>';
   q=q||M.eqs();const live=M.LIVE(),line=q.lines[live&&live.length?live[0]:0]||q.lines[0]||M.hint;
