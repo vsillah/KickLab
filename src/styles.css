@@ -256,9 +256,9 @@ canvas#cv{display:block;width:100%;height:auto;aspect-ratio:16/9;touch-action:no
 /* Web cockpit: controls stay outside the canvas; secondary material lives in one inspector. */
 .game-frame{position:relative;display:grid;min-width:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#070d1c}
 .game-frame .stage{border:0;border-radius:0}
-.control-deck{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center;padding:10px 12px;border-top:1px solid var(--line);background:linear-gradient(180deg,#0a1222,#070d1c)}
-.physics-mode-control{display:grid;gap:3px;width:146px;align-self:stretch}.physics-mode-switch{appearance:none;min-height:54px;display:grid;grid-template-columns:22px minmax(0,1fr);align-items:center;gap:7px;border:1px solid var(--xray);border-radius:10px;background:#111e36;color:var(--ink);padding:7px 8px;text-align:left;cursor:pointer}.physics-mode-switch>span:first-child{font-size:21px;color:var(--xray)}.physics-mode-switch>span:last-child{display:grid;gap:2px}.physics-mode-switch b{font-size:11px}.physics-mode-switch small{font:700 8px var(--f-mono);color:var(--muted)}.physics-mode-switch[aria-checked="true"]{border-color:var(--hot);box-shadow:inset 0 -3px 0 var(--hot)}.physics-mode-switch[aria-checked="true"]>span:first-child{color:var(--hot)}.physics-mode-switch:disabled{opacity:.55;cursor:not-allowed}.physics-mode-status{font:700 8px/1.25 var(--f-mono);color:var(--muted)}
+.control-deck{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;align-items:center;padding:10px 12px;border-top:1px solid var(--line);background:linear-gradient(180deg,#0a1222,#070d1c)}
 .control-deck .pad{position:static;display:flex;justify-content:space-between;align-items:center;padding:0;background:none;border:0;min-width:0}
+.control-left-slot{width:158px;height:178px;display:grid;grid-template-rows:34px 18px minmax(0,1fr);align-items:center;justify-items:center;flex:0 0 158px}.controller-mode-toggle{width:100%;display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:999px;background:#08101f;padding:2px}.controller-mode-toggle button{appearance:none;min-height:28px;border:0;border-radius:999px;background:transparent;color:var(--muted);font:700 9px var(--f-mono);cursor:pointer}.controller-mode-toggle button[aria-pressed="true"]{background:#17304d;color:var(--ink);box-shadow:inset 0 0 0 1px var(--xray)}.controller-mode-toggle button:disabled{opacity:.45;cursor:not-allowed}.controller-mode-status{width:100%;font:700 7px/1.2 var(--f-mono);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}.control-left-slot>#padL{grid-row:3}.manual-controller{box-sizing:border-box;grid-row:3;width:158px;height:126px;display:grid;grid-template-rows:44px minmax(24px,1fr) 44px;gap:0;border:1px solid var(--line);border-radius:10px;background:#0b162b;padding:4px}.manual-controller[hidden]{display:none}.manual-variable-head{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:3px}.manual-variable-head>span{display:grid;min-width:0;text-align:center}.manual-variable-head b{font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.manual-variable-head output{font:700 10px var(--f-mono);color:var(--xray);white-space:nowrap}.manual-controller button{appearance:none;min-width:44px;min-height:44px;border:1px solid var(--line);border-radius:8px;background:#16233e;color:var(--ink);font:700 10px var(--f-body);cursor:pointer}.manual-variable-head button{font-size:20px;padding:0}.manual-variable-steps{display:grid;grid-template-columns:1fr 1fr;gap:4px}.manual-variable-slider{width:100%}.manual-controller input[type="range"]{width:100%;min-height:24px;accent-color:var(--xray)}
 .control-deck .rbar{position:static;grid-column:1/-1;transform:none;width:auto;border-radius:10px;margin:0}
 .math-console{position:relative;display:flex;flex-direction:column;border-top:1px solid var(--line);background:#08101f;min-width:0}
 .math-console-pull{order:2;appearance:none;width:100%;min-height:54px;display:grid;grid-template-columns:auto minmax(0,1fr) minmax(180px,1.3fr) auto;align-items:center;gap:9px;border:0;border-top:1px solid #34507f;background:linear-gradient(180deg,#13233e,#0b1528);color:var(--ink);padding:7px 12px;text-align:left;cursor:pointer}
@@ -272,12 +272,11 @@ canvas#cv{display:block;width:100%;height:auto;aspect-ratio:16/9;touch-action:no
 .math-console-state{border:1px solid var(--hot);border-radius:999px;color:var(--hot);padding:4px 9px;font-family:var(--f-mono);font-size:10px;font-weight:700;white-space:nowrap}
 .math-console-panel{order:1;max-height:min(360px,42vh);overflow-y:auto;overscroll-behavior:contain;padding:10px 12px;background:rgba(13,25,45,.94);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);border-top:1px solid #34507f}
 .math-console-panel[hidden]{display:none}
-.math-console-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}.math-console-head>div{display:grid;gap:2px}.math-console-head span{font-family:var(--f-mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--xray)}.math-console-head b{font-size:13px}.math-console-head small{font:700 9px var(--f-mono);color:var(--hot)}
+.math-console-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}.math-console-head>div{display:grid;gap:2px}.math-console-head span{font-family:var(--f-mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--xray)}.math-console-head b{font-size:13px}
 .math-console-head button,.math-console-more,.math-console-var button{appearance:none;min-height:44px;border:1px solid var(--line);border-radius:8px;background:var(--panel-2);color:var(--ink);padding:7px 11px;font:700 11px var(--f-body);cursor:pointer}
 .math-console-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
 .math-console-var{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:6px;border:1px solid var(--line);border-radius:10px;background:rgba(7,14,28,.86);padding:7px;min-width:0}
 .math-console-var .readout{display:grid;gap:2px;min-width:0}.math-console-var .readout b{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.math-console-var output{font-family:var(--f-mono);font-size:12px;color:var(--xray);white-space:nowrap}.math-console-var button{min-width:58px;padding-inline:8px}.math-console-var button:disabled{opacity:.42;cursor:not-allowed}
-.math-console-var.manual{grid-template-columns:minmax(0,1fr) auto auto}.math-console-var.manual input[type="range"]{grid-column:1/-1;width:100%;min-height:32px;accent-color:var(--xray)}.math-console-var.manual select{grid-column:1/-1;min-height:44px;border:1px solid var(--line);border-radius:8px;background:#111e36;color:var(--ink);padding:6px 8px;font:700 10px var(--f-body)}
 .math-console-empty{grid-column:1/-1;margin:0;color:var(--muted);font-size:12px}.math-console-more{width:100%;margin-top:8px;border-color:var(--xray);color:var(--xray)}
 .math-console.has-focus{box-shadow:inset 0 0 0 2px rgba(127,220,255,.45)}
 .utility-slot{display:none}
@@ -383,7 +382,7 @@ canvas#cv{display:block;width:100%;height:auto;aspect-ratio:16/9;touch-action:no
   .rank small{font-size:10px}.rank .rt b{font-size:14px}
   .hudtools{grid-column:1/-1}
   .game-frame{border-radius:10px}
-  .control-deck{grid-template-columns:110px minmax(0,1fr);gap:7px;padding:7px 8px}.physics-mode-control{width:auto}.physics-mode-switch{min-height:48px;grid-template-columns:18px minmax(0,1fr);padding:5px}.physics-mode-switch>span:first-child{font-size:17px}.physics-mode-switch b{font-size:9px}.physics-mode-switch small{font-size:7px}.physics-mode-status{font-size:7px}
+  .control-deck{grid-template-columns:minmax(0,1fr);gap:7px;padding:7px 8px}.control-left-slot{width:142px;flex-basis:142px;height:172px}.manual-controller{width:142px;height:120px;grid-template-rows:40px minmax(22px,1fr) 44px;padding:3px}.manual-variable-head{grid-template-columns:40px minmax(0,1fr) 40px}.manual-variable-head button{min-width:40px;min-height:40px}
   .control-deck .pad{padding:0;align-items:flex-end}
   .math-console-pull{min-height:62px;grid-template-columns:auto minmax(0,1fr) auto;gap:5px;padding:6px 8px}.math-console-status{grid-column:1/-1;grid-row:2}.math-console-values{justify-content:flex-start}.math-console-values span:nth-child(n+3){display:none}.math-console-panel{max-height:min(320px,40vh);padding:8px}.math-console-controls{grid-template-columns:minmax(0,1fr)}
   .stage-context{grid-template-columns:minmax(0,1fr);gap:7px}
@@ -684,3 +683,22 @@ header.top .brand p{display:none}
   .stage-context .coach .cn{gap:3px}
   .stage-context .coach p{-webkit-line-clamp:3;max-height:4.1em}
 }
+
+/* Final in-game utility ownership: no persistent desktop sidecar. */
+.play{grid-template-columns:minmax(0,1fr)}
+.left{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+.left>.gamebar,.left>.game-frame,.left>.stage-context{grid-column:1;grid-row:auto}
+.left>.stage-context{grid-template-columns:minmax(0,1fr)}
+.utility-slot{display:block;position:relative;border-top:1px solid var(--line);background:#0a1222;z-index:8}
+.panel.inspector{position:static;display:grid;grid-template-rows:auto;max-height:none;border:0;border-radius:0;background:transparent;padding:0;overflow:visible}
+.inspector-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:7px;padding:7px 9px;border:0;background:linear-gradient(180deg,#10192d,#0a1222)}
+.utility-label{display:block;grid-column:1;font-size:11px}
+.inspector-tabs{grid-column:2;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+.inspector-tabs button,.inspector-close{min-height:44px}
+.inspector-close{display:block;grid-column:3;white-space:nowrap}
+.inspector:not(.open) .inspector-close{visibility:hidden}
+.inspector:not(.open) .inspector-body{display:none}
+.inspector-state{position:absolute;z-index:10;left:20px;right:20px;bottom:66px;margin:0;pointer-events:none}
+.inspector-body{box-sizing:border-box;position:absolute;z-index:9;left:8px;right:8px;bottom:58px;max-height:min(520px,calc(100vh - 160px));overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;padding:12px;border:1px solid #5578aa;border-radius:13px;background:rgba(8,17,33,.88);box-shadow:0 18px 45px rgba(0,0,0,.48);-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px)}
+.panel.inspector.open .inspector-body{display:block;max-height:min(520px,calc(100vh - 160px));border:1px solid #5578aa;border-radius:13px;background:rgba(8,17,33,.88)}
+@media (max-width:700px){.left{gap:7px}.inspector-head{grid-template-columns:minmax(0,1fr) auto}.utility-label{grid-column:1}.inspector-tabs{grid-column:1/-1;grid-row:2}.inspector-close{grid-column:2;grid-row:1}.inspector-state{left:12px;right:12px;bottom:110px}.inspector-body{left:5px;right:5px;bottom:102px;padding:9px}.panel.inspector.open .inspector-body{max-height:min(480px,calc(100vh - 150px))}}

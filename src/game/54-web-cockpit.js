@@ -2,10 +2,10 @@
 const INSPECTOR={pane:'math',trigger:null,mq:window.matchMedia('(max-width:980px)')};
 const SETTINGS={level:'categories',category:null,trigger:null,restoreCategory:null};
 const inspector=$('#inspector');
-const desktopInspectorHost=$('#game-cockpit'),utilitySlot=$('#utilitySlot');
-const MATH_CONSOLE={open:false,sig:'',mode:'dpad',trigger:null};
+const utilitySlot=$('#utilitySlot');
+const MATH_CONSOLE={open:false,sig:''},CONTROLLER={mode:'play',sel:0};
 const mathConsole=$('#mathConsole'),mathConsolePanel=$('#mathConsolePanel'),mathConsolePull=$('#mathConsolePull');
-const physicsModeSwitch=$('#physicsModeSwitch');
+const controllerPlay=$('#controllerModePlay'),controllerManual=$('#controllerModeManual'),manualController=$('#manualController');
 const settingsDrawer=$('#settingsDrawer'),settingsToggle=$('#settingsToggle');
 
 function inspectorNeedsPause(name){return name==='math';}
@@ -28,12 +28,12 @@ function setInspectorPane(name,{focus=false,open=true}={}){
   });
   inspector.querySelectorAll('.inspector-pane').forEach(p=>p.hidden=p!==pane);
   if(open)inspector.classList.add('open');
-  setInspectorPause(inspector.classList.contains('open')&&INSPECTOR.mq.matches&&inspectorNeedsPause(name));
+  setInspectorPause(inspector.classList.contains('open')&&inspectorNeedsPause(name));
+  if(open&&!settingsDrawer.hidden)closeSettings({restore:false});
   if(focus)tab.focus();
   requestAnimationFrame(resize);
 }
 function closeInspector({restore=true}={}){
-  if(!INSPECTOR.mq.matches)return;
   inspector.classList.remove('open');
   setInspectorPause(false);
   if(restore&&(INSPECTOR.trigger||$(`#ins-tab-${INSPECTOR.pane}`)))
@@ -41,8 +41,7 @@ function closeInspector({restore=true}={}){
   requestAnimationFrame(resize);
 }
 function syncInspectorLayout(){
-  if(INSPECTOR.mq.matches){if(inspector.parentElement!==utilitySlot)utilitySlot.appendChild(inspector);inspector.classList.remove('open');setInspectorPause(false);}
-  else{if(inspector.parentElement!==desktopInspectorHost)desktopInspectorHost.appendChild(inspector);inspector.classList.add('open');setInspectorPause(false);}
+  if(inspector.parentElement!==utilitySlot)utilitySlot.appendChild(inspector);inspector.classList.remove('open');setInspectorPause(false);
   requestAnimationFrame(resize);
 }
 
@@ -65,7 +64,7 @@ function setSettingsLevel(level,{category=SETTINGS.category,focus=true}={}){
   if(focus)requestAnimationFrame(()=>{const target=level==='categories'?cats.querySelector('button'):level==='choices'?choices.querySelector('button'):kitRoom.querySelector('button');(target||back).focus();});
 }
 function openSettings(category=null,trigger=settingsToggle){
-  SETTINGS.trigger=trigger;SETTINGS.restoreCategory=trigger&&trigger.dataset?trigger.dataset.category:null;settingsDrawer.hidden=false;settingsToggle.setAttribute('aria-expanded','true');setSettingsPause(true);
+  if(inspector.classList.contains('open'))closeInspector({restore:false});SETTINGS.trigger=trigger;SETTINGS.restoreCategory=trigger&&trigger.dataset?trigger.dataset.category:null;settingsDrawer.hidden=false;settingsToggle.setAttribute('aria-expanded','true');setSettingsPause(true);
   setSettingsLevel(category?'choices':'categories',{category,focus:true});requestAnimationFrame(resize);
 }
 function closeSettings({restore=true}={}){
@@ -92,19 +91,8 @@ inspector.querySelectorAll('[role="tab"]').forEach(tab=>{
   });
 });
 $('#inspectorClose').addEventListener('click',()=>closeInspector());
-inspector.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'&&INSPECTOR.mq.matches&&inspector.classList.contains('open')){e.preventDefault();closeInspector();}});
-inspector.addEventListener('pointerdown',e=>{
-  if(INSPECTOR.mq.matches||!e.target.closest('[data-pane="math"]'))return;
-  if(e.target.closest('button,input'))setInspectorPause(true);
-});
-inspector.addEventListener('focusin',e=>{
-  if(INSPECTOR.mq.matches||!e.target.closest('[data-pane="math"]'))return;
-  if(e.target.matches('button,input'))setInspectorPause(true);
-});
-inspector.addEventListener('focusout',()=>{
-  if(INSPECTOR.mq.matches)return;
-  requestAnimationFrame(()=>{if(!inspector.contains(document.activeElement))setInspectorPause(false);});
-});
+inspector.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'&&inspector.classList.contains('open')){e.preventDefault();closeInspector();}});
+inspector.addEventListener('pointerdown',e=>e.stopPropagation());
 try{INSPECTOR.mq.addEventListener('change',syncInspectorLayout);}catch(e){INSPECTOR.mq.addListener&&INSPECTOR.mq.addListener(syncInspectorLayout);}
 
 function cockpitValue(def,value){
@@ -112,35 +100,42 @@ function cockpitValue(def,value){
   return`${n}${u?(u==='°'?'°':' '+u):''}`;
 }
 function quickMathName(def){const names={m:'Mass',dt:'Padding',A:'Contact',mu:'Grip',R:'Radius',F:'Engine',v:'Speed',th:'Angle',thH:'Direction',g:'Gravity',spin:'Spin',jv:'Jump',run:'Run speed',grip:'Boot grip',curl:'Curve',vs:'Shot speed',pv:'Pass speed'};return names[def.id]||def.name;}
-function quickMathDefs(){const defs=M.vars().filter(d=>!isLocked(M.key,d.id));if(!defs.length)return[];const mode=dialMode();if(mode==='select'){const i=((DP.sel%defs.length)+defs.length)%defs.length;return[defs[i]];}if(mode==='bound'){const ids=[...new Set(M.actions().filter(a=>a.step).map(a=>a.step[0]))],bound=ids.map(id=>defs.find(d=>d.id===id)).filter(Boolean);if(bound.length)return bound.slice(0,4);}const ids=defs.map(d=>d.id),order=M.key==='fight'?['m','dt','A']:M.key==='race'?['mu','R','F','m']:ids.includes('th')?['th','v','spin','g']:ids.includes('thH')?['thH','jv','g']:ids.includes('run')?['run','grip','curl','vs']:ids;return [...new Set([...order,...ids])].map(id=>defs.find(d=>d.id===id)).filter(Boolean).slice(0,4);}
+function quickMathDefs(){const defs=M.vars().filter(d=>!isLocked(M.key,d.id));if(!defs.length)return[];if(CONTROLLER.mode==='manual')return[defs[((CONTROLLER.sel%defs.length)+defs.length)%defs.length]];const mode=dialMode();if(mode==='select'){const i=((DP.sel%defs.length)+defs.length)%defs.length;return[defs[i]];}if(mode==='bound'){const ids=[...new Set(M.actions().filter(a=>a.step).map(a=>a.step[0]))],bound=ids.map(id=>defs.find(d=>d.id===id)).filter(Boolean);if(bound.length)return bound.slice(0,4);}const ids=defs.map(d=>d.id),order=M.key==='fight'?['m','dt','A']:M.key==='race'?['mu','R','F','m']:ids.includes('th')?['th','v','spin','g']:ids.includes('thH')?['thH','jv','g']:ids.includes('run')?['run','grip','curl','vs']:ids;return [...new Set([...order,...ids])].map(id=>defs.find(d=>d.id===id)).filter(Boolean).slice(0,4);}
 function manualMathDefs(){return M.vars().filter(d=>!isLocked(M.key,d.id));}
 function plainMath(html){return String(html||'').replace(/<[^>]*>/g,' ').replace(/&(?:emsp|ensp|nbsp);/g,' ').replace(/&minus;|−/g,'-').replace(/&times;|×|·/g,' x ').replace(/&divide;|÷/g,' / ').replace(/&amp;/g,' and ').replace(/&lt;/g,' less than ').replace(/&gt;/g,' greater than ').replace(/θ/g,'Angle').replace(/μ/g,'Grip').replace(/ρ/g,'Density').replace(/δ/g,'Steering').replace(/Δt/g,'Padding time').replace(/R_turn/g,'Turn radius').replace(/\bvx\b/g,'horizontal speed').replace(/\bvy\b/g,'vertical speed').replace(/≤/g,' at most ').replace(/≥/g,' at least ').replace(/→/g,' gives ').replace(/½/g,'0.5 x ').replace(/²/g,' squared').replace(/_eff/g,' effective').replace(/x\s+x/g,'x').replace(/\s+/g,' ').trim();}
-function quickMathDisabled(def){const row=varEls.find(v=>v.def.id===def.id);return(MATH_CONSOLE.mode!=='manual'&&!!(row&&row.inp.disabled))||RP.on||CINE.on||resOpen();}
+function quickMathDisabled(def){const row=varEls.find(v=>v.def.id===def.id);return(CONTROLLER.mode!=='manual'&&!!(row&&row.inp.disabled))||RP.on||CINE.on||resOpen();}
 function manualUnavailableReason(){if(RP.on)return'Manual Physics is unavailable during replay.';if(CINE.on)return'Manual Physics is unavailable during the replay sequence.';if(!$('#rvBack').hidden)return'Close Coach review before using Manual Physics.';if(!$('#lvlup').hidden)return'Finish the level-up moment before using Manual Physics.';if(resOpen())return'Manual Physics is unavailable while results are open. Choose Next round first.';return'';}
-function syncManualAvailability(){const reason=manualUnavailableReason();physicsModeSwitch.disabled=!!reason;physicsModeSwitch.title=reason;physicsModeSwitch.setAttribute('aria-disabled',String(!!reason));if(reason&&MATH_CONSOLE.mode==='manual')setManualPhysics(false,{restore:false,reason});else if(reason)$('#physicsModeStatus').textContent=reason;else if(MATH_CONSOLE.mode==='dpad')$('#physicsModeStatus').textContent='D-pad controls choose the live math.';}
+function syncManualAvailability(){const reason=manualUnavailableReason();controllerManual.disabled=!!reason;controllerManual.title=reason;controllerManual.setAttribute('aria-disabled',String(!!reason));if(reason&&CONTROLLER.mode==='manual')setControllerMode('play',{restore:false,reason});else if(reason)$('#controllerModeStatus').textContent=reason;else if(CONTROLLER.mode==='play')$('#controllerModeStatus').textContent='D-pad controls active.';}
 function manualPause(on){if(on)pauseGame('manual-physics');else if(PAUSE.why==='manual-physics'){PAUSE.why='';resumeGame();}}
-function setManualPhysics(on,{restore=true,reason=''}={}){if(on&&manualUnavailableReason()){syncManualAvailability();return;}MATH_CONSOLE.mode=on?'manual':'dpad';MATH_CONSOLE.sig='';physicsModeSwitch.setAttribute('aria-checked',String(on));physicsModeSwitch.querySelector('b').textContent=on?'Manual Physics':'D-pad Math';physicsModeSwitch.querySelector('small').textContent=on?'D-pad Math off':'Manual Physics off';manualPause(on);$('#physicsModeStatus').textContent=reason||(on?(PAUSE.why==='manual-physics'?'Manual Physics open. Active play paused.':'Manual Physics open. Changes apply before play.'):'D-pad controls choose the live math.');if(on){renderMathConsole();openMathConsole();}else{closeMathConsole({restore:false});renderMathConsole();if(restore)physicsModeSwitch.focus();}}
-function buildMathConsole(defs){const manual=MATH_CONSOLE.mode==='manual';$('#mathConsoleControls').innerHTML=defs.length?defs.map(def=>{const name=quickMathName(def),presets=manual&&def.pre&&def.pre.length?`<select data-preset aria-label="${name} presets"><option value="">${name} presets</option>${def.pre.map(([v,l])=>`<option value="${v}">${l} · ${cockpitValue(def,v)}</option>`).join('')}</select>`:'';return`<div class="math-console-var${manual?' manual':''}" data-var="${def.id}" style="--c:${def.col}"><span class="readout"><b>${name}</b><output></output></span><button type="button" data-step="-1" aria-label="Less ${name}">Less</button><button type="button" data-step="1" aria-label="More ${name}">More</button>${manual?`<input type="range" min="${def.min}" max="${def.max}" step="${def.step}" value="${M.V[def.id]}" aria-label="${name}" aria-valuemin="${def.min}" aria-valuemax="${def.max}" aria-valuenow="${M.V[def.id]}">`:''}${presets}</div>`;}).join(''):'<p class="math-console-empty">No live variable controls in this moment. Use More math for the full explanation.</p>';}
+function selectedManualDef(){const defs=manualMathDefs();if(!defs.length)return null;CONTROLLER.sel=((CONTROLLER.sel%defs.length)+defs.length)%defs.length;return defs[CONTROLLER.sel];}
+function renderControllerMode(){syncManualAvailability();const manual=CONTROLLER.mode==='manual',def=manual&&selectedManualDef();controllerPlay.setAttribute('aria-pressed',String(!manual));controllerManual.setAttribute('aria-pressed',String(manual));$('#padL').hidden=manual;manualController.hidden=!manual;if(!manual||!def)return;const disabled=quickMathDisabled(def),slider=$('#manualVariableSlider');$('#manualVariableName').textContent=quickMathName(def);$('#manualVariableValue').textContent=cockpitValue(def,M.V[def.id]);slider.min=def.min;slider.max=def.max;slider.step=def.step;slider.value=M.V[def.id];slider.setAttribute('aria-label',quickMathName(def));slider.setAttribute('aria-valuemin',def.min);slider.setAttribute('aria-valuemax',def.max);slider.setAttribute('aria-valuenow',M.V[def.id]);slider.disabled=disabled;$('#manualLess').disabled=disabled;$('#manualMore').disabled=disabled;}
+function setControllerMode(mode,{restore=true,reason=''}={}){if(mode==='manual'&&manualUnavailableReason()){syncManualAvailability();return;}CONTROLLER.mode=mode;MATH_CONSOLE.sig='';manualPause(mode==='manual');$('#controllerModeStatus').textContent=reason||(mode==='manual'?(PAUSE.why==='manual-physics'?'Manual active · play paused.':'Manual active · adjust before play.'):'D-pad controls active.');renderControllerMode();renderMathConsole();if(restore&&mode==='play')controllerManual.focus();requestAnimationFrame(resize);}
+function buildMathConsole(defs){$('#mathConsoleControls').innerHTML=defs.length?defs.map(def=>`<div class="math-console-var" data-var="${def.id}" style="--c:${def.col}"><span class="readout"><b>${quickMathName(def)}</b><output></output></span><button type="button" data-step="-1" aria-label="Less ${quickMathName(def)}">Less</button><button type="button" data-step="1" aria-label="More ${quickMathName(def)}">More</button></div>`).join(''):'<p class="math-console-empty">No live variable controls in this moment. Use More math for the full explanation.</p>';}
 function renderMathConsole(q){
-  syncManualAvailability();const manual=MATH_CONSOLE.mode==='manual',defs=manual?manualMathDefs():quickMathDefs(),sig=`${manual?'manual':'dpad'}|${M.key}|${Kick.opt.shot}|${Kick.opt.pso}|${defs.map(d=>d.id).join(',')}`;
+  syncManualAvailability();const manual=CONTROLLER.mode==='manual',defs=quickMathDefs(),sig=`${manual?'manual':'dpad'}|${M.key}|${Kick.opt.shot}|${Kick.opt.pso}|${defs.map(d=>d.id).join(',')}`;
   if(sig!==MATH_CONSOLE.sig){MATH_CONSOLE.sig=sig;buildMathConsole(defs);}
-  const mode=dialMode();$('#mathConsoleHeading').textContent=manual?`${M.key[0].toUpperCase()+M.key.slice(1)} Manual Physics`:mode==='select'?'D-pad selected variable':mode==='bound'?'D-pad quick variables':'Adjust the math you play';$('#mathConsolePauseState').textContent=manual?(PAUSE.why==='manual-physics'?'Active play paused by this panel.':'Changes apply before active play.') :'';
-  defs.forEach(def=>{const row=$(`#mathConsoleControls [data-var="${def.id}"]`);if(!row)return;const disabled=quickMathDisabled(def);row.querySelector('output').textContent=cockpitValue(def,M.V[def.id]);row.querySelectorAll('button,input,select').forEach(el=>el.disabled=disabled);const range=row.querySelector('input[type="range"]');if(range){range.value=M.V[def.id];range.setAttribute('aria-valuenow',String(M.V[def.id]));}});
+  const mode=dialMode();$('#mathConsoleHeading').textContent=manual?'Manual selected variable':mode==='select'?'D-pad selected variable':mode==='bound'?'D-pad quick variables':'Adjust the math you play';
+  defs.forEach(def=>{const row=$(`#mathConsoleControls [data-var="${def.id}"]`);if(!row)return;const disabled=quickMathDisabled(def);row.querySelector('output').textContent=cockpitValue(def,M.V[def.id]);row.querySelectorAll('button').forEach(el=>el.disabled=disabled);});
   $('#mathConsoleValues').innerHTML=defs.map(def=>`<span><b>${quickMathName(def)}</b> ${cockpitValue(def,M.V[def.id])}</span>`).join('')||'<span>No live dials</span>';
   q=q||M.eqs();const live=M.LIVE(),line=q.lines[live&&live.length?live[0]:0]||q.lines[0]||M.hint;
   $('#mathConsoleStatus').textContent=plainMath(line);
 }
-function openMathConsole(){MATH_CONSOLE.open=true;mathConsolePanel.hidden=false;mathConsolePull.setAttribute('aria-expanded','true');$('#mathConsoleState').textContent=MATH_CONSOLE.mode==='manual'?'Manual on':'Close';mathConsole.classList.add('open');requestAnimationFrame(resize);}
+function openMathConsole(){MATH_CONSOLE.open=true;mathConsolePanel.hidden=false;mathConsolePull.setAttribute('aria-expanded','true');$('#mathConsoleState').textContent='Close';mathConsole.classList.add('open');requestAnimationFrame(resize);}
 function closeMathConsole({restore=true}={}){MATH_CONSOLE.open=false;mathConsolePanel.hidden=true;mathConsolePull.setAttribute('aria-expanded','false');$('#mathConsoleState').textContent='Open';mathConsole.classList.remove('open');if(restore)mathConsolePull.focus();requestAnimationFrame(resize);}
-physicsModeSwitch.addEventListener('click',()=>setManualPhysics(MATH_CONSOLE.mode!=='manual'));
-mathConsolePull.addEventListener('click',()=>MATH_CONSOLE.open?(MATH_CONSOLE.mode==='manual'?setManualPhysics(false):closeMathConsole()):openMathConsole());
-$('#mathConsoleClose').addEventListener('click',()=>MATH_CONSOLE.mode==='manual'?setManualPhysics(false):closeMathConsole());
-$('#mathConsoleMore').addEventListener('click',()=>{if(MATH_CONSOLE.mode==='manual')setManualPhysics(false,{restore:false});else closeMathConsole({restore:false});INSPECTOR.trigger=$('#ins-tab-math');setInspectorPane('math',{focus:true,open:true});inspector.scrollIntoView({block:'nearest'});});
-$('#mathConsoleControls').addEventListener('click',e=>{const b=e.target.closest('[data-step]'),row=b&&b.closest('[data-var]');if(!b||!row||b.disabled)return;e.stopPropagation();unlock();const manual=MATH_CONSOLE.mode==='manual',def=(manual?manualMathDefs():quickMathDefs()).find(d=>d.id===row.dataset.var);if(def&&adjustVar(def.id,def.step*+b.dataset.step,manual)){SND.click();const q=M.eqs();renderMathHud(q);renderMathConsole(q);}});
-$('#mathConsoleControls').addEventListener('input',e=>{const range=e.target.closest('input[type="range"]'),row=range&&range.closest('[data-var]');if(!range||!row||range.disabled||MATH_CONSOLE.mode!=='manual')return;e.stopPropagation();const def=manualMathDefs().find(d=>d.id===row.dataset.var);if(def&&adjustVar(def.id,+range.value-M.V[def.id],true)){const q=M.eqs();renderMathHud(q);renderMathConsole(q);}});
-$('#mathConsoleControls').addEventListener('change',e=>{const select=e.target.closest('select[data-preset]'),row=select&&select.closest('[data-var]');if(!select||!row||select.disabled||select.value==='')return;e.stopPropagation();const def=manualMathDefs().find(d=>d.id===row.dataset.var);if(def&&adjustVar(def.id,+select.value-M.V[def.id],true)){const q=M.eqs();renderMathHud(q);renderMathConsole(q);}select.value='';});
+controllerPlay.addEventListener('click',()=>setControllerMode('play'));
+controllerManual.addEventListener('click',()=>setControllerMode('manual'));
+function selectManual(delta){CONTROLLER.sel+=delta;MATH_CONSOLE.sig='';renderControllerMode();renderMathConsole();}
+$('#manualPrev').addEventListener('click',()=>selectManual(-1));$('#manualNext').addEventListener('click',()=>selectManual(1));
+function adjustManual(mult){const def=selectedManualDef();if(def&&adjustVar(def.id,def.step*mult,true)){const q=M.eqs();renderControllerMode();renderMathHud(q);renderMathConsole(q);}}
+$('#manualLess').addEventListener('click',()=>adjustManual(-1));$('#manualMore').addEventListener('click',()=>adjustManual(1));
+$('#manualVariableSlider').addEventListener('input',e=>{const def=selectedManualDef();if(def&&adjustVar(def.id,+e.target.value-M.V[def.id],true)){const q=M.eqs();renderControllerMode();renderMathHud(q);renderMathConsole(q);}});
+$('#controlLeftSlot').addEventListener('pointerdown',e=>e.stopPropagation());$('#controlLeftSlot').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'&&CONTROLLER.mode==='manual'){e.preventDefault();setControllerMode('play');}});
+mathConsolePull.addEventListener('click',()=>MATH_CONSOLE.open?closeMathConsole():openMathConsole());
+$('#mathConsoleClose').addEventListener('click',()=>closeMathConsole());
+$('#mathConsoleMore').addEventListener('click',()=>{closeMathConsole({restore:false});INSPECTOR.trigger=$('#ins-tab-math');setInspectorPane('math',{focus:true,open:true});inspector.scrollIntoView({block:'nearest'});});
+$('#mathConsoleControls').addEventListener('click',e=>{const b=e.target.closest('[data-step]'),row=b&&b.closest('[data-var]');if(!b||!row||b.disabled)return;e.stopPropagation();unlock();const manual=CONTROLLER.mode==='manual',def=quickMathDefs().find(d=>d.id===row.dataset.var);if(def&&adjustVar(def.id,def.step*+b.dataset.step,manual)){SND.click();const q=M.eqs();renderControllerMode();renderMathHud(q);renderMathConsole(q);}});
 mathConsole.addEventListener('pointerdown',e=>e.stopPropagation());
-mathConsole.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'&&MATH_CONSOLE.open){e.preventDefault();MATH_CONSOLE.mode==='manual'?setManualPhysics(false):closeMathConsole();}});
+mathConsole.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'&&MATH_CONSOLE.open){e.preventDefault();closeMathConsole();}});
 mathConsole.addEventListener('focusin',()=>mathConsole.classList.add('has-focus'));
 mathConsole.addEventListener('focusout',()=>requestAnimationFrame(()=>{if(!mathConsole.contains(document.activeElement))mathConsole.classList.remove('has-focus');}));
 function cockpitValues(){
@@ -180,6 +175,6 @@ function renderGoalsSummary(){
   const total=Object.values(BADGES).reduce((n,l)=>n+l.length,0),earned=Object.keys(best.badges||{}).length;
   $('#goalsSummary').innerHTML=`<span>Level <b>${lvlOf(best.xp)}</b></span><span>XP <b>${fmt(best.xp||0,0)}</b></span><span>Badges <b>${earned}/${total}</b></span><span>Mode <b>${M.key[0].toUpperCase()+M.key.slice(1)}</b></span>`;
 }
-function renderCockpit(q){renderMathHud(q);renderMathConsole(q);renderChallengeHud();renderGoalsSummary();syncDialsAvailability();}
+function renderCockpit(q){renderControllerMode();renderMathHud(q);renderMathConsole(q);renderChallengeHud();renderGoalsSummary();syncDialsAvailability();}
 
-setTimeout(()=>{setInspectorPane('math',{open:!INSPECTOR.mq.matches});syncInspectorLayout();},0);
+setTimeout(()=>{setInspectorPane('math',{open:false});syncInspectorLayout();},0);

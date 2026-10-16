@@ -58,10 +58,11 @@ test('anchors one responsive utility belt directly after the control deck',()=>{
   assert.ok(deck<slot&&slot<dials);
   assert.equal((html.match(/id="utilitySlot"/g)||[]).length,1);
   assert.match(cockpit,/utilitySlot\.appendChild\(inspector\)/);
-  assert.match(cockpit,/desktopInspectorHost\.appendChild\(inspector\)/);
   assert.match(cockpit,/inspector\.addEventListener\('keydown',e=>\{e\.stopPropagation\(\)/);
   assert.match(css,/\.inspector-tabs button,\.inspector-close\{min-height:44px\}/);
-  assert.match(css,/\.inspector-body\{overflow:visible;overscroll-behavior:auto/);
+  assert.match(css,/Final in-game utility ownership: no persistent desktop sidecar/);
+  assert.match(css,/\.inspector-body\{box-sizing:border-box;position:absolute;[^}]*overflow-y:auto;overscroll-behavior:contain/);
+  assert.match(css,/\.play\{grid-template-columns:minmax\(0,1fr\)\}/);
 });
 
 test('derives compact math from mode definitions and explicit equation data',()=>{
@@ -122,23 +123,36 @@ test('lets D-pad selection own the adjacent exact quick variable',()=>{
   assert.match(cockpit,/data-step="1"[^>]+aria-label="More/);
 });
 
-test('switches the canonical console into guarded Manual Physics',()=>{
-  assert.match(html,/id="physicsModeSwitch" role="switch" aria-checked="false"/);
-  assert.match(html,/id="physicsModeStatus" role="status" aria-live="polite"/);
+test('swaps the D-pad footprint into guarded Manual Physics',()=>{
+  assert.match(html,/class="controller-mode-toggle" role="group" aria-label="Controller mode"/);
+  assert.match(html,/id="controllerModePlay" aria-pressed="true"/);
+  assert.match(html,/id="controllerModeManual" aria-pressed="false"/);
+  assert.match(html,/id="controllerModeStatus" role="status" aria-live="polite"/);
+  assert.match(html,/id="padL"[^]*id="manualController" hidden/);
   assert.match(cockpit,/function manualMathDefs\(\)\{return M\.vars\(\)/);
-  assert.match(cockpit,/type="range" min="\$\{def\.min\}" max="\$\{def\.max\}" step="\$\{def\.step\}"/);
-  assert.match(cockpit,/aria-valuenow="\$\{M\.V\[def\.id\]\}"/);
-  assert.match(cockpit,/def\.pre&&def\.pre\.length/);
+  assert.match(cockpit,/function selectedManualDef\(\)/);
+  assert.match(cockpit,/slider\.min=def\.min;slider\.max=def\.max;slider\.step=def\.step/);
+  assert.match(cockpit,/CONTROLLER\.sel\+=delta/);
   assert.match(cockpit,/pauseGame\('manual-physics'\)/);
   assert.match(cockpit,/PAUSE\.why==='manual-physics'/);
   assert.match(cockpit,/function manualUnavailableReason\(\)/);
   assert.match(cockpit,/if\(resOpen\(\)\)return'Manual Physics is unavailable while results are open/);
-  assert.match(cockpit,/setManualPhysics\(false,\{restore:false,reason\}\)/);
-  assert.match(cockpit,/e\.key==='Escape'.*setManualPhysics\(false\)/);
+  assert.match(cockpit,/setControllerMode\('play',\{restore:false,reason\}\)/);
+  assert.match(cockpit,/e\.key==='Escape'.*setControllerMode\('play'\)/);
   assert.match(ui,/function adjustVar\(id,delta,allowManualPause=false\)/);
-  assert.match(css,/\.physics-mode-switch\{[^}]*min-height:54px/);
-  assert.match(css,/\.math-console-var\.manual input\[type="range"\]/);
-  assert.match(css,/\.math-console-var\.manual select\{[^}]*min-height:44px/);
+  assert.match(css,/\.control-left-slot\{width:158px;height:178px/);
+  assert.match(css,/\.manual-controller\{box-sizing:border-box;grid-row:3;width:158px;height:126px/);
+  assert.match(css,/\.manual-controller button\{[^}]*min-height:44px/);
+  assert.doesNotMatch(cockpit,/math-console-var\$\{manual/);
+});
+
+test('keeps settings and the bounded utility drawer mutually exclusive',()=>{
+  assert.match(cockpit,/if\(open&&!settingsDrawer\.hidden\)closeSettings\(\{restore:false\}\)/);
+  assert.match(cockpit,/if\(inspector\.classList\.contains\('open'\)\)closeInspector\(\{restore:false\}\)/);
+  assert.match(cockpit,/function syncInspectorLayout\(\)\{[^}]*utilitySlot\.appendChild\(inspector\)/);
+  assert.doesNotMatch(cockpit,/desktopInspectorHost/);
+  assert.match(css,/\.inspector-body\{box-sizing:border-box;position:absolute;[^}]*max-height:min\(520px,calc\(100vh - 160px\)\);overflow-y:auto/);
+  assert.match(css,/\.panel\.inspector\.open \.inspector-body\{[^}]*max-height:min\(520px,calc\(100vh - 160px\)\)/);
 });
 
 test('pauses and resumes through canonical settings ownership',()=>{
