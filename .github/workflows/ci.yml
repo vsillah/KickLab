@@ -14,5 +14,5 @@ jobs:
       - run: npm run check
       - uses: actions/upload-artifact@v4
         with:
-          name: impact-lab
-          path: dist/impact-lab.html
+          name: kicklab
+          path: dist/kicklab.html

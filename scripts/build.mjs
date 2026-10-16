@@ -1,4 +1,4 @@
-// Builds dist/impact-lab.html from src/. No dependencies.
+// Builds dist/kicklab.html from src/. No dependencies.
 // Game fragments in src/game/ are joined in filename order into one script.
 import { readFileSync, writeFileSync, readdirSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -15,6 +15,6 @@ const fill = { STYLES: src('styles.css'), VENDOR: '<script>' + src('vendor/three
 const html = src('index.html').replace(/\{\{(STYLES|VENDOR|GAME)\}\}/g, (_, k) => fill[k]);
 
 mkdirSync(join(root, 'dist'), { recursive: true });
-writeFileSync(join(root, 'dist', 'impact-lab.html'), html);
+writeFileSync(join(root, 'dist', 'kicklab.html'), html);
 if (process.argv.includes('--emit-game')) writeFileSync(join(root, 'dist', 'game.js'), game);
-console.log(`built dist/impact-lab.html (${(html.length / 1024).toFixed(0)} KB) from ${parts.length} game files`);
+console.log(`built dist/kicklab.html (${(html.length / 1024).toFixed(0)} KB) from ${parts.length} game files`);

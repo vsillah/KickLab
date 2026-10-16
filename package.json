@@ -1,8 +1,8 @@
 {
-  "name": "impact-lab",
+  "name": "kicklab",
   "version": "1.0.0",
   "private": true,
-  "description": "Impact Lab: a physics game for kids. Fight, race and soccer labs where the math is the controller.",
+  "description": "KickLab: a physics game for kids. Fight, race and soccer labs where the math is the controller.",
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",

@@ -1,4 +1,4 @@
-# Impact Lab
+# KickLab
 
 A physics game for kids. Three labs (Fight, Race and Kick) where every move is a little equation: impulse, drag, Magnus spin, friction, reaction time. The soccer lab has free kicks, headers, 1v1 dribbling with skill moves, passing, goalkeeping, a shootout and a live match, rendered in a 3D stadium.
 
@@ -32,7 +32,7 @@ src/
     53-weekly-challenge.js
     60-pause-replay.js
     70-main-loop.js         wrapper closes here
-scripts/build.mjs     joins everything into dist/impact-lab.html
+scripts/build.mjs     joins everything into dist/kicklab.html
 ```
 
 All the `game/` files form a single script scope once joined, so a constant defined in `10-fight.js` is visible in `70-main-loop.js`. Files are ordered by their number prefix. To add a feature, drop in a new file with a number that puts it after whatever it depends on (for example `54-stamina.js`).
@@ -42,16 +42,18 @@ All the `game/` files form a single script scope once joined, so a constant defi
 Needs Node 18 or newer. No packages to install.
 
 ```
-npm run build    # writes dist/impact-lab.html
+npm run build    # writes dist/kicklab.html
 npm run check    # build + syntax check (what CI runs)
 ```
 
-Open `dist/impact-lab.html` in a browser to play. The family leaderboard and weekly challenge use the Claude artifact runtime's shared database, so those only light up when the built file is published as a Claude artifact. Everything else runs anywhere.
+Open `dist/kicklab.html` in a browser to play. The family leaderboard and weekly challenge use the Claude artifact runtime's shared database, so those only light up when the built file is published as a Claude artifact. Everything else runs anywhere.
 
 ## Working with branches
 
 1. `git checkout -b feature/short-name`
-2. Edit files under `src/`, run `npm run check`, play-test `dist/impact-lab.html`.
+2. Edit files under `src/`, run `npm run check`, play-test `dist/kicklab.html`.
 3. Push and open a pull request. CI builds the game and attaches the HTML to the run so it can be play-tested before merging.
+
+Saved progress and the weekly challenge seed still use the old `impactlab` keys on purpose, so nobody's XP, kit or leaderboard history resets after the rename.
 
 `dist/` is not committed, so built output never causes merge conflicts.
