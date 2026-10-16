@@ -183,6 +183,24 @@ test('swaps the D-pad footprint into guarded Manual Physics',()=>{
   assert.doesNotMatch(cockpit,/math-console-var\$\{manual/);
 });
 
+test('projects every canonical manual variable into the wide control gap',()=>{
+  assert.match(html,/id="wideManualController" aria-label="Desktop manual physics controls"/);
+  assert.match(html,/id="wideManualStatus">Changes apply immediately/);
+  assert.match(html,/id="wideManualRows"/);
+  assert.match(cockpit,/const WIDE_MANUAL=\{active:false,sig:''\}/);
+  assert.match(cockpit,/function wideManualDefs\(\)\{return M\.vars\(\);\}/);
+  assert.match(cockpit,/class="wide-manual-row" data-var="\$\{def\.id\}"/);
+  assert.match(cockpit,/input type="range"[^>]+aria-label="\$\{quickMathName\(def\)\}"/);
+  assert.match(cockpit,/input\.setAttribute\('aria-valuetext',cockpitValue\(def,M\.V\[def\.id\]\)\)/);
+  assert.match(cockpit,/wideManualRows\.addEventListener\('input'/);
+  assert.match(cockpit,/adjustVar\(def\.id,\+input\.value-M\.V\[def\.id\],false\)/);
+  assert.match(cockpit,/manualUnavailableReason\(\).*isLocked\(M\.key,def\.id\)/s);
+  assert.match(cockpit,/new ResizeObserver\(entries=>\{const active=entries\[0\]\.contentRect\.width>=980/);
+  assert.match(css,/\.wide-manual-controller\{display:none/);
+  assert.match(css,/@container \(min-width:980px\)\{\.control-deck \.pad\{display:grid;grid-template-columns:158px minmax\(320px,1fr\) auto/);
+  assert.match(css,/\.wide-manual-row\{display:grid;grid-template-columns:82px 76px minmax\(120px,1fr\)/);
+});
+
 test('keeps settings and the bounded utility drawer mutually exclusive',()=>{
   assert.match(cockpit,/if\(open&&!settingsDrawer\.hidden\)closeSettings\(\{restore:false\}\)/);
   assert.match(cockpit,/if\(inspector\.classList\.contains\('open'\)\)closeInspector\(\{restore:false\}\)/);
