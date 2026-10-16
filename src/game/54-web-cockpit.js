@@ -2,10 +2,9 @@
 const INSPECTOR={pane:'math',trigger:null,mq:window.matchMedia('(max-width:980px)')};
 const SETTINGS={level:'categories',category:null,trigger:null,restoreCategory:null};
 const inspector=$('#inspector');
-const utilitySlot=$('#utilitySlot');
-const MATH_CONSOLE={open:false,sig:''},CONTROLLER={mode:'play',sel:0};
+const contextMenuSlot=$('#contextMenuSlot');
+const MATH_CONSOLE={sig:''},CONTROLLER={mode:'play',sel:0};
 const WIDE_MANUAL={active:false,sig:''};
-const mathConsole=$('#mathConsole'),mathConsolePanel=$('#mathConsolePanel'),mathConsolePull=$('#mathConsolePull');
 const controllerPlay=$('#controllerModePlay'),controllerManual=$('#controllerModeManual'),manualController=$('#manualController');
 const wideManualController=$('#wideManualController'),wideManualRows=$('#wideManualRows');
 const settingsDrawer=$('#settingsDrawer'),settingsToggle=$('#settingsToggle');
@@ -43,7 +42,7 @@ function closeInspector({restore=true}={}){
   requestAnimationFrame(resize);
 }
 function syncInspectorLayout(){
-  if(inspector.parentElement!==utilitySlot)utilitySlot.appendChild(inspector);inspector.classList.remove('open');setInspectorPause(false);
+  if(inspector.parentElement!==contextMenuSlot)contextMenuSlot.appendChild(inspector);inspector.classList.remove('open');setInspectorPause(false);
   requestAnimationFrame(resize);
 }
 
@@ -126,8 +125,6 @@ function renderMathConsole(q){
   q=q||M.eqs();const live=M.LIVE(),line=q.lines[live&&live.length?live[0]:0]||q.lines[0]||M.hint;
   $('#mathConsoleStatus').textContent=plainMath(line);
 }
-function openMathConsole(){MATH_CONSOLE.open=true;mathConsolePanel.hidden=false;mathConsolePull.setAttribute('aria-expanded','true');$('#mathConsoleState').textContent='Close';mathConsole.classList.add('open');requestAnimationFrame(resize);}
-function closeMathConsole({restore=true}={}){MATH_CONSOLE.open=false;mathConsolePanel.hidden=true;mathConsolePull.setAttribute('aria-expanded','false');$('#mathConsoleState').textContent='Open';mathConsole.classList.remove('open');if(restore)mathConsolePull.focus();requestAnimationFrame(resize);}
 controllerPlay.addEventListener('click',()=>setControllerMode('play'));
 controllerManual.addEventListener('click',()=>setControllerMode('manual'));
 function selectManual(delta){CONTROLLER.sel+=delta;MATH_CONSOLE.sig='';renderControllerMode();renderMathConsole();}
@@ -137,35 +134,9 @@ $('#manualLess').addEventListener('click',()=>adjustManual(-1));$('#manualMore')
 $('#manualVariableSlider').addEventListener('input',e=>{const def=selectedManualDef();if(def&&adjustVar(def.id,+e.target.value-M.V[def.id],true)){const q=M.eqs();renderControllerMode();renderMathHud(q);renderMathConsole(q);}});
 wideManualRows.addEventListener('input',e=>{const input=e.target.closest('input[type="range"]'),row=input&&input.closest('[data-var]'),def=row&&wideManualDefs().find(d=>d.id===row.dataset.var);if(!input||!def||input.disabled)return;if(adjustVar(def.id,+input.value-M.V[def.id],false)){const q=M.eqs();renderControllerMode();renderMathHud(q);renderMathConsole(q);}});
 $('#controlLeftSlot').addEventListener('pointerdown',e=>e.stopPropagation());$('#controlLeftSlot').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'&&CONTROLLER.mode==='manual'){e.preventDefault();setControllerMode('play');}});
-mathConsolePull.addEventListener('click',()=>MATH_CONSOLE.open?closeMathConsole():openMathConsole());
-$('#mathConsoleClose').addEventListener('click',()=>closeMathConsole());
-$('#mathConsoleMore').addEventListener('click',()=>{closeMathConsole({restore:false});INSPECTOR.trigger=$('#ins-tab-math');setInspectorPane('math',{focus:true,open:true});inspector.scrollIntoView({block:'nearest'});});
 $('#mathConsoleControls').addEventListener('click',e=>{const b=e.target.closest('[data-step]'),row=b&&b.closest('[data-var]');if(!b||!row||b.disabled)return;e.stopPropagation();unlock();const manual=CONTROLLER.mode==='manual',def=quickMathDefs().find(d=>d.id===row.dataset.var);if(def&&adjustVar(def.id,def.step*+b.dataset.step,manual)){SND.click();const q=M.eqs();renderControllerMode();renderMathHud(q);renderMathConsole(q);}});
-mathConsole.addEventListener('pointerdown',e=>e.stopPropagation());
-mathConsole.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'&&MATH_CONSOLE.open){e.preventDefault();closeMathConsole();}});
-mathConsole.addEventListener('focusin',()=>mathConsole.classList.add('has-focus'));
-mathConsole.addEventListener('focusout',()=>requestAnimationFrame(()=>{if(!mathConsole.contains(document.activeElement))mathConsole.classList.remove('has-focus');}));
-function cockpitValues(){
-  const defs=M.vars().map(d=>({label:d.name,sym:d.sym,value:cockpitValue(d,M.V[d.id]),col:d.col}));
-  const add=(label,sym,value,unit='',d=1,col=C.muted)=>{
-    if(defs.length>=5||defs.some(x=>x.label===label))return;
-    defs.push({label,sym,value:`${fmt(value,d)}${unit?(unit==='°'?'°':' '+unit):''}`,col});
-  };
-  if(M.key==='kick'){
-    add('gravity','g',G0,'m/s²',2,C.xray);
-    if(typeof AIR!=='undefined')add('air density','ρ',AIR.rho,'kg/m³',3,C.violet);
-    if(typeof temp==='function')add('temperature','T',temp().c,'°C',0,C.hot);
-    if(typeof ballM==='function')add('ball mass','m_ball',ballM(),'kg',2,C.good);
-  }
-  add('level','LVL',lvlOf(best.xp),'',0,C.good);
-  return defs.slice(0,5);
-}
 function renderMathHud(q){
-  q=q||M.eqs();
-  const live=M.LIVE(),line=q.lines[live&&live.length?live[0]:0]||q.lines[0]||'';
   $('#mathHudTitle').textContent=M.hint||`${M.key} lab`;
-  $('#mathHudEquation').innerHTML=line;
-  $('#mathHudValues').innerHTML=cockpitValues().map(v=>`<div title="${v.label}"><dt style="color:${v.col}">${v.sym}</dt><dd>${v.value}</dd></div>`).join('');
 }
 function challengeSummary(){
   if(M.key==='kick'&&Kick.opt.shot==='dribble'){

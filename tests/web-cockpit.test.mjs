@@ -34,36 +34,34 @@ test('keeps gameplay controls outside the canvas stage',()=>{
   const stageEnd=html.indexOf('</div>\n        <div class="control-deck"');
   assert.ok(stageEnd>html.indexOf('<div class="stage">'));
   assert.ok(html.indexOf('id="pad"')>stageEnd);
-  assert.ok(html.indexOf('id="mathHud"')>stageEnd);
+  assert.ok(html.indexOf('id="contextMenuSlot"')<stageEnd);
 });
 
-test('attaches one Math Console directly to the gameplay controls',()=>{
-  const deck=html.indexOf('class="control-deck"'),consoleRoot=html.indexOf('id="mathConsole"'),utility=html.indexOf('id="utilitySlot"');
-  assert.ok(deck<consoleRoot&&consoleRoot<utility);
-  for(const id of ['mathConsole','mathConsolePanel','mathConsolePull','mathConsoleControls'])assert.equal((html.match(new RegExp(`id="${id}"`,'g'))||[]).length,1);
+test('consolidates Math into the one contextual menu',()=>{
+  const guidance=html.indexOf('id="gameGuidanceHud"'),slot=html.indexOf('id="contextMenuSlot"'),settings=html.indexOf('id="gameSettings"');
+  assert.ok(guidance<slot&&slot<settings);
+  for(const id of ['mathHudTitle','mathConsoleValues','mathConsoleStatus','mathConsoleHeading','mathConsoleControls','dialTop','dialTopStatus'])assert.equal((html.match(new RegExp(`id="${id}"`,'g'))||[]).length,1);
+  assert.doesNotMatch(html,/id="mathConsole"|id="mathConsolePull"|id="utilitySlot"|id="mathHud"|id="mathHudEquation"|id="mathHudValues"/);
   assert.match(cockpit,/function quickMathDefs\(\).*M\.vars\(\)/);
   assert.match(cockpit,/adjustVar\(def\.id,def\.step\*\+b\.dataset\.step,manual\)/);
-  assert.match(cockpit,/setInspectorPane\('math',\{focus:true,open:true\}\)/);
   assert.doesNotMatch(cockpit,/mathConsoleControls[^\n]+appendChild\(\$\('#(?:liveEq|vars)'\)\)/);
 });
 
-test('keeps Math Console input ownership and focus return explicit',()=>{
-  assert.match(cockpit,/mathConsole\.addEventListener\('pointerdown',e=>e\.stopPropagation\(\)\)/);
-  assert.match(cockpit,/mathConsole\.addEventListener\('keydown',e=>\{e\.stopPropagation\(\)/);
-  assert.match(cockpit,/if\(restore\)mathConsolePull\.focus\(\)/);
-  assert.match(css,/\.math-console-panel\{[^}]*max-height:[^;]+;overflow-y:auto;overscroll-behavior:contain/);
-  assert.doesNotMatch(css,/\.math-console-panel\{[^}]*position:fixed/);
+test('keeps contextual menu input ownership and focus return explicit',()=>{
+  assert.match(cockpit,/inspector\.addEventListener\('pointerdown',e=>e\.stopPropagation\(\)\)/);
+  assert.match(cockpit,/inspector\.addEventListener\('keydown',e=>\{e\.stopPropagation\(\)/);
+  assert.match(cockpit,/INSPECTOR\.trigger\|\|\$\(`#ins-tab-\$\{INSPECTOR\.pane\}`\)/);
+  assert.match(css,/\.context-menu-slot \.inspector-body\{[^}]*position:static;[^}]*overflow-y:auto;overscroll-behavior:contain/);
+  assert.doesNotMatch(css,/\.context-menu-slot \.inspector-body\{[^}]*position:(?:fixed|absolute)/);
 });
 
-test('anchors one responsive utility belt directly after the control deck',()=>{
-  const deck=html.indexOf('class="control-deck"'),slot=html.indexOf('id="utilitySlot"'),dials=html.indexOf('id="dials"');
-  assert.ok(deck<slot&&slot<dials);
-  assert.equal((html.match(/id="utilitySlot"/g)||[]).length,1);
-  assert.match(cockpit,/utilitySlot\.appendChild\(inspector\)/);
+test('anchors one responsive contextual menu directly under stage guidance',()=>{
+  assert.equal((html.match(/id="contextMenuSlot"/g)||[]).length,1);
+  assert.match(cockpit,/contextMenuSlot\.appendChild\(inspector\)/);
   assert.match(cockpit,/inspector\.addEventListener\('keydown',e=>\{e\.stopPropagation\(\)/);
-  assert.match(css,/\.inspector-tabs button,\.inspector-close\{min-height:44px\}/);
-  assert.match(css,/Final in-game utility ownership: no persistent desktop sidecar/);
-  assert.match(css,/\.inspector-body\{box-sizing:border-box;position:absolute;[^}]*overflow-y:auto;overscroll-behavior:contain/);
+  assert.match(css,/\.context-menu-slot \.inspector-tabs button,\.context-menu-slot \.inspector-close\{min-height:44px\}/);
+  assert.match(css,/One contextual menu directly beneath the in-stage guidance HUD/);
+  assert.match(css,/\.context-menu-slot \.inspector-body\{box-sizing:border-box;position:static;[^}]*overflow-y:auto;overscroll-behavior:contain/);
   assert.match(css,/\.play\{grid-template-columns:minmax\(0,1fr\)\}/);
 });
 
@@ -215,10 +213,10 @@ test('projects every canonical manual variable into the wide control gap',()=>{
 test('keeps settings and the bounded utility drawer mutually exclusive',()=>{
   assert.match(cockpit,/if\(open&&!settingsDrawer\.hidden\)closeSettings\(\{restore:false\}\)/);
   assert.match(cockpit,/if\(inspector\.classList\.contains\('open'\)\)closeInspector\(\{restore:false\}\)/);
-  assert.match(cockpit,/function syncInspectorLayout\(\)\{[^}]*utilitySlot\.appendChild\(inspector\)/);
+  assert.match(cockpit,/function syncInspectorLayout\(\)\{[^}]*contextMenuSlot\.appendChild\(inspector\)/);
   assert.doesNotMatch(cockpit,/desktopInspectorHost/);
-  assert.match(css,/\.inspector-body\{box-sizing:border-box;position:absolute;[^}]*max-height:min\(520px,calc\(100vh - 160px\)\);overflow-y:auto/);
-  assert.match(css,/\.panel\.inspector\.open \.inspector-body\{[^}]*max-height:min\(520px,calc\(100vh - 160px\)\)/);
+  assert.match(css,/\.context-menu-slot \.inspector-body\{box-sizing:border-box;position:static;[^}]*max-height:min\(380px,42vh\);overflow-y:auto/);
+  assert.match(css,/\.context-menu-slot \.panel\.inspector\.open \.inspector-body\{[^}]*max-height:min\(380px,42vh\)/);
 });
 
 test('pauses and resumes through canonical settings ownership',()=>{

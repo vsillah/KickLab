@@ -61,6 +61,7 @@
               <div><div class="cn"><b id="coachName">Coach Dre</b><span id="coachRole">boxing coach</span><span class="streak" id="streak"></span></div><p id="coachMsg"></p></div>
             </div>
           </div>
+          <div class="context-menu-slot" id="contextMenuSlot" aria-label="Game information menu"></div>
           <section class="game-settings" id="gameSettings" aria-label="Game settings">
             <div class="settings-rail">
               <button type="button" class="settings-toggle" id="settingsToggle" aria-expanded="false" aria-controls="settingsDrawer"><span aria-hidden="true">⚙</span><b>Settings</b></button>
@@ -106,30 +107,12 @@
           </div>
           <div class="rbar" id="rbar" hidden><span class="rb-tag">REPLAY</span><button type="button" id="rbBack" aria-label="Back 3 seconds">Back 3s</button><button type="button" id="rbPlay" aria-label="Play or pause">Pause</button><div class="rb-sp"><button type="button" data-sp="0.25">¼×</button><button type="button" data-sp="0.5" aria-pressed="true">½×</button><button type="button" data-sp="1">1×</button></div><input type="range" id="rbScrub" min="0" max="1000" value="0" aria-label="Scrub replay"><span class="rb-t" id="rbTime">0:00.0</span><button type="button" id="rbReview">Review</button><button type="button" id="rbExit">Exit replay</button></div>
         </div>
-        <section class="math-console" id="mathConsole" aria-label="Gameplay Math Console">
-          <div class="math-console-panel" id="mathConsolePanel" hidden>
-            <div class="math-console-head"><div><span>Live controls</span><b id="mathConsoleHeading">Adjust the math you play</b></div><button type="button" id="mathConsoleClose">Close</button></div>
-            <div class="math-console-controls" id="mathConsoleControls"></div>
-            <button type="button" class="math-console-more" id="mathConsoleMore">More math</button>
-          </div>
-          <button type="button" class="math-console-pull" id="mathConsolePull" aria-expanded="false" aria-controls="mathConsolePanel">
-            <span class="math-console-label">Math Console</span><span class="math-console-values" id="mathConsoleValues"></span><span class="math-console-status" id="mathConsoleStatus" role="status" aria-live="polite"></span><span class="math-console-state" id="mathConsoleState">Open</span>
-          </button>
-        </section>
-        <div class="utility-slot" id="utilitySlot" aria-label="In-game utility belt"></div>
         <div class="dials" id="dials" hidden role="dialog" aria-modal="true" aria-label="Dials, game paused"><div class="dh"><b>TIME-OUT · YOUR CORNER</b><button type="button" id="dialsClose">Back in <span aria-hidden="true">▶</span></button></div><div class="db" id="dialsBody"></div></div>
       </div>
-      <div class="stage-context" aria-label="Live game guidance">
-        <section class="math-hud" id="mathHud" aria-label="Current math">
-          <div class="context-head"><span>Current math</span><b id="mathHudTitle">Get ready</b><button class="dialtop" id="dialTop" type="button" aria-label="Pause and open Dials" aria-describedby="dialTopStatus">Dials <span class="k">P</span></button><span class="dial-status" id="dialTopStatus" aria-live="polite"></span></div>
-          <div class="math-hud-equation" id="mathHudEquation"></div>
-          <dl class="math-hud-values" id="mathHudValues"></dl>
-        </section>
-      </div>
     </div>
-    <aside class="panel inspector" id="inspector" aria-label="Game inspector">
+    <aside class="panel inspector" id="inspector" aria-label="Game information menu">
       <div class="inspector-head">
-        <span class="utility-label">Utility belt</span>
+        <span class="utility-label">Game menu</span>
         <div class="inspector-tabs" role="tablist" aria-label="Game information">
           <button type="button" role="tab" id="ins-tab-math" aria-controls="ins-pane-math" aria-selected="true" data-pane="math">Math</button>
           <button type="button" role="tab" id="ins-tab-review" aria-controls="ins-pane-review" aria-selected="false" data-pane="review">Review</button>
@@ -141,6 +124,17 @@
       </div>
       <div class="inspector-body" id="inspectorBody">
         <section class="inspector-pane" id="ins-pane-math" role="tabpanel" aria-labelledby="ins-tab-math" data-pane="math">
+          <div class="math-context-summary">
+            <div class="math-context-title"><span>Current math</span><b id="mathHudTitle">Get ready</b></div>
+            <div class="math-console-values" id="mathConsoleValues"></div>
+            <p class="math-console-status" id="mathConsoleStatus" role="status" aria-live="polite"></p>
+            <button class="dialtop" id="dialTop" type="button" aria-label="Pause and open Dials" aria-describedby="dialTopStatus">Dials <span class="k">P</span></button>
+            <span class="dial-status" id="dialTopStatus" aria-live="polite"></span>
+          </div>
+          <section class="math-context-controls" aria-label="Live math controls">
+            <div class="math-console-head"><span>Live controls</span><b id="mathConsoleHeading">Adjust the math you play</b></div>
+            <div class="math-console-controls" id="mathConsoleControls"></div>
+          </section>
           <div class="ph"><h2>Live math</h2><p id="cHint"></p></div>
           <div class="live" id="liveEq"></div>
           <div class="vars" id="vars"></div>
