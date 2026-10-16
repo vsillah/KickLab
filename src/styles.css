@@ -702,3 +702,17 @@ header.top .brand p{display:none}
 .inspector-body{box-sizing:border-box;position:absolute;z-index:9;left:8px;right:8px;bottom:58px;max-height:min(520px,calc(100vh - 160px));overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;padding:12px;border:1px solid #5578aa;border-radius:13px;background:rgba(8,17,33,.88);box-shadow:0 18px 45px rgba(0,0,0,.48);-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px)}
 .panel.inspector.open .inspector-body{display:block;max-height:min(520px,calc(100vh - 160px));border:1px solid #5578aa;border-radius:13px;background:rgba(8,17,33,.88)}
 @media (max-width:700px){.left{gap:7px}.inspector-head{grid-template-columns:minmax(0,1fr) auto}.utility-label{grid-column:1}.inspector-tabs{grid-column:1/-1;grid-row:2}.inspector-close{grid-column:2;grid-row:1}.inspector-state{left:12px;right:12px;bottom:110px}.inspector-body{left:5px;right:5px;bottom:102px;padding:9px}.panel.inspector.open .inspector-body{max-height:min(480px,calc(100vh - 150px))}}
+
+/* Attached single-play and Continuous Play mode rail. */
+.gamebar{display:grid;gap:6px;overflow:visible;padding:8px 2px 4px}
+.gamebar-tools{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:6px;min-width:0}
+.continuous-toggle,.continuous-start,.continuous-cancel{appearance:none;min-height:44px;border:1px solid var(--line);border-radius:9px;background:var(--panel-2);color:var(--ink);padding:7px 10px;font:700 11px var(--f-body);cursor:pointer;white-space:nowrap}.continuous-toggle{justify-self:start}
+.continuous-toggle[aria-pressed="true"]{border-color:var(--xray);background:#17304d;box-shadow:inset 0 -2px 0 var(--xray)}
+.continuous-start{border-color:var(--good);color:var(--good)}.continuous-start:disabled{opacity:.45;cursor:not-allowed}
+.continuous-cancel{border-color:var(--hot);color:var(--hot)}
+.continuous-summary,.continuous-status{margin:0;min-width:0;font:700 10px/1.3 var(--f-mono);color:var(--muted)}
+.continuous-summary{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.continuous-status:empty{display:none}.continuous-status{color:var(--xray);padding-inline:4px}
+.gamebar-track{display:flex;gap:8px;min-width:0;overflow-x:auto;padding:1px 1px 5px;scrollbar-width:thin;-webkit-overflow-scrolling:touch;overscroll-behavior-inline:contain}
+.gamebar .gt{position:relative;min-height:54px}.gamebar .gt.selected{padding-left:40px;border-color:var(--xray);background:linear-gradient(180deg,rgba(127,220,255,.2),rgba(127,220,255,.04));box-shadow:0 0 0 1px var(--xray) inset}.gamebar .gt.current{border-color:var(--good);box-shadow:0 0 0 2px var(--good) inset}.gamebar .gt:disabled{opacity:.72;cursor:default}
+.game-order{position:absolute;left:9px;top:50%;transform:translateY(-50%);display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--xray);color:#07101f;font:700 12px var(--f-mono)}
+@media (max-width:700px){.gamebar{gap:5px;padding:4px 0}.gamebar-tools{grid-template-columns:minmax(0,1fr) auto}.continuous-toggle{grid-column:1}.continuous-summary{grid-column:2;text-align:right;max-width:170px}.continuous-start{grid-column:1;grid-row:2}.continuous-cancel{grid-column:2;grid-row:2}.gamebar-track{gap:5px}.gamebar .gt{min-width:108px;min-height:48px;padding:6px 9px}.gamebar .gt.selected{padding-left:37px}.game-order{left:7px}}

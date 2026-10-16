@@ -10,6 +10,8 @@ const cockpit=readFileSync(join(root,'src','game','54-web-cockpit.js'),'utf8');
 const replay=readFileSync(join(root,'src','game','60-pause-replay.js'),'utf8');
 const ui=readFileSync(join(root,'src','game','41-ui.js'),'utf8');
 const progress=readFileSync(join(root,'src','game','01-progress.js'),'utf8');
+const games=readFileSync(join(root,'src','game','42-match.js'),'utf8');
+const live=readFileSync(join(root,'src','game','51-live-match.js'),'utf8');
 const challenges=readFileSync(join(root,'src','game','02-challenges-coaches.js'),'utf8');
 const kit=readFileSync(join(root,'src','game','52-leaderboard.js'),'utf8');
 const css=readFileSync(join(root,'src','styles.css'),'utf8');
@@ -91,6 +93,29 @@ test('renders readable labels with the existing control symbols',()=>{
   assert.match(ui,/class="action-label"/);
   assert.match(ui,/class="dir-label"/);
   assert.match(html,/>Dials <span class="k">P<\/span>/);
+});
+
+test('keeps single play and bounded Continuous Play in one attached rail',()=>{
+  assert.match(live,/const CONTINUOUS=\{selecting:false,on:false,picks:\[\],i:0,status:''/);
+  assert.match(live,/games\(\)\{return GAMES\.filter\(g=>!g\.sequence\);\}/);
+  assert.match(live,/if\(this\.picks\.length>=3\).*Three-drill limit reached/);
+  assert.match(live,/One drill selected\. Start repeats it continuously\./);
+  assert.match(live,/Selection order becomes play order\./);
+  assert.match(live,/id="continuousStart"\$\{selected\.length\?'':' disabled'\}/);
+  assert.match(live,/setAttribute\('role','checkbox'\)/);
+  assert.match(live,/setAttribute\('aria-checked'/);
+  assert.match(live,/class="game-order"/);
+  assert.match(live,/pickGame\(this\.picks\[0\],true,true\)/);
+  assert.match(live,/this\.i=\(this\.i\+1\)%this\.picks\.length/);
+  assert.match(live,/function focusContinuousPlay\(\).*#padR button:not\(:disabled\)/);
+  assert.match(live,/requestAnimationFrame\(\(\)=>\$\('#continuousToggle'\)\?\.focus\(\)\)/);
+  assert.match(progress,/CONTINUOUS\.on\)\{CONTINUOUS\.advance\(\);return;\}/);
+  assert.match(progress,/CONTINUOUS\.nextLabel\(\)/);
+  assert.match(games,/k:'match'[\s\S]*?sequence:true/);
+  assert.match(games,/k:'live'[\s\S]*?sequence:true/);
+  assert.match(css,/\.gamebar-track\{[^}]*overflow-x:auto/);
+  assert.match(css,/\.continuous-toggle,\.continuous-start,\.continuous-cancel\{[^}]*min-height:44px/);
+  assert.match(css,/\.game-order\{position:absolute/);
 });
 
 test('uses one on-game hierarchical settings experience',()=>{
