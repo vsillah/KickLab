@@ -140,7 +140,7 @@ test('swaps the D-pad footprint into guarded Manual Physics',()=>{
   assert.match(cockpit,/setControllerMode\('play',\{restore:false,reason\}\)/);
   assert.match(cockpit,/e\.key==='Escape'.*setControllerMode\('play'\)/);
   assert.match(ui,/function adjustVar\(id,delta,allowManualPause=false\)/);
-  assert.match(css,/\.control-left-slot\{width:158px;height:178px/);
+  assert.match(css,/\.control-left-slot\{width:158px;height:178px;[^}]*pointer-events:auto/);
   assert.match(css,/\.manual-controller\{box-sizing:border-box;grid-row:3;width:158px;height:126px/);
   assert.match(css,/\.manual-controller button\{[^}]*min-height:44px/);
   assert.doesNotMatch(cockpit,/math-console-var\$\{manual/);
