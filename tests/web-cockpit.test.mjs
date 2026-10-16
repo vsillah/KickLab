@@ -95,26 +95,38 @@ test('renders readable labels with the existing control symbols',()=>{
   assert.match(html,/>Dials <span class="k">P<\/span>/);
 });
 
-test('keeps single play and bounded Continuous Play in one attached rail',()=>{
-  assert.match(live,/const CONTINUOUS=\{selecting:false,on:false,picks:\[\],i:0,status:''/);
+test('keeps Match, Live Match, and bounded Freestyle selection in one attached rail',()=>{
+  assert.match(live,/const CONTINUOUS=\{experience:'freestyle',running:false,on:false,picks:\[\],i:0,status:''/);
   assert.match(live,/games\(\)\{return GAMES\.filter\(g=>!g\.sequence\);\}/);
-  assert.match(live,/if\(this\.picks\.length>=3\).*Three-drill limit reached/);
-  assert.match(live,/One drill selected\. Start repeats it continuously\./);
-  assert.match(live,/Selection order becomes play order\./);
-  assert.match(live,/id="continuousStart"\$\{selected\.length\?'':' disabled'\}/);
+  assert.match(live,/id="experienceMatch"[\s\S]*?id="experienceLive"[\s\S]*?id="experienceFreestyle"/);
+  assert.match(live,/if\(experience==='match'\)MATCH\.begin\(\);else LIVEM\.begin\(\);/);
+  assert.match(games,/const MATCH=\{on:false,i:0,you:0,them:0[\s\S]*?evs=\['run','combo','corner','counter','run','combo','corner','counter'\]/);
+  assert.match(games,/end\(\)\{const w=this\.you>this\.them[\s\S]*?FULL TIME/);
+  assert.match(live,/const LIVEM=\{on:false,T:240,left:240,you:0,them:0,saves:0,passes:0/);
+  assert.match(live,/clock\(\)\{const s=Math\.ceil\(this\.left\)/);
+  assert.match(live,/Live Match started · four minutes of nonstop possession, attack, goalkeeping, clock, and score\./);
+  assert.match(live,/Choose one for a single activity\. Choose more than one for Continuous Play\./);
+  assert.match(live,/if\(this\.picks\.length>=3\).*Three-activity limit reached/);
+  assert.match(live,/primaryLabel\(\)\{return!this\.picks\.length\?'Choose activity':this\.picks\.length===1\?'Play activity':'Start continuous';\}/);
+  assert.match(live,/id="freestyleStart"\$\{selected\.length&&!CONTINUOUS\.running\?'':' disabled'\}/);
   assert.match(live,/setAttribute\('role','checkbox'\)/);
   assert.match(live,/setAttribute\('aria-checked'/);
   assert.match(live,/class="game-order"/);
+  assert.match(live,/showOrder=selected\.length>1&&order/);
   assert.match(live,/pickGame\(this\.picks\[0\],true,true\)/);
+  assert.match(live,/this\.on=this\.picks\.length>1/);
   assert.match(live,/this\.i=\(this\.i\+1\)%this\.picks\.length/);
-  assert.match(live,/function focusContinuousPlay\(\).*#padR button:not\(:disabled\)/);
-  assert.match(live,/requestAnimationFrame\(\(\)=>\$\('#continuousToggle'\)\?\.focus\(\)\)/);
+  assert.match(live,/function focusFreestylePlay\(\).*#padR button:not\(:disabled\)/);
+  assert.match(live,/function stopExperiencePlayback\(\).*RP\.on.*exitReplay\(\).*CINE\.on.*CINE\.done=null/s);
+  assert.match(live,/requestAnimationFrame\(\(\)=>\$\('#experienceFreestyle'\)\?\.focus\(\)\)/);
+  assert.doesNotMatch(live,/id="continuousToggle"/);
   assert.match(progress,/CONTINUOUS\.on\)\{CONTINUOUS\.advance\(\);return;\}/);
   assert.match(progress,/CONTINUOUS\.nextLabel\(\)/);
   assert.match(games,/k:'match'[\s\S]*?sequence:true/);
   assert.match(games,/k:'live'[\s\S]*?sequence:true/);
   assert.match(css,/\.gamebar-track\{[^}]*overflow-x:auto/);
-  assert.match(css,/\.continuous-toggle,\.continuous-start,\.continuous-cancel\{[^}]*min-height:44px/);
+  assert.match(css,/\.continuous-start,\.continuous-cancel\{[^}]*min-height:44px/);
+  assert.match(css,/\.experience-tabs\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
   assert.match(css,/\.game-order\{position:absolute/);
 });
 
