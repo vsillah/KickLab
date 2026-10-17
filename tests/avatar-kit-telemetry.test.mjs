@@ -74,8 +74,10 @@ test('renders procedural fallback pitch and stadium layers in both soccer camera
   assert.match(side, /side-returns/);
   assert.match(side, /Math\.pow\(t0,1\.75\)/);
   assert.match(side, /mode:this\.opt\.shot/);
-  assert.match(loop, /Kick\.opt\.shot!==['"]dribble['"]\)Kick\.fallbackSideScene\(ctx,k\)/);
-  assert.match(renderer, /Kick\.opt\.shot===['"]dribble['"]/);
+  assert.match(loop, /M===Kick&&V3\.on/);
+  assert.match(loop, /else if\(M===Kick&&Kick\.opt\.shot!==['"]dribble['"]\)Kick\.fallbackSideScene\(ctx,k\)/);
+  assert.match(renderer, /want\(\)\{return this\.ready&&best\.gfx!==['"]2d['"]&&M===Kick;\}/);
+  assert.doesNotMatch(renderer.match(/want\(\)\{[^}]+\}/)?.[0] || '', /opt\.shot|opt\.pso/);
   assert.match(field, /fallbackStadium\(c,st\)/);
   assert.match(field, /fallbackPitch\(c,st\)/);
   assert.match(field, /__KICKLAB_FALLBACK_ENV__/);

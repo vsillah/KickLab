@@ -10,7 +10,8 @@ function frame(now){const rdt=Math.min(0.05,(now-last)/1000);last=now;
   E.cam=RP.on?RP.cam:camNow();if(!CINE.on)recFrame(rdt);const k=E.cam,sh=RP.on?0:E.shake,shx=sh?(Math.random()-0.5)*sh:0,shy=sh?(Math.random()-0.5)*sh:0;
   V3.on=V3.want();if(V3.on)V3.begin();else V3.hide();if(CINE.on)CINE.step(rdt);CROWD.tick(rdt);
   if(CINE.on){M.draw(V3.dummy||(V3.dummy=document.createElement('canvas').getContext('2d')));V3.render(CINE.model===Kick?Kick:Drib,k,0,0,rdt);CINE.draw(ctx);drawLive(ctx);requestAnimationFrame(frame);return;}
-  if(M===Kick&&Kick.opt.shot!=='dribble')Kick.fallbackSideScene(ctx,k);
+  if(M===Kick&&V3.on){window.__KICKLAB_SIDE_STADIUM__=null;window.__KICKLAB_SIDE_GOAL__=null;}
+  else if(M===Kick&&Kick.opt.shot!=='dribble')Kick.fallbackSideScene(ctx,k);
   ctx.save();ctx.translate(W/2+shx,H/2+shy);ctx.scale(k.z,k.z);ctx.translate(-k.x,-k.y);
   M.draw(ctx);if(V3.on)V3.render(Kick.opt.shot==='dribble'?Drib:Kick,k,shx,shy,rdt);if(!RP.on)stepParts(PARTS,rdt*E.ts);drawParts(ctx,PARTS);
   if(E.env>0&&physicsAnnotationsVisible()){ctx.save();ctx.globalAlpha=0.72*E.env;ctx.fillStyle='#030814';ctx.fillRect(-2000,-2000,5000,5000);ctx.restore();ctx.save();ctx.globalAlpha=E.env;M.drawXray(ctx);ctx.restore();}

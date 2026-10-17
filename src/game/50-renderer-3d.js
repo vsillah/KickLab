@@ -1,6 +1,6 @@
 /* ---------- 3D stadium renderer (Three.js). The physics never changes: this only draws Drib's world. ---------- */
 const V3={ready:false,loading:false,failed:false,on:false,cine:null,ents:[],rigs:[],numTex:{},lastBall:null,
-  want(){return this.ready&&best.gfx!=='2d'&&M===Kick&&Kick.opt.shot==='dribble';},
+  want(){return this.ready&&best.gfx!=='2d'&&M===Kick;},
   sents:[],
   load(){if(this.ready||this.loading||this.failed||best.gfx==='2d')return;this.loading=true;
     if(window.THREE){try{this.init();}catch(e){console.warn('3D off',e);this.err=String(e&&e.message||e).slice(0,60);this.failed=true;this.loading=false;}return;}
