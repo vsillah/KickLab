@@ -63,4 +63,6 @@ Saved progress and the weekly challenge seed still use the old `impactlab` keys 
 
 Cross-platform work starts with the [architecture contract](docs/architecture/cross-platform-contract.md). The current HTML artifact remains supported while deterministic game rules move behind shared interfaces and Capacitor shells are introduced in separately owned platform lanes.
 
+The [web release preparation guide](docs/web-release.md) documents the review-only GitHub Pages artifact workflow. It packages `dist/pages/index.html` but does not enable or deploy GitHub Pages.
+
 `dist/` is not committed, so built output never causes merge conflicts.
