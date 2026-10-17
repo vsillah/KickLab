@@ -83,22 +83,30 @@ test('uses a compact active-play HUD and one translucent field overlay',()=>{
   assert.match(cockpit,/\$\('#liveMathHudValues'\)\.innerHTML=defs\.slice\(0,1\)/);
   assert.match(cockpit,/function liveHudState\(\).*Fight\.bout.*Race\.st\.t.*MATCH\.on.*LIVEM\.on/s);
   assert.match(css,/\.game-shell-nav\{position:absolute;z-index:12/);
-  assert.match(css,/\.game-guidance-hud\{position:absolute;z-index:10/);
-  assert.match(css,/background:linear-gradient\(145deg,rgba\(5,14,29,\.64\),rgba\(5,14,29,\.5\)\)/);
+  assert.match(css,/\.game-guidance-hud\{position:absolute;z-index:26/);
+  assert.match(css,/\.game-guidance-hud\{[^}]+background:linear-gradient\(145deg,rgba\(5,14,29,\.64\),rgba\(5,14,29,\.5\)\)/);
+  assert.match(css,/\.game-frame \.stage>canvas#cv\{[^}]+width:calc\(100% - var\(--game-rail-space\)\)/);
+  assert.match(css,/\.stage \.context-detail,\.stage \.settings-drawer\{[^}]+right:calc\(var\(--game-rail-space\)/);
   assert.match(css,/backdrop-filter:blur\(14px\) saturate\(1\.15\)/);
   assert.match(css,/env\(safe-area-inset-top\)/);
   assert.match(css,/@media \(prefers-reduced-motion:reduce\).*\.game-overlay-backdrop/s);
 });
 
-test('keeps every compact HUD summary visibly identifiable without stacking',()=>{
+test('keeps four compact summaries inside one divided right-side tray',()=>{
   for(const label of ['Coach','Log','Math'])assert.match(html,new RegExp(`class="mobile-hud-label"[^>]*>${label}</span>`));
   assert.match(cockpit,/class="mobile-hud-label" aria-hidden="true">Goal<\/span>/);
   assert.match(css,/\.mobile-hud-label\{display:block/);
   assert.match(css,/\.desktop-hud-label\{display:none\}/);
+  assert.match(cockpit,/function railHudState\(\).*Fight\.bout.*Race\.st\.v.*MATCH\.on.*LIVEM\.on/s);
   assert.match(cockpit,/renderChallengeHud\(\).*mobile-hud-label[^`]+hud-summary-cue/s);
   assert.match(cockpit,/liveMathHudValues'\)\.innerHTML=defs\.slice\(0,1\)/);
-  assert.match(css,/\.game-guidance-hud\{position:absolute[^}]+grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
-  assert.doesNotMatch(css,/@media \(max-width:480px\)[^}]*\.game-guidance-hud\{[^}]*grid-template-columns/s);
+  assert.match(html,/id="gameGuidanceHud" aria-label="Gameplay information rail">[\s\S]*id="challengeHud"[\s\S]*id="coach"[\s\S]*id="historyHud"[\s\S]*id="liveMathHud"/);
+  assert.match(css,/\.game-guidance-hud\{position:absolute[^}]+width:68px[^}]+grid-auto-flow:row/);
+  assert.match(css,/\.game-guidance-hud>\.contextual-summary\{[^}]+border:0[^}]+background:transparent[^}]+box-shadow:none/);
+  assert.match(css,/\.game-guidance-hud>\.contextual-summary\+ \.contextual-summary\{border-top:/);
+  assert.match(css,/\.game-guidance-hud>\.contextual-summary:has\(\.context-disclosure\[aria-expanded="true"\]\)/);
+  assert.match(css,/#gameGuidanceHud \.context-disclosure\{position:absolute;z-index:2;inset:0;[^}]+width:100%;min-width:44px;height:100%;min-height:44px/);
+  assert.match(css,/@media \(max-width:480px\)\{\.game-frame \.stage\{--game-rail-space:60px\}\.game-guidance-hud\{[^}]+width:52px/);
 });
 
 test('derives compact math from mode definitions and explicit equation data',()=>{
