@@ -7,9 +7,6 @@
 <meta name="description" content="KickLab is a physics game for ages 9–15 where punches, racing and soccer turn equations into playable experiments.">
 <title>KickLab</title>
 <link rel="icon" href="data:,">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=JetBrains+Mono:wght@500;700&family=Lexend:wght@400;500;600;700&display=swap">
 <style>{{STYLES}}</style>
 </head>
 <body>
@@ -71,6 +68,16 @@
         </header>
         <div class="stage">
           <canvas id="cv" width="960" height="540" aria-label="Game stage"></canvas>
+          <section class="game-pacing-overlay" id="gamePacingOverlay" hidden aria-labelledby="gamePacingPhase" aria-describedby="gamePacingActivity gamePacingA11y">
+            <div class="game-pacing-card">
+              <span class="game-pacing-kicker" id="gamePacingKicker">Next activity</span>
+              <strong class="game-pacing-phase" id="gamePacingPhase" aria-hidden="true">READY?</strong>
+              <b class="game-pacing-activity" id="gamePacingActivity"></b>
+              <div class="game-control-preview" id="gameControlPreview" aria-label="Controls for the next activity"></div>
+              <button type="button" class="game-pacing-resume" id="gamePacingResume" hidden>Resume game</button>
+            </div>
+          </section>
+          <p class="sr-only" id="gamePacingA11y" role="status" aria-live="polite" aria-atomic="true"></p>
           <div class="results" id="results" hidden><div class="rc" id="rc"><div class="grade" id="rGrade">A<small>GRADE</small></div><div class="rmain"><div class="rlvl" id="rLvl" hidden></div><div class="rtitle" id="rTitle"></div><div class="rsub" id="rSub"></div><ul class="rrows" id="rRows"></ul><div class="rtotal"><span>XP earned</span><b id="rTotal">+0</b></div><div class="rhint" id="rHint"></div><div class="rboard" id="rBoard" hidden></div><div class="rgo"><div class="racts" id="racts" hidden><button type="button" id="rReview">Coach review</button><button type="button" id="rReplay">Replay</button></div><button type="button" class="rnext" id="rNext">Next round <span aria-hidden="true">▶</span> <kbd>Space</kbd></button></div></div></div></div>
           <div class="lvlup" id="lvlup" hidden><div class="lu"><span class="lu-k">LEVEL UP</span><div class="lu-n" id="luNum">2</div><div class="lu-t" id="luTitle"></div><div class="lu-u" id="luUnlock"></div></div></div>
           <div class="feed" id="feed" aria-hidden="true"></div>

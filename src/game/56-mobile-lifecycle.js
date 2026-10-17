@@ -14,7 +14,7 @@ function releaseMobileHeldInputs(reason='App interrupted'){
 function suspendMobileAudio(){ENGINE.off();if(AC&&AC.state==='running'){try{const pending=AC.suspend();if(pending&&typeof pending.catch==='function')pending.catch(()=>{});}catch(_){}}}
 function suspendMobileSession(reason='background'){
   releaseMobileHeldInputs(reason);suspendMobileAudio();MOBILE_STATE.active=false;MOBILE_STATE.lastReason=reason;
-  if(!PAUSE.on){PAUSE.on=true;PAUSE.why='mobile-lifecycle';PAUSE.resumeT=0;MOBILE_STATE.ownsPause=true;}else MOBILE_STATE.ownsPause=false;
+  claimPauseOwner('mobile-lifecycle');MOBILE_STATE.ownsPause=true;
   reflectMobileState();return Object.freeze({...MOBILE_STATE});
 }
 function foregroundMobileSession(reason='foreground'){

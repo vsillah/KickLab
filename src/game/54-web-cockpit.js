@@ -16,12 +16,12 @@ function releaseGameplayForOverlay(){if(typeof releaseMobileHeldInputs==='functi
 function syncGameOverlayBackdrop(){const profileOpen=!profileDialog.hidden&&profileDialog.classList.contains('game-profile-overlay'),open=!!CONTEXT_DETAILS.open||!settingsDrawer.hidden||profileOpen;gameOverlayBackdrop.hidden=!open;gameStage.classList.toggle('has-game-overlay',open);gamePlayShell.classList.toggle('has-game-overlay',open);}
 function overlayFocusables(panel){return[...panel.querySelectorAll('button:not(:disabled),[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex]:not([tabindex="-1"])')].filter(node=>!node.hidden&&node.getAttribute('aria-hidden')!=='true'&&node.getClientRects().length>0);}
 function trapOverlayFocus(panel,e){if(e.key!=='Tab')return;const items=overlayFocusables(panel);if(!items.length)return;e.stopPropagation();const first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}
-function closeContextDetail({restore=true}={}){
+function closeContextDetail({restore=true,restart=true}={}){
   if(!CONTEXT_DETAILS.open)return;
   const trigger=CONTEXT_DETAILS.trigger,name=CONTEXT_DETAILS.open;
   contextPanel(name).hidden=true;contextTriggers(name).forEach(b=>syncContextTrigger(b,false));
   CONTEXT_DETAILS.open=null;CONTEXT_DETAILS.trigger=null;
-  if(CONTEXT_DETAILS.ownsPause&&PAUSE.why==='context-detail'){PAUSE.why='';resumeGame();}
+  if(CONTEXT_DETAILS.ownsPause)releasePauseOwner('context-detail',{restart});
   CONTEXT_DETAILS.ownsPause=false;
   syncGameOverlayBackdrop();
   if(restore&&trigger&&trigger.isConnected&&!trigger.hidden)trigger.focus();
@@ -31,22 +31,22 @@ function setContextDetail(name,{trigger=null,focus=false,open=true}={}){
   const panel=contextPanel(name);if(!panel)return;
   if(!open){closeContextDetail();return;}
   if(CONTEXT_DETAILS.open===name){closeContextDetail();return;}
-  closeContextDetail({restore:false});
-  if(!settingsDrawer.hidden)closeSettings({restore:false});
-  if(!profileDialog.hidden)closeProfiles({restore:false});
+  closeContextDetail({restore:false,restart:false});
+  if(!settingsDrawer.hidden)closeSettings({restore:false,restart:false});
+  if(!profileDialog.hidden)closeProfiles({restore:false,restart:false});
   CONTEXT_DETAILS.open=name;CONTEXT_DETAILS.trigger=trigger||contextTriggers(name).find(b=>b.offsetParent!==null)||contextTriggers(name)[0];
   document.querySelectorAll('.context-detail').forEach(p=>p.hidden=p!==panel);
   ['orientation','math','review','goals','learn'].forEach(n=>contextTriggers(n).forEach(b=>syncContextTrigger(b,n===name)));
   panel.hidden=false;releaseGameplayForOverlay();
-  if(!PAUSE.on){pauseGame('context-detail');CONTEXT_DETAILS.ownsPause=PAUSE.on&&PAUSE.why==='context-detail';}
+  pauseGame('context-detail');CONTEXT_DETAILS.ownsPause=true;
   if(focus)requestAnimationFrame(()=>panel.querySelector('[data-close-detail]')?.focus());
   syncGameOverlayBackdrop();requestAnimationFrame(resize);
 }
 
 function setSettingsPause(on){
   if(on)pauseGame('settings');
-  else if(PAUSE.why==='settings'){PAUSE.why='';resumeGame();}
-  $('#settingsState').textContent=on&&PAUSE.on&&PAUSE.why==='settings'?'Game paused while settings are open.':'Settings open. Changes apply immediately.';
+  else releasePauseOwner('settings');
+  $('#settingsState').textContent=on?'Game paused while settings are open.':'Settings open. Changes apply immediately.';
 }
 function setSettingsLevel(level,{category=SETTINGS.category,focus=true}={}){
   SETTINGS.level=level;SETTINGS.category=category;
@@ -62,11 +62,11 @@ function setSettingsLevel(level,{category=SETTINGS.category,focus=true}={}){
   if(focus)requestAnimationFrame(()=>{const target=level==='categories'?cats.querySelector('button'):level==='choices'?choices.querySelector('button'):kitRoom.querySelector('button');(target||back).focus();});
 }
 function openSettings(category=null,trigger=settingsToggle){
-  if(!profileDialog.hidden)closeProfiles({restore:false});if(CONTEXT_DETAILS.open)closeContextDetail({restore:false});SETTINGS.trigger=trigger;SETTINGS.restoreCategory=trigger&&trigger.dataset?trigger.dataset.category:null;settingsDrawer.hidden=false;settingsToggle.setAttribute('aria-expanded','true');releaseGameplayForOverlay();setSettingsPause(true);
+  if(!profileDialog.hidden)closeProfiles({restore:false,restart:false});if(CONTEXT_DETAILS.open)closeContextDetail({restore:false,restart:false});SETTINGS.trigger=trigger;SETTINGS.restoreCategory=trigger&&trigger.dataset?trigger.dataset.category:null;settingsDrawer.hidden=false;settingsToggle.setAttribute('aria-expanded','true');releaseGameplayForOverlay();setSettingsPause(true);
   setSettingsLevel(category?'choices':'categories',{category,focus:true});syncGameOverlayBackdrop();requestAnimationFrame(resize);
 }
-function closeSettings({restore=true}={}){
-  if(settingsDrawer.hidden)return;settingsDrawer.hidden=true;$('#kitroom').hidden=true;settingsToggle.setAttribute('aria-expanded','false');setSettingsPause(false);
+function closeSettings({restore=true,restart=true}={}){
+  if(settingsDrawer.hidden)return;settingsDrawer.hidden=true;$('#kitroom').hidden=true;settingsToggle.setAttribute('aria-expanded','false');releasePauseOwner('settings',{restart});
   syncGameOverlayBackdrop();if(restore){const trigger=SETTINGS.trigger&&SETTINGS.trigger.isConnected&&SETTINGS.trigger.offsetParent!==null?SETTINGS.trigger:SETTINGS.restoreCategory!=null?$(`#quickSettings [data-category="${SETTINGS.restoreCategory}"]`):null;(trigger||$('#orientationDetailToggle')||settingsToggle).focus();}requestAnimationFrame(resize);
 }
 function showKitSettings(trigger=$('#kitRoomToggle')){SETTINGS.trigger=SETTINGS.trigger||trigger;setSettingsLevel('kit',{category:'kit',focus:true});}
@@ -125,7 +125,7 @@ function renderWideManual(){const defs=wideManualDefs(),sig=`${M.key}|${activeVa
   const reason=manualUnavailableReason();let actionLocked=false,challengeLocked=false;defs.forEach(def=>{const row=wideManualRows.querySelector(`[data-var="${def.id}"]`),source=varEls.find(v=>v.def.id===def.id),locked=isLocked(M.key,def.id),temporary=!!reason||!!(source&&source.inp.disabled&&!locked),disabled=locked||temporary;if(!row)return;row.querySelector('output').textContent=cockpitValue(def,M.V[def.id]);const input=row.querySelector('input');input.value=M.V[def.id];input.disabled=disabled;input.setAttribute('aria-valuenow',M.V[def.id]);input.setAttribute('aria-valuetext',cockpitValue(def,M.V[def.id]));row.classList.toggle('locked',locked);row.classList.toggle('temporarily-locked',temporary);row.title=reason||(locked?'Locked by this challenge.':temporary?'Physics controls are locked during this action.':'');challengeLocked=challengeLocked||locked;actionLocked=actionLocked||temporary;});
   $('#wideManualStatus').textContent=reason||(actionLocked?'Physics controls are locked during this action.':challengeLocked?'Locked rows are fixed by this challenge.':'Changes apply immediately.');}
 function syncManualAvailability(){const reason=manualUnavailableReason();controllerManual.disabled=!!reason;controllerManual.title=reason;controllerManual.setAttribute('aria-disabled',String(!!reason));if(reason&&CONTROLLER.mode==='manual')setControllerMode('play',{restore:false,reason});else if(reason)$('#controllerModeStatus').textContent=reason;else if(CONTROLLER.mode==='play')$('#controllerModeStatus').textContent='D-pad controls active.';}
-function manualPause(on){if(on)pauseGame('manual-physics');else if(PAUSE.why==='manual-physics'){PAUSE.why='';resumeGame();}}
+function manualPause(on){if(on)pauseGame('manual-physics');else releasePauseOwner('manual-physics');}
 function selectedManualDef(){const defs=manualMathDefs();if(!defs.length)return null;CONTROLLER.sel=((CONTROLLER.sel%defs.length)+defs.length)%defs.length;return defs[CONTROLLER.sel];}
 function renderControllerMode(){syncManualAvailability();const manual=CONTROLLER.mode==='manual',defs=manualMathDefs(),def=manual&&selectedManualDef(),canCycle=defs.length>1;controllerPlay.setAttribute('aria-pressed',String(!manual));controllerManual.setAttribute('aria-pressed',String(manual));$('#padL').hidden=manual;manualController.hidden=!manual;$('#manualPrev').disabled=!canCycle;$('#manualNext').disabled=!canCycle;if(!manual||!def)return;const disabled=quickMathDisabled(def),slider=$('#manualVariableSlider');$('#manualVariableName').textContent=quickMathName(def);$('#manualVariableValue').textContent=cockpitValue(def,M.V[def.id]);slider.min=def.min;slider.max=def.max;slider.step=def.step;slider.value=M.V[def.id];slider.setAttribute('aria-label',quickMathName(def));slider.setAttribute('aria-valuemin',def.min);slider.setAttribute('aria-valuemax',def.max);slider.setAttribute('aria-valuenow',M.V[def.id]);slider.disabled=disabled;$('#manualLess').disabled=disabled;$('#manualMore').disabled=disabled;}
 function setControllerMode(mode,{restore=true,reason=''}={}){if(mode==='manual'&&manualUnavailableReason()){syncManualAvailability();return;}CONTROLLER.mode=mode;MATH_CONSOLE.sig='';manualPause(mode==='manual');$('#controllerModeStatus').textContent=reason||(mode==='manual'?(PAUSE.why==='manual-physics'?'Manual active · play paused.':'Manual active · adjust before play.'):'D-pad controls active.');renderControllerMode();renderMathConsole();if(restore&&mode==='play')controllerManual.focus();requestAnimationFrame(resize);}
