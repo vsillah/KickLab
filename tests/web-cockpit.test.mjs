@@ -89,6 +89,15 @@ test('uses a compact active-play HUD and one translucent field overlay',()=>{
   assert.match(css,/@media \(prefers-reduced-motion:reduce\).*\.game-overlay-backdrop/s);
 });
 
+test('keeps every narrow HUD summary visibly identifiable without stacking',()=>{
+  for(const label of ['Coach','Log','Math'])assert.match(html,new RegExp(`class="mobile-hud-label"[^>]*>${label}</span>`));
+  assert.match(cockpit,/class="mobile-hud-label" aria-hidden="true">Goal<\/span>/);
+  assert.match(css,/@media \(max-width:480px\).*\.mobile-hud-label\{display:block/s);
+  assert.match(css,/@media \(max-width:480px\).*\.desktop-hud-label,\.challenge-hud \.hud-live-state,\.challenge-hud \.eyebrow\{display:none!important\}/s);
+  assert.match(css,/\.game-guidance-hud\{position:absolute[^}]+grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
+  assert.doesNotMatch(css,/@media \(max-width:480px\)[^}]*\.game-guidance-hud\{[^}]*grid-template-columns/s);
+});
+
 test('derives compact math from mode definitions and explicit equation data',()=>{
   assert.match(cockpit,/activeVariableProfile\(\)/);
   assert.match(cockpit,/M\.LIVE\(\)/);

@@ -26,9 +26,11 @@ async function enterLab(page,name){
 async function shellState(page,label){
   const state=await page.evaluate(()=>{
     const hud=document.querySelector('#gameGuidanceHud'),stage=document.querySelector('.stage');
-    return{overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,progressHidden:document.querySelector('#progressHud').hidden,hud:hud.getBoundingClientRect().toJSON(),stage:stage.getBoundingClientRect().toJSON(),cards:[...hud.children].filter(node=>node.classList.contains('contextual-summary')).map(node=>node.getBoundingClientRect().toJSON())};
+    const cards=[...hud.children].filter(node=>node.classList.contains('contextual-summary')).map(node=>node.getBoundingClientRect().toJSON()),mobileLabels=[...hud.querySelectorAll('.mobile-hud-label')].filter(node=>getComputedStyle(node).display!=='none').map(node=>node.textContent.trim());
+    return{overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,progressHidden:document.querySelector('#progressHud').hidden,hud:hud.getBoundingClientRect().toJSON(),stage:stage.getBoundingClientRect().toJSON(),cards,mobileLabels};
   });
   if(state.overflow>1||!state.progressHidden||state.cards.length!==4)throw new Error(`${label}: compact shell contract failed (${JSON.stringify(state)})`);
+  if(label.startsWith('mobile')&&(state.mobileLabels.join(',')!=='Goal,Coach,Log,Math'||new Set(state.cards.map(card=>card.top)).size!==1||state.hud.height>56))throw new Error(`${label}: narrow labels must remain visible in one compact row (${JSON.stringify(state)})`);
   checks.push({label,kind:'active-shell',...state});return state;
 }
 async function assertGoalOverlay(page,label){
