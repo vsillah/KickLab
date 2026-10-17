@@ -144,12 +144,15 @@ test('starts on a dedicated mode home and keeps the full lab chooser out of acti
   const home=html.indexOf('id="modeHome"'),tabs=html.indexOf('class="tabs"'),cockpit=html.indexOf('id="game-cockpit"');
   assert.ok(home>=0&&home<tabs&&tabs<cockpit);
   assert.match(html,/id="modeHome" aria-labelledby="modeHomeTitle"/);
+  assert.match(html,/class="hudbar" id="progressHud" aria-label="Your progress"/);
   for(const mode of ['fight','race','kick'])assert.match(html,new RegExp(`class="tab" id="lab-tab-${mode}"[^>]+data-mode="${mode}"[^>]+aria-pressed=`));
   assert.match(html,/id="game-cockpit" role="region" aria-labelledby="currentModeTitle" hidden/);
   assert.match(html,/id="modeHomeButton"[^>]*>.*Labs<\/button>/);
   assert.match(keys,/function showModeHome\(\{focus=true\}=\{\}\)/);
   assert.match(keys,/\$\('#game-cockpit'\)\.hidden=true;\$\('#modeHome'\)\.hidden=false/);
+  assert.match(keys,/\$\('#modeHome'\)\.after\(\$\('#progressHud'\)\)/);
   assert.match(keys,/function setMode\(k\)\{\$\('#modeHome'\)\.hidden=true;\$\('#game-cockpit'\)\.hidden=false/);
+  assert.match(keys,/\$\('\.play-nav'\)\.after\(\$\('#progressHud'\)\)/);
   assert.match(keys,/CONTINUOUS\.menuOpen\|\|CONTINUOUS\.pickerOpen.*CONTINUOUS\.closeSelector\(\)/);
   assert.match(loop,/setMode\('fight'\);showModeHome\(\{focus:false\}\)/);
   assert.match(css,/\.mode-home\{display:grid/);
