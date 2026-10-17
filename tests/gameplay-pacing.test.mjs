@@ -76,7 +76,14 @@ test('game integrations route initial, continuous, panel, lifecycle and Match tr
   assert.match(mode, /startGameTransition\(\{activity:\{fight:'Fight round',race:'Race run',kick:'Free kick'\}\[k\]\}\)/);
   assert.match(continuous, /begin\(\).*startGameTransition\(\{activity:/s);
   assert.match(continuous, /advance\(\).*startGameTransition\(\{activity:/s);
-  assert.match(match, /startGameTransition\(\{activity:`\$\{m\}' · \$\{T\[0\]\}`.*onGo:/s);
+  assert.match(match, /startGameTransition\(\{activity:`\$\{m\}' · \$\{T\[0\]\}`,presentation:'match',matchTransition:/s);
+  assert.match(match, /this\.tr=null;E\.title=null;SND\.whoosh\(\)/);
+  assert.match(match, /Match pacing reuses the imported-v42 canvas banner/);
+  assert.match(match, /if\(tr\.pacing\).*tr\.phase.*tr\.title/s);
+  assert.match(match, /tr\.mapping\|\|\{\}/);
+  assert.match(match, /compact=tr\.pacing&&innerWidth<=480/);
+  assert.match(read('src/game/61-gameplay-pacing.js'), /if\(isMatchPresentation\(meta\)\)renderMatchPacing/);
+  assert.match(read('src/game/61-gameplay-pacing.js'), /pacingOverlay\.dataset\.presentation='match'/);
   assert.match(cockpit, /pauseGame\('context-detail'\)/);
   assert.match(cockpit, /releasePauseOwner\('settings',\{restart\}\)/);
   assert.match(lifecycle, /claimPauseOwner\('mobile-lifecycle'\)/);

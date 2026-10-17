@@ -7,7 +7,7 @@ function pauseReason(snapshot){if(snapshot.manual)return'manual';return snapshot
 function renderPausedOverlay(){
   const snapshot=PAUSE_OWNERS.snapshot(),manual=snapshot.manual&&!PACE_SEQUENCE.state().active;
   if(!manual){if(!PACE_SEQUENCE.state().active)pacingOverlay.hidden=true;return;}
-  pacingOverlay.hidden=false;pacingOverlay.dataset.state='paused';$('#gamePacingKicker').textContent='Game paused';pacingPhase.textContent='PAUSED';pacingActivity.textContent='Tap the stage or press P to continue';$('#gameControlPreview').innerHTML='';pacingResume.hidden=false;pacingA11y.textContent='Game paused. Activate Resume game, tap the stage, or press P to continue.';
+  pacingOverlay.hidden=false;pacingOverlay.dataset.state='paused';pacingOverlay.dataset.presentation='card';$('#gamePacingKicker').textContent='Game paused';pacingPhase.textContent='PAUSED';pacingActivity.textContent='Tap the stage or press P to continue';$('#gameControlPreview').innerHTML='';pacingResume.hidden=false;pacingA11y.textContent='Game paused. Activate Resume game, tap the stage, or press P to continue.';
 }
 function applyPauseSnapshot(snapshot,{notify=true}={}){
   const was=PAUSE.on;PAUSE.on=snapshot.paused;PAUSE.why=pauseReason(snapshot);PAUSE.resumeT=0;
@@ -43,14 +43,17 @@ function renderControlPreview(mapping){
   const html=cell('↔',mapping.x.join(' / '),'side to side')+cell('●',mapping.action[0],mapping.action[1],'control-action')+cell('↕',mapping.y.join(' / '),'down / up');
   const preview=$('#gameControlPreview');preview.style.setProperty('--control-accent',mapping.color);preview.innerHTML=html;preview.setAttribute('aria-label',`${mapping.title}. ${mapping.x.join(' and ')}. ${mapping.y.join(' and ')}. ${mapping.action.join('. ')}.`);
 }
+function isMatchPresentation(meta={}){return meta.presentation==='match'&&M===Kick&&MATCH.on;}
+function renderMatchPacing(phase,meta,mapping){const detail=meta.matchTransition||{};if(!MATCH.tr||!MATCH.tr.pacing)MATCH.tr={pacing:true,t:matchMedia('(prefers-reduced-motion: reduce)').matches ? .3 : 0};Object.assign(MATCH.tr,{pacing:true,phase:phase.label,minute:detail.minute,title:detail.title||pacingActivityName(meta),sub:detail.sub||'',score:detail.score||'',mapping});pacingOverlay.hidden=true;pacingOverlay.dataset.presentation='match';pacingOverlay.dataset.phase=phase.label;pacingOverlay.dataset.activity=`${detail.minute}' · ${detail.title}`;pacingOverlay.dataset.mapping=mapping.id;}
+function clearMatchPacing(meta={}){if(meta.presentation==='match'&&MATCH.tr&&MATCH.tr.pacing)MATCH.tr=null;if(meta.presentation==='match'){delete pacingOverlay.dataset.presentation;delete pacingOverlay.dataset.phase;delete pacingOverlay.dataset.activity;delete pacingOverlay.dataset.mapping;}}
 function cuePacingPhase(phase){if(best.mute)return;if(phase.key==='go')SND.total();else if(['3','2','1'].includes(phase.key))SND.tick();}
 const PACE_SEQUENCE=KickLabGameplayPacing.createTransitionSequence({
   onPhase(phase,meta){
-    pacingOverlay.hidden=false;pacingOverlay.dataset.state='countdown';pacingResume.hidden=true;$('#gamePacingKicker').textContent=phase.key==='ready'?'Next activity':'Get set';pacingPhase.textContent=phase.label;pacingActivity.textContent=pacingActivityName(meta);renderControlPreview(GAME_CORE.resolveControlMapping(pacingContext(meta)));cuePacingPhase(phase);
-    if(phase.key==='ready')pacingA11y.textContent=`${pacingActivityName(meta)} is next. Countdown starting.`;else if(phase.key==='go')pacingA11y.textContent='Go. Gameplay started.';
+    const mapping=GAME_CORE.resolveControlMapping(pacingContext(meta));if(isMatchPresentation(meta))renderMatchPacing(phase,meta,mapping);else{pacingOverlay.hidden=false;pacingOverlay.dataset.state='countdown';pacingOverlay.dataset.presentation='card';pacingResume.hidden=true;$('#gamePacingKicker').textContent=phase.key==='ready'?'Next activity':'Get set';pacingPhase.textContent=phase.label;pacingActivity.textContent=pacingActivityName(meta);renderControlPreview(mapping);}cuePacingPhase(phase);
+    if(phase.key==='ready')pacingA11y.textContent=`${pacingActivityName(meta)} is next. Countdown starting. ${mapping.title}. ${mapping.x.join(' and ')}. ${mapping.y.join(' and ')}. ${mapping.action.join('. ')}.`;else if(phase.key==='go')pacingA11y.textContent='Go. Gameplay started.';
   },
-  onComplete(meta){PACE.activeMeta=null;pacingOverlay.hidden=true;releasePauseOwner('transition',{restart:false});if(meta&&typeof meta.onGo==='function')meta.onGo();},
-  onCancel(){PACE.activeMeta=null;releasePauseOwner('transition',{restart:false});}
+  onComplete(meta){PACE.activeMeta=null;clearMatchPacing(meta);pacingOverlay.hidden=true;releasePauseOwner('transition',{restart:false});if(meta&&typeof meta.onGo==='function')meta.onGo();},
+  onCancel(reason,meta){PACE.activeMeta=null;clearMatchPacing(meta);releasePauseOwner('transition',{restart:false});}
 });
 function startGameTransition(meta={}){const snapshot=PAUSE_OWNERS.snapshot();if(snapshot.manual||snapshot.owners.some(owner=>owner!=='transition')){PACE.pending=meta;return PACE_SEQUENCE.state();}PACE.pending=null;if(PACE_SEQUENCE.state().active)PACE_SEQUENCE.cancel('replaced');PACE.activeMeta=meta;claimPauseOwner('transition');PACE_SEQUENCE.start(meta);return PACE_SEQUENCE.state();}
 function cancelGameTransition(reason='cancelled',{retain=false}={}){const active=PACE_SEQUENCE.state();if(!active.active)return active;if(retain)PACE.pending=active.meta;PACE_SEQUENCE.cancel(reason);return PACE_SEQUENCE.state();}
