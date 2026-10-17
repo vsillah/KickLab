@@ -176,7 +176,7 @@ const Kick={
     J.pelvis={x:(J.hipF.x+J.hipR.x)/2,y:(J.hipF.y+J.hipR.y)/2};if(opts.rec)this._J=J;
     if(opts.xray){RIG.bones(c,RIG.pairsSide(J),RIG.jointsSide(J),1.4,C.xray);return J;}
     if(V3.on&&V3.side(this,J,x,opts))return J;
-    RIG.side(c,J,{u:s*1.05,skin:opts.skin,hair:opts.hair,hairStyle:opts.hairStyle,eye:opts.eye,brow:opts.brow,mouth:opts.mouth,kit:opts.kit,accent:opts.accent,shorts:opts.shorts,sock:opts.sock,boot:opts.boot,olw:1,chest:0.15*s*(opts.ws||1),headR:0.13*s,sleeve:true,num:null,shadow:true,glove:opts.keeper?0.075*s:0,gloveCol:opts.boot.accent});return J;},
+    RIG.side(c,J,{u:s*1.18,skin:opts.skin,hair:opts.hair,hairStyle:opts.hairStyle,eye:opts.eye,brow:opts.brow,mouth:opts.mouth,kit:opts.kit,accent:opts.accent,shorts:opts.shorts,sock:opts.sock,boot:opts.boot,olw:1.35,chest:0.17*s*(opts.ws||opts.shoulders||1),headR:0.15*s,sleeve:true,num:opts.number||null,shadow:true,glove:opts.keeper?0.095*s:0,gloveCol:opts.boot.accent});return J;},
   draw(c){const X=v=>this.sx(v),Y=v=>this.sy(v),S=this.S,free=this.opt.shot==='free',v3=V3.on;
     if(!v3){const g=c.createLinearGradient(0,-200,0,this.OY);g.addColorStop(0,stad().sky[0]);g.addColorStop(1,stad().sky[1]);c.fillStyle=g;c.fillRect(-600,-600,W+1200,this.OY+600);
     const chr=this.cheerT>0,fr=Math.floor(performance.now()/90);for(let i=0;i<260;i++){const x=(i*73.3)%W,y=150+((i*37)%70)-(chr&&((i+fr)%3===0)?4:0);c.fillStyle=chr?`hsla(${(i*47)%360},80%,70%,${0.3+((i+fr)%4)*0.12})`:`rgba(147,164,195,${0.08+((i*13)%10)/60})`;c.beginPath();c.arc(x,y,2.4,0,Math.PI*2);c.fill();}
@@ -246,6 +246,7 @@ const Kick={
     const tip=this.state==='aim'?(free?'Set v and θ in the math console. When both checks are green, KICK.':'Aim with θ, then cross it in. Tap HEAD IT just before the ball reaches you.'):this.state==='incoming'?'Tap HEAD IT now!':'';
     text(c,tip,24,54,'500 13px '+BODY,C.muted);
     text(c,'GOALS '+(best.goals||0),W-24,38,'18px '+DISP,C.ink,'right');
+    {const A=playerLook();RIG.portrait(c,W-202,62,178,110,A,{label:PLY().n.toUpperCase(),action:this.state==='swing'?'FOLLOW-THROUGH':this.state==='flight'?'TRACKING BALL':'SET PIECE',boot:kitLook().boot,tilt:this.state==='swing'?.12:0});}
   },
   eqs(){const M=this;
     if(this.opt.shot==='free'){const r=this.freeCalc(this.V.v,this.V.th);return{lines:[

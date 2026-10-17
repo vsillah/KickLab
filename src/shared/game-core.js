@@ -14,12 +14,12 @@
   };
 
   const PLAYER_APPEARANCES = freezeMap({
-    you: { skin: '#8d5b3c', hair: '#16100d', hairStyle: 'fade', eye: '#17111a', brow: 'straight', mouth: 'focus', kit: '#2f4a86', accent: '#7fdcff', shorts: '#15213b', socks: '#e8eef9', build: 1 },
-    wiz: { skin: '#6f452f', hair: '#20140f', hairStyle: 'curls', eye: '#20140f', brow: 'arc', mouth: 'smile', kit: '#6d3fbf', accent: '#cbb8ff', shorts: '#211637', socks: '#ece6ff', build: 0.9 },
-    rocket: { skin: '#9a6041', hair: '#1a1411', hairStyle: 'crest', eye: '#18212d', brow: 'lift', mouth: 'focus', kit: '#1f8a70', accent: '#8bf0cf', shorts: '#12382f', socks: '#d8fff2', build: 0.98 },
-    tower: { skin: '#563726', hair: '#120e0c', hairStyle: 'crop', eye: '#17111a', brow: 'strong', mouth: 'calm', kit: '#b8862b', accent: '#ffe199', shorts: '#44300e', socks: '#fff0be', build: 1.16 },
-    trick: { skin: '#a86b49', hair: '#25150f', hairStyle: 'twists', eye: '#20140f', brow: 'arc', mouth: 'smile', kit: '#c2366b', accent: '#ffb3d0', shorts: '#4a1228', socks: '#ffe0eb', build: 0.91 },
-    cannon: { skin: '#75462f', hair: '#17110e', hairStyle: 'locs', eye: '#15121a', brow: 'strong', mouth: 'focus', kit: '#c0392b', accent: '#ffb09f', shorts: '#461812', socks: '#ffe2dc', build: 1.1 }
+    you: { skin: '#8d5b3c', hair: '#16100d', hairStyle: 'fade', eye: '#17111a', brow: 'straight', mouth: 'focus', kit: '#2f4a86', accent: '#7fdcff', shorts: '#15213b', socks: '#e8eef9', build: 1, height: 1, shoulders: 1, torso: 1, legs: 1, stance: 0.14, number: '10' },
+    wiz: { skin: '#6f452f', hair: '#20140f', hairStyle: 'curls', eye: '#20140f', brow: 'arc', mouth: 'smile', kit: '#6d3fbf', accent: '#cbb8ff', shorts: '#211637', socks: '#ece6ff', build: 0.86, height: 0.93, shoulders: 0.88, torso: 0.91, legs: 0.96, stance: 0.18, number: '10' },
+    rocket: { skin: '#9a6041', hair: '#1a1411', hairStyle: 'crest', eye: '#18212d', brow: 'lift', mouth: 'focus', kit: '#1f8a70', accent: '#8bf0cf', shorts: '#12382f', socks: '#d8fff2', build: 0.94, height: 0.99, shoulders: 0.9, torso: 0.9, legs: 1.08, stance: 0.12, number: '7' },
+    tower: { skin: '#563726', hair: '#120e0c', hairStyle: 'crop', eye: '#17111a', brow: 'strong', mouth: 'calm', kit: '#b8862b', accent: '#ffe199', shorts: '#44300e', socks: '#fff0be', build: 1.2, height: 1.1, shoulders: 1.2, torso: 1.1, legs: 1.04, stance: 0.2, number: '9' },
+    trick: { skin: '#a86b49', hair: '#25150f', hairStyle: 'twists', eye: '#20140f', brow: 'arc', mouth: 'smile', kit: '#c2366b', accent: '#ffb3d0', shorts: '#4a1228', socks: '#ffe0eb', build: 0.88, height: 0.96, shoulders: 0.86, torso: 0.9, legs: 1.05, stance: 0.17, number: '11' },
+    cannon: { skin: '#75462f', hair: '#17110e', hairStyle: 'locs', eye: '#15121a', brow: 'strong', mouth: 'focus', kit: '#c0392b', accent: '#ffb09f', shorts: '#461812', socks: '#ffe2dc', build: 1.12, height: 1.05, shoulders: 1.14, torso: 1.06, legs: 1.02, stance: 0.16, number: '17' }
   });
 
   const KIT_DEFAULTS = Object.freeze({ press: 'match', size: '5', surf: 'tex', studs: 'fg', boot: 'std' });

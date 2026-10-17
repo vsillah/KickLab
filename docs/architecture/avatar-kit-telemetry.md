@@ -9,6 +9,19 @@
 - `src/game/52-leaderboard.js` owns the Kit Room presentation. It now renders before-to-after values from the same canonical kit snapshot used by gameplay.
 - `src/game/10-fight.js`, `src/game/20-race.js`, and `src/game/30-kick-sideview.js` own the mode-specific action timing and poses. Canonical equations remain unchanged.
 
+## Rejected first-pass audit (`f0048e4`)
+
+The first pass was technically consistent but did not clear the visual-quality gate. Detail was added below the useful gameplay pixel budget: faces were present in source but unreadable at field scale, most meshes still read as capsules or blocks, archetypes depended too heavily on color, Race reduced the driver to a small overhead token, and equipment differences were clearer in the Kit Room than during play. Its evidence remains archived as an obsolete comparison baseline and must not be presented as approved work.
+
+The second pass changes the strategy instead of adding more sub-pixel detail:
+
+1. mode framing moves closer where action awareness remains intact;
+2. wide field modes gain a compact live portrait driven by the same canonical descriptor as the world athlete;
+3. body descriptors carry height, shoulder, torso, leg, stance, hairstyle, and number differences;
+4. the local procedural rig uses tapered limbs, explicit shoulder/hip/neck/ear/hand volumes, uniform panels, contact shadows, and stronger equipment silhouettes;
+5. Race exposes steering, throttle, and braking response in a live driver treatment;
+6. ball, boot, stud, glove, and uniform selections remain canonical and visible on the live surfaces.
+
 ## Canonical flow
 
 `src/shared/game-core.js` is the source for:
@@ -34,3 +47,7 @@ The browser wrappers in `31-soccer-data.js` pass the active temperature, pitch, 
 - A unit performance assertion bounds 20,000 canonical kit snapshots to 500 ms on the test host.
 - When WebGL is unavailable, `V3.want()` remains false and the existing canvas fallback draws the same canonical appearance and kit descriptors.
 - `impactlab.v1`, `impactlab.nick`, keyboard/touch controls, and the deterministic game equations are unchanged.
+
+## Asset strategy decision
+
+KickLab remains a dependency-free ordered HTML/JavaScript build with a locally bundled Three.js file. A GLB pipeline would add an asset loader, skeleton/animation authoring contract, binary provenance, and fallback synchronization burden that is disproportionate to this bounded visual pass. The chosen approach is therefore the smallest reusable local procedural rig: shared geometry and material descriptors are created once, joint transforms are updated in place, and the Canvas fallback consumes the same canonical appearance data. The renderer no longer attempts a runtime CDN fetch when the local Three.js bundle is unavailable; it fails closed to the Canvas path.

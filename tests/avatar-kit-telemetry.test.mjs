@@ -19,10 +19,22 @@ test('keeps archetype appearance descriptors stylized and visibly distinct', () 
   assert.ok(core.playerAppearance('tower').build > core.playerAppearance('wiz').build);
   assert.deepEqual(core.playerAppearance('unknown').id, 'you');
   for (const look of looks) {
-    for (const key of ['skin', 'hair', 'hairStyle', 'eye', 'brow', 'mouth', 'kit', 'accent', 'shorts', 'socks', 'build']) {
+    for (const key of ['skin', 'hair', 'hairStyle', 'eye', 'brow', 'mouth', 'kit', 'accent', 'shorts', 'socks', 'build', 'height', 'shoulders', 'torso', 'legs', 'stance', 'number']) {
       assert.notEqual(look[key], undefined, `${look.id} must define ${key}`);
     }
   }
+});
+
+test('keeps archetype silhouette signatures structurally unique', () => {
+  const ids = ['you', 'wiz', 'rocket', 'tower', 'trick', 'cannon'];
+  const signatures = ids.map((id) => {
+    const look = core.playerAppearance(id);
+    return [look.height, look.shoulders, look.torso, look.legs, look.stance].join(':');
+  });
+
+  assert.equal(new Set(signatures).size, ids.length);
+  assert.ok(core.playerAppearance('tower').shoulders > core.playerAppearance('trick').shoulders);
+  assert.ok(core.playerAppearance('rocket').legs > core.playerAppearance('cannon').legs);
 });
 
 test('derives kit telemetry from the same canonical model for gameplay and UI', () => {
@@ -71,6 +83,9 @@ test('wires appearance, equipment, telemetry deltas, and WebGL fallback into bot
   assert.match(renderer, /faceRig\(/);
   assert.match(renderer, /bootRig\(/);
   assert.match(renderer, /this\.ballTextures/);
+  assert.match(renderer, /local 3D bundle unavailable/);
+  assert.doesNotMatch(renderer, /cdnjs|https?:\/\//);
+  assert.match(rig, /portrait\(/);
   assert.match(kitRoom, /KITROOM\.change=\{key:k,before,after:kitState\(next\)\}/);
   assert.match(kitRoom, /aria-pressed="\$\{K\[k\]===v\}"/);
   assert.match(main, /V3\.on=V3\.want\(\);if\(V3\.on\)V3\.begin\(\);else V3\.hide\(\)/);

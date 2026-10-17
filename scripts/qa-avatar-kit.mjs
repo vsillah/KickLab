@@ -28,7 +28,23 @@ page.on('console', (message) => {
 const snap = async (name, fullPage = false) => {
   await page.screenshot({ path: join(outputDir, `${name}.png`), fullPage });
 };
+const stageSnap = async (name) => {
+  await page.locator('.stage').screenshot({ path: join(outputDir, `${name}-stage.png`) });
+};
 const pause = (ms = 700) => page.waitForTimeout(ms);
+const blurControls = () => page.evaluate(() => document.activeElement?.blur());
+const dismissToasts = async () => {
+  for (const close of await page.locator('.toast-close').all()) {
+    if (await close.isVisible()) await close.click();
+  }
+  await pause(500);
+};
+const selectLab = async (name) => {
+  const tab = page.getByRole('tab', { name: new RegExp(`^${name}`) });
+  await tab.click();
+  if (await tab.getAttribute('aria-selected') !== 'true') throw new Error(`${name} lab did not become selected`);
+  await blurControls();
+};
 const openActivity = async (name) => {
   await page.getByRole('button', { name: /Freestyle/ }).click();
   for (;;) {
@@ -43,29 +59,41 @@ const openActivity = async (name) => {
   const aria = await target.getAttribute('aria-label');
   if (!aria || !/, selected$/.test(aria)) await target.click();
   await page.getByRole('button', { name: 'Play activity', exact: true }).click();
+  await blurControls();
   await pause();
 };
 
 await page.goto(`${baseUrl}?qa=avatar-kit-final`, { waitUntil: 'networkidle' });
 await pause(900);
 await page.keyboard.press('Space');
-await pause(800);
+await pause(170);
+await stageSnap('1440-fight-impact');
+await pause(630);
 await snap('1440-fight');
+await stageSnap('1440-fight');
+await dismissToasts();
 
-await page.getByRole('tab', { name: /Race/ }).click();
+await selectLab('Race');
 await page.keyboard.down('Space');
 await pause(3600);
 await page.keyboard.down('ArrowRight');
-await pause(1200);
+await pause(450);
+await snap('1440-race');
+await stageSnap('1440-race');
+await pause(250);
 await page.keyboard.up('ArrowRight');
 await page.keyboard.up('Space');
-await snap('1440-race');
+await dismissToasts();
 
-await page.getByRole('tab', { name: /Kick/ }).click();
+await selectLab('Kick');
 await pause(900);
 await page.keyboard.press('Space');
-await pause(1300);
+await pause(150);
+await stageSnap('1440-free-kick-strike');
+await pause(1150);
+await dismissToasts();
 await snap('1440-free-kick');
+await stageSnap('1440-free-kick');
 
 await page.getByRole('button', { name: /Open Kit settings/ }).click();
 await page.getByRole('button', { name: /Customize equipment/ }).click();
@@ -76,6 +104,7 @@ for (const choice of [/Rock hard/, /Size 4/, /Smooth/, /Soft-ground studs/, /Lig
 await page.locator('#kitSum').evaluate((element) => element.scrollIntoView({ block: 'start' }));
 await snap('1440-kit-telemetry');
 await page.getByRole('button', { name: /Close settings/ }).click();
+await blurControls();
 
 await openActivity('1v1 Dribble');
 await page.getByRole('button', { name: /Open Player settings/ }).click();
@@ -88,13 +117,27 @@ await page.keyboard.up('ArrowRight');
 await page.keyboard.press('KeyX');
 await pause(800);
 await page.keyboard.up('Space');
+await dismissToasts();
 await snap('1440-dribble-tower');
+await stageSnap('1440-dribble-tower');
+
+await page.getByRole('button', { name: /Open Player settings/ }).click();
+await page.getByRole('button', { name: /The Trickster/ }).click();
+await page.getByRole('button', { name: /Close settings/ }).click();
+await blurControls();
+await pause(500);
+await snap('1440-dribble-trickster');
+await stageSnap('1440-dribble-trickster');
 
 await openActivity('Goalkeeper');
 await page.keyboard.press('Space');
-await page.keyboard.press('ArrowRight');
 await pause(1800);
+await page.keyboard.down('ArrowRight');
+await pause(420);
+await dismissToasts();
 await snap('1440-goalkeeper');
+await stageSnap('1440-goalkeeper-dive');
+await page.keyboard.up('ArrowRight');
 
 const frameTimes = await page.evaluate(() => new Promise((resolve) => {
   const samples = [];

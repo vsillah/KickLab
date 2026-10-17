@@ -5,7 +5,7 @@ const DEFS=[
   {name:'Mo',tr:0.28,a:6.5,vm:5.5,read:0.35,reach:1.0,chase:7.0,col:'#a53a6b',twist:'Patient. Ignores quick shimmies.'},
   {name:'Tank',tr:0.24,a:7.2,vm:6.0,read:0.45,reach:1.1,chase:7.2,col:'#7a2d3a',twist:'Long legs: 1.1 m reach. Needs a big gap.'},
   {name:'Captain Kai',tr:0.20,a:8.0,vm:6.5,read:0.55,reach:1.1,chase:7.6,col:'#4a1f5c',twist:'The best defender. Only a long, committed feint fools him.'}];
-const DR={DX:18,GOAL:40,SHOOT:24,LAT:11,LEANT:0.22,F:560,CY:150,CH:3.0,BACK:6.5,PM:75};
+const DR={DX:18,GOAL:40,SHOOT:24,LAT:11,LEANT:0.22,F:560,CY:150,CH:2.75,BACK:5.25,PM:75};
 const yPath=(t,v0,a,vm)=>{if(t<=0)return 0;const t1=Math.max(0,(vm-v0)/a);if(t<t1)return v0*t+0.5*a*t*t;return v0*t1+0.5*a*t1*t1+vm*(t-t1);};
 const MOVES={step:{name:'Step-over',need:1,by:'Rio',sub:'sells 0.3 s of feint'},croq:{name:'La Croqueta',need:3,by:'Mo',sub:'quick sideways shift'},elas:{name:'Elastico',need:4,by:'Tank',sub:'flick out, snap back'},spin:{name:'360 Roulette',need:5,by:'Captain Kai',sub:'spin around him'},drag:{name:'Drag-back',need:2,by:'Dex',sub:'stop dead, he lunges'},cruyff:{name:'Cruyff turn',need:3,by:'Mo',sub:'fake a shot, turn 90°'},nut:{name:'Nutmeg',need:4,by:'Tank',sub:'through his legs'},rainbow:{name:'Rainbow flick',need:5,by:'Captain Kai',sub:'flick it over his head'}};
 const GKS=[{name:'Benny',tr:0.3,a:16,reach:1.0},{name:'Sal',tr:0.27,a:17,reach:1.05},{name:'Ivo',tr:0.24,a:18,reach:1.1},{name:'Big Ola',tr:0.24,a:16,reach:1.35},{name:'The Cat',tr:0.18,a:22,reach:1.2}],GKX=39.4,SHOT_V=21;
