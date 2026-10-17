@@ -84,7 +84,9 @@ test('uses a compact active-play HUD and one translucent field overlay',()=>{
   assert.match(cockpit,/function liveHudState\(\).*Fight\.bout.*Race\.st\.t.*MATCH\.on.*LIVEM\.on/s);
   assert.match(css,/\.game-shell-nav\{position:absolute;z-index:12/);
   assert.match(css,/\.game-guidance-hud\{position:absolute;z-index:26/);
-  assert.match(css,/\.game-guidance-hud\{[^}]+background:linear-gradient\(145deg,rgba\(5,14,29,\.38\),rgba\(5,14,29,\.2\)\)/);
+  assert.match(css,/\.game-shell-nav\{[^}]+background:linear-gradient\(180deg,rgba\(3,8,20,\.24\),rgba\(3,8,20,\.07\),transparent\)/);
+  assert.match(css,/\.game-shell-nav \.mode-home-button,\.game-shell-nav \.current-mode,\.game-shell-nav \.experience-selector,\.game-player-tools>button\{background:rgba\(7,15,30,\.18\)/);
+  assert.match(css,/\.game-guidance-hud\{[^}]+background:linear-gradient\(145deg,rgba\(5,14,29,\.14\),rgba\(5,14,29,\.03\)\)/);
   assert.match(css,/\.game-frame \.stage>canvas#cv\{[^}]+width:calc\(100% - var\(--game-rail-space\)\)/);
   assert.match(css,/\.stage \.context-detail,\.stage \.settings-drawer\{[^}]+right:calc\(var\(--game-rail-space\)/);
   assert.match(css,/\.stage \.context-detail,\.stage \.settings-drawer\{[^}]+background:rgba\(5,14,29,\.7\)/);
@@ -109,14 +111,15 @@ test('keeps four compact summaries inside one divided right-side tray',()=>{
   assert.match(css,/\.game-guidance-hud\{position:absolute[^}]+width:68px[^}]+grid-auto-flow:row/);
   assert.match(css,/\.game-guidance-hud>\.contextual-summary\{[^}]+border:0[^}]+background:transparent[^}]+box-shadow:none/);
   assert.match(css,/\.game-guidance-hud>\.contextual-summary\+ \.contextual-summary\{border-top:/);
-  assert.match(css,/@media \(hover:hover\)\{\.game-guidance-hud>\.contextual-summary:hover\{background:rgba\(32,91,128,\.22\)\}\}/);
-  assert.match(css,/\.game-guidance-hud>\.contextual-summary:focus-within\{background:rgba\(39,112,155,\.3\)/);
+  assert.match(css,/@media \(hover:hover\)\{\.game-guidance-hud>\.contextual-summary:hover\{background:rgba\(32,91,128,\.3\)\}\}/);
+  assert.match(css,/\.game-guidance-hud>\.contextual-summary:focus-within\{background:rgba\(39,112,155,\.38\)/);
   assert.match(css,/\.game-guidance-hud>\.contextual-summary:has\(\.context-disclosure\[aria-expanded="true"\]\)/);
   assert.match(css,/#gameGuidanceHud \.context-disclosure\{position:absolute;z-index:2;inset:0;[^}]+width:100%;min-width:44px;height:100%;min-height:44px/);
   assert.match(css,/@media \(max-width:480px\)\{\.game-frame \.stage\{--game-rail-space:60px\}\.game-guidance-hud\{[^}]+width:52px/);
-  assert.match(css,/@media \(min-width:1100px\)\{\.game-frame \.stage\{--game-rail-space:196px\}/);
-  assert.match(css,/\.game-orientation-tools\{position:absolute[^}]+width:182px[^}]+background:linear-gradient\(145deg,rgba\(5,14,29,\.38\),rgba\(5,14,29,\.2\)\)/);
-  assert.match(css,/@media \(min-width:1100px\)[\s\S]*\.game-guidance-hud\{top:max\(112px[^}]+width:182px/);
+  assert.match(css,/@media \(min-width:1100px\)\{\.game-frame \.stage\{--game-rail-space:82px\}\.game-frame \.stage>canvas#cv\{width:100%\}/);
+  assert.match(css,/\.game-shell-nav \.gamebar\{position:absolute[^}]+left:50%[^}]+transform:translateX\(-50%\)/);
+  assert.match(css,/\.game-orientation-tools\{position:absolute[^}]+top:max\(430px[^}]+width:102px[^}]+background:linear-gradient\(145deg,rgba\(5,14,29,\.14\),rgba\(5,14,29,\.03\)\)/);
+  assert.match(css,/@media \(min-width:1100px\)[\s\S]*\.game-guidance-hud\{top:max\(218px[^}]+width:68px/);
 });
 
 test('derives compact math from mode definitions and explicit equation data',()=>{
