@@ -7,13 +7,13 @@ const controllerPlay=$('#controllerModePlay'),controllerManual=$('#controllerMod
 const wideManualController=$('#wideManualController'),wideManualRows=$('#wideManualRows');
 const prototypePhysics=$('#prototypePhysics'),prototypePhysicsRows=$('#prototypePhysicsRows');
 const settingsDrawer=$('#settingsDrawer'),settingsToggle=$('#settingsToggle');
-const gameOverlayBackdrop=$('#gameOverlayBackdrop'),gameStage=$('.stage'),gamePlayShell=$('.play');
+const gameOverlayBackdrop=$('#gameOverlayBackdrop'),gameStage=$('.stage'),gamePlayShell=$('.play'),profileDialog=$('#profileDialog');
 
 function contextPanel(name){return $(`#${name==='math'?'physics':name}Detail`);}
 function contextTriggers(name){return name==='math'?[$('#physicsDetailsHud'),$('#physicsDetailsCompact'),$('#physicsDetailsWide')]:[$(`#${name}DetailToggle`)];}
 function syncContextTrigger(button,expanded){const action=expanded?'Close':'Open',label=button.dataset.detailLabel||'details',name=`${action} ${label}`;button.setAttribute('aria-expanded',String(expanded));button.setAttribute('aria-label',name);button.title=name;}
-function releaseGameplayForOverlay(){if(typeof releaseMobileHeldInputs==='function')releaseMobileHeldInputs('Game overlay opened');else{ENGINE.off();document.querySelectorAll('#pad .on').forEach(button=>button.classList.remove('on'));}}
-function syncGameOverlayBackdrop(){const open=!!CONTEXT_DETAILS.open||!settingsDrawer.hidden;gameOverlayBackdrop.hidden=!open;gameStage.classList.toggle('has-game-overlay',open);gamePlayShell.classList.toggle('has-game-overlay',open);}
+function releaseGameplayForOverlay(){if(typeof releaseMobileHeldInputs==='function')releaseMobileHeldInputs('Game overlay opened');ENGINE.off();document.querySelectorAll('#pad .on').forEach(button=>button.classList.remove('on'));}
+function syncGameOverlayBackdrop(){const profileOpen=!profileDialog.hidden&&profileDialog.classList.contains('game-profile-overlay'),open=!!CONTEXT_DETAILS.open||!settingsDrawer.hidden||profileOpen;gameOverlayBackdrop.hidden=!open;gameStage.classList.toggle('has-game-overlay',open);gamePlayShell.classList.toggle('has-game-overlay',open);}
 function overlayFocusables(panel){return[...panel.querySelectorAll('button:not(:disabled),[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex]:not([tabindex="-1"])')].filter(node=>!node.hidden&&node.getAttribute('aria-hidden')!=='true'&&node.getClientRects().length>0);}
 function trapOverlayFocus(panel,e){if(e.key!=='Tab')return;const items=overlayFocusables(panel);if(!items.length)return;e.stopPropagation();const first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}
 function closeContextDetail({restore=true}={}){
@@ -33,6 +33,7 @@ function setContextDetail(name,{trigger=null,focus=false,open=true}={}){
   if(CONTEXT_DETAILS.open===name){closeContextDetail();return;}
   closeContextDetail({restore:false});
   if(!settingsDrawer.hidden)closeSettings({restore:false});
+  if(!profileDialog.hidden)closeProfiles({restore:false});
   CONTEXT_DETAILS.open=name;CONTEXT_DETAILS.trigger=trigger||contextTriggers(name).find(b=>b.offsetParent!==null)||contextTriggers(name)[0];
   document.querySelectorAll('.context-detail').forEach(p=>p.hidden=p!==panel);
   ['math','review','goals','learn'].forEach(n=>contextTriggers(n).forEach(b=>syncContextTrigger(b,n===name)));
@@ -61,7 +62,7 @@ function setSettingsLevel(level,{category=SETTINGS.category,focus=true}={}){
   if(focus)requestAnimationFrame(()=>{const target=level==='categories'?cats.querySelector('button'):level==='choices'?choices.querySelector('button'):kitRoom.querySelector('button');(target||back).focus();});
 }
 function openSettings(category=null,trigger=settingsToggle){
-  if(CONTEXT_DETAILS.open)closeContextDetail({restore:false});SETTINGS.trigger=trigger;SETTINGS.restoreCategory=trigger&&trigger.dataset?trigger.dataset.category:null;settingsDrawer.hidden=false;settingsToggle.setAttribute('aria-expanded','true');releaseGameplayForOverlay();setSettingsPause(true);
+  if(!profileDialog.hidden)closeProfiles({restore:false});if(CONTEXT_DETAILS.open)closeContextDetail({restore:false});SETTINGS.trigger=trigger;SETTINGS.restoreCategory=trigger&&trigger.dataset?trigger.dataset.category:null;settingsDrawer.hidden=false;settingsToggle.setAttribute('aria-expanded','true');releaseGameplayForOverlay();setSettingsPause(true);
   setSettingsLevel(category?'choices':'categories',{category,focus:true});syncGameOverlayBackdrop();requestAnimationFrame(resize);
 }
 function closeSettings({restore=true}={}){
@@ -79,7 +80,7 @@ $('#settingsCategories').addEventListener('click',e=>{const b=e.target.closest('
 settingsDrawer.addEventListener('pointerdown',e=>e.stopPropagation());
 settingsDrawer.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();closeSettings();return;}trapOverlayFocus(settingsDrawer,e);e.stopPropagation();});
 document.addEventListener('pointerdown',e=>{if(settingsDrawer.hidden||settingsDrawer.contains(e.target)||settingsToggle.contains(e.target)||$('#quickSettings').contains(e.target))return;const focusTarget=e.target.closest&&e.target.closest('button,input,select,textarea,[tabindex]');closeSettings({restore:false});if(!focusTarget)requestAnimationFrame(()=>settingsToggle.focus());});
-gameOverlayBackdrop.addEventListener('click',()=>{if(CONTEXT_DETAILS.open)closeContextDetail();else if(!settingsDrawer.hidden)closeSettings();});
+gameOverlayBackdrop.addEventListener('click',()=>{if(!profileDialog.hidden&&profileDialog.classList.contains('game-profile-overlay'))closeProfiles();else if(CONTEXT_DETAILS.open)closeContextDetail();else if(!settingsDrawer.hidden)closeSettings();});
 
 function bindContextTrigger(button,name){button.addEventListener('click',()=>setContextDetail(name,{trigger:button,focus:true}));button.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'&&CONTEXT_DETAILS.open){e.preventDefault();closeContextDetail();return;}if(e.key===' '||e.key==='Spacebar'){e.preventDefault();button.click();}});}
 contextTriggers('math').forEach(b=>bindContextTrigger(b,'math'));
@@ -137,7 +138,7 @@ function renderMathConsole(q){
   $('#mathConsoleValues').innerHTML=defs.map(def=>`<span><b>${quickMathName(def)}</b> ${cockpitValue(def,M.V[def.id])}</span>`).join('')||'<span>No live dials</span>';
   q=q||M.eqs();const live=M.LIVE(),line=q.lines[live&&live.length?live[0]:0]||q.lines[0]||M.hint;
   $('#mathConsoleStatus').textContent=plainMath(line);
-  $('#liveMathHudValues').innerHTML=defs.slice(0,2).map(def=>`<span><b>${quickMathName(def)}</b> ${cockpitValue(def,M.V[def.id])}</span>`).join('')||'<span>Live state</span>';
+  $('#liveMathHudValues').innerHTML=defs.slice(0,1).map(def=>`<span><b>${quickMathName(def)}</b> ${cockpitValue(def,M.V[def.id])}</span>`).join('')||'<span>Live state</span>';
   $('#liveMathHudStatus').textContent=plainMath(line)||M.hint||'Live physics ready.';
 }
 controllerPlay.addEventListener('click',()=>setControllerMode('play'));
@@ -169,7 +170,7 @@ function challengeSummary(){
   return{eyebrow:`Challenge ${k+1} of ${n}`,title:c.name,detail:c.goal};
 }
 function liveHudState(){if(M===Fight&&Fight.bout)return`You ${Math.ceil(Fight.bout.me)} HP · ${Fight.bout.T.name} ${Math.ceil(Fight.bout.opp)} HP`;if(M===Race)return Race.state==='run'?`${fmt(Race.st.t,1)} s · ${fmt(Race.st.v*3.6,0)} km/h`:`Race · ${Race.state==='count'?'countdown':'ready'}`;if(M===Kick&&typeof MATCH!=='undefined'&&MATCH.on)return`Match ${MATCH.you}–${MATCH.them}`;if(M===Kick&&typeof LIVEM!=='undefined'&&LIVEM.on)return`Live ${LIVEM.you}–${LIVEM.them} · ${LIVEM.clock()}`;if(M===Kick&&Kick.opt.shot==='dribble')return`Kick · ${(GAMES.find(game=>game.k===curGame())||{}).n||'activity'}`;return M===Kick?`Kick · ${Kick.opt.shot==='header'?'Header duel':'Free kick'}`:`${M.key} lab`;}
-function renderChallengeHud(){const x=challengeSummary();$('#challengeHudSummary').innerHTML=`<span class="mobile-hud-label" aria-hidden="true">Goal</span><span class="hud-live-state">${liveHudState()}</span><span class="eyebrow">${x.eyebrow}</span><b>${x.title}</b><p>${x.detail}</p>`;}
+function renderChallengeHud(){const x=challengeSummary();$('#challengeHudSummary').innerHTML=`<span class="mobile-hud-label" aria-hidden="true">Goal</span><b class="hud-summary-cue">${liveHudState()} · ${x.title}</b>`;}
 function renderHistorySummary(){const latest=LOGS[M.key].filter(x=>!x.sep).slice(-1)[0];$('#historyTitle').textContent=latest?latest.title:'Move log ready';$('#historyLatest').textContent=latest?`${fmtT(latest.t)}${latest.res?` · ${latest.res}`:''}${latest.math?` · ${plainMath(latest.math)}`:''}`:{fight:'Your next punch, dodge or block will appear here.',race:'Your next braking or corner event will appear here.',kick:'Your next shot event will appear here.'}[M.key];}
 function renderGoalsSummary(){
   const total=Object.values(BADGES).reduce((n,l)=>n+l.length,0),earned=Object.keys(best.badges||{}).length;

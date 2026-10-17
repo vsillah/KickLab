@@ -17,6 +17,11 @@ test('keeps one accessible profile entry and dialog with child-safe setup fields
   }
   assert.match(html, /Use a made-up nickname\. Keep your real name private\./);
   assert.doesNotMatch(html, /type="(?:email|date|tel)"|name="(?:age|school|location|email|realName)"/i);
+  assert.match(html, /class="game-player-tools" role="group" aria-label="Player and game settings">[\s\S]*id="profileBtn"[\s\S]*id="settingsToggle"/);
+  assert.match(html, /id="profileBtn"[^>]*>[\s\S]*?<\/button>\s*<button[^>]+id="settingsToggle"/);
+  assert.match(profiles, /function openProfiles[\s\S]*closeSettings\(\{restore:false\}\)[\s\S]*closeContextDetail\(\{restore:false\}\)[\s\S]*pauseGame\('profile'\)/);
+  assert.match(profiles, /function closeProfiles[\s\S]*resumeGame\(\)[\s\S]*trigger\.focus\(\)/);
+  assert.match(css, /\.stage>\.profile-dialog\.game-profile-overlay\{position:absolute;z-index:25/);
 });
 
 test('switches the active progress object without reloading the document', () => {

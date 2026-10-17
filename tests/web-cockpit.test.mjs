@@ -74,26 +74,29 @@ test('opens only one responsive contextual detail at a time',()=>{
 });
 
 test('uses a compact active-play HUD and one translucent field overlay',()=>{
-  const stage=html.indexOf('<div class="stage">'),nav=html.indexOf('class="play-nav game-shell-nav"'),canvas=html.indexOf('id="cv"'),hud=html.indexOf('id="gameGuidanceHud"'),settings=html.indexOf('id="gameSettings"'),detail=html.indexOf('id="physicsDetail"'),deck=html.indexOf('class="control-deck"');
+  const stage=html.indexOf('<div class="stage">'),nav=html.indexOf('class="play-nav game-shell-nav"'),canvas=html.indexOf('id="cv"'),hud=html.indexOf('id="gameGuidanceHud"'),settings=html.indexOf('id="settingsDrawer"'),detail=html.indexOf('id="physicsDetail"'),deck=html.indexOf('class="control-deck"');
   assert.ok(stage<nav&&nav<canvas&&canvas<hud&&hud<settings&&settings<detail&&detail<deck);
   for(const id of ['gameOverlayBackdrop','liveMathHud','liveMathHudValues','liveMathHudStatus','physicsDetailsHud'])assert.equal((html.match(new RegExp(`id="${id}"`,'g'))||[]).length,1,`${id} must be singular`);
   for(const id of ['physicsDetail','reviewDetail','goalsDetail','learnDetail','settingsDrawer'])assert.match(html,new RegExp(`id="${id}"[^>]+role="dialog"[^>]+aria-modal="true"`));
   assert.match(cockpit,/function releaseGameplayForOverlay\(\).*releaseMobileHeldInputs\('Game overlay opened'\)/);
   assert.match(cockpit,/gameOverlayBackdrop\.addEventListener\('click'/);
-  assert.match(cockpit,/\$\('#liveMathHudValues'\)\.innerHTML=defs\.slice\(0,2\)/);
+  assert.match(cockpit,/\$\('#liveMathHudValues'\)\.innerHTML=defs\.slice\(0,1\)/);
   assert.match(cockpit,/function liveHudState\(\).*Fight\.bout.*Race\.st\.t.*MATCH\.on.*LIVEM\.on/s);
   assert.match(css,/\.game-shell-nav\{position:absolute;z-index:12/);
   assert.match(css,/\.game-guidance-hud\{position:absolute;z-index:10/);
+  assert.match(css,/background:linear-gradient\(145deg,rgba\(5,14,29,\.64\),rgba\(5,14,29,\.5\)\)/);
   assert.match(css,/backdrop-filter:blur\(14px\) saturate\(1\.15\)/);
   assert.match(css,/env\(safe-area-inset-top\)/);
   assert.match(css,/@media \(prefers-reduced-motion:reduce\).*\.game-overlay-backdrop/s);
 });
 
-test('keeps every narrow HUD summary visibly identifiable without stacking',()=>{
+test('keeps every compact HUD summary visibly identifiable without stacking',()=>{
   for(const label of ['Coach','Log','Math'])assert.match(html,new RegExp(`class="mobile-hud-label"[^>]*>${label}</span>`));
   assert.match(cockpit,/class="mobile-hud-label" aria-hidden="true">Goal<\/span>/);
-  assert.match(css,/@media \(max-width:480px\).*\.mobile-hud-label\{display:block/s);
-  assert.match(css,/@media \(max-width:480px\).*\.desktop-hud-label,\.challenge-hud \.hud-live-state,\.challenge-hud \.eyebrow\{display:none!important\}/s);
+  assert.match(css,/\.mobile-hud-label\{display:block/);
+  assert.match(css,/\.desktop-hud-label\{display:none\}/);
+  assert.match(cockpit,/renderChallengeHud\(\).*mobile-hud-label[^`]+hud-summary-cue/s);
+  assert.match(cockpit,/liveMathHudValues'\)\.innerHTML=defs\.slice\(0,1\)/);
   assert.match(css,/\.game-guidance-hud\{position:absolute[^}]+grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
   assert.doesNotMatch(css,/@media \(max-width:480px\)[^}]*\.game-guidance-hud\{[^}]*grid-template-columns/s);
 });
@@ -188,7 +191,7 @@ test('starts on a dedicated mode home and keeps the full lab chooser out of acti
 });
 
 test('uses one on-game hierarchical settings experience',()=>{
-  const stage=html.indexOf('<div class="stage">'),settings=html.indexOf('id="gameSettings"'),deck=html.indexOf('class="control-deck"'),kitRoom=html.indexOf('id="kitroom"',settings);
+  const stage=html.indexOf('<div class="stage">'),settings=html.indexOf('id="settingsDrawer"'),deck=html.indexOf('class="control-deck"'),kitRoom=html.indexOf('id="kitroom"',settings);
   assert.ok(stage<settings&&settings<deck&&settings<kitRoom);
   assert.doesNotMatch(html,/id="kitroom"[^>]+aria-modal/);
   for(const id of ['settingsToggle','quickSettings','settingsDrawer','settingsBack','settingsClose','settingsCategories','settingsChoices'])assert.equal((html.match(new RegExp(`id="${id}"`,'g'))||[]).length,1);
@@ -409,8 +412,8 @@ test('keeps six-slot mechanics controls between analog and gesture controls',()=
 });
 
 test('keeps settings and contextual details mutually exclusive',()=>{
-  assert.match(cockpit,/function openSettings\(category=null,trigger=settingsToggle\)\{\s*if\(CONTEXT_DETAILS\.open\)closeContextDetail\(\{restore:false\}\)/);
-  assert.match(cockpit,/function setContextDetail\(name,[\s\S]*if\(!settingsDrawer\.hidden\)closeSettings\(\{restore:false\}\)/);
+  assert.match(cockpit,/function openSettings\(category=null,trigger=settingsToggle\)\{\s*if\(!profileDialog\.hidden\)closeProfiles\(\{restore:false\}\);if\(CONTEXT_DETAILS\.open\)closeContextDetail\(\{restore:false\}\)/);
+  assert.match(cockpit,/function setContextDetail\(name,[\s\S]*if\(!settingsDrawer\.hidden\)closeSettings\(\{restore:false\}\);\s*if\(!profileDialog\.hidden\)closeProfiles\(\{restore:false\}\)/);
   assert.doesNotMatch(cockpit,/INSPECTOR|contextMenuSlot|closeInspector|syncInspectorLayout/);
 });
 

@@ -38,7 +38,7 @@
     <div class="stat sess"><span>This session</span><b id="sessXP">0</b></div>
     <div class="stat combo"><span>Combo</span><b id="comboX">×1</b><div class="pips" id="pips"><i></i><i></i><i></i><i></i><i></i></div></div>
     <div class="stat badges"><span>Badges</span><b id="sBadges">0</b></div>
-    <div class="hudtools"><button class="profilebtn" id="profileBtn" type="button" aria-haspopup="dialog"><span id="hudProfileAvatar" aria-hidden="true">R</span><b id="hudProfileName">Lab Rookie</b></button><button class="boardbtn" id="boardBtn" type="button">🏆 Boards</button><button class="mute" id="mute" type="button" aria-pressed="false">Sound on</button></div>
+    <div class="hudtools"><button class="boardbtn" id="boardBtn" type="button">🏆 Boards</button><button class="mute" id="mute" type="button" aria-pressed="false">Sound on</button></div>
   </div>
 
   <div class="profile-dialog" id="profileDialog" hidden role="dialog" aria-modal="true" aria-labelledby="profileTitle"><section class="profile-panel">
@@ -68,6 +68,10 @@
             <button type="button" class="mode-home-button" id="modeHomeButton"><span aria-hidden="true">←</span> Labs</button>
             <div class="current-mode"><span>Current lab</span><b id="currentModeTitle">Fight</b></div>
             <div class="gamebar" id="gameBar" hidden></div>
+            <div class="game-player-tools" role="group" aria-label="Player and game settings">
+              <button class="profilebtn game-profile-button" id="profileBtn" type="button" aria-label="Player profile: Lab Rookie" aria-haspopup="dialog" aria-controls="profileDialog"><span id="hudProfileAvatar" aria-hidden="true">R</span><b id="hudProfileName">Lab Rookie</b></button>
+              <button type="button" class="settings-toggle" id="settingsToggle" aria-label="Game settings" aria-expanded="false" aria-controls="settingsDrawer"><span aria-hidden="true">⚙</span><b>Settings</b></button>
+            </div>
           </nav>
           <canvas id="cv" width="960" height="540" aria-label="Game stage"></canvas>
           <div class="results" id="results" hidden><div class="rc" id="rc"><div class="grade" id="rGrade">A<small>GRADE</small></div><div class="rmain"><div class="rlvl" id="rLvl" hidden></div><div class="rtitle" id="rTitle"></div><div class="rsub" id="rSub"></div><ul class="rrows" id="rRows"></ul><div class="rtotal"><span>XP earned</span><b id="rTotal">+0</b></div><div class="rhint" id="rHint"></div><div class="rboard" id="rBoard" hidden></div><div class="rgo"><div class="racts" id="racts" hidden><button type="button" id="rReview">Coach review</button><button type="button" id="rReplay">Replay</button></div><button type="button" class="rnext" id="rNext">Next round <span aria-hidden="true">▶</span> <kbd>Space</kbd></button></div></div></div></div>
@@ -117,12 +121,7 @@
             <div class="ticker" id="ticker"><span class="tk-l">LIVE</span><div class="tk" id="tk"><span class="tkc sys"><span class="w">LOG</span>Every move and its math will scroll here.</span></div></div>
             <div class="mlog"><div class="ml-h"><span class="rec" id="mlRec" hidden></span><h2>Move log</h2><span class="clk" id="mlClock">0:00.0</span><button type="button" id="mlReview" disabled>Review</button><button type="button" id="mlReplay" disabled>Replay</button></div><ol class="ml" id="mlList"></ol></div>
           </section>
-          <section class="game-settings" id="gameSettings" aria-label="Game settings">
-            <div class="settings-rail">
-              <button type="button" class="settings-toggle" id="settingsToggle" aria-expanded="false" aria-controls="settingsDrawer"><span aria-hidden="true">⚙</span><b>Settings</b></button>
-              <div class="quick-settings" id="quickSettings" aria-label="Current game settings"></div>
-            </div>
-          </section>
+          <div class="quick-settings" id="quickSettings" aria-label="Current game settings" hidden></div>
           <section class="settings-drawer" id="settingsDrawer" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" hidden>
               <header class="settings-drawer-head">
                 <button type="button" class="settings-back" id="settingsBack" hidden>Back</button>
