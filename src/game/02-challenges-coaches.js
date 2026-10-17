@@ -31,7 +31,7 @@ const chXP=i=>300+150*i;
 function isLocked(m,id){const c=curCh(m);return!!(c&&c.lock&&c.lock[id]!==undefined);}
 function applyCh(m){const c=curCh(m),MM=MODES[m];if(c&&c.lock)Object.entries(c.lock).forEach(([k,v])=>{MM.V[k]=v;});}
 function completeCh(m){const i=best.ch[m],done=CH[m][i];best.ch[m]=i+1;saveBest();const nx=CH[m][i+1];
-  setTimeout(()=>{toast(`Challenge ${i+1} complete`,`${done?done.name+' cleared. ':''}${nx?`Next: ${nx.name}.`:'Ladder complete. Champion!'}`,{action:'View goals',hold:8000,onAction:()=>{renderChal();renderGoalsSummary();INSPECTOR.trigger=$('#ins-tab-goals');setInspectorPane('goals',{focus:true,open:true});inspector.scrollIntoView({block:'nearest'});}});SND.badge();},1800);
+  setTimeout(()=>{toast(`Challenge ${i+1} complete`,`${done?done.name+' cleared. ':''}${nx?`Next: ${nx.name}.`:'Ladder complete. Champion!'}`,{action:'View goals',hold:8000,onAction:()=>{renderChal();renderGoalsSummary();setContextDetail('goals',{trigger:$('#goalsDetailToggle'),focus:true});}});SND.badge();},1800);
   setTimeout(()=>{applyCh(m);if(M.key===m){renderVars();renderChal();renderOpts();}},2600);}
 function renderChal(){if(M.key==='kick'&&Kick.opt.shot==='dribble'){$('#chal').innerHTML=Drib.chalHTML();return;}const el=$('#chal'),m=M.key,c=curCh(m),n=CH[m].length,k=best.ch[m];
   const pips=`<span class="pips2">${Array.from({length:n},(_,i)=>`<i class="${i<k?'on':i===k?'cur':''}"></i>`).join('')}</span>`;
@@ -54,6 +54,6 @@ const COACHES={fight:{name:'Coach Dre',role:'boxing coach',ini:'DR',col:'#ffb04a
   kick:{name:'Coach Tomi',role:'set-piece coach',ini:'TO',col:'#5fe3a1',hello:"Coach Tomi here. Beat the wall, dip under the bar. Get both checks green in Live Math, then take the shot."}};
 const COACH={t:0,hold:8,last:'',tipI:0,
   set(mode){const c=COACHES[mode];$('#coach').style.setProperty('--cc',c.col);$('#coachAv').textContent=c.ini;$('#coachName').textContent=c.name;$('#coachRole').textContent=c.role;this.last='';this.tipI=0;const ci=chIntro(mode);this.say(ci||c.hello,'tip',14);},
-  say(msg,mood='tip',hold=8){if(msg===this.last)return;this.last=msg;this.t=0;this.hold=hold;const el=$('#coach');el.className='coach '+mood;void el.offsetWidth;el.classList.add('pop');$('#coachMsg').textContent=msg;},
+  say(msg,mood='tip',hold=8){if(msg===this.last)return;this.last=msg;this.t=0;this.hold=hold;const el=$('#coach');el.className='coach contextual-summary '+mood;void el.offsetWidth;el.classList.add('pop');$('#coachMsg').textContent=msg;},
   tick(rdt){this.t+=rdt;if(this.t>Math.max(this.hold,11)&&M.idleTips&&M.isIdle()){const tips=M.idleTips();this.say(tips[this.tipI++%tips.length],'tip',12);}}};
 

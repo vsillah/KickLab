@@ -4,7 +4,7 @@ const Drib={
   latMax(){const a=this.att,v=a&&(this.state==='run'||this.state==='beat')?Math.max(1,a.vx):Kick.V.run;return Math.min(4.5,Math.sqrt(Math.max(0,9.5*9.5-v*v)));},
   aYou(){return Kick.V.grip*G0*PLY().agil*kitMu();},
   outside(){return Kick.opt.foot==='out'&&moveOK('out');},
-  K(){if(this.state==='keep'){const g=this.gk;return{name:'You',tr:0,a:22,reach:g&&g.high?1.4:1.15};}const K=GKS[this.lvl()];return this.wall?{...K,tr:+(K.tr+0.12).toFixed(2),screened:true}:K;},
+  K(){if(this.state==='keep'){const g=this.gk;return{name:'You',tr:Kick.V.gkr,a:Kick.V.gka,reach:g&&g.high?1.4:1.15};}const K=GKS[this.lvl()];return this.wall?{...K,tr:+(K.tr+0.12).toFixed(2),screened:true}:K;},
   planOpen(vO){const a=this.att,b=this.ball,steer=(this.inp.r?1:0)-(this.inp.l?1:0),dir=steer||(b.y>=0?1:-1),corner=!!steer,zT=this.inp.u?1.9:this.inp.d?0.25:1.0,fin=['curl','knuck'].includes(Kick.opt.fin)?Kick.opt.fin:'drive',v=vO||shotV(fin);
     const dx=DR.GOAL-b.x,t=dx/v,inh=0.3*a.vy*t,ty=corner?dir*2.8:clamp(b.y*0.6,-1.8,1.8),am=fin==='curl'&&corner?-dir*MAG*kitSpin()*Math.abs(Kick.V.curl)*v*(AIR.rho/1.2):0,bend=0.5*am*t*t;
     return{kind:'open',dir,corner,zT,dx,t,inh,ty,yc:ty+inh,am,bend,v,fin,vx:v,vy:(ty-bend-b.y)/t+0.3*a.vy,amz:strikeAz(v,fin),vz:(zT+0.5*(G0-strikeAz(v,fin))*t*t)/t};},
@@ -37,14 +37,14 @@ const Drib={
     if(o==='pass'){const n=PASSL.length,k=best.passW||0,L=this.passL(),pips=`<span class="pips2">${PASSL.map((_,i)=>`<i class="${i<k?'on':i===k?'cur':''}"></i>`).join('')}</span>`;
       return`<div class="ct"><span class="tier">PASSING ${Math.min(k+1,n)}/${n}</span><b>${['Easy','Steady','Sharp','Quick','Elite'][this.passLvl()]} defenders</b><span class="rw">+${150+60*this.passLvl()} XP</span>${pips}</div><p>Complete 4 of 5. Defenders react in ${L.tr} s and slide at ${L.a} m/s².</p>`;}
     if(o==='live')return`<div class="ct"><span class="tier">LIVE MATCH</span><b>4 minutes, nonstop</b></div><p>Win the ball, pass, beat your man, score. When they break, you're the keeper. No stopping between plays.</p>`;return null;},
-  introEqs(){const o=Kick.opt.pso;const L=o==='gk'?[eqLine('Narrow the angle','come out → the goal looks smaller to him','but too far out and he can chip you: z = v_z·t − ½·g·t²'),eqLine('Race the ball','t_ball = d ÷ v  vs  your 0.3 s reaction + dive','R = 1.15 + ½·22·(t − 0.3)²'),eqLine('Get set','momentum: a moving keeper can\'t push off sideways','set your feet as he strikes or lose 0.15 s')]
+  introEqs(){const o=Kick.opt.pso;const L=o==='gk'?[eqLine('Narrow the angle','come out → the goal looks smaller to him','but too far out and he can chip you: z = v_z·t − ½·g·t²'),eqLine('Race the ball',`t_ball = d ÷ v  vs  your ${fmt(Kick.V.gkr,2)} s reaction + dive`,`R = 1.15 + ½·${fmt(Kick.V.gka,0)}·(t − ${fmt(Kick.V.gkr,2)})²`),eqLine('Get set','momentum: a moving keeper can\'t push off sideways','set your feet as he strikes or lose 0.15 s')]
       :o==='pass'?[eqLine('Lead the runner','aim where he WILL be','lead = v_runner × t_ball'),eqLine('Rolling ball','friction slows a ground pass','soft passes die, hot passes bounce off his foot'),eqLine('Lofted pass','range R = v² · sin 2θ ÷ g','over the defenders, but slower to arrive')]
       :[eqLine('Live match','4 minutes, nonstop','every phase uses the same physics as the drills')];return{lines:L,note:''};},
   /* ---------- Goalkeeper mode ---------- */
   gkLvl(){return Math.min(best.gkW||0,STRK.length-1);},
   gkS(){return STRK[this.gkLvl()];},
   gkBegin(single){this.gs={n:0,saves:0,list:[],over:false,single:!!single};startRec('kick',single?'Save it':'Goalkeeper session');RECS.kick.meta={def:this.lvl()};
-    if(!single){logMove('kick',{who:'sys',kind:'start',title:`Goalkeeper vs ${this.gkS().name}`,math:`6 shots at ${this.gkS().v} m/s. Ball time t = d ÷ v; your dive R = 1.15 + ½·22·(t − 0.3)²`,tone:'info'});
+    if(!single){logMove('kick',{who:'sys',kind:'start',title:`Goalkeeper vs ${this.gkS().name}`,math:`6 shots at ${this.gkS().v} m/s. Ball time t = d ÷ v; your dive R = 1.15 + ½·${fmt(Kick.V.gka,0)}·(t − ${fmt(Kick.V.gkr,2)})²`,tone:'info'});
       COACH.say(`You're in goal. Before each shot: ◀ ▶ shuffle, ▲ come off your line, ▼ back. Press SPACE to get set as he strikes, then ◀ ▶ to dive (hold ▲ for a high one). Coming out shrinks the angle he can aim at, but go too far and he'll chip you.`,'hype',16);}
     this.gkSetup();},
   gkSetup(){const gs=this.gs,S=this.gkS(),sc=gs.single?GK_SCN[1+Math.floor(Math.random()*(GK_SCN.length-1))]:GK_SCN[gs.n%GK_SCN.length],b=this.ball;
@@ -61,14 +61,14 @@ const Drib={
       g.vy+=clamp(tvy-g.vy,-14*dt,14*dt);g.vx=(g.vx||0)+clamp(tvx-(g.vx||0),-14*dt,14*dt);
       g.y=clamp(g.y+g.vy*dt,-3.6,3.6);const xmin=Math.max(GKX-7,k.sx+2.5);g.x=clamp(g.x+g.vx*dt,xmin,GKX);if((g.x>=GKX&&g.vx>0)||(g.x<=xmin&&g.vx<0))g.vx=0;}},
   gkCover(){const k=this.kp,g=this.gk,S=this.gkS(),sx=k.sx,sy=k.sy,a1=Math.atan2(-3.66-sy,40-sx),a2=Math.atan2(3.66-sy,40-sx),lo=Math.min(a1,a2),hi=Math.max(a1,a2);
-    const dk=Math.max(0.5,Math.hypot(g.x-sx,g.y-sy)),t=dk/S.v,R=Math.min(3.6,1.15+0.5*GK_DIVE_A*Math.max(0,t-GK_REACT)**2),ak=Math.atan2(g.y-sy,g.x-sx),hw=Math.atan(R/dk),c1=Math.max(lo,ak-hw),c2=Math.min(hi,ak+hw);
+    const dk=Math.max(0.5,Math.hypot(g.x-sx,g.y-sy)),t=dk/S.v,R=Math.min(3.6,1.15+0.5*Kick.V.gka*Math.max(0,t-Kick.V.gkr)**2),ak=Math.atan2(g.y-sy,g.x-sx),hw=Math.atan(R/dk),c1=Math.max(lo,ak-hw),c2=Math.min(hi,ak+hw);
     return{lo,hi,ak,hw,c1,c2,cov:Math.max(0,c2-c1)/(hi-lo),R,dk,t,off:ak-(lo+hi)/2,lob:GKX-g.x,gw:hi-lo};},
   gkAIKick(){const k=this.kp,g=this.gk,S=this.gkS(),L=this.gkLvl(),b=this.ball,sx=b.x,sy=b.y,xk=g.x,early=g.diveDir?(g.diveFrom||0)+g.diveDir*2.4:null;
     if(S.chip>0&&GKX-g.x>2.5&&40-sx>9&&Math.random()<S.chip*Math.min(1,(GKX-g.x-2.5)/2+0.4)){const v=13.5,ty=clamp(sy*0.2+(Math.random()-0.5)*2,-2.6,2.6),dx=40-sx,D=Math.hypot(dx,ty-sy),t=D/v,zT=1.8,vz=(zT+0.5*G0*t*t)/t,tk=t*(xk-sx)/dx,zk=vz*tk-0.5*G0*tk*tk;
       if(zk>2.6){k.v=v;k.chip=true;this.fire({kind:'ai',vx:dx/t,vy:(ty-sy)/t,vz,am:0,amz:0,t,dx,v,zT,ty,yc:ty,bend:0,inh:0,corner:false,dir:1});
         k.logMsg={who:'rex',wl:S.name.toUpperCase().slice(0,4),kind:'pk',title:`${S.name} CHIPS you!`,res:`${fmt(zk,2)} m over you`,math:`you were ${fmt(GKX-g.x,1)} m off your line · at your spot the ball is z = v_z·t − ½gt² = ${fmt(zk,2)} m, above your 2.3 m reach`,tone:'bad'};renderActions();setLabel();return;}}
     const v=S.v*(0.95+Math.random()*0.1);let best=null;
-    for(let ty=-3.3;ty<=3.31;ty+=0.3)for(const z of [0.3,1.1,1.9]){const dx=40-sx,f=(xk-sx)/dx,tk=Math.hypot(dx,ty-sy)/v*f,yk=sy+(ty-sy)*f,rr=z>1.5?1.4:1.15,av=Math.max(0,tk-GK_REACT),reachD=rr+Math.min(2.4,0.5*GK_DIVE_A*av*av);
+    for(let ty=-3.3;ty<=3.31;ty+=0.3)for(const z of [0.3,1.1,1.9]){const dx=40-sx,f=(xk-sx)/dx,tk=Math.hypot(dx,ty-sy)/v*f,yk=sy+(ty-sy)*f,rr=z>1.5?1.4:1.15,av=Math.max(0,tk-Kick.V.gkr),reachD=rr+Math.min(2.4,0.5*Kick.V.gka*av*av);
       let m=Math.abs(yk-(early!=null?early:g.y))-reachD;if(Math.abs(ty)>3.0)m-=0.3;if(!best||m>best.m)best={ty,z,m};}
     let ty=best.ty+(Math.random()*2-1)*S.acc,z=clamp(best.z+(Math.random()-0.5)*S.acc*0.6,0.15,2.4);if(Math.random()<0.22-0.04*L)ty=g.y+(Math.random()*2-1)*1.1;
     const dx=40-sx,D=Math.hypot(dx,ty-sy),t=D/v;k.v=v;k.chip=false;
@@ -101,8 +101,8 @@ const Drib={
     else text(c,k.react==null?'DIVE!':k.react<0?`you went ${fmt(-k.react,2)} s early`:`your reaction ${fmt(k.react,2)} s${g.delay?' + 0.15 s plant':''} → ${fmt(Math.max(0,C0.t-k.react-(g.delay||0)),2)} s left to dive`,x+14,y+41,'700 13px '+MONO,k.react==null?C.ink:k.react<0.3?C.good:C.bad);
     c.restore();},
   gkEqs(){const C0=this.gkCover(),S=this.gkS(),deg=x=>fmt(x/DEG,1)+'°',g=this.gk;
-    const lines=[eqLine('Time to react',`t = d ÷ v`,`= ${fmt(C0.dk,1)} m ÷ ${fmt(S.v,0)} m/s = <b>${fmt(C0.t,2)} s</b> · a human needs ~0.3 s just to start moving`),
-      eqLine('Your reach',`R = 1.15 + ½ · 22 · (t − 0.3)²`,`= <b>${fmt(C0.R,2)} m</b> each side${C0.R>=3.6?' (max)':''}`),
+    const lines=[eqLine('Time to react',`t = d ÷ v`,`= ${fmt(C0.dk,1)} m ÷ ${fmt(S.v,0)} m/s = <b>${fmt(C0.t,2)} s</b> · your reaction dial is ${fmt(Kick.V.gkr,2)} s`),
+      eqLine('Your reach',`R = 1.15 + ½ · a_dive · (t − t_react)²`,`= 1.15 + ½ · ${fmt(Kick.V.gka,0)} · (${fmt(C0.t,2)} − ${fmt(Kick.V.gkr,2)})² = <b>${fmt(C0.R,2)} m</b> each side${C0.R>=3.6?' (max)':''}`),
       eqLine('Angle you cover',`2 · atan(R ÷ d)  vs  the goal's angle`,`${deg(2*C0.hw)} of ${deg(C0.gw)} → <b class="hot">${Math.round(C0.cov*100)}%</b> covered`),
       eqLine('Middle line',`the bisector between the posts`,Math.abs(C0.off)<0.03?'<span class="ok">you are on it</span>':`you are ${deg(Math.abs(C0.off))} off it: shuffle ${this.sd(-C0.off)<0?'◀':'▶'}`),
       eqLine('Chip risk',`z = v_z·t − ½·g·t² over your head`,C0.lob>2.5?`<span class="no">${fmt(C0.lob,1)} m off your line</span>: a chip can clear your 2.3 m reach`:`${fmt(C0.lob,1)} m off your line: safe from chips`),
@@ -256,7 +256,6 @@ const Drib={
         {id:'skill',label:ps.air?'Lofted ▲':'Ground ▸',aria:'Switch between a ground pass and a lofted pass (X)',icon:'crossin',color:ps.air?'#9b6bff':'#3c8f6a',key:'X',sel:ps.air,disabled:!ok},{id:'go',label:'Pass',aria:'Pass (Space)',icon:'run',color:'#ff8a1f',key:'SPACE',big:true,primary:true,pulse:ok,disabled:!ok}];}
     if(s==='keep'){const g=this.gk,ok=!g.diveDir&&!this.outcome;return[{id:'leanL',dir:'left',tag:'DIVE',aria:'Dive left',disabled:!ok},{id:'leanR',dir:'right',aria:'Dive right',disabled:!ok},{id:'fast',dir:'up',tag:'HIGH',aria:'Hold for a high dive',hold:true,disabled:!ok},{id:'slow',dir:'down',aria:'(not used)',disabled:true},{id:'skill',label:'Skill',aria:'Skill move (not while keeping)',icon:'mv_step',color:'#4a4f66',key:'X',disabled:true},{id:'go',label:'Stay',aria:'Stay in the middle',icon:'shield',color:'#27c7ff',key:'SPACE',big:true,primary:true,disabled:true}];}
     if(s==='set'||s==='foul'){const ok=s==='set'&&!this.ball.shot;return[{id:'leanL',dir:'left',tag:'AIM',aria:'Aim left (hold)',hold:true,disabled:!ok},{id:'leanR',dir:'right',aria:'Aim right (hold)',hold:true,disabled:!ok},{id:'fast',dir:'up',tag:'HIGHER',aria:'Aim higher (hold)',hold:true,disabled:!ok},{id:'slow',dir:'down',tag:'LOWER',aria:'Aim lower (hold)',hold:true,disabled:!ok},{id:'skill',label:'Skill',aria:'Skill move (not in set pieces)',icon:'mv_step',color:'#4a4f66',key:'X',disabled:true},{id:'go',label:'Shoot',aria:'Shoot (Space)',icon:'kick',color:'#ff8a1f',key:'SPACE',big:true,primary:true,pulse:ok,disabled:!ok}];}
-    if(s==='ready'&&dialMode()==='select'){return[...dialSelectActions(),{id:'go',label:Kick.opt.pso==='match'||Kick.opt.pso==='live'?'Kick-off':this.pso()?'Start shootout':'Start',aria:'Start (Space)',icon:'run',color:'#ff8a1f',key:'SPACE',big:true,primary:true,pulse:true}];}
     const run=s==='run',beat=s==='beat',inR=beat&&this.att.x>=DR.SHOOT&&!this.ball.shot;
     const icon=s==='ready'?'run':run?'cut':beat?'kick':'run';
     return[{id:'leanL',dir:'left',tag:run?'FEINT':'STEER',aria:'Lean or steer left (hold)',hold:true,disabled:!(run||beat)},{id:'leanR',dir:'right',aria:'Lean or steer right (hold)',hold:true,disabled:!(run||beat)},
@@ -279,7 +278,7 @@ const Drib={
     if(this.cb&&['crun','cpass','cret'].includes(this.state)){if(id==='leanL')this.inp.l=down;if(id==='leanR')this.inp.r=down;if(id==='fast')this.inp.u=down;if(id==='slow')this.inp.d=down;
       if(down&&id==='skill'){if(this.state==='cret'){if(this.cb.ret.air)this.cbStrike('bike');}else{this.cb.air=!this.cb.air;SND.click();setLabel();renderActions();}}
       if(down&&id==='go'){if(this.state==='crun')this.cbPass();else if(this.state==='cret')this.cbStrike(this.cb.ret.air?'volley':'ground');}return;}
-    if(this.state==='keep'&&down&&(id==='leanL'||id==='leanR')){this.soDive(this.sd(id==='leanL'?-1:1));return;}if(id==='go'&&!down&&this.state==='set'&&this.wall&&this.wall.jumping&&!this.ball.shot&&!this.outcome){this.shoot();return;}if(id==='leanL')this.inp.l=down;if(id==='leanR')this.inp.r=down;if(id==='fast')this.inp.u=down;if(id==='slow')this.inp.d=down;if(id==='skill'){if(down)this.doSkill();return;}if(id!=='go'||!down)return;
+    if(this.state==='keep'&&down&&(id==='leanL'||id==='leanR')){this.soDive(this.sd(id==='leanL'?-1:1));return;}if(id==='go'&&!down&&this.state==='set'&&this.wall&&this.wall.jumping&&!this.ball.shot&&!this.outcome){this.shoot();return;}if(id==='leanL')this.inp.l=down;if(id==='leanR')this.inp.r=down;if(id==='fast')this.inp.u=down;if(id==='slow')this.inp.d=down;if(down&&['leanL','leanR','fast','slow'].includes(id)&&(this.state==='set'||this.state==='beat'))showStageAdjustment('vs');if(id==='skill'){if(down)this.doSkill();return;}if(id!=='go'||!down)return;
     const s=this.state;if(this.outcome&&s!=='done')return;if(s==='set'){if(!this.ball.shot){if(this.wall&&!this.wall.jumping){this.wall.jumping=true;this.wall.tau=-0.25;this.runup=0;logMove('kick',{who:'rex',wl:'WALL',kind:'jump',title:'The wall reacts to your run-up',res:'jumps in 0.25 s',math:`h = v₀·t − ½·g·t² with v₀ = ${WALL_V0} m/s → up ${fmt(WALL_V0*WALL_V0/(2*G0),2)} m, back down after 2·v₀÷g = ${fmt(2*WALL_V0/G0,2)} s`,tone:'info'});setLabel();}else this.shoot();}return;}if(s==='ready')this.start();else if(s==='run')this.doCut();else if(s==='beat'&&this.att.x>=DR.SHOOT&&!this.loose)this.shoot();else if(s==='done'){hideResults();this.reset();setLabel();}},
   pso(){return Kick.opt.pso==='pso';},
   soBegin(){this.so={you:[],them:[],saves:0,over:false};startRec('kick','Penalty shootout');RECS.kick.meta={def:this.lvl()};
@@ -292,8 +291,8 @@ const Drib={
     Object.assign(this.def,{x:26.3,y:-tell*1.3,vx:0,vy:0,tackle:0});this.gk={x:GKX,y:0,vy:0,z:0,dive:0,dir:0,diveDir:0,high:false,t:-1,logged:true,seen:false};this.bh=[];this.bt=0;
     this.inp.l=this.inp.r=this.inp.u=this.inp.d=false;this.state='keep';this.flipCam=true;this.camX=48.5;this.camH=3.4;this.camY=0;E.title={t:0,text:`SAVE IT! · ${n+1}`,sub:`${T.name} steps up`};renderActions();setLabel();},
   soDive(dir){const g=this.gk,k=this.kp;if(this.state!=='keep'||g.diveDir||this.outcome)return;g.diveDir=dir;g.diveFrom=g.y;g.delay=k.mode==='gk'&&!g.set&&(Math.abs(g.vy)>0.8||Math.abs(g.vx||0)>0.8)?0.15:0;g.vx=0;g.high=!!this.inp.u;g.diveAt=k.t;const re=k.t-k.T;k.react=re;SND.whoosh();
-    const v=k.v||22,tb=(k.mode==='gk'?Math.max(0.5,g.x-k.sx):11)/v,left=Math.max(0,tb-Math.max(0,re)),can=0.5*22*Math.min(left,0.6)**2;
-    logMove('kick',{who:'you',kind:'dive',title:`You dive ${this.sd(dir)<0?'◀':'▶'}${g.high?' high':''}`,res:re<0?`${fmt(-re,2)} s early`:`${fmt(re,2)} s after the kick`,math:re<0?`you guessed before the kick · if he reads it he can switch sides`:`reaction ${fmt(re,2)} s → ${fmt(left,2)} s left of the ball's ${fmt(tb,2)} s → dive ½·22·t² = ${fmt(can,2)} m + reach 1.15 m`+(g.delay?' · you were still moving: +0.15 s to plant and push off':''),tone:re<0?'info':re<0.3?'good':'bad'});setLabel();},
+    const v=k.v||22,tb=(k.mode==='gk'?Math.max(0.5,g.x-k.sx):11)/v,left=Math.max(0,tb-Math.max(Kick.V.gkr,re)),can=0.5*Kick.V.gka*Math.min(left,0.6)**2;
+    logMove('kick',{who:'you',kind:'dive',title:`You dive ${this.sd(dir)<0?'◀':'▶'}${g.high?' high':''}`,res:re<0?`${fmt(-re,2)} s early`:`${fmt(re,2)} s after the kick`,math:re<0?`you guessed before the kick · if he reads it he can switch sides`:`reaction ${fmt(re,2)} s; keeper model t_react ${fmt(Kick.V.gkr,2)} s → ${fmt(left,2)} s left of the ball's ${fmt(tb,2)} s → dive ½·${fmt(Kick.V.gka,0)}·t² = ${fmt(can,2)} m + reach 1.15 m`+(g.delay?' · you were still moving: +0.15 s to plant and push off':''),tone:re<0?'info':re<Kick.V.gkr?'good':'bad'});setLabel();},
   soAIKick(){const k=this.kp,g=this.gk,L=this.lvl();let aim=k.aim,read=false;
     if(g.diveDir&&g.diveAt<k.T-0.15&&L>=1&&Math.random()<0.25+0.1*L){read=true;aim=L>=4&&Math.random()<0.4?0:-g.diveDir;}
     const v=20+1.2*L,y=aim===0?0:aim*(1.4+0.2*L+Math.random()*(1.8-0.2*L)),z=aim===0?(read?1.2:0.9):[0.3,1.0,1.9][Math.floor(Math.random()*3)],t=11/v;k.v=v;k.read=read;
@@ -405,7 +404,7 @@ const Drib={
     if(this.state==='pdone'){this.passAfter(dt,rdt);return;}
     if(this.state==='keep'){const k=this.kp,g=this.gk;k.t+=dt;
       if(k.mode==='gk')this.gkPre(dt);else if(k.t<k.T){const u=k.t/k.T;d.x=lerp(26.3,28.55,u);d.y=lerp(-k.tell*1.3,-k.tell*0.35,u);}else if(!b.shot)this.soAIKick();
-      if(g.diveDir){const tt=k.t-g.diveAt-(g.delay||0),dy=tt<0?0:(g.diveFrom||0)+g.diveDir*2.4-g.y,stop=g.vy*g.vy/44;if(Math.abs(dy)>0.05&&!(Math.sign(g.vy)===Math.sign(dy)&&stop>=Math.abs(dy)))g.vy=clamp(g.vy+Math.sign(dy)*22*dt,-10,10);else g.vy-=Math.sign(g.vy)*Math.min(Math.abs(g.vy),22*dt);g.y=clamp(g.y+g.vy*dt,-3.8,3.8);g.dive=Math.min(1,g.dive+dt*4);g.dir=g.diveDir;g.z=Math.max(0,g.high?Math.min(0.7,tt*1.6):Math.min(0.12,tt));}}
+      if(g.diveDir){const tt=k.t-g.diveAt-(g.delay||0)-Kick.V.gkr,dy=tt<0?0:(g.diveFrom||0)+g.diveDir*2.4-g.y,stop=g.vy*g.vy/(2*Kick.V.gka);if(Math.abs(dy)>0.05&&!(Math.sign(g.vy)===Math.sign(dy)&&stop>=Math.abs(dy)))g.vy=clamp(g.vy+Math.sign(dy)*Kick.V.gka*dt,-10,10);else g.vy-=Math.sign(g.vy)*Math.min(Math.abs(g.vy),Kick.V.gka*dt);g.y=clamp(g.y+g.vy*dt,-3.8,3.8);g.dive=Math.min(1,g.dive+dt*4);g.dir=g.diveDir;g.z=Math.max(0,g.high?Math.min(0.7,Math.max(0,tt)*1.6):Math.min(0.12,Math.max(0,tt)));}}
     if(this.state==='set'&&!b.shot&&this.bc&&!this.bc.over){this.bc.t-=rdt;if(this.bc.t<=0){this.bc.t=0;this.barEnd();return;}}
     if(this.state==='set'&&!b.shot){const st=(this.inp.r?1:0)-(this.inp.l?1:0),up=(this.inp.u?1:0)-(this.inp.d?1:0);this.aim.gy=clamp(this.aim.gy+st*2.4*rdt,-6,6);this.aim.gz=clamp(this.aim.gz+up*1.4*rdt,0,3.4);
       const g=this.gk;g.vy=clamp((this.setp.gkY-g.y)*4,-3,3);g.y+=g.vy*dt;if(this.wall&&this.wall.jumping){this.wall.tau+=dt;this.wall.jz=wallH(this.wall.tau);}if(this.runup!=null)this.runup+=dt;this.camY+=(this.setp.y*0.5-0.8+this.aim.gy*0.12-this.camY)*Math.min(1,dt*3);return;}
@@ -579,7 +578,7 @@ const Drib={
       {const p1=this.P(b0.x,b0.y,0.1),p2=this.P(DR.GOAL,A.ty,A.zT);if(p1&&p2){c.save();c.setLineDash([5,6]);c.strokeStyle='rgba(232,238,249,0.55)';c.lineWidth=1.5;line(c,p1.x,p1.y,p2.x,p2.y);c.setLineDash([]);c.strokeStyle='#fff';c.lineWidth=2;c.beginPath();c.arc(p2.x,p2.y,8,0,Math.PI*2);c.stroke();line(c,p2.x-12,p2.y,p2.x+12,p2.y);line(c,p2.x,p2.y-12,p2.x,p2.y+12);c.restore();text(c,'aim',p2.x+12,p2.y-10,'700 10px '+MONO,'#fff');}}
       if(lv>=1&&A.am){c.save();c.strokeStyle='rgba(201,167,255,0.9)';c.lineWidth=2.5;c.beginPath();let f=true;R.pts.forEach((q,i)=>{if(i%2)return;const pp=this.P(q.x,q.y,q.z);if(!pp)return;f?c.moveTo(pp.x,pp.y):c.lineTo(pp.x,pp.y);f=false;});c.stroke();c.restore();
         const end=R.pts[R.pts.length-1],pe=end&&this.P(end.x,end.y,end.z);if(pe&&lv===2){c.fillStyle=R.o==='goal'?C.good:C.bad;c.beginPath();c.arc(pe.x,pe.y,5,0,Math.PI*2);c.fill();}}
-      if(this.wall){const Wl=this.wall,q1=this.P(Wl.x,Wl.yc-Wl.hw,Wl.h),q2=this.P(Wl.x,Wl.yc+Wl.hw,Wl.h);if(q1&&q2){c.save();c.setLineDash([4,4]);c.strokeStyle='rgba(255,107,115,0.7)';line(c,q1.x,q1.y,q2.x,q2.y);c.restore();text(c,'wall 1.85 m (+jump)',q2.x+6,q2.y,'700 10px '+MONO,C.bad);}}}
+      if(this.wall){const Wl=this.wall,q1=this.P(Wl.x,Wl.yc-Wl.hw,Wl.h),q2=this.P(Wl.x,Wl.yc+Wl.hw,Wl.h);if(q1&&q2){c.save();c.setLineDash([4,4]);c.strokeStyle='rgba(255,107,115,0.7)';line(c,q1.x,q1.y,q2.x,q2.y);c.restore();if(stageAdjustmentVisible())text(c,'wall 1.85 m (+jump)',q2.x+6,q2.y,'700 10px '+MONO,C.bad);}}}
     if(this.state==='keep'&&this.kp&&this.kp.mode==='gk'&&!this.ball.shot)this.gkDrawCover(c);
     if(this.ps)this.passDraw(c);
     const pl=[...(this.ps?[...this.ps.mates.map((m,i)=>({k:'pm',x:m.x,i})),...this.ps.defs.map((q,i)=>({k:'pd',x:q.x,i}))]:[]),...(this.cb&&this.cb.mate?[{k:'mate',x:this.cb.mate.x}]:[]),...(d.x>-10?[{k:'def',x:d.x}]:[]),{k:'att',x:a.x},{k:'gk',x:this.gk.x},...(this.wall?[-0.75,-0.25,0.25,0.75].map((o,i)=>({k:'wall',x:this.wall.x+i*0.01,o,i})):[])].sort((p,q)=>this.flipCam?p.x-q.x:q.x-p.x);
@@ -674,7 +673,7 @@ const Drib={
       const stl=held>D.read+0.7;text(c,stl?'too long: he stopped buying it':held>=D.read?'he bites! cut soon':`he needs ≥ ${D.read} s`,x+w,y-12,'700 11px '+MONO,stl?C.bad:held>=D.read?C.good:C.hot,'right');
       c.fillStyle='#1b2744';c.fillRect(x,y,w,14);c.fillStyle=held>=D.read?C.good:C.violet;c.fillRect(x,y,w*fr,14);c.fillStyle=C.ink;c.fillRect(x+w*rd-1,y-4,2,22);c.restore();
       if(assistLevel('kick')===2){const pr=this.predict(this.cutDir());text(c,`CUT NOW → gap ${fmt(pr.gap,2)} m ${pr.ok?'✓':'✗'}`,W/2,120,'700 13px '+MONO,pr.ok?C.good:C.bad,'center');}}
-    if(((s==='beat'&&a.x>=DR.SHOOT-4)||s==='set')&&!this.ball.shot){const A=this.plan(),R=this.simShot(A),K=this.K(),lv=assistLevel('kick');c.save();c.fillStyle='rgba(6,11,24,0.85)';const x=W/2-200,y=H-72;rr(c,x,y,400,52,10);c.fill();
+    if(stageAdjustmentVisible()&&((s==='beat'&&a.x>=DR.SHOOT-4)||s==='set')&&!this.ball.shot){const A=this.plan(),R=this.simShot(A),K=this.K(),lv=assistLevel('kick');c.save();c.fillStyle='rgba(3,8,20,0.94)';const x=W/2-180,y=H-66;rr(c,x,y,360,46,9);c.fill();c.strokeStyle='rgba(255,159,67,0.65)';c.lineWidth=1;c.stroke();
       const head=s==='set'?`${this.setp.kind==='pen'?'PENALTY':this.setp.kind==='bar'?'TARGET SHOT':'FREE KICK'} ${fmt(A.dx,1)} m · aim y ${fmt(A.ty,1)} z ${fmt(A.zT,1)} · ${A.fin==='curl'?`curl ω ${fmt(Kick.V.curl,1)} → bend ${fmt(A.bend,2)} m`:A.fin==='knuck'?'knuckle: wobbles ±0.5 m':'driven'}${A.amz?(A.amz<0?' · topspin dips':' · backspin floats'):''}${airOn()?' · air on':''}`:`AIM ${A.corner?(A.dir>0?'▶ right corner':'◀ left corner'):'● straight (hold ◀ ▶)'} ${A.zT>1.5?'high':A.zT<0.5?'low':'mid'} · ${A.fin==='curl'?`curler bend ${fmt(Math.abs(A.bend),2)} m`:'driven'}`;
       text(c,head,x+14,y+19,'700 10px '+MONO,C.muted);
       if(this.bc){const e=R.pts[R.pts.length-1]||{y:0,z:0};text(c,`t = d ÷ vx = ${fmt(A.t,2)} s · line height z = ${lv>=1?fmt(e.z,2)+' m':'?'} at y = ${lv>=1?fmt(e.y,2):'?'} (bar 2.44)`,x+14,y+40,'700 13px '+MONO,lv>=1&&Math.abs(e.z-2.44)<0.13&&Math.abs(e.y)<3.66?C.good:C.ink);c.restore();}else{
@@ -715,10 +714,13 @@ const Drib={
      if(this.outside())lines.push(eqLine('Outside-foot cut','a = 0.8 · μ · g, no plant-foot tell',`= ${fmt(this.cutA())} m/s² · he reads it 0.15 s later (t_r → ${fmt(D.tr+0.1,2)} s)`));}
     return{lines,note:`<p class="note">These numbers predict what happens <b>if you cut right now</b>, using the defender’s current motion.</p>`};},
   LIVE(){if(this.state==='keep'&&this.kp&&this.kp.mode==='gk')return[2,0];if(this.ps)return[0,2];if(Kick.opt.pso==='gk'||Kick.opt.pso==='pass'||Kick.opt.pso==='live'&&this.state==='ready')return[0,1];return[3,4];},
-  vars(){if(Kick.opt.pso==='pass'||this.ps)return[{id:'pv',sym:'v_pass',name:'pass speed (lofted passes go at 30°)',unit:'m/s',min:8,max:22,step:0.5,d:1,col:C.good,pre:[[10,'soft'],[13,'firm'],[17,'driven']]}];if(Kick.opt.pso==='gk'||this.state==='keep'&&this.kp&&this.kp.mode==='gk')return[];return[{id:'run',sym:'v_run',name:'run speed toward the defender',unit:'m/s',min:3,max:9,step:0.5,d:1,col:C.good,pre:[[4,'jog'],[6,'run'],[8.5,'sprint']]},
+  vars(){return[{id:'run',sym:'v_run',name:'run speed toward the defender',unit:'m/s',min:3,max:9,step:0.5,d:1,col:C.good,pre:[[4,'jog'],[6,'run'],[8.5,'sprint']]},
     {id:'grip',sym:'μ',name:'boot grip on grass (sets your cut a = μ·g)',unit:'',min:0.4,max:1.0,step:0.05,d:2,col:C.xray,pre:[[0.5,'wet'],[0.8,'dry grass'],[1.0,'studs']]},
     {id:'curl',sym:'ω',name:'side spin on Curler shots (rev/s, + bends right)',unit:'rev/s',min:-10,max:10,step:0.5,d:1,col:C.violet,pre:[[-7,'bend left'],[0,'none'],[7,'bend right']]},
-    {id:'vs',sym:'v_shot',name:'shot speed (Curler shots go 80% of this)',unit:'m/s',min:14,max:34,step:0.5,d:1,col:C.hot,pre:[[16,'placed'],[24,'driven'],[30,'rocket']]}];},
+    {id:'vs',sym:'v_shot',name:'shot speed (Curler shots go 80% of this)',unit:'m/s',min:14,max:34,step:0.5,d:1,col:C.hot,pre:[[16,'placed'],[24,'driven'],[30,'rocket']]},
+    {id:'pv',sym:'v_pass',name:'pass speed (lofted passes go at 30°)',unit:'m/s',min:8,max:22,step:0.5,d:1,col:C.good,pre:[[10,'soft'],[13,'firm'],[17,'driven']]},
+    {id:'gkr',sym:'tᵣ',name:'keeper reaction time',unit:'s',min:0.18,max:0.5,step:0.01,d:2,col:C.pink,pre:[[0.2,'elite'],[0.3,'trained'],[0.45,'developing']]},
+    {id:'gka',sym:'a_dive',name:'keeper dive acceleration',unit:'m/s²',min:12,max:30,step:1,d:0,col:C.xray,pre:[[14,'steady'],[22,'quick'],[28,'explosive']]}];},
   suggest(){const D=this.D(),o={},vOk=[],gOk=[],save=[Kick.V.run,Kick.V.grip];
     const can=()=>{const v=Kick.V.run;for(let dx=0.2;dx<=12;dx+=0.2){const t=dx/v,g=yPath(t,0,this.aYou(),this.latMax())-yPath(t-D.tr,0,D.a,D.vm);if(g>=D.reach)return true;}return false;};
     for(let v=3;v<=9;v+=0.5){Kick.V.run=v;if(can()&&(v>=D.chase||((v*0.55+0.6)/(D.chase-v))>(DR.SHOOT-DR.DX)/v+0.3))vOk.push(v);}Kick.V.run=save[0];
