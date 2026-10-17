@@ -27,6 +27,7 @@ test('keeps one accessible profile entry and dialog with child-safe setup fields
   assert.match(css, /\.stage>\.profile-dialog\.game-profile-overlay\{position:absolute;z-index:25/);
   assert.match(css, /\.profile-hud-summary\{[^}]+grid-template-columns:18px minmax\(0,1fr\)/);
   assert.match(css, /\.stage>\.profile-dialog\.game-profile-overlay \.profile-panel\{[^}]+background:rgba\(5,14,29,\.2\)/);
+  assert.match(css, /@media \(max-width:800px\)\{\.game-frame \.stage:has\(>\.profile-dialog\.game-profile-overlay:not\(\[hidden\]\)\)\{z-index:30\}\}/);
 });
 
 test('switches the active progress object without reloading the document', () => {
