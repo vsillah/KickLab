@@ -1,19 +1,19 @@
-# Web release preparation
+# Web release
 
-KickLab's web build is one self-contained file. `npm run check` builds and validates `dist/kicklab.html`, then stages an identical copy at `dist/pages/index.html`. The `prepare-pages-artifact` workflow uploads `dist/pages` as a GitHub Pages-compatible artifact for review.
+KickLab's web build is one self-contained file. `npm run check` builds and validates `dist/kicklab.html`, then stages an identical copy at `dist/pages/index.html`. The `pages-release` workflow uploads `dist/pages` as a GitHub Pages-compatible artifact and can deploy it to `https://vsillah.github.io/KickLab/` after repository activation and merge.
 
-## Prepare-only boundary
+## Release boundary
 
-This repository does not currently deploy or activate GitHub Pages. The workflow:
+The workflow separates preparation from deployment:
 
-- runs only for pull requests that touch its inputs or by manual dispatch;
-- grants only read access to repository contents;
-- builds the existing static artifact and uploads the prepared artifact;
-- does not request Pages or identity-token write permissions;
-- does not declare a deployment environment or invoke a Pages deployment action; and
-- does not change repository settings, DNS, provider accounts, credentials, or secrets.
+- pull requests build, validate, and upload the artifact but cannot run the deploy job;
+- pushes to `main` prepare and deploy the artifact;
+- manual runs prepare the artifact, but deploy only when `deploy_production` is explicitly selected and the run uses the `main` branch;
+- the prepare job has read-only repository access;
+- the deploy job has only `pages: write` and `id-token: write`; and
+- deployment targets the protected `github-pages` environment and reports the action's deployed URL.
 
-Uploading the workflow artifact proves only that the static bundle can be packaged. It does not prove that a public site exists.
+The workflow does not configure repository settings, custom domains, DNS, other providers, credentials, analytics, or secrets. A pull-request artifact proves packaging only, not a public release.
 
 ## Artifact structure
 
@@ -39,12 +39,37 @@ python3 -m http.server 4173 --directory dist/pages
 
 Then open `http://127.0.0.1:4173/` and confirm KickLab loads from the staged `index.html`. Stop the local server with `Control-C`. The local server is optional smoke evidence and does not publish the game.
 
-In GitHub, open the `prepare-pages-artifact` workflow run and confirm its `github-pages` artifact was created. Do not interpret that artifact as a deployment.
+In GitHub, open the `pages-release` workflow run and confirm its `github-pages` artifact was created. On pull requests, the deploy job must be skipped.
 
-## Future activation gate
+## Activation
 
-Public release requires a separate, explicit authorization. Only after that approval should a repository owner enable GitHub Pages with GitHub Actions as its source and add a deployment job with the required Pages write permission, identity-token write permission, `github-pages` environment, and official Pages deployment action. DNS or custom-domain work is a separate gate.
+The development lane must stop after opening its draft pull request. The integration captain performs activation only after review:
+
+1. In GitHub, open **Settings → Pages**.
+2. Under **Build and deployment**, set **Source** to **GitHub Actions**. Do not set a custom domain.
+3. Merge the reviewed deployment-capability pull request into `main`.
+4. Open the resulting `pages-release` Actions run. Confirm `prepare` succeeds before `deploy`, and confirm the deployment targets the `github-pages` environment.
+5. Confirm the reported deployment URL is exactly `https://vsillah.github.io/KickLab/` before production smoke.
+
+A manual production deployment is bounded to the `main` branch. Open **Actions → pages-release → Run workflow**, choose `main`, select `deploy_production`, and run it. Leaving the checkbox clear prepares an artifact without deploying it.
+
+Custom-domain and DNS work remains a separate, unauthorized gate.
+
+## Production smoke
+
+After the captain confirms a successful deployment:
+
+```sh
+curl --fail --location --silent --show-error \
+  --output /tmp/kicklab-pages.html \
+  https://vsillah.github.io/KickLab/
+cmp dist/kicklab.html /tmp/kicklab-pages.html
+```
+
+Open the exact URL with a commit-bound cache-busting query, such as `https://vsillah.github.io/KickLab/?rev=<merge-commit>`. Confirm the KickLab lab chooser loads, Fight/Race/Kick remain available, the browser reports no failed same-origin assets, and local progress remains device-local. A content mismatch or wrong URL fails the release gate.
 
 ## Rollback
 
-Before activation, rollback is source-only: revert the commit that adds `.github/workflows/pages-prepare.yml`, `scripts/prepare-pages.mjs`, `scripts/check-pages-prepare.mjs`, and this document, then restore the earlier `package.json`. Generated `dist` files are ignored and can be rebuilt at any time. No hosted site or provider state needs rollback because this preparation does not create either one.
+Before activation, revert the deployment-capability commit; no hosted state has changed. After activation, revert the faulty source commit on `main`, allow `pages-release` to redeploy the known-good artifact, and repeat production smoke. If the site must be taken offline instead, the integration captain can unpublish it from **Settings → Pages**. Removing the workflow alone does not remove an already deployed site.
+
+Generated `dist` files remain ignored and can always be rebuilt. Rollback does not require DNS or provider changes because the release uses only the default project URL.
