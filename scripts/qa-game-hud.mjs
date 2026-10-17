@@ -44,11 +44,22 @@ async function assertDrawerAboveGameplay(page,label,drawerSelector){
   const stacking=await page.evaluate(selector=>{
     const drawer=document.querySelector(selector),deck=document.querySelector('.control-deck'),drawerBox=drawer.getBoundingClientRect(),deckBox=deck.getBoundingClientRect(),left=Math.max(drawerBox.left,deckBox.left),right=Math.min(drawerBox.right,deckBox.right),top=Math.max(drawerBox.top,deckBox.top),bottom=Math.min(drawerBox.bottom,deckBox.bottom),points=[];
     if(right-left>2&&bottom-top>2){for(const [x,y] of [[(left+right)/2,(top+bottom)/2],[left+2,top+2],[right-2,bottom-2]]){const stack=document.elementsFromPoint(x,y),drawerIndex=stack.findIndex(node=>node===drawer||drawer.contains(node)),gameplayIndex=stack.findIndex(node=>node===deck||deck.contains(node));points.push({x:Number(x.toFixed(1)),y:Number(y.toFixed(1)),drawerIndex,gameplayIndex,top:stack[0]?.id||stack[0]?.className||stack[0]?.tagName});}}
-    return{overlap:{left,right,top,bottom,width:Math.max(0,right-left),height:Math.max(0,bottom-top)},points,drawerZ:getComputedStyle(drawer).zIndex,stageZ:getComputedStyle(document.querySelector('.stage')).zIndex,deckFilter:getComputedStyle(deck).filter};
+    return{viewportWidth:innerWidth,overlap:{left,right,top,bottom,width:Math.max(0,right-left),height:Math.max(0,bottom-top)},points,drawerZ:getComputedStyle(drawer).zIndex,stageZ:getComputedStyle(document.querySelector('.stage')).zIndex,deckFilter:getComputedStyle(deck).filter,deckOpacity:Number(getComputedStyle(deck).opacity)};
   },drawerSelector);
   const obscured=stacking.points.filter(point=>point.gameplayIndex>=0&&(point.drawerIndex<0||point.gameplayIndex<point.drawerIndex));
   if(obscured.length)throw new Error(`${label}: gameplay controls paint above ${drawerSelector} (${JSON.stringify(stacking)})`);
+  if(stacking.viewportWidth<=800&&(stacking.deckFilter==='none'||stacking.deckOpacity>.6))throw new Error(`${label}: gameplay controls are not attenuated beneath ${drawerSelector} (${JSON.stringify(stacking)})`);
   checks.push({label,kind:'drawer-gameplay-stacking',drawerSelector,...stacking});return stacking;
+}
+
+async function assertRenderedControlAttenuation(page,label,referencePath){
+  const deckBox=await page.locator('.control-deck').boundingBox(),attenuatedPath=join(outputDir,`${label}-profile-controls-attenuated.png`);
+  await page.evaluate(()=>{const selectors=['#profileDialog','#gameOverlayBackdrop','.game-shell-nav','.game-guidance-hud'];window.__attenuationVisibility=selectors.map(selector=>document.querySelector(selector)).filter(Boolean).map(node=>({node,value:node.style.visibility}));window.__attenuationVisibility.forEach(({node})=>node.style.visibility='hidden');});
+  await page.screenshot({path:attenuatedPath});
+  await page.evaluate(()=>{window.__attenuationVisibility?.forEach(({node,value})=>node.style.visibility=value);delete window.__attenuationVisibility;});
+  const viewport=page.viewportSize(),clipped={x:Math.max(0,deckBox.x),y:Math.max(0,deckBox.y),width:Math.min(deckBox.width,viewport.width-deckBox.x),height:Math.min(deckBox.height,Math.max(8,viewport.height-deckBox.y))},stats=path=>{const values=imageSignature(path,clipped),sorted=[...values].sort((a,b)=>a-b),mean=values.reduce((sum,value)=>sum+value,0)/values.length;return{mean:Number(mean.toFixed(2)),p90:Number(sorted[Math.floor((sorted.length-1)*.9)].toFixed(2))};},reference=stats(referencePath),attenuated=stats(attenuatedPath),meanRatio=attenuated.mean/Math.max(1,reference.mean),p90Ratio=attenuated.p90/Math.max(1,reference.p90);
+  if(meanRatio>.45||p90Ratio>.55)throw new Error(`${label}: rendered gameplay controls remain too bright beneath drawer (${JSON.stringify({reference,attenuated,meanRatio,p90Ratio,clipped})})`);
+  const result={referencePath,attenuatedPath,reference,attenuated,meanRatio:Number(meanRatio.toFixed(3)),p90Ratio:Number(p90Ratio.toFixed(3)),box:clipped};checks.push({label,kind:'rendered-control-attenuation',...result});return result;
 }
 
 async function enterLab(page,name){
@@ -119,6 +130,7 @@ const summaries=[
 ];
 const closeModes=['close','escape','outside','peer'];
 async function exercisePlayerOverlays(page,label){
+  const attenuationReference=page.viewportSize().width<=800?join(outputDir,`${label}-profile-controls-reference.png`):null;if(attenuationReference)await page.screenshot({path:attenuationReference});
   await page.locator('#profileBtn').click();await page.waitForTimeout(180);
   let state=await page.evaluate(()=>{
     const dialog=document.querySelector('#profileDialog'),panel=dialog.querySelector('.profile-panel'),trigger=document.querySelector('#profileBtn'),hud=document.querySelector('#gameGuidanceHud'),nav=document.querySelector('.game-shell-nav'),selectors='.profile-panel,.profile-head,.profile-hero,.profile-stat,.profile-achievement,.profile-list button,.profile-actions button,.profile-form,.profile-name input,.profile-choice-grid button',nodes=[...dialog.querySelectorAll(selectors)].filter(node=>getComputedStyle(node).display!=='none');
@@ -128,7 +140,8 @@ async function exercisePlayerOverlays(page,label){
   });
   if(!state.profile||!state.parent||!state.backdrop||state.settings||state.contexts||state.focus!=='Close profiles'||state.controls!=='none'||state.expanded!=='true'||!state.triggerInsideRail||state.triggerInsideNav||state.panel.right>state.hud.left+2||state.blockingSurfaces.length||(label==='desktop'&&state.panel.width<600))throw new Error(`${label}: profile rail drawer contract failed (${JSON.stringify(state)})`);
   await assertDrawerAboveGameplay(page,`${label}-profile`,'#profileDialog .profile-panel');
-  await captureTransmission(page,label,'profile-drawer',join(outputDir,`${label}-profile-drawer.png`),['#profileDialog .profile-panel','#profileSummary']);await page.getByRole('button',{name:'Close profiles'}).focus();
+  if(attenuationReference)await assertRenderedControlAttenuation(page,label,attenuationReference);
+  const transmissionSelectors=label==='mobile-390x844'?['#profileDialog .profile-panel']:['#profileDialog .profile-panel','#profileSummary'];await captureTransmission(page,label,'profile-drawer',join(outputDir,`${label}-profile-drawer.png`),transmissionSelectors);await page.getByRole('button',{name:'Close profiles'}).focus();
   if(label==='mobile-390x844'){
     const scrollState=await page.evaluate(()=>{const panel=document.querySelector('#profileDialog .profile-panel');panel.scrollTop=panel.scrollHeight;return{clientHeight:panel.clientHeight,scrollHeight:panel.scrollHeight,scrollTop:panel.scrollTop};});
     if(scrollState.scrollHeight<=scrollState.clientHeight||scrollState.scrollTop<=0)throw new Error(`${label}: compact profile drawer is not vertically scrollable (${JSON.stringify(scrollState)})`);
