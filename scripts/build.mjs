@@ -9,8 +9,8 @@ const src = (p) => readFileSync(join(root, 'src', p), 'utf8');
 
 const gameDir = join(root, 'src', 'game');
 const parts = readdirSync(gameDir).filter((f) => f.endsWith('.js')).sort();
-const sharedCore = src('shared/game-core.js').replace(/\n$/, '');
-const game = sharedCore + '\n' + parts.map((f) => readFileSync(join(gameDir, f), 'utf8').replace(/\n$/, '')).join('\n') + '\n';
+const shared = ['profile-store.js', 'game-core.js'].map((file) => src(`shared/${file}`).replace(/\n$/, '')).join('\n');
+const game = shared + '\n' + parts.map((f) => readFileSync(join(gameDir, f), 'utf8').replace(/\n$/, '')).join('\n') + '\n';
 
 const fill = { STYLES: src('styles.css'), VENDOR: '<script>' + src('vendor/three.min.js') + '</script>', GAME: game };
 const html = src('index.html').replace(/\{\{(STYLES|VENDOR|GAME)\}\}/g, (_, k) => fill[k]);

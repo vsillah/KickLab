@@ -1,8 +1,10 @@
 /* ---------- saved bests ---------- */
-const store={get(){try{return JSON.parse(localStorage.getItem(GAME_CORE.STORAGE_KEYS.progress))||{}}catch(e){return{}}},set(o){try{localStorage.setItem(GAME_CORE.STORAGE_KEYS.progress,JSON.stringify(o))}catch(e){}}};
-const best=Object.assign({punch:0,lap:0,goals:0,xp:0,badges:{}},store.get());
+const profileManager=PROFILE_CORE.createManager(localStorage);
+function normalizedProgress(input={}){const source=input&&typeof input==='object'&&!Array.isArray(input)?input:{};return Object.assign({punch:0,lap:0,goals:0,xp:0,badges:{},style:{fight:'red',race:'stock',kick:'classic'},ch:{fight:0,race:0,kick:0},play:{fight:'ch',race:'ch',kick:'ch'},stats:{plays:{fight:0,race:0,kick:0},wins:{fight:0,race:0,kick:0}}},source,{badges:Object.assign({},source.badges||{}),style:Object.assign({fight:'red',race:'stock',kick:'classic'},source.style||{}),ch:Object.assign({fight:0,race:0,kick:0},source.ch||{}),play:Object.assign({fight:'ch',race:'ch',kick:'ch'},source.play||{}),stats:{plays:Object.assign({fight:0,race:0,kick:0},source.stats&&source.stats.plays||{}),wins:Object.assign({fight:0,race:0,kick:0},source.stats&&source.stats.wins||{})}});}
+const store={get(){return profileManager.active().progress;},set(o){profileManager.saveActiveProgress(o);}};
+const best=normalizedProgress(store.get());
 function renderScores(){$('#sPunch').textContent=best.punch?fmt(best.punch,0)+' N':'—';$('#sLap').textContent=best.lap?fmt(best.lap,2)+' s':'—';$('#sGoals').textContent=String(best.goals||0);}
-function saveBest(){store.set(best);renderScores();}
+function saveBest(){store.set(best);renderScores();if(typeof renderProfileSurfaces==='function')renderProfileSurfaces();}
 
 /* ---------- XP, levels, combos, badges ---------- */
 const LEVEL_T=['Rookie','Trainee','Lab Assistant','Physicist','Pro Physicist','Master Scientist','Legend'];
@@ -36,7 +38,7 @@ function ackResults(){if(!resOpen())return;SND.click();hideResults();if(MATCH.on
 $('#rNext').addEventListener('click',e=>{e.stopPropagation();unlock();ackResults();});
 function award(mode,items,success,meta={}){if(mode==='kick'&&MATCH.on&&!meta.auto&&!MATCH.lock){MATCH.lock=true;const ok=success;meta=Object.assign({},meta,{auto:true,delay:0,after:()=>setTimeout(()=>MATCH.next(ok),1900)});}if(success)STREAK[mode]++;else STREAK[mode]=0;const mult=success?1+0.25*Math.min(Math.max(STREAK[mode]-1,0),4):1;
   const rows=items.filter(i=>i[1]>0).map(([l,x])=>[l,Math.round(x*mult)]);const tot=rows.reduce((a,r)=>a+r[1],0);
-  best.xp+=tot;HUD.sess+=tot;saveBest();renderStreak();
+  best.xp+=tot;best.stats.plays[mode]=(best.stats.plays[mode]||0)+1;if(success)best.stats.wins[mode]=(best.stats.wins[mode]||0)+1;HUD.sess+=tot;saveBest();renderStreak();
   if(mode==='kick'&&LIVEM.on&&!meta.live){LIVEM.result(success);return;}
   const delay=Math.max(meta.delay||0,meta.auto?0:1000),t0=performance.now(),tally=rows.length*130+(mult>1?130:0)+900;let saw=!!E.slow;HUD.hold=t0+delay+tally;
   const go0=()=>{resultsDelay=null;HUD.hold=performance.now()+tally;showResults(Object.assign({rows,mult,tot},meta));if(meta.after)meta.after();},

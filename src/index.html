@@ -24,7 +24,7 @@
   </header>
 
   <section class="mode-home" id="modeHome" aria-labelledby="modeHomeTitle">
-    <div class="mode-home-copy"><span>Choose your lab</span><h2 id="modeHomeTitle">Where do you want to experiment?</h2><p>Each game turns a different set of physics into something you can feel, tune and master.</p></div>
+    <div class="mode-home-copy"><span>Choose your lab</span><h2 id="modeHomeTitle">Where do you want to experiment?</h2><p>Each game turns a different set of physics into something you can feel, tune and master.</p><button class="home-profile" id="homeProfileButton" type="button" aria-haspopup="dialog"><span class="profile-avatar" id="homeProfileAvatar" aria-hidden="true">R</span><span><small>Playing as</small><b id="homeProfileName">Lab Rookie</b><em id="homeProfileMeta">Level 1 · 0 XP</em></span><i>Profile &amp; stats</i></button></div>
     <nav class="tabs" aria-label="Choose a lab">
       <button class="tab" id="lab-tab-fight" type="button" data-mode="fight" aria-pressed="true"><span class="mode-icon" aria-hidden="true">✦</span><span class="n">Fight</span><span class="d">Momentum, impulse, pressure</span><span class="mode-enter">Enter Fight <span aria-hidden="true">→</span></span></button>
       <button class="tab" id="lab-tab-race" type="button" data-mode="race" aria-pressed="false"><span class="mode-icon" aria-hidden="true">◈</span><span class="n">Race</span><span class="d">Steering, grip, cornering</span><span class="mode-enter">Enter Race <span aria-hidden="true">→</span></span></button>
@@ -38,11 +38,22 @@
     <div class="stat sess"><span>This session</span><b id="sessXP">0</b></div>
     <div class="stat combo"><span>Combo</span><b id="comboX">×1</b><div class="pips" id="pips"><i></i><i></i><i></i><i></i><i></i></div></div>
     <div class="stat badges"><span>Badges</span><b id="sBadges">0</b></div>
-    <div class="hudtools"><button class="boardbtn" id="boardBtn" type="button">🏆 Family board</button><button class="mute" id="mute" type="button" aria-pressed="false">Sound on</button></div>
+    <div class="hudtools"><button class="profilebtn" id="profileBtn" type="button" aria-haspopup="dialog"><span id="hudProfileAvatar" aria-hidden="true">R</span><b id="hudProfileName">Lab Rookie</b></button><button class="boardbtn" id="boardBtn" type="button">🏆 Boards</button><button class="mute" id="mute" type="button" aria-pressed="false">Sound on</button></div>
   </div>
 
-  <div class="fboard" id="fboard" hidden role="dialog" aria-modal="true" aria-label="Family leaderboard"><div class="fb">
-    <div class="fb-h"><h2>FAMILY <span>BOARD</span></h2><button class="fb-x" id="fbClose" type="button">Close ✕</button></div>
+  <div class="profile-dialog" id="profileDialog" hidden role="dialog" aria-modal="true" aria-labelledby="profileTitle"><section class="profile-panel">
+    <header class="profile-head"><div><span>Player lab</span><h2 id="profileTitle">Profile &amp; stats</h2><p id="profileIntro">Your progress stays on this device.</p></div><button type="button" id="profileClose" aria-label="Close profiles">Close ✕</button></header>
+    <div class="profile-summary" id="profileSummary"></div>
+    <div class="profile-actions" id="profileActions"><button type="button" id="profileEdit">Edit profile</button><button type="button" id="profileCreate">New player</button><button type="button" id="profileBoard">View boards</button></div>
+    <section class="profile-switch" aria-labelledby="profileSwitchTitle"><div class="profile-section-head"><div><span>Device players</span><h3 id="profileSwitchTitle">Switch player</h3></div><small>XP, badges, records, kit and challenges stay separate.</small></div><div class="profile-list" id="profileList"></div></section>
+    <form class="profile-form" id="profileForm" hidden><div class="profile-section-head"><div><span id="profileFormEyebrow">Profile setup</span><h3 id="profileFormTitle">Create your player</h3></div><small>Use a made-up nickname. Keep your real name private.</small></div><label class="profile-name">Made-up nickname<input id="profileNickname" maxlength="16" minlength="2" autocomplete="off" required placeholder="Try Rocket Fox"></label><fieldset><legend>Choose your player style</legend><div class="profile-choice-grid" id="profileAvatarChoices"></div></fieldset><fieldset><legend>Choose a color</legend><div class="profile-color-grid" id="profileColorChoices"></div></fieldset><p class="profile-form-msg" id="profileFormMsg" role="status" aria-live="polite"></p><div class="profile-form-actions"><button type="button" id="profileFormCancel">Cancel</button><button type="submit" id="profileFormSave">Save player</button></div></form>
+    <p class="profile-local-note">Profiles stay in this browser on this device. Removing profiles is intentionally deferred until a safe recovery flow exists.</p>
+  </section></div>
+
+  <div class="fboard" id="fboard" hidden role="dialog" aria-modal="true" aria-label="Player leaderboards"><div class="fb">
+    <div class="fb-h"><div><span>Player rankings</span><h2>BOARDS</h2></div><button class="fb-x" id="fbClose" type="button">Close ✕</button></div>
+    <div class="fb-source" role="group" aria-label="Leaderboard source"><button type="button" data-source="local" aria-pressed="true">Local device</button><button type="button" data-source="shared" aria-pressed="false">Family board / shared</button></div>
+    <p class="fb-source-note" id="fbSourceNote">Ranks players saved in this browser. Nothing is uploaded.</p>
     <div class="fb-me"><span>Your nickname</span><input id="fbNick" maxlength="16" placeholder="Make up a nickname" autocomplete="off"><button type="button" id="fbPost">Post my bests</button><div class="fb-msg" id="fbMsg"></div></div>
     <div class="fb-week" id="fbWeek"></div>
     <div class="fb-cats" id="fbCats"></div>

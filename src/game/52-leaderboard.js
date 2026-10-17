@@ -5,9 +5,9 @@ const BCATS=[
   {id:'bar',n:'Crossbar challenge',u:'pts',hi:true,d:0,get:()=>best.barHi||0,eq:'60 seconds, aim at the bar: h = v₀·t − ½·g·t²'},
   {id:'mwins',n:'Match wins',u:'wins',hi:true,d:0,get:()=>best.mWins||0,eq:'Win a full Match: dribble, shoot, head, keep'},
   {id:'xp',n:'Total XP',u:'XP',hi:true,d:0,get:()=>Math.round(best.xp||0),eq:'Every round, badge and level adds up'}];
-const BOARD={db:null,owner:false,rows:[],cat:'punch',ready:false,arm:null,
-  nick(){try{return(localStorage.getItem(GAME_CORE.STORAGE_KEYS.nickname)||'').trim();}catch(e){return BOARD._n||'';}},
-  setNick(v){v=String(v||'').replace(/[<>]/g,'').trim().slice(0,16);BOARD._n=v;try{localStorage.setItem(GAME_CORE.STORAGE_KEYS.nickname,v);}catch(e){}},
+const BOARD={db:null,owner:false,rows:[],cat:'punch',source:'local',ready:false,arm:null,trigger:null,pausedGame:false,
+  nick(){return profileManager.active().nickname;},
+  setNick(v){v=PROFILE_CORE.nickname(v);if(v.length>=2){profileManager.updateActive({nickname:v});renderProfileSurfaces();}},
   slug(v){return String(v).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,24)||'player';},
   top(cat){const C=BCATS.find(c=>c.id===cat);return this.rows.filter(r=>r.cat===cat&&typeof r.val==='number'&&r.val>0).sort((a,b)=>C.hi?b.val-a.val:a.val-b.val).slice(0,10);},
   mine(cat){const n=this.nick();if(!n)return null;const id=cat+'~'+this.slug(n);return this.rows.find(r=>r.id===id)||null;},
@@ -16,11 +16,14 @@ const BOARD={db:null,owner:false,rows:[],cat:'punch',ready:false,arm:null,
   rank(cat){const n=this.nick();if(!n)return 0;const i=this.top(cat).findIndex(r=>r.id===cat+'~'+this.slug(n));return i+1;}};
 function fbVal(C,v){return fmt(v,C.d)+' '+C.u;}
 function renderBoard(){const box=$('#fboard');if(box.hidden)return;
+  box.dataset.source=BOARD.source;box.querySelectorAll('[data-source]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.source===BOARD.source)));
   {const my=WKCAT.get();$('#fbWeek').innerHTML=`<span class="wk-k">Weekly challenge · ${WEEKLY.key}</span><b>${WEEKLY.n}</b><small>Crossbar challenge · ${WEEKLY.desc()}${my?` · your best ${my} pts`:''}</small><button type="button" id="fbPlayWk">Play it ▶</button>`;}
   $('#fbCats').innerHTML=BCATS.map(C=>`<button type="button" data-c="${C.id}" aria-pressed="${C.id===BOARD.cat}">${C.n}</button>`).join('');
   const C=BCATS.find(c=>c.id===BOARD.cat);$('#fbEq').textContent=C.eq;
   const post=$('#fbPost'),msg=$('#fbMsg');
-  if(!BOARD.db){post.disabled=true;msg.textContent=BOARD.ready?'The family board only works when the game is opened from its claude.ai link while signed in.':'Connecting to the family board…';$('#fbList').innerHTML='';return;}
+  if(BOARD.source==='local'){post.disabled=true;$('#fbSourceNote').textContent='Ranks players saved in this browser. Nothing is uploaded.';msg.textContent='';const list=profileManager.localRows(C.id,{weeklyKey:WEEKLY.key});const active=profileManager.active();$('#fbList').innerHTML=list.length?list.map(row=>`<li class="${row.profileId===active.id?'me':''}"><span class="rk">${row.rank}</span><span class="nm"></span><span class="vl">${fbVal(C,row.val)}</span><span></span></li>`).join(''):`<li class="fb-empty" style="display:block">No local score for ${C.n.toLowerCase()} yet. Play a round to set one.</li>`;$('#fbList').querySelectorAll('.nm').forEach((el,index)=>{el.textContent=list[index].nick;const sm=document.createElement('small');sm.textContent=list[index].profileId===active.id?'playing now':'device player';el.appendChild(sm);});return;}
+  $('#fbSourceNote').textContent=BOARD.db?'Shared scores are available. Posting sends only your made-up nickname and best category scores.':'Shared board unavailable. Your local device board still works and nothing has been uploaded.';
+  if(!BOARD.db){post.disabled=true;msg.textContent=BOARD.ready?'No shared connection in this build. Choose Local device to compare players here.':'Checking whether a shared board is available…';$('#fbList').innerHTML='<li class="fb-empty" style="display:block">Shared board unavailable. Local scores are safe on this device.</li>';return;}
   const pend=BOARD.pending();post.disabled=!BOARD.nick()||!pend.length;
   if(!msg.dataset.hold)msg.textContent=!BOARD.nick()?'Pick a nickname to post. Use a made-up name, not your real one.':pend.length?`New bests ready to post: ${pend.map(c=>c.n).join(', ')}`:'Everything you have is already on the board.';
   const me=BOARD.nick()?BOARD.slug(BOARD.nick()):'';const list=BOARD.top(C.id);
@@ -42,17 +45,12 @@ function setKit(k,v){const before=kitState(),next=Object.assign({},kit(),{[k]:v}
   else if(k==='studs'){const m=o.mu[pt];msg=`${o.n} on ${PITCHES[pt].n.toLowerCase()}: grip ×${m}, so a_cut = ${fmt(Kick.V.grip*m,2)} × g. ${m<0.8?'You will slide on hard cuts. Wrong studs for this pitch!':m>=1?'Perfect match for this pitch.':'Okay, but not ideal for this pitch.'}`;}
   else if(k==='boot')msg=`${o.n} boots (${o.kg*1000} g): shot ×${fmt(kitShot(),3)}, skill moves take ×${o.sk} the time. Mass adds a little punch but slows your swing, so it nearly cancels out.`;
   COACH.say(msg,'tip',12);}
-function openBoard(){$('#fboard').hidden=false;$('#fbNick').value=BOARD.nick();delete $('#fbMsg').dataset.hold;renderBoard();}
-function closeBoard(){$('#fboard').hidden=true;BOARD.arm=null;}
+function openBoard(trigger=$('#boardBtn')){BOARD.trigger=trigger;BOARD.pausedGame=!$('#game-cockpit').hidden&&!PAUSE.on;if(BOARD.pausedGame){PAUSE.on=true;PAUSE.why='board';}$('#fboard').hidden=false;$('#fbNick').value=BOARD.nick();delete $('#fbMsg').dataset.hold;renderBoard();requestAnimationFrame(()=>$('#fbClose').focus());}
+function closeBoard(){$('#fboard').hidden=true;BOARD.arm=null;if(BOARD.pausedGame&&PAUSE.why==='board'){PAUSE.on=false;PAUSE.why='';}BOARD.pausedGame=false;const trigger=BOARD.trigger;BOARD.trigger=null;if(trigger&&trigger.isConnected)requestAnimationFrame(()=>trigger.focus());}
 async function postBoard(){const n=BOARD.nick();if(!BOARD.db||!n)return;const pend=BOARD.pending();if(!pend.length)return;const msg=$('#fbMsg');$('#fbPost').disabled=true;msg.dataset.hold='1';msg.textContent='Posting…';
   let ok=0,err='';for(const C of pend){const v=C.get();try{await BOARD.db.collection('board').doc(C.id+'~'+BOARD.slug(n)).set({cat:C.id,nick:n,val:+(+v).toFixed(C.d),at:Date.now()});ok++;}catch(e){err=e&&e.code||'error';if(err==='unavailable'){try{await new Promise(r=>setTimeout(r,600+Math.random()*600));await BOARD.db.collection('board').doc(C.id+'~'+BOARD.slug(n)).set({cat:C.id,nick:n,val:+(+v).toFixed(C.d),at:Date.now()});ok++;err='';}catch(e2){}}}}
   msg.textContent=err?(ok?`Posted ${ok}, but some didn't go through.`:'')+(err==='quota_exceeded'?' The board is full; ask a grown-up to clear old entries.':' You may need edit access to this game to post. Ask whoever shared it.'):`Posted ${ok} new best${ok>1?'s':''} as ${n}.`;
   setTimeout(()=>{delete msg.dataset.hold;renderBoard();refreshResBoard();},2600);renderBoard();refreshResBoard();}
-function refreshResBoard(){const el=$('#rBoard');if(!el||$('#results').hidden||$('#results').classList.contains('mini')||!BOARD.db){if(el)el.hidden=true;return;}
-  const pend=BOARD.pending();const k=M&&M.key;const rel=BCATS.filter(C=>k==='fight'?C.id==='punch':k==='race'?C.id==='lap':k==='kick'?(C.id==='bar'||C.id==='mwins'||C.id===WKCAT.id):false);
-  const parts=[];rel.concat(BCATS.filter(c=>c.id==='xp')).forEach(C=>{const r=BOARD.rank(C.id);if(r)parts.push(`<span>#${r} in ${C.n}</span>`);});
-  const hot=pend.filter(C=>C.id!=='xp');
-  if(!parts.length&&!hot.length){el.hidden=true;return;}
-  el.innerHTML='<b>🏆 Family board</b>'+parts.join(' · ')+(hot.length?` <button type="button" class="rpost" id="rPost">${BOARD.nick()?'Post new best':'Post to the board'}</button>`:'');el.hidden=false;}
+function refreshResBoard(){const el=$('#rBoard');if(!el||$('#results').hidden||$('#results').classList.contains('mini')){if(el)el.hidden=true;return;}const k=M&&M.key,active=profileManager.active(),rel=BCATS.filter(C=>k==='fight'?C.id==='punch':k==='race'?C.id==='lap':k==='kick'?(C.id==='bar'||C.id==='mwins'):false),parts=[];rel.concat(BCATS.filter(c=>c.id==='xp')).forEach(C=>{const mine=profileManager.localRows(C.id).find(row=>row.profileId===active.id);if(mine)parts.push(`<span>#${mine.rank} local ${C.n.toLowerCase()}</span>`);});if(!parts.length){el.hidden=true;return;}el.innerHTML='<b>🏆 Local device</b>'+parts.join(' · ')+` <button type="button" class="rpost" id="rPost">View boards</button>`;el.hidden=false;}
 (async()=>{try{if(!window.claude||!window.claude.use){BOARD.ready=true;return;}const [db,user]=await Promise.all([claude.use('db'),claude.use('user')]);BOARD.ready=true;BOARD.owner=!!(user&&await user.isOwner());if(!db){renderBoard();return;}BOARD.db=db;
   db.collection('board').limit(1000).onSnapshot(sn=>{BOARD.rows=sn.docs.map(d=>Object.assign({id:d.id},d.data()));renderBoard();refreshResBoard();},()=>{});renderBoard();}catch(e){BOARD.ready=true;}})();

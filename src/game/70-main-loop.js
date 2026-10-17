@@ -28,5 +28,5 @@ function frame(now){const rdt=Math.min(0.05,(now-last)/1000);last=now;
     updateAssist();const lk=M.locked?M.locked():false;varEls.forEach(v=>{v.inp.disabled=(!!(v.def.lock||M.key==='kick')&&lk)||isLocked(M.key,v.def.id);});
     const cw=ch.clientWidth;if(cw&&ch.width!==Math.round(cw*dpr))resize();cctx.setTransform(1,0,0,1,0,0);cctx.clearRect(0,0,ch.width,ch.height);cctx.setTransform(dpr,0,0,dpr,0,0);$('#chartCap').textContent=M.chart(cctx,cw||300,160);}
   requestAnimationFrame(frame);}
-resize();renderScores();renderXP();placeTicker();setMode('fight');showModeHome({focus:false});requestAnimationFrame(frame);
+resize();renderScores();renderXP();placeTicker();setMode('fight');showModeHome({focus:false});maybeOpenFirstRunProfile();requestAnimationFrame(frame);
 })();
