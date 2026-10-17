@@ -41,3 +41,7 @@ A PWA remains useful for the web surface, but it does not by itself satisfy app-
 The team accepts a web-view runtime and must test low-end devices, memory pressure, audio unlock, resume behavior, keyboard/screen-reader navigation, safe areas, and reduced motion. No plugin may collect child data or request a sensitive permission without a separate privacy and product decision.
 
 Reconsider the packaging choice when reproducible evidence shows that a supported target device cannot maintain the agreed frame budget, an accessibility requirement cannot be met, or an approved feature requires a native API that a narrow audited plugin cannot safely provide. Preference alone is not a migration trigger.
+
+## Foundation implementation note
+
+The shared foundation pins Capacitor 7.6.9 because KickLab's existing CI runs Node 20 while the Capacitor 8 CLI requires Node 22. The platform plugins remain narrow: App for lifecycle state and Haptics for the three declared feedback cues. This version choice can be revisited through a dependency-upgrade PR after CI and both platform lanes qualify the newer toolchain; it does not change the application id or the local-first contract.

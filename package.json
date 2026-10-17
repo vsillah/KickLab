@@ -8,8 +8,18 @@
     "build": "node scripts/build.mjs",
     "pages:prepare": "node scripts/prepare-pages.mjs",
     "pages:check": "node scripts/check-pages-prepare.mjs",
+    "mobile:prepare": "node scripts/build.mjs --emit-game && node scripts/prepare-mobile.mjs",
+    "mobile:check": "npm run mobile:prepare && node --test tests/mobile-foundation.test.mjs",
     "test": "node --test",
-    "check": "node scripts/build.mjs --emit-game && node scripts/prepare-pages.mjs && node --check dist/game.js && node --test && node scripts/check-web.mjs && node scripts/check-pages-prepare.mjs"
+    "check": "node scripts/build.mjs --emit-game && node scripts/prepare-pages.mjs && node scripts/prepare-mobile.mjs && node --check dist/game.js && node --test && node scripts/check-web.mjs && node scripts/check-pages-prepare.mjs"
   },
-  "engines": { "node": ">=18" }
+  "dependencies": {
+    "@capacitor/app": "7.1.2",
+    "@capacitor/core": "7.6.9",
+    "@capacitor/haptics": "7.0.5"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "7.6.9"
+  },
+  "engines": { "node": ">=20" }
 }

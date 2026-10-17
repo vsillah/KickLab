@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "app": {
+    "id": "com.amadutown.kicklab",
+    "name": "KickLab",
+    "artifact": "dist/mobile/index.html",
+    "sourceArtifact": "dist/kicklab.html"
+  },
+  "storage": {
+    "mode": "local-first",
+    "firstLaunchCreatesCloudIdentity": false,
+    "remoteSyncEnabled": false,
+    "keys": [
+      "impactlab.v1",
+      "impactlab.nick",
+      "kicklab.profiles.v1"
+    ]
+  },
+  "security": {
+    "packagedAssetsOnly": true,
+    "remoteServerUrl": null,
+    "allowNavigation": [],
+    "connectPolicy": "none",
+    "generalPurposeBridge": false,
+    "analytics": false,
+    "advertising": false,
+    "childDataTransport": false
+  },
+  "hooks": {
+    "lifecycle": [
+      "suspend",
+      "foreground"
+    ],
+    "inputCancellation": [
+      "classic-buttons",
+      "keyboard",
+      "canvas",
+      "analog-stick",
+      "gesture-action"
+    ],
+    "audio": "suspend-on-background-resume-after-user-gesture",
+    "haptics": [
+      "target",
+      "perfect",
+      "overcharge"
+    ]
+  },
+  "authority": {
+    "nativeProjectGeneration": false,
+    "signing": false,
+    "certificateChanges": false,
+    "provisioningChanges": false,
+    "storeUpload": false,
+    "storeSubmission": false,
+    "deployment": false,
+    "providerActivation": false,
+    "credentials": false,
+    "customDomains": false
+  }
+}

@@ -2,7 +2,7 @@
 
 Status: canonical transition contract, version 1.0
 Owners: Integration Captain and platform lane maintainers
-Last reviewed: 2026-10-16
+Last reviewed: 2026-10-17
 
 ## Assumptions recorded before implementation
 
@@ -93,6 +93,14 @@ Migration is read-old/write-compatible:
 5. Preserve unknown fields so a newer client does not destroy progress when an older client saves.
 
 Native shells must not assume browser local storage is transferable. Their first launch begins local unless an explicit guardian-approved import or sync flow exists. A nickname is display data, not identity or authorization.
+
+## Shared Capacitor foundation
+
+The canonical application id is provisionally `com.amadutown.kicklab`. Changing it requires a replacement decision record because it affects both platform lanes and future store identity. `capacitor.config.json` points only to the generated `dist/mobile` package; it omits `server.url`, keeps cleartext disabled, and has an empty navigation allowlist.
+
+`npm run mobile:prepare` rebuilds the audited self-contained game as `dist/mobile/index.html`, removes remote stylesheet references, and injects a Content Security Policy with `connect-src 'none'`. The native artifact therefore uses packaged assets and local storage on first launch. It creates no cloud identity and enables no remote sync.
+
+The only runtime surface exposed to platform lanes is `globalThis.KickLabMobileLifecycle` version `1.0.0`: `suspend(reason)`, `foreground(reason)`, `haptic(cue)`, and read-only `state()`. It accepts no arbitrary message or payload transport. Suspension releases classic, keyboard, canvas, analog, and gesture holds, stops continuous audio, suspends the audio context, and pauses active play. Foregrounding does not resume play or sound; the next deliberate player gesture does that.
 
 ## Testing contract
 

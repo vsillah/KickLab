@@ -2,13 +2,14 @@
 const ANALOG_CONTROL={enabled:false,pointer:null,center:null,value:{x:0,y:0,magnitude:0},pressed:new Set(),keys:new Set(),lastStep:0};
 const GESTURE_CONTROL={pointer:null,start:0,origin:null,points:[],power:0,state:'early',targetBuzzed:false,overBuzzed:false,frame:0,continuousId:null};
 const prototypeToggle=$('#prototypeControlsToggle'),touchController=$('#touchController'),analogStick=$('#analogStick'),analogKnob=$('#analogKnob'),gestureAction=$('#gestureAction');
-const haptic=GAME_CORE.hapticCapability(navigator);
+const nativeHapticPlugin=globalThis.Capacitor&&globalThis.Capacitor.Plugins&&globalThis.Capacitor.Plugins.Haptics;
+const haptic=GAME_CORE.hapticCapability(nativeHapticPlugin?{vibrate(){}}:navigator);
 
 function analogContext(){return{mode:M.key,shot:M===Kick?Kick.opt.shot:null,pso:M===Kick?Kick.opt.pso:null,state:M===Kick&&Kick.opt.shot==='dribble'?Drib.state:M.state,pass:M===Kick&&!!Drib.ps,keeper:M===Kick&&!!Drib.gs,combo:M===Kick&&!!Drib.cb};}
 function analogMapping(){return GAME_CORE.resolveControlMapping(analogContext());}
 function primaryAction(){return M.actions().find(a=>a.primary)||null;}
 function actionForDirection(direction){return M.actions().find(a=>a.dir===direction&&!a.disabled&&!a.step)||null;}
-function vibrateFor(name){if(!haptic.supported)return false;try{return navigator.vibrate(GAME_CORE.hapticCueFor(name));}catch(_){return false;}}
+function vibrateFor(name){if(typeof MOBILE_SHELL!=='undefined')return MOBILE_SHELL.haptic(name);if(!haptic.supported)return false;try{return navigator.vibrate(GAME_CORE.hapticCueFor(name));}catch(_){return false;}}
 function powerLabel(state){return{early:'Early',target:'Target band',perfect:'Perfect',overcharge:'Overcharge'}[state]||'Ready';}
 
 function renderAnalogControls(){
