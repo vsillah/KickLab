@@ -178,7 +178,6 @@ const Race={
     c.fillStyle='#1b2744';c.fillRect(32,390,140,8);c.fillStyle=use>1?C.bad:use>0.75?C.hot:C.good;c.fillRect(32,390,140*Math.min(use,1),8);
     text(c,Math.round(use*100)+'%',198,398,'600 11px '+MONO,use>1?C.bad:C.ink,'right');c.restore();
     text(c,fmt(s.t,2)+' s',W-24,40,'22px '+DISP,C.ink,'right');
-    RIG.portrait(c,W-202,66,178,110,GAME_CORE.playerAppearance('rocket'),{label:'THE ROCKET',action:this.state==='run'?(this.brake?'BRAKING':this.gas?'THROTTLE':'STEERING'):'GRID',tilt:clamp(-this.curWheel()/520,-.18,.18)});
     if(s.slide&&this.state==='run'){text(c,'SLIDING: need more grip than μ·g',W/2,66,'700 13px '+MONO,C.bad,'center');}
     if(this.state==='count'||this.state==='grid'){const lit=this.state==='count'?Math.min(3,Math.floor((2.4-this.cd)/0.8)+1):0;
       c.save();c.fillStyle='rgba(6,11,24,0.85)';rr(c,W/2-74,74,148,46,23);c.fill();for(let i=0;i<3;i++){c.fillStyle=i<lit?C.bad:'#2a3552';c.beginPath();c.arc(W/2-44+i*44,97,14,0,Math.PI*2);c.fill();}c.restore();}

@@ -16,10 +16,12 @@ const progress=readFileSync(join(root,'src','game','01-progress.js'),'utf8');
 const games=readFileSync(join(root,'src','game','42-match.js'),'utf8');
 const kickSide=readFileSync(join(root,'src','game','30-kick-sideview.js'),'utf8');
 const kick3d=readFileSync(join(root,'src','game','32-soccer-3d-modes.js'),'utf8');
+const race=readFileSync(join(root,'src','game','20-race.js'),'utf8');
 const live=readFileSync(join(root,'src','game','51-live-match.js'),'utf8');
 const challenges=readFileSync(join(root,'src','game','02-challenges-coaches.js'),'utf8');
 const kit=readFileSync(join(root,'src','game','52-leaderboard.js'),'utf8');
 const css=readFileSync(join(root,'src','styles.css'),'utf8');
+const rig=readFileSync(join(root,'src','game','04-body-rig.js'),'utf8');
 
 test('keeps relocated feature roots canonical and singular',()=>{
   for(const id of ['quickSettings','settingsDrawer','settingsCategories','settingsChoices','kitroom','liveEq','vars','chart','ticker','mlList','chal','missions','eqs','steps','idea','quiz']){
@@ -104,6 +106,9 @@ test('keeps five compact summaries inside one divided right-side tray',()=>{
   assert.match(css,/\.mobile-hud-label\{display:block/);
   assert.match(css,/\.desktop-hud-label\{display:none\}/);
   assert.match(cockpit,/function railHudState\(\).*Fight\.bout.*Race\.st\.v.*MATCH\.on.*LIVEM\.on/s);
+  assert.match(html,/id="profileHud"[\s\S]*id="hudProfileAvatar"[\s\S]*id="hudProfileName"[\s\S]*id="hudProfileState"/);
+  assert.match(cockpit,/function playerHudState\(\)[\s\S]*Race · The Rocket[\s\S]*Set piece[\s\S]*Follow-through[\s\S]*Fight ·/);
+  assert.match(cockpit,/function renderPlayerHud\(\)[\s\S]*hudProfileState[\s\S]*profileCurrentPlay[\s\S]*profileCurrentContext/);
   assert.match(cockpit,/renderChallengeHud\(\).*mobile-hud-label[^`]+hud-summary-cue/s);
   assert.match(cockpit,/liveMathHudValues'\)\.innerHTML=defs\.slice\(0,1\)/);
   assert.match(html,/id="gameGuidanceHud" aria-label="Gameplay information rail">[\s\S]*id="challengeHud"[\s\S]*id="coach"[\s\S]*id="historyHud"[\s\S]*id="liveMathHud"[\s\S]*id="profileHud"[\s\S]*id="profileBtn"/);
@@ -123,6 +128,14 @@ test('keeps five compact summaries inside one divided right-side tray',()=>{
   assert.match(css,/\.game-orientation-tools\{position:absolute[^}]+top:max\(430px[^}]+width:102px[^}]+background:linear-gradient\(145deg,rgba\(5,14,29,\.14\),rgba\(5,14,29,\.03\)\)/);
   assert.match(css,/@media \(min-width:1100px\)\{\.game-orientation-tools\{top:max\(486px[^}]+width:150px[^}]+grid-template-rows:44px\}/);
   assert.match(css,/@media \(min-width:1100px\)[\s\S]*\.game-guidance-hud\{top:max\(218px[^}]+width:68px/);
+});
+
+test('moves player portrait status out of the field and into the profile rail',()=>{
+  for(const source of [race,kickSide,kick3d])assert.doesNotMatch(source,/RIG\.portrait\(/);
+  assert.doesNotMatch(`${race}\n${kickSide}\n${kick3d}`,/THE ROCKET|FOLLOW-THROUGH|TRACKING BALL|SET & DIVE/);
+  assert.match(rig,/window\.__KICKLAB_PLAYER_PORTRAIT_RENDERS__=0/);
+  assert.match(rig,/portrait\(c,x,y,w,h,A,o=\{\}\)\{window\.__KICKLAB_PLAYER_PORTRAIT_RENDERS__\+\+/);
+  assert.match(cockpit,/renderCockpit\(q\).*renderChallengeHud\(\);renderPlayerHud\(\)/);
 });
 
 test('derives compact math from mode definitions and explicit equation data',()=>{

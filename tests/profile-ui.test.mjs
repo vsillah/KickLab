@@ -19,11 +19,13 @@ test('keeps one accessible profile entry and dialog with child-safe setup fields
   assert.doesNotMatch(html, /type="(?:email|date|tel)"|name="(?:age|school|location|email|realName)"/i);
   assert.match(html, /id="gameGuidanceHud"[^>]*>[\s\S]*class="profile-hud contextual-summary"[^>]+id="profileHud"[\s\S]*id="profileBtn"/);
   assert.match(html, /id="profileBtn"[^>]+aria-expanded="false"[^>]+aria-controls="profileDialog"/);
+  assert.match(html, /id="hudProfileAvatar"[^>]*>[A-Z]<\/span><b id="hudProfileName">[^<]+<\/b><small id="hudProfileState">Ready<\/small>/);
   assert.doesNotMatch(html, /class="game-player-tools"[^>]*>[\s\S]{0,300}id="profileBtn"/);
   assert.match(profiles, /function openProfiles[\s\S]*closeSettings\(\{restore:false\}\)[\s\S]*closeContextDetail\(\{restore:false\}\)[\s\S]*pauseGame\('profile'\)/);
   assert.match(profiles, /function closeProfiles[\s\S]*resumeGame\(\)[\s\S]*trigger\.focus\(\)/);
   assert.match(profiles, /openProfiles[\s\S]*setAttribute\('aria-expanded',String\(inGame\)\)/);
   assert.match(profiles, /closeProfiles[\s\S]*setAttribute\('aria-expanded','false'\)/);
+  assert.match(profiles, /class="profile-stat profile-current-play"[\s\S]*id="profileCurrentPlay"[\s\S]*id="profileCurrentContext"/);
   assert.match(css, /\.stage>\.profile-dialog\.game-profile-overlay\{position:absolute;z-index:25/);
   assert.match(css, /\.profile-hud-summary\{[^}]+grid-template-columns:18px minmax\(0,1fr\)/);
   assert.match(css, /\.stage>\.profile-dialog\.game-profile-overlay \.profile-panel\{[^}]+background:rgba\(5,14,29,\.2\)/);

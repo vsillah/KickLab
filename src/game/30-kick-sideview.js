@@ -260,7 +260,6 @@ const Kick={
     const tip=this.state==='aim'?(free?'Set v and θ in the math console. When both checks are green, KICK.':'Aim with θ, then cross it in. Tap HEAD IT just before the ball reaches you.'):this.state==='incoming'?'Tap HEAD IT now!':'';
     text(c,tip,24,54,'500 13px '+BODY,C.muted);
     text(c,'GOALS '+(best.goals||0),W-24,38,'18px '+DISP,C.ink,'right');
-    {const A=playerLook();RIG.portrait(c,W-202,62,178,110,A,{label:PLY().n.toUpperCase(),action:this.state==='swing'?'FOLLOW-THROUGH':this.state==='flight'?'TRACKING BALL':'SET PIECE',boot:kitLook().boot,tilt:this.state==='swing'?.12:0});}
   },
   eqs(){const M=this;
     if(this.opt.shot==='free'){const r=this.freeCalc(this.V.v,this.V.th);return{lines:[
