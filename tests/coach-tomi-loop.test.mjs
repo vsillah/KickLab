@@ -50,6 +50,16 @@ test('explains end results with actual telemetry and one next adjustment',()=>{
   assert.equal(kick.observation,'1.10 m at the wall · 1.65 m at the line');assert.match(kick.cue,/angle|speed/i);
 });
 
+test('maps every lab and Kick activity to a canonical control or Math route',()=>{
+  const fight=TOMI.recommendation({mode:'fight',code:'timing'});assert.equal(fight.kind,'math');assert.equal(fight.topic,'timing');assert.equal(fight.label,'See the math');
+  assert.equal(TOMI.recommendation({mode:'race',code:'unsafe-speed'}).kind,'math');
+  assert.deepEqual(Array.from(TOMI.recommendation({mode:'kick',code:'wall',context:{shot:'free'}}).variables),['th','v']);
+  assert.deepEqual(Array.from(TOMI.recommendation({mode:'kick',context:{pass:true}}).variables),['pv']);
+  assert.deepEqual(Array.from(TOMI.recommendation({mode:'kick',context:{keeper:true}}).variables),['gkr','gka']);
+  assert.deepEqual(Array.from(TOMI.recommendation({mode:'kick',context:{shot:'dribble'}}).variables),['grip','run']);
+  assert.equal(TOMI.recommendation({mode:'kick',code:'timing',context:{shot:'header'}}).kind,'math');
+});
+
 test('keeps post-GO cues pending and local without adding storage',()=>{
   const pacing=read('src/game/61-gameplay-pacing.js'),cockpit=read('src/game/54-web-cockpit.js');
   assert.match(pacing,/onComplete\(meta\).*showPendingCoachMathNudge\(\)/);

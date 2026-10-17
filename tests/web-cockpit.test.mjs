@@ -73,7 +73,17 @@ test('reuses Coach Tomi for a bounded non-blocking route into canonical Math',()
   assert.match(cockpit,/function renderCoachTomiResult\(mode,meta=\{\}\)/);
   assert.match(cockpit,/COACH_MATH_NUDGE=\{sequence:0,current:null,seen:new Set\(\),lastShownAt:0,timer:null,cooldown:18000\}/);
   assert.match(cockpit,/COACH_MATH_NUDGE\.seen\.has\(key\).*lastShownAt<COACH_MATH_NUDGE\.cooldown/s);
-  assert.match(cockpit,/coachMathNudgeAction\.addEventListener\('click'.*setContextDetail\('math',\{trigger:\$\('#physicsDetailsHud'\),focus:true\}\)/s);
+  assert.match(cockpit,/coachMathNudgeAction\.addEventListener\('click'.*openCoachTomiRecommendation\('nudge'\)/s);
+  assert.match(cockpit,/function resolveCoachTomiRoute\(note=\{\}\).*isLocked\(M\.key,id\).*prototypeLockReason\(preferred\)/s);
+  assert.match(cockpit,/function showCoachTomiControlRoute\(route,\{source\}=\{\}\).*prototypePhysicsRows\.querySelector.*wideManualRows\.querySelector.*setControllerMode\('manual'/s);
+  assert.match(cockpit,/claimPauseOwner\('coach-recommendation'\).*COACH_TOMI_ACTIONS\.ownsPause=true/);
+  assert.match(cockpit,/if\(ownsPause\)releasePauseOwner\('coach-recommendation'\)/);
+  assert.match(cockpit,/function showCoachTomiMathRoute\(route\).*setContextDetail\('math'.*coachTomiMathRecommendation\.focus/s);
+  assert.match(cockpit,/scrollIntoView\(\{behavior:reduce\?'auto':'smooth',block:'nearest'\}\)/);
+  assert.match(html,/id="coachTomiPregameAction">Try this<\/button>/);
+  assert.match(html,/id="coachTomiResultAction">Try this<\/button>/);
+  assert.match(html,/id="coachTomiControlRecommendation" role="status" aria-live="polite" hidden/);
+  assert.match(html,/id="coachTomiMathRecommendation" role="status" aria-live="polite" tabindex="-1" hidden/);
   assert.match(cockpit,/function releaseGameplayForOverlay\(\)\{hideCoachMathNudge/);
   assert.match(pacing,/onPhase\(phase,meta\).*renderCoachTomiPregame\(meta\)/s);
   assert.match(pacing,/onComplete\(meta\).*releasePauseOwner\('transition'.*showPendingCoachMathNudge\(\)/);
