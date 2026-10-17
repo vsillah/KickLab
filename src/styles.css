@@ -253,7 +253,7 @@ canvas#cv{display:block;width:100%;height:auto;aspect-ratio:16/9;touch-action:no
 @media (max-width:700px){.dpad{grid-template-columns:repeat(3,40px);grid-template-rows:repeat(3,40px)}.dpad .arm svg{width:18px;height:18px}.abtn .cap{width:54px;height:54px}.abtn .cap svg{width:28px;height:28px}.abtn.big .cap{width:64px;height:64px}.abtn.big .cap svg{width:34px;height:34px}.arcade{gap:8px}.abtn .kk{display:none}.dpad .hub{font-size:0}}
 @media (prefers-reduced-motion:reduce){.abtn.pulse .cap{animation:none}}
 
-/* Web cockpit: controls stay outside the canvas; secondary material lives in one inspector. */
+/* Web cockpit: controls stay outside the canvas; secondary material opens from its contextual summary. */
 .game-frame{position:relative;display:grid;min-width:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#070d1c}
 .game-frame .stage{border:0;border-radius:0}
 .control-deck{container-type:inline-size;display:grid;grid-template-columns:minmax(0,1fr);gap:10px;align-items:center;padding:10px 12px;border-top:1px solid var(--line);background:linear-gradient(180deg,#0a1222,#070d1c)}
@@ -773,4 +773,59 @@ header.top .brand p{display:none}
   .math-context-summary .dialtop{grid-column:2;grid-row:1}
   .math-context-summary .dial-status{grid-column:1/-1;grid-row:4;max-width:none;text-align:left}
   .math-context-controls .math-console-controls{grid-template-columns:minmax(0,1fr)}
+}
+
+/* Context lives behind the gameplay summaries that already represent it. */
+.game-guidance-hud{grid-template-columns:minmax(150px,.82fr) minmax(0,1.2fr) minmax(150px,.9fr)}
+.contextual-summary{min-width:0;position:relative}
+.challenge-hud #challengeHudSummary{display:grid;align-content:center;gap:3px;min-width:0}
+.context-disclosure{appearance:none;display:flex;align-items:center;justify-content:center;gap:5px;min-height:36px;border:1px solid var(--line);border-radius:8px;background:#111e35;color:var(--xray);padding:5px 8px;font:700 9px var(--f-body);cursor:pointer;white-space:nowrap}
+.context-disclosure span{font:700 14px var(--f-mono);transition:transform .15s ease}
+.context-disclosure[aria-expanded="true"]{border-color:var(--xray);background:#17304d;color:var(--ink)}
+.context-disclosure[aria-expanded="true"] span{transform:rotate(180deg)}
+.context-disclosure:focus-visible,.context-detail button:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+.challenge-hud>.context-disclosure{justify-self:start;margin-top:3px}
+.game-guidance-hud .coach{grid-template-columns:34px minmax(0,1fr) auto;align-content:center}
+.game-guidance-hud .coach>.context-disclosure{align-self:center}
+.history-hud{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:7px;border:1px solid #34507f;border-radius:9px;background:rgba(11,22,48,.9);padding:7px 9px}
+.history-summary{display:grid;gap:2px;min-width:0}.history-summary>span{font:700 9px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--violet)}.history-summary>b{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.history-summary>p{margin:0;color:var(--muted);font:600 9px/1.3 var(--f-mono);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.contextual-summary:has(>.context-detail:not([hidden])){grid-column:1/-1}
+.context-detail{box-sizing:border-box;min-width:0;max-height:min(390px,42vh);overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;border:1px solid #5578aa;border-radius:11px;background:rgba(8,17,33,.98);padding:10px;box-shadow:inset 0 1px 0 rgba(127,220,255,.08)}
+.context-detail[hidden]{display:none!important}
+.contextual-summary>.context-detail{grid-column:1/-1;margin-top:5px}
+.coach>.context-detail{grid-column:1/-1}
+.history-hud>.context-detail{grid-column:1/-1}
+.context-detail-head{position:sticky;z-index:2;top:-10px;display:flex;align-items:center;justify-content:space-between;gap:10px;margin:-10px -10px 8px;padding:9px 10px;border-bottom:1px solid var(--line);background:#0c182d}.context-detail-head>div{display:grid;gap:1px}.context-detail-head span{font:700 9px var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--xray)}.context-detail-head h2{margin:0;font:400 16px var(--f-display)}.context-detail-head button{appearance:none;min-height:40px;border:1px solid var(--hot);border-radius:8px;background:var(--panel-2);color:var(--hot);padding:6px 9px;font:700 10px var(--f-body);cursor:pointer}
+.context-detail-state{margin:0 0 8px;border-radius:7px;background:rgba(255,176,74,.12);color:var(--hot);padding:5px 8px;font-size:10px}
+.goals-detail,.learn-detail,.review-detail,.physics-detail{display:grid;gap:9px}
+.context-detail .missions,.context-detail .full,.context-detail .notebook{padding:10px}
+.context-detail .nb-grid,.context-detail .steps{grid-template-columns:minmax(0,1fr)}
+.context-detail .ml{max-height:220px}
+.control-left-slot{position:relative;grid-template-columns:minmax(0,1fr) auto}
+.control-left-slot>.controller-mode-toggle{grid-column:1/-1;grid-row:1}.control-left-slot>.controller-mode-status{grid-column:1;grid-row:2}.control-left-slot>.compact-physics-detail-toggle{grid-column:2;grid-row:2;min-height:18px;padding:1px 4px;font-size:7px}.control-left-slot>#padL,.control-left-slot>.manual-controller{grid-column:1/-1;grid-row:3}
+.wide-manual-head .physics-detail-toggle{min-height:28px;padding:3px 7px;font-size:8px;flex:none}
+.physics-detail{grid-column:1/-1;width:100%}
+.physics-detail>.ph{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.physics-detail>.ph h2{margin:0;font:400 15px var(--f-display)}.physics-detail>.ph p{margin:0;color:var(--muted);font-size:11px;text-align:right}
+.physics-detail .math-context-summary{grid-template-columns:minmax(0,1fr) auto}
+.physics-detail .math-console-values{grid-column:1;grid-row:1}.physics-detail .math-console-status{grid-column:1;grid-row:2}.physics-detail .dialtop{grid-column:2;grid-row:1;position:static;transform:none;justify-self:end}.physics-detail .dial-status{grid-column:2;grid-row:2;max-width:220px;text-align:right}
+
+@container (min-width:980px){
+  .compact-physics-detail-toggle{display:none}
+}
+
+@media (max-width:980px){
+  .game-guidance-hud{grid-template-columns:minmax(0,1fr) minmax(0,1.25fr)}
+  .history-hud{grid-column:1/-1}
+  .context-detail{max-height:min(360px,40vh)}
+}
+
+@media (max-width:700px){
+  .game-guidance-hud{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr)}
+  .game-guidance-hud .challenge-hud,.game-guidance-hud .coach{padding:6px}
+  .game-guidance-hud .coach{grid-template-columns:minmax(0,1fr);gap:4px}.game-guidance-hud .coach .coach-copy{grid-column:1}.game-guidance-hud .coach>.context-disclosure{grid-column:1;justify-self:start}.game-guidance-hud .coach .av{display:none}
+  .challenge-hud>.context-disclosure,.game-guidance-hud .coach>.context-disclosure,.history-hud>.context-disclosure{min-height:32px;font-size:8px}
+  .history-hud{padding:6px}
+  .context-detail{max-height:min(330px,40vh);padding:8px}.context-detail-head{top:-8px;margin:-8px -8px 7px;padding:7px 8px}.context-detail-head h2{font-size:14px}.context-detail-head button{min-height:36px;padding:5px 7px;font-size:9px}
+  .physics-detail .math-context-summary{grid-template-columns:minmax(0,1fr) auto}.physics-detail .math-console-values{grid-column:1/-1;grid-row:2}.physics-detail .math-console-status{grid-column:1/-1;grid-row:3}.physics-detail .dialtop{grid-column:2;grid-row:1}.physics-detail .dial-status{grid-column:1/-1;grid-row:4;max-width:none;text-align:left}
+  .physics-detail .math-context-controls .math-console-controls{grid-template-columns:minmax(0,1fr)}
 }

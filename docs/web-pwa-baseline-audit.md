@@ -41,35 +41,30 @@ Browser console review found no warnings or errors during the audit. The run use
 
 ## Responsive cockpit revision
 
-### Unified contextual menu mapping
+### Contextual detail expansion mapping
 
-Before implementation, the four destinations were inventoried and assigned one owner beneath the in-stage Challenge/Coach HUD:
+The post-PR #4 inventory found four singular content owners behind a redundant global Math / Review / Goals / Learn menu. This follow-up keeps each canonical node and action exactly once while moving its disclosure to the gameplay summary that already represents it:
 
-- **Math** absorbs the former Math Console pull row and the separate lower Current Math card. Its compact header keeps the current hint, actionable values, live equation/result, Dials access, and blocker/recovery status; the attached drawer keeps the canonical quick steppers, `#liveEq`, `#vars`, and relationship chart.
-- **Review** keeps the live ticker, move log, Review action, Replay action, and their existing disabled/ownership states.
-- **Goals** keeps level and XP progress, badges, current mode summary, challenge details, records, and missions. Goal-completion feedback remains a transient on-stage notification that links back to this persistent destination.
-- **Learn** keeps full working, notebook steps, the core idea, and quick check.
+- **Physics controls → Math detail:** the manual-physics control area owns the current hint, actionable values, quick steppers, guarded Dials action, canonical `#liveEq` and `#vars`, and relationship chart. Wide layouts retain the stacked manual sliders; compact layouts retain the Play / Manual footprint and the same `adjustVar` path.
+- **Event history → Review detail:** a compact latest-event summary beside the stage owns the live ticker, move log, Review action, Replay action, and their existing disabled states.
+- **Challenge card → Goals detail:** `#challengeHud` remains the current-goal summary and discloses level, XP, badges, mode, canonical challenge details, records, and missions. Transient completion notifications remain on stage and open this persistent detail.
+- **Coach card → Learn detail:** `#coach` remains the live guidance summary and discloses full working, notebook steps, core idea, and quick check.
 
-The resulting Math/Review/Goals/Learn bar and its single attached in-place drawer replace the old Utility Belt bar, standalone Math Console row, and lower Current Math layer. Dials still borrows the singular live-equation and variable nodes and returns them to Math; result, replay, cinematic, Coach-review, level-up, and in-action guards remain authoritative.
+The former global menu, tabs, and inspector shell are removed. Each summary uses a real button with `aria-expanded` and `aria-controls`; opening one contextual detail closes the prior detail, Escape closes the active detail and restores its trigger, and Settings remains mutually exclusive with contextual detail ownership.
 
-The follow-on cockpit slice resolves the long-page learning hierarchy without deleting or duplicating the learning tools. Each canonical node now has one owner:
+### Contextual ownership and guards
 
-- the stage contains only the canvas and transient game overlays;
-- the control deck owns the existing pointer/touch controls and gives every action a readable label;
-- the always-visible context column owns the live Math HUD, challenge state, and coach guidance;
-- the on-game settings rail owns configuration through four quick pills and one hierarchical drawer;
-- one compact in-game Utility rail owns bounded, progressive-disclosure Math, Review, Goals, and Learn content;
-- Dials temporarily borrows the canonical live equation and variable nodes, then returns those same nodes to the Math inspector when it closes.
+The follow-up resolves the long-page learning hierarchy without deleting or duplicating its tools. The canvas retains transient game overlays; Challenge, Coach, and Latest event remain concise summaries below it; and the control deck keeps all pointer, touch, keyboard, and manual-physics controls. Each summary discloses only its related canonical content, while the settings rail continues to own configuration through four quick pills and one hierarchical drawer.
 
-The Math HUD is derived from the active mode definitions (`M.vars()`, `M.LIVE()`, and `M.eqs()`), rather than scraping rendered text. Inspector interactions explicitly pause modes that could otherwise keep running beneath configuration or math controls, and mobile dismissal returns focus to the invoking tab.
+The Physics detail is derived from the active mode definitions (`M.vars()`, `M.LIVE()`, and `M.eqs()`), rather than scraping rendered text. Dials temporarily borrows the canonical `#liveEq` and `#vars` nodes and returns them to `#physicsDetail` when it closes. Opening a contextual detail pauses active play only when that detail owns the pause; closing it resumes only that owned pause. Goal-completion feedback remains a transient stage notification whose action opens the persistent Goals detail.
 
 Modal ownership is exclusive. When results, replay, Coach review, a cinematic replay sequence, or a level-up overlay owns the stage, Dials cannot open. The Math HUD keeps a disabled `Dials after round` control and an in-context recovery instruction; keyboard `P` follows the same guard. After the owner closes, Dials re-enables and still returns the singular live-equation and variable nodes to Math.
 
-At every viewport, the four 44 px Utility tabs remain attached to the game frame. Opening Math, Review, Goals, or Learn reveals one bounded, translucent in-game drawer with one intentional scroll owner; closing or pressing Escape restores the invoking tab. The utility drawer never becomes a persistent desktop sidecar or shrinks the gameplay column. Opening settings closes Utility and opening Utility closes settings, so their translucent surfaces cannot compete. Math pauses while its granular canonical controls are active; passive utility content remains nonmodal. Dials may temporarily borrow `#liveEq` and `#vars`, but always returns those singular nodes to the Math utility pane.
+At every viewport, opening Physics, Review, Goals, or Learn reveals one bounded, in-flow detail with one intentional scroll owner. Closing it or pressing Escape restores the invoking disclosure button. No detail becomes a desktop sidecar or covers the controls. Opening Settings closes contextual detail and opening contextual detail closes Settings, so their surfaces and pause owners cannot compete.
 
 ### Durable gameplay-math interaction rule
 
-Variables used to play remain adjacent to the stage through the single contextual menu. Math's compact summary names the currently actionable values, reports the live equation/result in plain text, and keeps guarded Dials access in the same destination. Opening Math expands one bounded in-flow drawer directly beneath the bar, without covering the stage, D-pad, or action buttons. Quick controls project the existing mode definitions and write through the existing variable-update path; they never clone `#vars`, `#liveEq`, formulas, or state. Escape or Return to game closes the drawer and restores focus to the invoking tab, and overflow belongs only to the bounded drawer body.
+Variables used to play remain adjacent to the stage through the Physics disclosure in the control deck. Its summary names the currently actionable values, reports the live equation/result in plain text, and keeps guarded Dials access in the same destination. Opening Physics expands one bounded in-flow detail without covering the stage, D-pad, or action buttons. Quick controls project the existing mode definitions and write through the existing variable-update path; they never clone `#vars`, `#liveEq`, formulas, or state. Escape or Close physics details restores focus to the invoking disclosure, and overflow belongs only to the bounded detail.
 
 The control deck also owns one compact controller-mode toggle: Play by default, or Manual on request. Play renders the original D-pad. Manual replaces that D-pad inside the exact same bounded left-controller footprint; it never opens or expands another drawer beneath the controls. The Manual controller projects one current-mode, unlocked `M.vars()` definition at a time with previous/next selection, its exact value and unit, one canonical range slider, and 44 px Less/More steps. It writes through `adjustVar`, never forks physics state, and owns a named pause during active play. Play or Escape restores the D-pad and toggle focus, resuming only when Manual owned the pause. Results, replay, cinematic, Coach review, and level-up owners disable or return Manual to Play with an in-context reason. Switching labs refreshes the variable set and selected projection immediately while the Math destination continues showing the associated equation/result with singular `#vars` and `#liveEq` ownership.
 
@@ -90,18 +85,18 @@ Gameplay variables, settings, and guidance use icon-plus-text progressive disclo
 | Viewport | Mode/state exercised | Result |
 | --- | --- | --- |
 | 390 × 844 | Fight, Race, Kick/free kick, and 1v1 Dribble; stage guidance HUD, quick settings pills, hierarchical settings, Kit Room, D-pad-selected quick variable, exact stepper input, goal-completion notification, Math Console, results and blocked Dials | No horizontal overflow, canvas/HUD overlap, or clipped Kit Room content. Settings targets are at least 48 px, the drawer does not obstruct the control deck, active play pauses while settings are expanded, touch and keyboard stepper input does not trigger a move, and both notification actions work without leaking input. |
-| 768 × 900 | Kick/free kick; stage guidance HUD, quick settings pills, hierarchical settings, Kit Room, Math Console, Utility belt and Dials recovery | No horizontal overflow. The HUD begins after the canvas, settings actions meet the 48 px target, the drawer stays bounded with one scroll owner, the equipment grid remains usable, and the control deck stays unobscured. Dials returns the canonical Math nodes exactly once. |
+| 768 × 1,024 | Fight active play; Challenge, Coach, and Latest event summaries; Coach notebook disclosure; compact Physics disclosure | No horizontal overflow. Context remains below the canvas, the open detail spans the guidance width, its 360 px bound owns overflow, and the control deck stays unobscured. |
 | 1,440 × 1,000 | Race active-play pause/resume, Kick/free kick, and 1v1 Dribble; hierarchical settings, Kit Room, D-pad selection, quick steppers, goal details path, Math Console, Dials, Review, and replay | The on-game drawer keeps settings and Kit Room in context without page dimming. Opening settings freezes the active run clock; Close or Escape resumes it and restores focus. The console matches the gameplay-column width and canonical Math nodes remain singular. |
 
-Focused regression checks cover singular canonical IDs, complete inspector tab/panel wiring, controls outside the stage, responsive Math Console and Utility-belt ownership, settings icon/text pairing, level 1/2/3 hierarchy, Kit Room ownership, focus restoration, D-pad-selected exact controls, pause/resume ownership, transient goal details/dismissal, tap targets, input isolation, exclusive result/replay ownership, Dials node return, and readable labels. The existing shared-core, build, syntax, and web-contract checks also remain green. Browser review found no application console errors or warnings.
+Focused regression checks cover singular canonical IDs, all contextual disclosure bindings, controls outside the stage, one-open-at-a-time behavior, settings/detail exclusivity, focus restoration, D-pad-selected exact controls, pause/resume ownership, transient goal details/dismissal, input isolation, exclusive result/replay ownership, Dials node return, and readable labels. The existing shared-core, build, syntax, and web-contract checks also remain green. Browser review found no application console errors or warnings.
 
 Remaining evidence limits: viewport emulation and emulated touch are not a physical-device test, and this slice does not add PWA packaging or offline navigation.
 
 ## Prioritized web plan
 
 1. **Document contract repair — complete.** UTF-8, mobile viewport, language and main-content semantics, and contract checks are present.
-2. **Responsive learning hierarchy — complete for this cockpit slice.** The active stage, controls, live Math HUD, challenge, and coach are immediately visible, while on-game settings and one responsive inspector preserve configuration, detailed Math, Review, Goals, and Learn.
-3. **Input, settings, and inspector accessibility — complete for this cockpit slice.** Lab and inspector tabs use roving keyboard navigation, readable control labels are visible, settings follow a bounded three-level hierarchy with restored focus, mobile inspector dismissal restores focus, and gameplay remains available through pointer/touch hooks and keyboard mappings.
+2. **Responsive learning hierarchy — complete for this cockpit slice.** The active stage, controls, challenge, coach, and latest event are immediately visible, while contextual disclosures preserve detailed Math, Review, Goals, and Learn content without a standalone menu strip.
+3. **Input, settings, and contextual-detail accessibility — complete for this cockpit slice.** Native disclosure buttons expose expanded/control relationships, Escape restores exact trigger focus, settings follow a bounded three-level hierarchy, and gameplay remains available through pointer/touch hooks and keyboard mappings.
 4. **Rendered cross-viewport review — complete.** Fight, Race, Kick, 1v1 Dribble, Dials, Review, replay, locked configuration, and learning interactions were exercised at mobile, tablet, and desktop widths.
 5. **Commit-bound evidence and draft PR closeout — in progress.** Capture the final clean-origin screenshots and playable walkthrough from the exact committed revision, publish validation in the draft PR, and stop before merge or deployment.
 

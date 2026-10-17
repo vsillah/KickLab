@@ -22,24 +22,25 @@ test('keeps relocated feature roots canonical and singular',()=>{
   }
 });
 
-test('provides every inspector destination with an accessible tab and panel',()=>{
-  for(const name of ['math','review','goals','learn']){
-    assert.match(html,new RegExp(`id="ins-tab-${name}"[^>]+aria-controls="ins-pane-${name}"`));
-    assert.match(html,new RegExp(`id="ins-pane-${name}"[^>]+role="tabpanel"[^>]+aria-labelledby="ins-tab-${name}"`));
+test('maps the four contextual summaries to accessible disclosures',()=>{
+  for(const [trigger,panel] of [['physicsDetailsCompact','physicsDetail'],['physicsDetailsWide','physicsDetail'],['reviewDetailToggle','reviewDetail'],['goalsDetailToggle','goalsDetail'],['learnDetailToggle','learnDetail']]){
+    assert.match(html,new RegExp(`id="${trigger}"[^>]+aria-expanded="false"[^>]+aria-controls="${panel}"`));
   }
-  assert.doesNotMatch(html,/id="ins-tab-setup"|id="ins-pane-setup"/);
+  for(const id of ['physicsDetail','reviewDetail','goalsDetail','learnDetail'])assert.equal((html.match(new RegExp(`id="${id}"`,'g'))||[]).length,1);
+  assert.doesNotMatch(html,/id="contextMenuSlot"|id="inspector"|id="ins-tab-|id="ins-pane-/);
 });
 
 test('keeps gameplay controls outside the canvas stage',()=>{
   const stageEnd=html.indexOf('</div>\n        <div class="control-deck"');
   assert.ok(stageEnd>html.indexOf('<div class="stage">'));
   assert.ok(html.indexOf('id="pad"')>stageEnd);
-  assert.ok(html.indexOf('id="contextMenuSlot"')<stageEnd);
+  assert.ok(html.indexOf('id="physicsDetail"')>html.indexOf('id="pad"'));
+  assert.ok(html.indexOf('id="physicsDetail"')<html.indexOf('id="rbar"'));
 });
 
-test('consolidates Math into the one contextual menu',()=>{
-  const guidance=html.indexOf('id="gameGuidanceHud"'),slot=html.indexOf('id="contextMenuSlot"'),settings=html.indexOf('id="gameSettings"');
-  assert.ok(guidance<slot&&slot<settings);
+test('keeps canonical Math content in the physics disclosure',()=>{
+  const detail=html.indexOf('id="physicsDetail"'),liveEq=html.indexOf('id="liveEq"'),vars=html.indexOf('id="vars"'),rbar=html.indexOf('id="rbar"');
+  assert.ok(detail<liveEq&&liveEq<vars&&vars<rbar);
   for(const id of ['mathHudTitle','mathConsoleValues','mathConsoleStatus','mathConsoleHeading','mathConsoleControls','dialTop','dialTopStatus'])assert.equal((html.match(new RegExp(`id="${id}"`,'g'))||[]).length,1);
   assert.doesNotMatch(html,/id="mathConsole"|id="mathConsolePull"|id="utilitySlot"|id="mathHud"|id="mathHudEquation"|id="mathHudValues"/);
   assert.match(cockpit,/function quickMathDefs\(\).*M\.vars\(\)/);
@@ -47,22 +48,21 @@ test('consolidates Math into the one contextual menu',()=>{
   assert.doesNotMatch(cockpit,/mathConsoleControls[^\n]+appendChild\(\$\('#(?:liveEq|vars)'\)\)/);
 });
 
-test('keeps contextual menu input ownership and focus return explicit',()=>{
-  assert.match(cockpit,/inspector\.addEventListener\('pointerdown',e=>e\.stopPropagation\(\)\)/);
-  assert.match(cockpit,/inspector\.addEventListener\('keydown',e=>\{e\.stopPropagation\(\)/);
-  assert.match(cockpit,/INSPECTOR\.trigger\|\|\$\(`#ins-tab-\$\{INSPECTOR\.pane\}`\)/);
-  assert.match(css,/\.context-menu-slot \.inspector-body\{[^}]*position:static;[^}]*overflow-y:auto;overscroll-behavior:contain/);
-  assert.doesNotMatch(css,/\.context-menu-slot \.inspector-body\{[^}]*position:(?:fixed|absolute)/);
+test('keeps contextual detail input ownership and focus return explicit',()=>{
+  assert.match(cockpit,/document\.querySelectorAll\('\.context-detail'\)\.forEach\(p=>\{p\.addEventListener\('pointerdown',e=>e\.stopPropagation\(\)\);p\.addEventListener\('keydown',e=>\{if\(e\.key==='Escape'\).*closeContextDetail\(\)/);
+  assert.match(cockpit,/if\(restore&&trigger&&trigger\.isConnected&&!trigger\.hidden\)trigger\.focus\(\)/);
+  assert.match(cockpit,/if\(e\.key==='Escape'&&CONTEXT_DETAILS\.open\).*closeContextDetail\(\)/);
+  assert.match(css,/\.context-detail\{[^}]*max-height:min\(390px,42vh\);overflow-y:auto;overscroll-behavior:contain/);
+  assert.doesNotMatch(css,/\.context-detail\{[^}]*position:(?:fixed|absolute)/);
 });
 
-test('anchors one responsive contextual menu directly under stage guidance',()=>{
-  assert.equal((html.match(/id="contextMenuSlot"/g)||[]).length,1);
-  assert.match(cockpit,/contextMenuSlot\.appendChild\(inspector\)/);
-  assert.match(cockpit,/inspector\.addEventListener\('keydown',e=>\{e\.stopPropagation\(\)/);
-  assert.match(css,/\.context-menu-slot \.inspector-tabs button,\.context-menu-slot \.inspector-close\{min-height:44px\}/);
-  assert.match(css,/One contextual menu directly beneath the in-stage guidance HUD/);
-  assert.match(css,/\.context-menu-slot \.inspector-body\{box-sizing:border-box;position:static;[^}]*overflow-y:auto;overscroll-behavior:contain/);
-  assert.match(css,/\.play\{grid-template-columns:minmax\(0,1fr\)\}/);
+test('opens only one responsive contextual detail at a time',()=>{
+  assert.match(cockpit,/document\.querySelectorAll\('\.context-detail'\)\.forEach\(p=>p\.hidden=p!==panel\)/);
+  assert.match(cockpit,/\['math','review','goals','learn'\]\.forEach\(n=>contextTriggers\(n\)\.forEach\(b=>b\.setAttribute\('aria-expanded',String\(n===name\)\)\)\)/);
+  assert.match(cockpit,/if\(!PAUSE\.on\)\{pauseGame\('context-detail'\)/);
+  assert.match(cockpit,/if\(CONTEXT_DETAILS\.ownsPause&&PAUSE\.why==='context-detail'\).*resumeGame\(\)/);
+  assert.match(css,/\.contextual-summary:has\(>\.context-detail:not\(\[hidden\]\)\)\{grid-column:1\/-1\}/);
+  assert.match(css,/@media \(max-width:700px\)[\s\S]*\.context-detail\{max-height:min\(330px,40vh\)/);
 });
 
 test('derives compact math from mode definitions and explicit equation data',()=>{
@@ -74,6 +74,7 @@ test('derives compact math from mode definitions and explicit equation data',()=
 
 test('returns Dials content to the Math pane exactly once',()=>{
   assert.match(replay,/function returnDialsContent\(\)/);
+  assert.match(replay,/const pane=\$\('#physicsDetail'\)/);
   assert.match(replay,/liveEq'\)\.parentElement!==pane/);
   assert.match(replay,/vars'\)\.parentElement!==pane/);
 });
@@ -210,13 +211,10 @@ test('projects every canonical manual variable into the wide control gap',()=>{
   assert.match(css,/\.wide-manual-row\{display:grid;grid-template-columns:82px 76px minmax\(120px,1fr\)/);
 });
 
-test('keeps settings and the bounded utility drawer mutually exclusive',()=>{
-  assert.match(cockpit,/if\(open&&!settingsDrawer\.hidden\)closeSettings\(\{restore:false\}\)/);
-  assert.match(cockpit,/if\(inspector\.classList\.contains\('open'\)\)closeInspector\(\{restore:false\}\)/);
-  assert.match(cockpit,/function syncInspectorLayout\(\)\{[^}]*contextMenuSlot\.appendChild\(inspector\)/);
-  assert.doesNotMatch(cockpit,/desktopInspectorHost/);
-  assert.match(css,/\.context-menu-slot \.inspector-body\{box-sizing:border-box;position:static;[^}]*max-height:min\(380px,42vh\);overflow-y:auto/);
-  assert.match(css,/\.context-menu-slot \.panel\.inspector\.open \.inspector-body\{[^}]*max-height:min\(380px,42vh\)/);
+test('keeps settings and contextual details mutually exclusive',()=>{
+  assert.match(cockpit,/function openSettings\(category=null,trigger=settingsToggle\)\{\s*if\(CONTEXT_DETAILS\.open\)closeContextDetail\(\{restore:false\}\)/);
+  assert.match(cockpit,/function setContextDetail\(name,[\s\S]*if\(!settingsDrawer\.hidden\)closeSettings\(\{restore:false\}\)/);
+  assert.doesNotMatch(cockpit,/INSPECTOR|contextMenuSlot|closeInspector|syncInspectorLayout/);
 });
 
 test('pauses and resumes through canonical settings ownership',()=>{
@@ -230,10 +228,14 @@ test('pauses and resumes through canonical settings ownership',()=>{
   assert.doesNotMatch(cockpit,/INSPECTOR\.pane==='setup'/);
 });
 
-test('puts coach and challenge guidance in the stage without duplicating nodes',()=>{
+test('puts coach, challenge, and history guidance in the stage without duplicating nodes',()=>{
   const stage=html.indexOf('<div class="stage">'),hud=html.indexOf('id="gameGuidanceHud"'),deck=html.indexOf('class="control-deck"');
   assert.ok(stage<hud&&hud<deck);
-  for(const id of ['challengeHud','coach','coachMsg'])assert.equal((html.match(new RegExp(`id="${id}"`,'g'))||[]).length,1);
+  for(const id of ['challengeHud','challengeHudSummary','coach','coachMsg','historyHud','historyTitle','historyLatest'])assert.equal((html.match(new RegExp(`id="${id}"`,'g'))||[]).length,1);
+  assert.match(cockpit,/renderChallengeHud\(\).*\$\('#challengeHudSummary'\)/);
+  assert.match(cockpit,/function renderHistorySummary\(\)/);
+  assert.match(replay,/renderHistorySummary\(\)/);
+  assert.match(challenges,/className='coach contextual-summary '/);
   assert.match(css,/\.game-guidance-hud\{display:grid/);
 });
 
@@ -242,6 +244,6 @@ test('makes completed goals transient, dismissible, and linked to persistent det
   assert.match(progress,/class="toast-close" aria-label="Dismiss/);
   assert.match(progress,/\$\('#toasts'\)\.addEventListener\('keydown',e=>e\.stopPropagation\(\)\)/);
   assert.match(challenges,/action:'View goals'/);
-  assert.match(challenges,/setInspectorPane\('goals'/);
+  assert.match(challenges,/setContextDetail\('goals',\{trigger:\$\('#goalsDetailToggle'\),focus:true\}\)/);
   assert.match(css,/\.toast\{pointer-events:auto/);
 });

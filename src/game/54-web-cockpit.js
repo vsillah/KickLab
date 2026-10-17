@@ -1,49 +1,37 @@
 /* ---------- responsive web cockpit ---------- */
-const INSPECTOR={pane:'math',trigger:null,mq:window.matchMedia('(max-width:980px)')};
+const CONTEXT_DETAILS={open:null,trigger:null,ownsPause:false};
 const SETTINGS={level:'categories',category:null,trigger:null,restoreCategory:null};
-const inspector=$('#inspector');
-const contextMenuSlot=$('#contextMenuSlot');
 const MATH_CONSOLE={sig:''},CONTROLLER={mode:'play',sel:0};
 const WIDE_MANUAL={active:false,sig:''};
 const controllerPlay=$('#controllerModePlay'),controllerManual=$('#controllerModeManual'),manualController=$('#manualController');
 const wideManualController=$('#wideManualController'),wideManualRows=$('#wideManualRows');
 const settingsDrawer=$('#settingsDrawer'),settingsToggle=$('#settingsToggle');
 
-function inspectorNeedsPause(name){return name==='math';}
-function setInspectorPause(on){
-  const state=$('#inspectorState');
-  if(on){
-    pauseGame('inspector');
-    state.hidden=false;
-  }else{
-    state.hidden=true;
-    if(PAUSE.why==='inspector'){PAUSE.why='';resumeGame();}
-  }
-}
-function setInspectorPane(name,{focus=false,open=true}={}){
-  const tab=$(`#ins-tab-${name}`),pane=$(`#ins-pane-${name}`);
-  if(!tab||!pane)return;
-  INSPECTOR.pane=name;
-  inspector.querySelectorAll('[role="tab"]').forEach(b=>{
-    const on=b===tab;b.setAttribute('aria-selected',String(on));b.tabIndex=on?0:-1;
-  });
-  inspector.querySelectorAll('.inspector-pane').forEach(p=>p.hidden=p!==pane);
-  if(open)inspector.classList.add('open');
-  setInspectorPause(inspector.classList.contains('open')&&inspectorNeedsPause(name));
-  if(open&&!settingsDrawer.hidden)closeSettings({restore:false});
-  if(focus)tab.focus();
+function contextPanel(name){return $(`#${name==='math'?'physics':name}Detail`);}
+function contextTriggers(name){return name==='math'?[$('#physicsDetailsCompact'),$('#physicsDetailsWide')]:[$(`#${name}DetailToggle`)];}
+function closeContextDetail({restore=true}={}){
+  if(!CONTEXT_DETAILS.open)return;
+  const trigger=CONTEXT_DETAILS.trigger,name=CONTEXT_DETAILS.open;
+  contextPanel(name).hidden=true;contextTriggers(name).forEach(b=>b.setAttribute('aria-expanded','false'));
+  CONTEXT_DETAILS.open=null;CONTEXT_DETAILS.trigger=null;
+  if(CONTEXT_DETAILS.ownsPause&&PAUSE.why==='context-detail'){PAUSE.why='';resumeGame();}
+  CONTEXT_DETAILS.ownsPause=false;
+  if(restore&&trigger&&trigger.isConnected&&!trigger.hidden)trigger.focus();
   requestAnimationFrame(resize);
 }
-function closeInspector({restore=true}={}){
-  inspector.classList.remove('open');
-  setInspectorPause(false);
-  if(restore&&(INSPECTOR.trigger||$(`#ins-tab-${INSPECTOR.pane}`)))
-    (INSPECTOR.trigger||$(`#ins-tab-${INSPECTOR.pane}`)).focus();
-  requestAnimationFrame(resize);
-}
-function syncInspectorLayout(){
-  if(inspector.parentElement!==contextMenuSlot)contextMenuSlot.appendChild(inspector);inspector.classList.remove('open');setInspectorPause(false);
-  requestAnimationFrame(resize);
+function setContextDetail(name,{trigger=null,focus=false,open=true}={}){
+  const panel=contextPanel(name);if(!panel)return;
+  if(!open){closeContextDetail();return;}
+  if(CONTEXT_DETAILS.open===name){closeContextDetail();return;}
+  closeContextDetail({restore:false});
+  if(!settingsDrawer.hidden)closeSettings({restore:false});
+  CONTEXT_DETAILS.open=name;CONTEXT_DETAILS.trigger=trigger||contextTriggers(name).find(b=>b.offsetParent!==null)||contextTriggers(name)[0];
+  document.querySelectorAll('.context-detail').forEach(p=>p.hidden=p!==panel);
+  ['math','review','goals','learn'].forEach(n=>contextTriggers(n).forEach(b=>b.setAttribute('aria-expanded',String(n===name))));
+  panel.hidden=false;
+  if(!PAUSE.on){pauseGame('context-detail');CONTEXT_DETAILS.ownsPause=PAUSE.on&&PAUSE.why==='context-detail';}
+  if(focus)requestAnimationFrame(()=>panel.querySelector('[data-close-detail]')?.focus());
+  panel.scrollIntoView({block:'nearest'});requestAnimationFrame(resize);
 }
 
 function setSettingsPause(on){
@@ -65,7 +53,7 @@ function setSettingsLevel(level,{category=SETTINGS.category,focus=true}={}){
   if(focus)requestAnimationFrame(()=>{const target=level==='categories'?cats.querySelector('button'):level==='choices'?choices.querySelector('button'):kitRoom.querySelector('button');(target||back).focus();});
 }
 function openSettings(category=null,trigger=settingsToggle){
-  if(inspector.classList.contains('open'))closeInspector({restore:false});SETTINGS.trigger=trigger;SETTINGS.restoreCategory=trigger&&trigger.dataset?trigger.dataset.category:null;settingsDrawer.hidden=false;settingsToggle.setAttribute('aria-expanded','true');setSettingsPause(true);
+  if(CONTEXT_DETAILS.open)closeContextDetail({restore:false});SETTINGS.trigger=trigger;SETTINGS.restoreCategory=trigger&&trigger.dataset?trigger.dataset.category:null;settingsDrawer.hidden=false;settingsToggle.setAttribute('aria-expanded','true');setSettingsPause(true);
   setSettingsLevel(category?'choices':'categories',{category,focus:true});requestAnimationFrame(resize);
 }
 function closeSettings({restore=true}={}){
@@ -83,18 +71,11 @@ $('#settingsCategories').addEventListener('click',e=>{const b=e.target.closest('
 settingsDrawer.addEventListener('pointerdown',e=>e.stopPropagation());
 settingsDrawer.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();closeSettings();}});
 
-inspector.querySelectorAll('[role="tab"]').forEach(tab=>{
-  tab.addEventListener('click',()=>{INSPECTOR.trigger=tab;setInspectorPane(tab.dataset.pane,{open:true});});
-  tab.addEventListener('keydown',e=>{
-    const tabs=[...inspector.querySelectorAll('[role="tab"]')],i=tabs.indexOf(tab);
-    const next=e.key==='Home'?0:e.key==='End'?tabs.length-1:e.key==='ArrowRight'?(i+1)%tabs.length:e.key==='ArrowLeft'?(i+tabs.length-1)%tabs.length:-1;
-    if(next<0)return;e.preventDefault();INSPECTOR.trigger=tabs[next];setInspectorPane(tabs[next].dataset.pane,{focus:true,open:true});
-  });
-});
-$('#inspectorClose').addEventListener('click',()=>closeInspector());
-inspector.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'&&inspector.classList.contains('open')){e.preventDefault();closeInspector();}});
-inspector.addEventListener('pointerdown',e=>e.stopPropagation());
-try{INSPECTOR.mq.addEventListener('change',syncInspectorLayout);}catch(e){INSPECTOR.mq.addListener&&INSPECTOR.mq.addListener(syncInspectorLayout);}
+contextTriggers('math').forEach(b=>b.addEventListener('click',()=>setContextDetail('math',{trigger:b})));
+['review','goals','learn'].forEach(name=>{const b=contextTriggers(name)[0];b.addEventListener('click',()=>setContextDetail(name,{trigger:b}));});
+document.querySelectorAll('[data-close-detail]').forEach(b=>b.addEventListener('click',()=>closeContextDetail()));
+document.querySelectorAll('.context-detail').forEach(p=>{p.addEventListener('pointerdown',e=>e.stopPropagation());p.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();closeContextDetail();return;}e.stopPropagation();});});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&CONTEXT_DETAILS.open){e.preventDefault();e.stopPropagation();closeContextDetail();}});
 
 function cockpitValue(def,value){
   const n=fmt(value,def.d==null?1:def.d),u=def.unit||'';
@@ -148,13 +129,14 @@ function challengeSummary(){
   if(!c)return{eyebrow:'Ladder complete',title:'Champion',detail:`All ${n} challenges cleared.`};
   return{eyebrow:`Challenge ${k+1} of ${n}`,title:c.name,detail:c.goal};
 }
-function renderChallengeHud(){const x=challengeSummary();$('#challengeHud').innerHTML=`<span class="eyebrow">${x.eyebrow}</span><b>${x.title}</b><p>${x.detail}</p>`;}
+function renderChallengeHud(){const x=challengeSummary();$('#challengeHudSummary').innerHTML=`<span class="eyebrow">${x.eyebrow}</span><b>${x.title}</b><p>${x.detail}</p>`;}
+function renderHistorySummary(){const latest=LOGS[M.key].filter(x=>!x.sep).slice(-1)[0];$('#historyTitle').textContent=latest?latest.title:'Move log ready';$('#historyLatest').textContent=latest?`${fmtT(latest.t)}${latest.res?` · ${latest.res}`:''}${latest.math?` · ${plainMath(latest.math)}`:''}`:{fight:'Your next punch, dodge or block will appear here.',race:'Your next braking or corner event will appear here.',kick:'Your next shot event will appear here.'}[M.key];}
 function renderGoalsSummary(){
   const total=Object.values(BADGES).reduce((n,l)=>n+l.length,0),earned=Object.keys(best.badges||{}).length;
   $('#goalsSummary').innerHTML=`<span>Level <b>${lvlOf(best.xp)}</b></span><span>XP <b>${fmt(best.xp||0,0)}</b></span><span>Badges <b>${earned}/${total}</b></span><span>Mode <b>${M.key[0].toUpperCase()+M.key.slice(1)}</b></span>`;
 }
-function renderCockpit(q){renderControllerMode();renderMathHud(q);renderMathConsole(q);renderChallengeHud();renderGoalsSummary();syncDialsAvailability();}
+function renderCockpit(q){renderControllerMode();renderMathHud(q);renderMathConsole(q);renderChallengeHud();renderGoalsSummary();renderHistorySummary();syncDialsAvailability();}
 
 new ResizeObserver(entries=>{const active=entries[0].contentRect.width>=980;if(active===WIDE_MANUAL.active)return;WIDE_MANUAL.active=active;if(active&&CONTROLLER.mode==='manual')setControllerMode('play',{restore:false});renderWideManual();}).observe($('.control-deck'));
 
-setTimeout(()=>{setInspectorPane('math',{open:false});syncInspectorLayout();},0);
+setTimeout(()=>{document.querySelectorAll('.context-detail').forEach(p=>p.hidden=true);},0);
