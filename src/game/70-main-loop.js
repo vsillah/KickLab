@@ -9,7 +9,6 @@ function frame(now){const rdt=Math.min(0.05,(now-last)/1000);last=now;
   ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,cv.width,cv.height);ctx.setTransform(dpr*sc,0,0,dpr*sc,0,0);
   E.cam=RP.on?RP.cam:camNow();if(!CINE.on)recFrame(rdt);const k=E.cam,sh=RP.on?0:E.shake,shx=sh?(Math.random()-0.5)*sh:0,shy=sh?(Math.random()-0.5)*sh:0;
   V3.on=V3.want();if(V3.on)V3.begin();else V3.hide();if(CINE.on)CINE.step(rdt);CROWD.tick(rdt);
-  if(CINE.on){M.draw(V3.dummy||(V3.dummy=document.createElement('canvas').getContext('2d')));V3.render(CINE.model===Kick?Kick:Drib,k,0,0,rdt);CINE.draw(ctx);drawLive(ctx);requestAnimationFrame(frame);return;}
   if(M===Kick&&V3.on){window.__KICKLAB_SIDE_STADIUM__=null;window.__KICKLAB_SIDE_GOAL__=null;}
   else if(M===Kick&&Kick.opt.shot!=='dribble')Kick.fallbackSideScene(ctx,k);
   ctx.save();ctx.translate(W/2+shx,H/2+shy);ctx.scale(k.z,k.z);ctx.translate(-k.x,-k.y);
@@ -18,7 +17,7 @@ function frame(now){const rdt=Math.min(0.05,(now-last)/1000);last=now;
   if(physicsVision){ctx.save();ctx.globalAlpha=0.72*E.env;ctx.fillStyle='#030814';ctx.fillRect(-2000,-2000,5000,5000);ctx.restore();ctx.save();ctx.globalAlpha=E.env;M.drawXray(ctx);ctx.restore();}
   ctx.restore();
   if(physicsVision)xrayFrame(ctx,E.env);
-  M.hud(ctx);drawDialHud(ctx);drawWorld(ctx);drawMatch(ctx);drawLive(ctx);drawPause(ctx);drawReplayBadge(ctx);COACH.tick(rdt);tickHUD(rdt);
+  M.hud(ctx);drawDialHud(ctx);drawWorld(ctx);drawMatch(ctx);drawLive(ctx);drawPause(ctx);drawReplayBadge(ctx);if(CINE.on)CINE.draw(ctx);COACH.tick(rdt);tickHUD(rdt);
   if(E.flash>0){ctx.save();ctx.globalAlpha=E.flash*0.45;ctx.fillStyle='#fff6e0';ctx.fillRect(0,0,W,H);ctx.restore();E.flash=Math.max(0,E.flash-rdt*5);}
   if(E.title){E.title.t+=rdt;const t=E.title.t;if(t>1.6)E.title=null;else{const sc2=t<0.22?1.8-t/0.22*0.8:1,a=t<0.1?t/0.1:t>1.1?Math.max(0,(1.6-t)/0.5):1;ctx.save();ctx.globalAlpha=a;ctx.translate(W/2,H/2-20);ctx.scale(sc2,sc2);glow(ctx,C.xray,24);text(ctx,E.title.text,0,0,'64px '+DISP,C.ink,'center','middle');ctx.shadowBlur=0;text(ctx,E.title.sub,0,46,'600 16px '+BODY,C.xray,'center','middle');ctx.restore();}}
   stepParts(SPARTS,rdt);drawParts(ctx,SPARTS);

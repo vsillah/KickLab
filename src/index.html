@@ -76,6 +76,10 @@
             <div class="gamebar" id="gameBar" hidden></div>
           </nav>
           <canvas id="cv" width="960" height="540" aria-label="Game stage"></canvas>
+          <div class="goal-celebration-controls" id="goalCelebrationControls" hidden>
+            <span id="goalCelebrationStatus" role="status" aria-live="polite">Goal replay</span>
+            <button type="button" id="goalCelebrationSkip">Skip replay</button>
+          </div>
           <div class="results" id="results" hidden><div class="rc" id="rc"><div class="grade" id="rGrade">A<small>GRADE</small></div><div class="rmain"><div class="rlvl" id="rLvl" hidden></div><div class="rtitle" id="rTitle"></div><div class="rsub" id="rSub"></div><ul class="rrows" id="rRows"></ul><div class="rtotal"><span>XP earned</span><b id="rTotal">+0</b></div><div class="rhint" id="rHint"></div><div class="rboard" id="rBoard" hidden></div><div class="rgo"><div class="racts" id="racts" hidden><button type="button" id="rReview">Coach review</button><button type="button" id="rReplay">Replay</button></div><button type="button" class="rnext" id="rNext">Next round <span aria-hidden="true">▶</span> <kbd>Space</kbd></button></div></div></div></div>
           <div class="lvlup" id="lvlup" hidden><div class="lu"><span class="lu-k">LEVEL UP</span><div class="lu-n" id="luNum">2</div><div class="lu-t" id="luTitle"></div><div class="lu-u" id="luUnlock"></div></div></div>
           <div class="feed" id="feed" aria-hidden="true"></div>
