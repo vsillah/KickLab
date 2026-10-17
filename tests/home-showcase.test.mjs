@@ -23,7 +23,7 @@ test('makes the three real-game labs the primary home actions',()=>{
   assert.match(css,/@media \(max-width:520px\)[^}]*[\s\S]*\.mode-home \.tabs\{grid-template-columns:minmax\(0,1fr\)\}/);
 });
 
-test('uses the selected kinetic K mark without the obsolete shield and barbell geometry',()=>{
+test('uses the selected kinetic K mark and concept-D vector wordmark without obsolete geometry',()=>{
   assert.match(html,/viewBox="0 0 132 96" role="img" aria-labelledby="kicklabMarkTitle kicklabMarkDesc"/);
   assert.match(html,/<title id="kicklabMarkTitle">Kinetic K KickLab mark<\/title>/);
   assert.match(html,/<desc id="kicklabMarkDesc">A fast-moving K with cyan and mint speed streaks, an orange ball trajectory, and a measured angle arc\.<\/desc>/);
@@ -32,14 +32,22 @@ test('uses the selected kinetic K mark without the obsolete shield and barbell g
   assert.doesNotMatch(html,/M21 20v23M43 20v23M21 32h22/);
   assert.doesNotMatch(css,/\.kicklab-mark svg path\+path/);
   assert.match(css,/\.kicklab-mark\{width:clamp\(82px,9\.6vw,130px\);aspect-ratio:1\.375/);
-  assert.match(css,/@media \(max-width:400px\)\{\.kicklab-wordmark\{font-size:clamp\(32px,10vw,40px\)!important\}\.kicklab-mark\{width:clamp\(70px,22vw,88px\)\}\}/);
-  for(const guard of ['markNameCollision','markTitle','markDescription','markViewBox','markParts'])assert.ok(read('scripts/qa-home-showcase.mjs').includes(guard),guard);
+  assert.match(html,/<svg class="kicklab-name" data-wordmark="KICKLAB" viewBox="-9 0 376 64" aria-hidden="true" focusable="false">/);
+  assert.match(html,/class="wordmark-vector" transform="skewX\(-8\)"/);
+  assert.equal((html.match(/class="wordmark-kick"/g)||[]).length,1);
+  assert.equal((html.match(/class="wordmark-lab"/g)||[]).length,1);
+  assert.doesNotMatch(html,/<span class="kicklab-name">KICK<span>LAB<\/span><\/span>/);
+  assert.doesNotMatch(html,/<svg class="kicklab-name"[^>]*>[\s\S]*?<text\b/);
+  assert.match(css,/\.wordmark-kick\{fill:#fff\}\.wordmark-lab\{fill:#13c8f4\}/);
+  assert.match(css,/@media \(max-width:400px\)\{\.kicklab-wordmark\{gap:8px\}\.kicklab-mark\{width:clamp\(68px,22vw,86px\)\}\.kicklab-name\{width:clamp\(168px,52vw,200px\)\}\}/);
+  for(const guard of ['markNameCollision','markTitle','markDescription','markViewBox','markParts','vectorWordmark','hostedFont'])assert.ok(read('scripts/qa-home-showcase.mjs').includes(guard),guard);
 });
 
 test('keeps the hero geometry bounded through desktop, mid-width, tablet, and mobile layouts',()=>{
   assert.match(css,/\.home-hero \.brand\{display:grid;grid-template-columns:minmax\(0,1\.05fr\) minmax\(300px,\.95fr\)/);
-  assert.match(css,/\.kicklab-wordmark\{min-width:0;[\s\S]*?font-size:clamp\(40px,5\.6vw,76px\)!important/);
-  assert.match(css,/\.kicklab-name\{min-width:0;[\s\S]*?white-space:nowrap/);
+  assert.match(css,/\.kicklab-wordmark\{min-width:0;display:flex;align-items:center;gap:clamp\(10px,1\.4vw,18px\)/);
+  assert.match(css,/\.kicklab-name\{display:block;width:clamp\(220px,30vw,420px\);height:auto;min-width:0;overflow:visible;flex:none\}/);
+  assert.doesNotMatch(css,/\.kicklab-wordmark\{[^}]*font-size:/);
   assert.match(css,/\.hero-copy\{min-width:0;/);
   assert.match(css,/@media \(max-width:820px\)\{\.home-hero \.brand\{grid-template-columns:minmax\(0,1fr\)/);
   for(const width of [1440,1280,1113,1024,900,768,520,390,320])assert.match(read('scripts/qa-home-showcase.mjs'),new RegExp(`\\['w${width}', \\{ width: ${width},`));

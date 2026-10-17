@@ -78,7 +78,7 @@ async function homeAudit(page, label) {
     return {
       viewport: { width: innerWidth, height: innerHeight },
       overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-      wordmark: document.querySelector('.kicklab-name')?.textContent.trim(),
+      wordmark: document.querySelector('.kicklab-wordmark')?.getAttribute('aria-label'),
       hero,
       heroGeometry: {
         brand,
@@ -93,6 +93,14 @@ async function homeAudit(page, label) {
         markDescription: document.querySelector('#kicklabMarkDesc')?.textContent.trim(),
         markViewBox: document.querySelector('.kicklab-mark svg')?.getAttribute('viewBox'),
         markParts,
+        vectorWordmark: {
+          value: document.querySelector('.kicklab-name')?.getAttribute('data-wordmark'),
+          viewBox: document.querySelector('.kicklab-name')?.getAttribute('viewBox'),
+          ariaHidden: document.querySelector('.kicklab-name')?.getAttribute('aria-hidden'),
+          kickPaths: document.querySelectorAll('.wordmark-kick path').length,
+          labPaths: document.querySelectorAll('.wordmark-lab path').length,
+          hostedFont: !!document.querySelector('.kicklab-name text'),
+        },
         text: heroText,
       },
       cards: cardBoxes,
@@ -131,7 +139,8 @@ async function homeAudit(page, label) {
       })),
     };
   });
-  if (audit.overflow > 1 || audit.wordmark !== 'KICKLAB' || audit.actions.length !== 3 || audit.heroGeometry.collision || audit.heroGeometry.markNameCollision || !audit.heroGeometry.contained || audit.heroGeometry.text.some(item => item.clipped) || audit.heroGeometry.markTitle !== 'Kinetic K KickLab mark' || !audit.heroGeometry.markDescription?.includes('speed streaks') || audit.heroGeometry.markViewBox !== '0 0 132 96' || audit.heroGeometry.markParts.some(item => !item.present) || audit.cardsOverlap || audit.cardText.some(item => item.clipped) || audit.progressOverlap || !audit.labsBeforeProgress || !audit.scorecard.headerBeforeBody || !audit.scorecard.contained || !audit.scorecard.subordinate || audit.scorecard.text.some(item => item.clipped) || audit.scorecard.actions.some(item => item.box.width < 44 || item.box.height < 44)) {
+  const vector = audit.heroGeometry.vectorWordmark;
+  if (audit.overflow > 1 || audit.wordmark !== 'KickLab' || vector.value !== 'KICKLAB' || vector.viewBox !== '-9 0 376 64' || vector.ariaHidden !== 'true' || vector.kickPaths !== 4 || vector.labPaths !== 3 || vector.hostedFont || audit.actions.length !== 3 || audit.heroGeometry.collision || audit.heroGeometry.markNameCollision || !audit.heroGeometry.contained || audit.heroGeometry.text.some(item => item.clipped) || audit.heroGeometry.markTitle !== 'Kinetic K KickLab mark' || !audit.heroGeometry.markDescription?.includes('speed streaks') || audit.heroGeometry.markViewBox !== '0 0 132 96' || audit.heroGeometry.markParts.some(item => !item.present) || audit.cardsOverlap || audit.cardText.some(item => item.clipped) || audit.progressOverlap || !audit.labsBeforeProgress || !audit.scorecard.headerBeforeBody || !audit.scorecard.contained || !audit.scorecard.subordinate || audit.scorecard.text.some(item => item.clipped) || audit.scorecard.actions.some(item => item.box.width < 44 || item.box.height < 44)) {
     throw new Error(`${label}: layout contract failed (${JSON.stringify(audit)})`);
   }
   if (audit.scorecard.title !== 'Your all-lab scorecard' || audit.scorecard.scope !== 'Fight, Race, and Kick progress · saved on this device' || audit.scorecard.labelledBy !== 'homeScorecardTitle' || audit.scorecard.describedBy !== 'homeScorecardScope' || !audit.scorecard.records.some(item => item.startsWith('This session')) || !audit.scorecard.records.some(item => item.startsWith('Badges'))) {
