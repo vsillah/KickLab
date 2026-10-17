@@ -57,8 +57,17 @@ test('keeps fallback stadium environments visually distinct without changing phy
 test('renders procedural fallback pitch and stadium layers in both soccer cameras', () => {
   const side = read('src/game/30-kick-sideview.js');
   const field = read('src/game/32-soccer-3d-modes.js');
+  const loop = read('src/game/70-main-loop.js');
+  const renderer = read('src/game/50-renderer-3d.js');
 
-  assert.match(side, /fallbackSideScene\(c\)/);
+  assert.match(side, /fallbackSideScene\(c,k\)/);
+  for (const layer of ['fallbackSideAtmosphere', 'fallbackSideRoof', 'fallbackSideStands', 'fallbackSidePitch']) {
+    assert.match(side, new RegExp(`${layer}\\(c`), `side-view stadium must call ${layer}`);
+  }
+  assert.match(side, /__KICKLAB_SIDE_STADIUM__/);
+  assert.match(side, /mode:this\.opt\.shot/);
+  assert.match(loop, /Kick\.opt\.shot!==['"]dribble['"]\)Kick\.fallbackSideScene\(ctx,k\)/);
+  assert.match(renderer, /Kick\.opt\.shot===['"]dribble['"]/);
   assert.match(field, /fallbackStadium\(c,st\)/);
   assert.match(field, /fallbackPitch\(c,st\)/);
   assert.match(field, /__KICKLAB_FALLBACK_ENV__/);

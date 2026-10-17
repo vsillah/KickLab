@@ -3,6 +3,7 @@
 ## Baseline audit
 
 - `src/game/04-body-rig.js` is the shared articulated 2D side-view rig used by Fight and Kick fallback scenes.
+- Free Kick and Header Duel share a screen-space procedural stadium layer (`fallbackSideScene`) so gameplay camera movement cannot push the roof, stand tiers, crowd mass, rails, boards, or environment atmosphere out of view. Their players, ball, goal, path, and physics remain world-space.
 - `src/game/32-soccer-3d-modes.js` owns the field-space pose model for dribbling, passing, free-kick walls, goalkeepers, and live-match actors. Its canvas figure is the WebGL-disabled fallback.
 - `src/game/50-renderer-3d.js` projects the same field-space joints into reusable Three.js meshes. Geometry is created once per rig and repositioned each frame.
 - `src/game/31-soccer-data.js` owns the player archetypes and delegates kit equations to the DOM-free shared core.
