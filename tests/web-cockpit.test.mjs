@@ -305,6 +305,26 @@ test('projects every canonical manual variable into the wide control gap',()=>{
   assert.match(css,/\.wide-manual-row\{display:grid;grid-template-columns:82px 76px minmax\(120px,1fr\)/);
 });
 
+test('keeps mechanics-backed coach sliders between analog and gesture controls',()=>{
+  assert.match(html,/id="analogStick"[^]*id="prototypePhysics"[^]*id="gestureAction"/);
+  assert.match(html,/id="prototypePhysics" open/);
+  assert.match(html,/id="prototypePhysicsStatus" role="status" aria-live="polite"/);
+  assert.match(cockpit,/function renderPrototypeManual\(\)/);
+  assert.match(cockpit,/const defs=wideManualDefs\(\),profile=activeVariableProfileKey\(\)/);
+  assert.match(cockpit,/suggestions=M\.suggest\?M\.suggest\(\):\{\}/);
+  assert.match(cockpit,/GAME_CORE\.sliderRangeModel\(\{min:def\.min,max:def\.max,step:def\.step,value:M\.V\[def\.id\],suggestion,locked,lockReason,name:quickMathName\(def\),unit:def\.unit\}\)/);
+  assert.match(cockpit,/function prototypeLockReason\(def\)\{const challenge=curCh\(M\.key\)/);
+  assert.match(cockpit,/challenge\.name} fixes \$\{quickMathName\(def\)\} at/);
+  assert.match(cockpit,/input\.setAttribute\('aria-label',model\.label\)/);
+  assert.match(cockpit,/prototypePhysicsRows\.addEventListener\('input'/);
+  assert.match(cockpit,/adjustVar\(def\.id,\+input\.value-M\.V\[def\.id\],false\)/);
+  assert.match(css,/@media \(min-width:981px\)\{\.touch-controller\{grid-template-columns:minmax\(205px,1fr\) minmax\(330px,1\.45fr\) minmax\(205px,1fr\)/);
+  assert.match(css,/\.prototype-physics\{grid-column:2;grid-row:2/);
+  assert.match(css,/\.prototype-physics-row input\[type="range"\]\{[^}]*pointer-events:auto;touch-action:none;cursor:pointer/);
+  assert.match(css,/@media \(min-width:620px\) and \(max-width:980px\)\{\.prototype-physics-rows\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+  for(const state of ['low','target','perfect','high','locked'])assert.match(css,new RegExp(`prototype-physics-row\\[data-state="${state}"\\]`));
+});
+
 test('keeps settings and contextual details mutually exclusive',()=>{
   assert.match(cockpit,/function openSettings\(category=null,trigger=settingsToggle\)\{\s*if\(CONTEXT_DETAILS\.open\)closeContextDetail\(\{restore:false\}\)/);
   assert.match(cockpit,/function setContextDetail\(name,[\s\S]*if\(!settingsDrawer\.hidden\)closeSettings\(\{restore:false\}\)/);

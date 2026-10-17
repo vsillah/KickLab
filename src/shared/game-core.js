@@ -103,6 +103,48 @@
     return CONTROL_MAPPINGS.kickRun;
   }
 
+  function sliderRangeModel({ min = 0, max = 1, step = 0.01, value = min, suggestion = null, locked = false, lockReason = '', name = 'Variable', unit = '' } = {}) {
+    const loBound = Number.isFinite(min) ? min : 0;
+    const hiBound = Number.isFinite(max) && max > loBound ? max : loBound + 1;
+    const span = hiBound - loBound;
+    const clampValue = input => Math.max(loBound, Math.min(hiBound, Number.isFinite(input) ? input : loBound));
+    const current = clampValue(value);
+    const position = clampControl((current - loBound) / span);
+    const hasBand = !!(suggestion && Number.isFinite(suggestion.lo) && Number.isFinite(suggestion.hi));
+    let targetStart = 0, targetEnd = 0, perfectStart = 0, perfectEnd = 0;
+    let segments = [{ state: 'neutral', start: 0, end: 1 }];
+    if (hasBand) {
+      const bandLow = clampValue(Math.min(suggestion.lo, suggestion.hi));
+      const bandHigh = clampValue(Math.max(suggestion.lo, suggestion.hi));
+      targetStart = clampControl((bandLow - loBound) / span);
+      targetEnd = clampControl((bandHigh - loBound) / span);
+      const bandSpan = Math.max(0, targetEnd - targetStart);
+      const perfectSpan = Math.min(bandSpan, Math.max((Number(step) || 0) / span * 2, bandSpan * 0.32));
+      const midpoint = (targetStart + targetEnd) / 2;
+      perfectStart = Math.max(targetStart, midpoint - perfectSpan / 2);
+      perfectEnd = Math.min(targetEnd, midpoint + perfectSpan / 2);
+      segments = [
+        { state: 'low', start: 0, end: targetStart },
+        { state: 'target', start: targetStart, end: perfectStart },
+        { state: 'perfect', start: perfectStart, end: perfectEnd },
+        { state: 'target', start: perfectEnd, end: targetEnd },
+        { state: 'high', start: targetEnd, end: 1 }
+      ].filter(segment => segment.end - segment.start > 1e-9);
+    }
+    let state = 'neutral';
+    if (hasBand) state = position < targetStart ? 'low' : position > targetEnd ? 'high' : position >= perfectStart && position <= perfectEnd ? 'perfect' : 'target';
+    if (locked) state = 'locked';
+    const valueText = `${current}${unit ? unit === '°' ? '°' : ` ${unit}` : ''}`;
+    const rangeText = `${loBound} to ${hiBound}${unit ? unit === '°' ? ' degrees' : ` ${unit}` : ''}`;
+    const bandText = hasBand ? `${clampValue(Math.min(suggestion.lo, suggestion.hi))} to ${clampValue(Math.max(suggestion.lo, suggestion.hi))}${unit ? unit === '°' ? ' degrees' : ` ${unit}` : ''}` : 'No coach target band for this mechanic';
+    const description = locked ? lockReason || `${name} is fixed by the active challenge.` : `${name} range ${rangeText}. Current ${valueText}. ${hasBand ? `Coach target ${bandText}.` : `${bandText}.`}`;
+    return Object.freeze({
+      min: loBound, max: hiBound, value: current, position, hasBand, targetStart, targetEnd, perfectStart, perfectEnd,
+      state, valueText, rangeText, bandText, label: `${name}. Current ${valueText}.`, description,
+      segments: Object.freeze(segments.map(segment => Object.freeze(segment)))
+    });
+  }
+
   const PLAYER_APPEARANCES = freezeMap({
     you: { skin: '#8d5b3c', hair: '#16100d', hairStyle: 'fade', eye: '#17111a', brow: 'straight', mouth: 'focus', kit: '#2f4a86', accent: '#7fdcff', shorts: '#15213b', socks: '#e8eef9', build: 1, height: 1, shoulders: 1, torso: 1, legs: 1, stance: 0.14, number: '10' },
     wiz: { skin: '#6f452f', hair: '#20140f', hairStyle: 'curls', eye: '#20140f', brow: 'arc', mouth: 'smile', kit: '#6d3fbf', accent: '#cbb8ff', shorts: '#211637', socks: '#ece6ff', build: 0.86, height: 0.93, shoulders: 0.88, torso: 0.91, legs: 0.96, stance: 0.18, number: '10' },
@@ -331,7 +373,7 @@
   }
 
   root.KickLabGameCore = Object.freeze({
-    apiVersion: '1.2.0',
+    apiVersion: '1.3.0',
     STORAGE_KEYS,
     CONTROL_POWER_BANDS,
     CONTROL_MAPPINGS,
@@ -355,6 +397,7 @@
     gestureToSpin,
     hapticCapability,
     hapticCueFor,
-    resolveControlMapping
+    resolveControlMapping,
+    sliderRangeModel
   });
 })(globalThis);

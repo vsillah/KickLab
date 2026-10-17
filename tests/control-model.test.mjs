@@ -8,7 +8,7 @@ await import('../src/shared/game-core.js');
 const root=join(dirname(fileURLToPath(import.meta.url)),'..');
 const {
   normalizeAnalogStick,powerFromGesture,classifyPower,gestureToSpin,
-  hapticCapability,hapticCueFor,resolveControlMapping,CONTROL_MAPPINGS
+  hapticCapability,hapticCueFor,resolveControlMapping,CONTROL_MAPPINGS,sliderRangeModel
 }=globalThis.KickLabGameCore;
 
 test('normalizes radial magnitude with a dead zone and center return',()=>{
@@ -63,6 +63,27 @@ test('resolves data-driven mappings for Fight, Race, and every Kick activity fam
   ];
   for(const [context,id] of cases){const mapping=resolveControlMapping(context);assert.equal(mapping.id,id);assert.equal(mapping.x.length,2);assert.equal(mapping.y.length,2);assert.equal(mapping.action.length,2);assert.ok(mapping.color);}
   assert.equal(Object.isFrozen(CONTROL_MAPPINGS),true);
+});
+
+test('derives ordered low, target, perfect, and high slider segments from coach ranges',()=>{
+  const model=sliderRangeModel({min:0,max:100,step:1,value:45,suggestion:{lo:40,hi:80},name:'Speed',unit:'m/s'});
+  assert.equal(model.hasBand,true);assert.equal(model.state,'target');
+  assert.deepEqual(model.segments.map(segment=>segment.state),['low','target','perfect','target','high']);
+  for(let i=1;i<model.segments.length;i++)assert.equal(model.segments[i-1].end,model.segments[i].start,'segments must remain contiguous and ordered');
+  assert.equal(model.segments[0].start,0);assert.equal(model.segments.at(-1).end,1);
+});
+
+test('clamps the current slider marker without changing the declared mechanics range',()=>{
+  const below=sliderRangeModel({min:10,max:20,value:-4,suggestion:{lo:12,hi:18}}),above=sliderRangeModel({min:10,max:20,value:44,suggestion:{lo:12,hi:18}});
+  assert.equal(below.position,0);assert.equal(below.value,10);assert.equal(above.position,1);assert.equal(above.value,20);
+  assert.deepEqual([below.min,below.max,above.min,above.max],[10,20,10,20]);
+});
+
+test('describes challenge locks and accessible current, range, and coach-band context',()=>{
+  const locked=sliderRangeModel({min:8,max:35,value:18,suggestion:{lo:17,hi:21},locked:true,lockReason:'Soft touch fixes Speed at 18 m/s.',name:'Speed',unit:'m/s'});
+  assert.equal(locked.state,'locked');assert.match(locked.label,/Speed\. Current 18 m\/s\./);assert.equal(locked.description,'Soft touch fixes Speed at 18 m/s.');
+  const free=sliderRangeModel({min:3,max:45,value:25,suggestion:{lo:22,hi:29},name:'Angle',unit:'°'});
+  assert.match(free.description,/Angle range 3 to 45 degrees/);assert.match(free.description,/Coach target 22 to 29 degrees/);
 });
 
 test('keeps pointer lifecycle, cancellation, multi-touch rejection, resize safety, and scroll prevention explicit',()=>{
