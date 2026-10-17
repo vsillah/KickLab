@@ -70,8 +70,8 @@ test('opens only one responsive contextual detail at a time',()=>{
   assert.match(cockpit,/document\.querySelectorAll\('\.context-detail'\)\.forEach\(p=>p\.hidden=p!==panel\)/);
   assert.match(cockpit,/function syncContextTrigger\(button,expanded\).*button\.setAttribute\('aria-label',name\);button\.title=name/);
   assert.match(cockpit,/\['orientation','math','review','goals','learn'\]\.forEach\(n=>contextTriggers\(n\)\.forEach\(b=>syncContextTrigger\(b,n===name\)\)\)/);
-  assert.match(cockpit,/if\(!PAUSE\.on\)\{pauseGame\('context-detail'\)/);
-  assert.match(cockpit,/if\(CONTEXT_DETAILS\.ownsPause&&PAUSE\.why==='context-detail'\).*resumeGame\(\)/);
+  assert.match(cockpit,/pauseGame\('context-detail'\);CONTEXT_DETAILS\.ownsPause=true/);
+  assert.match(cockpit,/if\(CONTEXT_DETAILS\.ownsPause\)releasePauseOwner\('context-detail',\{restart\}\)/);
   assert.match(cockpit,/function syncGameOverlayBackdrop\(\)/);
   assert.match(css,/\.game-overlay-backdrop\{appearance:none;position:absolute;z-index:20;inset:0/);
 });
@@ -482,17 +482,17 @@ test('uses a compact accessible Classic and Analog control-style selector',()=>{
 });
 
 test('keeps settings and contextual details mutually exclusive',()=>{
-  assert.match(cockpit,/function openSettings\(category=null,trigger=settingsToggle\)\{\s*if\(!profileDialog\.hidden\)closeProfiles\(\{restore:false\}\);if\(CONTEXT_DETAILS\.open\)closeContextDetail\(\{restore:false\}\)/);
-  assert.match(cockpit,/function setContextDetail\(name,[\s\S]*if\(!settingsDrawer\.hidden\)closeSettings\(\{restore:false\}\);\s*if\(!profileDialog\.hidden\)closeProfiles\(\{restore:false\}\)/);
+  assert.match(cockpit,/function openSettings\(category=null,trigger=settingsToggle\)\{\s*if\(!profileDialog\.hidden\)closeProfiles\(\{restore:false,restart:false\}\);if\(CONTEXT_DETAILS\.open\)closeContextDetail\(\{restore:false,restart:false\}\)/);
+  assert.match(cockpit,/function setContextDetail\(name,[\s\S]*if\(!settingsDrawer\.hidden\)closeSettings\(\{restore:false,restart:false\}\);\s*if\(!profileDialog\.hidden\)closeProfiles\(\{restore:false,restart:false\}\)/);
   assert.doesNotMatch(cockpit,/INSPECTOR|contextMenuSlot|closeInspector|syncInspectorLayout/);
 });
 
 test('pauses and resumes through canonical settings ownership',()=>{
   assert.match(cockpit,/function setSettingsPause\(on\)/);
   assert.match(cockpit,/pauseGame\('settings'\)/);
-  assert.match(cockpit,/PAUSE\.why==='settings'/);
+  assert.match(cockpit,/releasePauseOwner\('settings'/);
   assert.match(cockpit,/function openSettings\(category=null,trigger=settingsToggle\)/);
-  assert.match(cockpit,/function closeSettings\(\{restore=true\}=\{\}\)/);
+  assert.match(cockpit,/function closeSettings\(\{restore=true,restart=true\}=\{\}\)/);
   assert.match(cockpit,/trigger\.isConnected/);
   assert.match(html,/id="settingsState">Game paused while settings are open/);
   assert.doesNotMatch(cockpit,/INSPECTOR\.pane==='setup'/);

@@ -21,8 +21,8 @@ test('keeps one accessible profile entry and dialog with child-safe setup fields
   assert.match(html, /id="profileBtn"[^>]+aria-expanded="false"[^>]+aria-controls="profileDialog"/);
   assert.match(html, /id="hudProfileAvatar"[^>]*>[A-Z]<\/span><b id="hudProfileName">[^<]+<\/b><small id="hudProfileState">Ready<\/small>/);
   assert.doesNotMatch(html, /class="game-player-tools"[^>]*>[\s\S]{0,300}id="profileBtn"/);
-  assert.match(profiles, /function openProfiles[\s\S]*closeSettings\(\{restore:false\}\)[\s\S]*closeContextDetail\(\{restore:false\}\)[\s\S]*pauseGame\('profile'\)/);
-  assert.match(profiles, /function closeProfiles[\s\S]*resumeGame\(\)[\s\S]*trigger\.focus\(\)/);
+  assert.match(profiles, /function openProfiles[\s\S]*closeSettings\(\{restore:false,restart:false\}\)[\s\S]*closeContextDetail\(\{restore:false,restart:false\}\)[\s\S]*pauseGame\('profile'\)/);
+  assert.match(profiles, /function closeProfiles[\s\S]*releasePauseOwner\('profile',\{restart\}\)[\s\S]*trigger\.focus\(\)/);
   assert.match(profiles, /openProfiles[\s\S]*setAttribute\('aria-expanded',String\(inGame\)\)/);
   assert.match(profiles, /closeProfiles[\s\S]*setAttribute\('aria-expanded','false'\)/);
   assert.match(profiles, /class="profile-stat profile-current-play"[\s\S]*id="profileCurrentPlay"[\s\S]*id="profileCurrentContext"/);

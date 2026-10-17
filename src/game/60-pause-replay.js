@@ -1,19 +1,18 @@
 /* ---------- time-outs: pause while you work the dials ---------- */
 const PAUSE={on:false,why:'',resumeT:0};
 function pausable(){return M.key==='fight'?!!(Fight.bout&&!Fight.bout.over&&Fight.bout.intro<=0):M.key==='race'?(Race.state==='run'||Race.state==='count'):M.key==='kick'?(Kick.opt.shot==='dribble'?(Drib.state==='run'||Drib.state==='beat')&&!Drib.outcome:Kick.state==='incoming'):false;}
-function pauseGame(why){if(why!=='dials'&&!pausable())return;if(PAUSE.on&&PAUSE.resumeT<=0){PAUSE.why=why==='dials'?'dials':PAUSE.why;return;}PAUSE.on=true;PAUSE.why=why;PAUSE.resumeT=0;ENGINE.off();
-  if(M.inp){M.inp.gas=false;M.inp.brake=false;M.inp.left=false;M.inp.right=false;}if(M.key==='fight'){Fight.blocking=false;Fight.ducking=false;Fight.queued=null;}document.querySelectorAll('#pad .on').forEach(b=>b.classList.remove('on'));}
-function resumeGame(){if(!PAUSE.on||PAUSE.resumeT>0)return;if(!$('#dials').hidden)return;PAUSE.resumeT=pausable()?0.9:0.01;}
+function pauseGame(why){if(why==='stage'||why==='manual')return setManualPause(true);return claimPauseOwner(why);}
+function resumeGame(){return resumePlayerPause();}
 function returnDialsContent(){const pane=$('#physicsDetail'),fig=pane.querySelector('figure.chart');if($('#liveEq').parentElement!==pane)pane.insertBefore($('#liveEq'),fig);if($('#vars').parentElement!==pane)pane.insertBefore($('#vars'),fig);}
 function dialsUnavailableReason(){if(RP.on)return'Dials are unavailable during replay. Exit replay first.';if(CINE.on)return'Dials are unavailable during the replay sequence.';if(!$('#rvBack').hidden)return'Close Coach review before opening Dials.';if(!$('#lvlup').hidden)return'Finish the level-up moment before opening Dials.';if(resOpen())return'Dials are unavailable while results are open. Choose Next round first.';return'';}
 function syncDialsAvailability(){const b=$('#dialTop'),s=$('#dialTopStatus'),reason=dialsUnavailableReason(),blocked=!!reason;b.disabled=blocked;b.setAttribute('aria-disabled',String(blocked));b.title=reason;if(b.dataset.blocked!==String(blocked)){b.dataset.blocked=String(blocked);b.innerHTML=blocked?'Dials after round':'Dials <span class="k">P</span>';}s.textContent=reason;if(typeof syncManualAvailability==='function')syncManualAvailability();}
 function openDials(){if(!$('#dials').hidden)return;syncDialsAvailability();if(dialsUnavailableReason())return;$('#dialTop').hidden=true;pauseGame('dials');const body=$('#dialsBody');body.appendChild($('#liveEq'));body.appendChild($('#vars'));$('#dials').hidden=false;SND.click();}
-function closeDials(){if($('#dials').hidden)return;returnDialsContent();$('#dials').hidden=true;$('#dialTop').hidden=false;PAUSE.why='';resumeGame();syncDialsAvailability();SND.click();}
+function closeDials(){if($('#dials').hidden)return;returnDialsContent();$('#dials').hidden=true;$('#dialTop').hidden=false;releasePauseOwner('dials');syncDialsAvailability();SND.click();}
 $('#dialsClose').addEventListener('click',closeDials);
 $('#dialTop').addEventListener('pointerdown',e=>{e.stopPropagation();});
 $('#dialTop').addEventListener('click',e=>{e.stopPropagation();unlock();$('#dials').hidden?openDials():closeDials();});
 function drawPause(c){if(!PAUSE.on)return;c.save();c.fillStyle='rgba(4,8,18,0.6)';c.fillRect(0,0,W,H);
-  if(PAUSE.resumeT>0){const n=Math.ceil(PAUSE.resumeT/0.3);glow(c,C.hot,20);text(c,String(n),W/2,H/2,'96px '+DISP,C.hot,'center','middle');c.restore();return;}
+  if(PAUSE.why==='manual'||PAUSE.why==='transition'){c.restore();return;}
   const cx=PAUSE.why==='dials'&&cv.clientWidth>700?W*0.3:W/2;glow(c,C.xray,18);text(c,'TIME-OUT',cx,H/2-30,'54px '+DISP,C.ink,'center','middle');c.shadowBlur=0;
   const note=PAUSE.why==='dials'?'Work your dials, then tap Back in':PAUSE.why==='manual-physics'?'Manual Physics owns this pause. Close it to return.':PAUSE.why==='settings'?'Game paused while settings are open. Close settings to return.':PAUSE.why==='context-detail'?'Game paused while details are open. Close them to return.':'Return to the stage to resume.';
   text(c,note,cx,H/2+20,'600 16px '+BODY,C.xray,'center','middle');c.restore();}

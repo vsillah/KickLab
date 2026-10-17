@@ -6,8 +6,8 @@ const MATCH={on:false,i:0,you:0,them:0,evs:[],tr:null,lock:false,saves:0,
   stop(){this.on=false;this.tr=null;this.lock=false;},
   next(res){if(!this.on)return;const prev=this.evs[this.i];if(res!=null&&prev){if(prev==='counter'){if(res)this.saves++;else this.them++;}else if(res)this.you++;}
     this.lock=false;this.i++;if(this.i>=this.evs.length){this.end();return;}const ev=this.evs[this.i],m=this.min(),T={run:['1v1 RUN','beat your man and score'],combo:['COMBO ATTACK','pass · one-two · finish first time'],corner:['CORNER KICK','win the header'],counter:['COUNTER-ATTACK','they break · you are the keeper']}[ev];
-    this.tr={t:0,text:`${m}' · ${T[0]}`,sub:T[1],score:`${this.you} – ${this.them}`};SND.whoosh();
-    setTimeout(()=>{if(!this.on)return;this.load(ev);},700);},
+    this.tr=null;SND.whoosh();const context={mode:'kick',shot:ev==='corner'?'header':'dribble',pso:ev==='counter'?'match':ev,keeper:ev==='counter',combo:ev==='combo'};
+    startGameTransition({activity:`${m}' · ${T[0]}`,controlContext:context,onGo:()=>{if(this.on&&this.evs[this.i]===ev)this.load(ev);}});},
   load(ev){hideResults();E.slow=null;if(ev==='corner'){Object.assign(Kick.opt,{shot:'header',duel:'duel'});M.reset();renderAll(false);setTimeout(()=>{if(this.on&&Kick.state==='aim')Kick.startCross();},900);}
     else{Object.assign(Kick.opt,{shot:'dribble',pso:ev==='counter'?'match':ev});M.reset();renderAll(false);
       if(ev==='counter'){Drib.so={you:[],them:[],saves:0,over:false,single:true};Drib.soKickThem();E.title={t:0,text:'SAVE IT!',sub:'counter-attack · dive ◀ or ▶'};}
