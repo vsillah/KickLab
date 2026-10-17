@@ -16,10 +16,13 @@ const progress=readFileSync(join(root,'src','game','01-progress.js'),'utf8');
 const games=readFileSync(join(root,'src','game','42-match.js'),'utf8');
 const kickSide=readFileSync(join(root,'src','game','30-kick-sideview.js'),'utf8');
 const kick3d=readFileSync(join(root,'src','game','32-soccer-3d-modes.js'),'utf8');
+const race=readFileSync(join(root,'src','game','20-race.js'),'utf8');
 const live=readFileSync(join(root,'src','game','51-live-match.js'),'utf8');
 const challenges=readFileSync(join(root,'src','game','02-challenges-coaches.js'),'utf8');
 const kit=readFileSync(join(root,'src','game','52-leaderboard.js'),'utf8');
 const css=readFileSync(join(root,'src','styles.css'),'utf8');
+const rig=readFileSync(join(root,'src','game','04-body-rig.js'),'utf8');
+const analog=readFileSync(join(root,'src','game','55-analog-gesture-controls.js'),'utf8');
 
 test('keeps relocated feature roots canonical and singular',()=>{
   for(const id of ['quickSettings','settingsDrawer','settingsCategories','settingsChoices','kitroom','liveEq','vars','chart','ticker','mlList','chal','missions','eqs','steps','idea','quiz']){
@@ -28,7 +31,7 @@ test('keeps relocated feature roots canonical and singular',()=>{
 });
 
 test('maps the four contextual summaries to accessible disclosures',()=>{
-  for(const [trigger,panel,label] of [['physicsDetailsCompact','physicsDetail','physics details'],['physicsDetailsWide','physicsDetail','physics details'],['reviewDetailToggle','reviewDetail','move history'],['goalsDetailToggle','goalsDetail','goal details'],['learnDetailToggle','learnDetail','coach notebook']]){
+  for(const [trigger,panel,label] of [['physicsDetailsHud','physicsDetail','physics details'],['physicsDetailsCompact','physicsDetail','physics details'],['physicsDetailsWide','physicsDetail','physics details'],['reviewDetailToggle','reviewDetail','move history'],['goalsDetailToggle','goalsDetail','goal details'],['learnDetailToggle','learnDetail','coach notebook']]){
     assert.match(html,new RegExp(`id="${trigger}"[^>]+data-detail-label="${label}"[^>]+aria-label="Open ${label}"[^>]+title="Open ${label}"[^>]+aria-expanded="false"[^>]+aria-controls="${panel}"[^>]*><span aria-hidden="true">⌄</span></button>`));
   }
   for(const id of ['physicsDetail','reviewDetail','goalsDetail','learnDetail'])assert.equal((html.match(new RegExp(`id="${id}"`,'g'))||[]).length,1);
@@ -39,8 +42,9 @@ test('keeps gameplay controls outside the canvas stage',()=>{
   const stageEnd=html.indexOf('</div>\n        <div class="control-deck"');
   assert.ok(stageEnd>html.indexOf('<div class="stage">'));
   assert.ok(html.indexOf('id="pad"')>stageEnd);
-  assert.ok(html.indexOf('id="physicsDetail"')>html.indexOf('id="pad"'));
-  assert.ok(html.indexOf('id="physicsDetail"')<html.indexOf('id="rbar"'));
+  assert.ok(html.indexOf('id="physicsDetail"')>html.indexOf('id="cv"'));
+  assert.ok(html.indexOf('id="physicsDetail"')<stageEnd);
+  assert.ok(html.indexOf('id="rbar"')>stageEnd);
 });
 
 test('keeps canonical Math content in the physics disclosure',()=>{
@@ -58,18 +62,90 @@ test('keeps contextual detail input ownership and focus return explicit',()=>{
   assert.match(cockpit,/document\.querySelectorAll\('\.context-detail'\)\.forEach\(p=>\{p\.addEventListener\('pointerdown',e=>e\.stopPropagation\(\)\);p\.addEventListener\('keydown',e=>\{if\(e\.key==='Escape'\).*closeContextDetail\(\)/);
   assert.match(cockpit,/if\(restore&&trigger&&trigger\.isConnected&&!trigger\.hidden\)trigger\.focus\(\)/);
   assert.match(cockpit,/if\(e\.key==='Escape'&&CONTEXT_DETAILS\.open\).*closeContextDetail\(\)/);
-  assert.match(css,/\.context-detail\{[^}]*max-height:min\(390px,42vh\);overflow-y:auto;overscroll-behavior:contain/);
-  assert.doesNotMatch(css,/\.context-detail\{[^}]*position:(?:fixed|absolute)/);
+  assert.match(cockpit,/function trapOverlayFocus\(panel,e\)/);
+  assert.match(css,/\.stage \.context-detail,\.stage \.settings-drawer\{position:absolute;z-index:25/);
 });
 
 test('opens only one responsive contextual detail at a time',()=>{
   assert.match(cockpit,/document\.querySelectorAll\('\.context-detail'\)\.forEach\(p=>p\.hidden=p!==panel\)/);
   assert.match(cockpit,/function syncContextTrigger\(button,expanded\).*button\.setAttribute\('aria-label',name\);button\.title=name/);
-  assert.match(cockpit,/\['math','review','goals','learn'\]\.forEach\(n=>contextTriggers\(n\)\.forEach\(b=>syncContextTrigger\(b,n===name\)\)\)/);
+  assert.match(cockpit,/\['orientation','math','review','goals','learn'\]\.forEach\(n=>contextTriggers\(n\)\.forEach\(b=>syncContextTrigger\(b,n===name\)\)\)/);
   assert.match(cockpit,/if\(!PAUSE\.on\)\{pauseGame\('context-detail'\)/);
   assert.match(cockpit,/if\(CONTEXT_DETAILS\.ownsPause&&PAUSE\.why==='context-detail'\).*resumeGame\(\)/);
-  assert.match(css,/\.contextual-summary:has\(>\.context-detail:not\(\[hidden\]\)\)\{grid-column:1\/-1\}/);
-  assert.match(css,/@media \(max-width:700px\)[\s\S]*\.context-detail\{max-height:min\(330px,40vh\)/);
+  assert.match(cockpit,/function syncGameOverlayBackdrop\(\)/);
+  assert.match(css,/\.game-overlay-backdrop\{appearance:none;position:absolute;z-index:20;inset:0/);
+});
+
+test('uses a compact active-play HUD and one translucent field overlay',()=>{
+  const stage=html.indexOf('<div class="stage">'),nav=html.indexOf('class="play-nav game-shell-nav"'),canvas=html.indexOf('id="cv"'),hud=html.indexOf('id="gameGuidanceHud"'),settings=html.indexOf('id="settingsDrawer"'),detail=html.indexOf('id="physicsDetail"'),deck=html.indexOf('class="control-deck"');
+  assert.ok(nav<stage&&stage<canvas&&canvas<hud&&hud<settings&&settings<detail&&detail<deck);
+  for(const id of ['gameOverlayBackdrop','liveMathHud','liveMathHudValues','liveMathHudStatus','physicsDetailsHud'])assert.equal((html.match(new RegExp(`id="${id}"`,'g'))||[]).length,1,`${id} must be singular`);
+  for(const id of ['orientationDetail','physicsDetail','reviewDetail','goalsDetail','learnDetail','settingsDrawer'])assert.match(html,new RegExp(`id="${id}"[^>]+role="dialog"[^>]+aria-modal="true"`));
+  assert.match(cockpit,/function releaseGameplayForOverlay\(\).*releaseMobileHeldInputs\('Game overlay opened'\)/);
+  assert.match(cockpit,/gameOverlayBackdrop\.addEventListener\('click'/);
+  assert.match(cockpit,/\$\('#liveMathHudValues'\)\.innerHTML=defs\.slice\(0,1\)/);
+  assert.match(cockpit,/function liveHudState\(\).*Fight\.bout.*Race\.st\.t.*MATCH\.on.*LIVEM\.on/s);
+  assert.match(css,/\.game-shell-nav\{position:absolute;z-index:12/);
+  assert.match(css,/\.game-guidance-hud\{position:absolute;z-index:26/);
+  assert.match(css,/\.game-shell-nav\{[^}]+background:linear-gradient\(180deg,rgba\(3,8,20,\.08\),rgba\(3,8,20,\.02\),transparent\)/);
+  assert.match(css,/\.game-shell-nav \.mode-home-button,\.game-shell-nav \.current-mode,\.game-shell-nav \.experience-selector,\.game-player-tools>button\{background:rgba\(7,15,30,\.1\)/);
+  assert.match(css,/\.game-guidance-hud\{[^}]+background:linear-gradient\(145deg,rgba\(5,14,29,\.04\),rgba\(5,14,29,\.01\)\)/);
+  assert.match(css,/\.game-frame \.stage>canvas#cv\{[^}]+width:calc\(100% - var\(--game-rail-space\)\)/);
+  assert.match(css,/\.stage \.context-detail,\.stage \.settings-drawer\{[^}]+right:calc\(var\(--game-rail-space\)/);
+  assert.match(css,/\.stage \.context-detail,\.stage \.settings-drawer\{[^}]+background:rgba\(5,14,29,\.2\)/);
+  assert.match(css,/\.stage \.context-detail-head\{top:-10px;background:rgba\(9,24,46,\.14\)\}/);
+  assert.match(css,/\.stage \.context-detail :is\(\.missions,\.full,\.notebook,\.card,\.ticker,\.mlog,\.math-context-summary,\.math-context-controls,figure\.chart\)\{background:rgba\(8,22,42,\.1\)\}/);
+  assert.match(css,/\.stage \.context-detail :is\(\.goals-summary span,\.math-console-values span,\.eqline,\.var,\.mv,\.tkc,\.lk,\.q button\)\{background:rgba\(15,32,55,\.11\)\}/);
+  assert.match(css,/backdrop-filter:blur\(14px\) saturate\(1\.15\)/);
+  assert.match(css,/env\(safe-area-inset-top\)/);
+  assert.match(css,/@media \(prefers-reduced-motion:reduce\).*\.game-overlay-backdrop/s);
+});
+
+test('keeps six compact summaries inside one divided right-side tray',()=>{
+  for(const label of ['Lab','Coach','Log','Math','Player'])assert.match(html,new RegExp(`class="mobile-hud-label"[^>]*>${label}</span>`));
+  assert.match(cockpit,/class="mobile-hud-label" aria-hidden="true">Goal<\/span>/);
+  assert.match(css,/\.mobile-hud-label\{display:block/);
+  assert.match(css,/\.desktop-hud-label\{display:none\}/);
+  assert.match(cockpit,/function railHudState\(\).*Fight\.bout.*Race\.st\.v.*MATCH\.on.*LIVEM\.on/s);
+  assert.match(html,/id="profileHud"[\s\S]*id="hudProfileAvatar"[\s\S]*id="hudProfileName"[\s\S]*id="hudProfileState"/);
+  assert.match(cockpit,/function playerHudState\(\)[\s\S]*Race · The Rocket[\s\S]*Set piece[\s\S]*Follow-through[\s\S]*Fight ·/);
+  assert.match(cockpit,/function renderPlayerHud\(\)[\s\S]*hudProfileState[\s\S]*profileCurrentPlay[\s\S]*profileCurrentContext/);
+  assert.match(cockpit,/renderChallengeHud\(\).*mobile-hud-label[^`]+hud-summary-cue/s);
+  assert.match(cockpit,/liveMathHudValues'\)\.innerHTML=defs\.slice\(0,1\)/);
+  assert.match(html,/id="gameGuidanceHud" aria-label="Gameplay information rail">[\s\S]*id="orientationHud"[\s\S]*id="orientationDetailToggle"[\s\S]*id="challengeHud"[\s\S]*id="coach"[\s\S]*id="historyHud"[\s\S]*id="liveMathHud"[\s\S]*id="profileHud"[\s\S]*id="profileBtn"/);
+  assert.match(html,/id="orientationDetail"[^>]+role="dialog"[\s\S]*id="modeHomeButton"[\s\S]*id="settingsToggle"/);
+  assert.doesNotMatch(html,/class="game-orientation-tools"/);
+  assert.doesNotMatch(html,/class="game-player-tools"[\s\S]{0,500}id="profileBtn"/);
+  assert.match(css,/\.game-guidance-hud\{position:absolute[^}]+width:68px[^}]+grid-auto-flow:row/);
+  assert.match(css,/\.game-guidance-hud>\.contextual-summary\{[^}]+border:0[^}]+background:transparent[^}]+box-shadow:none/);
+  assert.match(css,/\.game-guidance-hud>\.contextual-summary\+ \.contextual-summary\{border-top:/);
+  assert.match(css,/@media \(hover:hover\)\{\.game-guidance-hud>\.contextual-summary:hover\{background:rgba\(32,91,128,\.18\)\}\}/);
+  assert.match(css,/\.game-guidance-hud>\.contextual-summary:focus-within\{background:rgba\(39,112,155,\.24\)/);
+  assert.match(css,/\.game-guidance-hud>\.contextual-summary:has\(\.context-disclosure\[aria-expanded="true"\]\)/);
+  assert.match(css,/#gameGuidanceHud \.context-disclosure\{position:absolute;z-index:2;inset:0;[^}]+width:100%;min-width:44px;height:100%;min-height:44px/);
+  assert.match(css,/@media \(max-width:480px\)\{\.game-frame \.stage\{--game-rail-space:60px\}\.game-guidance-hud\{[^}]+width:52px/);
+  assert.match(css,/@media \(min-width:1100px\)\{\.game-frame \.stage\{--game-rail-space:82px\}\.game-frame \.stage>canvas#cv\{width:100%\}/);
+  assert.match(css,/@media \(min-width:1100px\)\{\.game-frame \.stage>canvas#cv,\.game-frame \.stage>#cv3\{width:100%\}/);
+  assert.match(css,/\.game-shell-nav \.gamebar\{position:relative;top:auto;left:auto;right:auto;transform:none/);
+  assert.match(css,/\.orientation-summary\{[^}]+display:grid/);
+  assert.match(css,/\.orientation-actions>button\{[^}]+min-height:76px/);
+  assert.match(css,/@media \(min-width:1100px\)[\s\S]*\.game-guidance-hud\{top:max\(218px[^}]+width:68px/);
+});
+
+test('uses readable translucent contrast plates without making the field shell opaque',()=>{
+  assert.match(css,/\.game-guidance-hud\{background:linear-gradient\(145deg,rgba\(3,10,24,\.18\),rgba\(3,10,24,\.08\)\)/);
+  assert.match(css,/#gameGuidanceHud :is\([^}]+background:rgba\(2,7,17,\.72\)/);
+  assert.match(css,/\.stage \.context-detail,\.stage \.settings-drawer\{background:rgba\(3,10,24,\.36\)/);
+  assert.match(css,/\.stage :is\([^}]+background-color:rgba\(2,7,17,\.66\)/);
+  assert.match(css,/button:disabled,\[aria-disabled="true"\]\)\{opacity:\.86\}/);
+});
+
+test('moves player portrait status out of the field and into the profile rail',()=>{
+  for(const source of [race,kickSide,kick3d])assert.doesNotMatch(source,/RIG\.portrait\(/);
+  assert.doesNotMatch(`${race}\n${kickSide}\n${kick3d}`,/THE ROCKET|FOLLOW-THROUGH|TRACKING BALL|SET & DIVE/);
+  assert.match(rig,/window\.__KICKLAB_PLAYER_PORTRAIT_RENDERS__=0/);
+  assert.match(rig,/portrait\(c,x,y,w,h,A,o=\{\}\)\{window\.__KICKLAB_PLAYER_PORTRAIT_RENDERS__\+\+/);
+  assert.match(cockpit,/renderCockpit\(q\).*renderChallengeHud\(\);renderPlayerHud\(\)/);
 });
 
 test('derives compact math from mode definitions and explicit equation data',()=>{
@@ -147,12 +223,13 @@ test('starts on a dedicated mode home and keeps the full lab chooser out of acti
   assert.match(html,/class="hudbar" id="progressHud" aria-label="Your progress"/);
   for(const mode of ['fight','race','kick'])assert.match(html,new RegExp(`class="tab" id="lab-tab-${mode}"[^>]+data-mode="${mode}"[^>]+aria-pressed=`));
   assert.match(html,/id="game-cockpit" role="region" aria-labelledby="currentModeTitle" hidden/);
-  assert.match(html,/id="modeHomeButton"[^>]*>.*Labs<\/button>/);
+  assert.match(html,/id="modeHomeButton"[^>]*>[\s\S]*All labs[\s\S]*<\/button>/);
   assert.match(keys,/function showModeHome\(\{focus=true\}=\{\}\)/);
   assert.match(keys,/\$\('#game-cockpit'\)\.hidden=true;\$\('#modeHome'\)\.hidden=false/);
   assert.match(keys,/\$\('#modeHome'\)\.after\(\$\('#progressHud'\)\)/);
+  assert.match(keys,/\$\('#progressHud'\)\.hidden=false/);
   assert.match(keys,/function setMode\(k\)\{\$\('#modeHome'\)\.hidden=true;\$\('#game-cockpit'\)\.hidden=false/);
-  assert.match(keys,/\$\('\.play-nav'\)\.after\(\$\('#progressHud'\)\)/);
+  assert.match(keys,/\$\('#progressHud'\)\.hidden=true/);
   assert.match(keys,/CONTINUOUS\.menuOpen\|\|CONTINUOUS\.pickerOpen.*CONTINUOUS\.closeSelector\(\)/);
   assert.match(loop,/setMode\('fight'\);showModeHome\(\{focus:false\}\)/);
   assert.match(css,/\.mode-home\{display:grid/);
@@ -161,7 +238,7 @@ test('starts on a dedicated mode home and keeps the full lab chooser out of acti
 });
 
 test('uses one on-game hierarchical settings experience',()=>{
-  const stage=html.indexOf('<div class="stage">'),settings=html.indexOf('id="gameSettings"'),deck=html.indexOf('class="control-deck"'),kitRoom=html.indexOf('id="kitroom"',settings);
+  const stage=html.indexOf('<div class="stage">'),settings=html.indexOf('id="settingsDrawer"'),deck=html.indexOf('class="control-deck"'),kitRoom=html.indexOf('id="kitroom"',settings);
   assert.ok(stage<settings&&settings<deck&&settings<kitRoom);
   assert.doesNotMatch(html,/id="kitroom"[^>]+aria-modal/);
   for(const id of ['settingsToggle','quickSettings','settingsDrawer','settingsBack','settingsClose','settingsCategories','settingsChoices'])assert.equal((html.match(new RegExp(`id="${id}"`,'g'))||[]).length,1);
@@ -246,6 +323,16 @@ test('shows adjustment math temporarily while keeping environment context persis
   assert.match(ui,/hideStageAdjustment\(\);M\.press\(a\.id,true\)/);
   assert.match(ui,/const set=x=>\{[^}]*showStageAdjustment\(v\.id\)/);
   assert.ok(games.includes('parts=[`${S.n} · g ${fmt(S.g,2)} m/s²`]'));
+  assert.match(html,/class="game-context-header"[^>]+aria-label="Current game context"[\s\S]*id="gameBar"[\s\S]*id="environmentContext"[^>]+role="status"[^>]+aria-label="Environment for the selected Kick experience"[^>]+aria-live="polite"[^>]+hidden/);
+  assert.ok(html.indexOf('id="gameBar"')<html.indexOf('id="environmentContext"'));
+  assert.ok(html.indexOf('id="environmentContext"')<html.indexOf('<div class="stage">'));
+  assert.match(games,/function renderEnvironmentContext\(\).*el\.hidden=!active.*environmentContextLabel.*environmentContextDetail/);
+  assert.match(live,/function renderAll\(intro=true\)\{renderGameBar\(\);renderEnvironmentContext\(\);/);
+  assert.match(live,/id="experienceSelector"[^>]+aria-describedby="environmentContext"/);
+  assert.match(css,/\.game-context-header\{[^}]+grid-template-columns:minmax\(280px,1\.45fr\) minmax\(220px,1fr\)/);
+  assert.match(css,/\.game-context-header \.environment-context\{[^}]+min-height:32px[^}]+justify-content:flex-start/);
+  assert.match(css,/\.environment-context\[hidden\]\{display:none\}/);
+  assert.doesNotMatch(games,/__KICKLAB_ENV_LABEL__|environmentLabelRightInset/);
   assert.doesNotMatch(kickSide,/air drag ON · ρ/);
   assert.match(kickSide,/if\(stageAdjustmentVisible\(\)\)\{text\(c,'θ = '/);
   assert.match(kick3d,/if\(stageAdjustmentVisible\(\)&&\(\(s==='beat'/);
@@ -381,9 +468,22 @@ test('keeps six-slot mechanics controls between analog and gesture controls',()=
   assert.match(css,/\.prototype-physics-row\.locked \.prototype-slot/);
 });
 
+test('uses a compact accessible Classic and Analog control-style selector',()=>{
+  assert.match(html,/class="prototype-control-bar" role="group" aria-label="Control style" aria-describedby="controlStyleDescription"/);
+  assert.match(html,/id="classicControlsButton" aria-pressed="true"[^>]*>Classic<\/button>/);
+  assert.match(html,/id="analogControlsButton" aria-pressed="false"[^>]*>Analog<\/button>/);
+  assert.doesNotMatch(html,/Prototype · classic stays available|Try analog controls|Use classic controls/);
+  assert.match(analog,/classicControlsButton\.setAttribute\('aria-pressed',String\(!ANALOG_CONTROL\.enabled\)\)/);
+  assert.match(analog,/analogControlsButton\.setAttribute\('aria-pressed',String\(ANALOG_CONTROL\.enabled\)\)/);
+  assert.match(analog,/\['ArrowLeft','ArrowRight','Home','End'\]/);
+  assert.match(css,/\.prototype-control-bar\{[^}]+width:170px[^}]+min-height:48px[^}]+grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+  assert.match(css,/\.prototype-control-bar button\{[^}]+min-height:44px/);
+  assert.match(css,/\.prototype-control-bar button\[aria-pressed="true"\]\{[^}]*border-color:#7fdcff[^}]*background:#17304d/);
+});
+
 test('keeps settings and contextual details mutually exclusive',()=>{
-  assert.match(cockpit,/function openSettings\(category=null,trigger=settingsToggle\)\{\s*if\(CONTEXT_DETAILS\.open\)closeContextDetail\(\{restore:false\}\)/);
-  assert.match(cockpit,/function setContextDetail\(name,[\s\S]*if\(!settingsDrawer\.hidden\)closeSettings\(\{restore:false\}\)/);
+  assert.match(cockpit,/function openSettings\(category=null,trigger=settingsToggle\)\{\s*if\(!profileDialog\.hidden\)closeProfiles\(\{restore:false\}\);if\(CONTEXT_DETAILS\.open\)closeContextDetail\(\{restore:false\}\)/);
+  assert.match(cockpit,/function setContextDetail\(name,[\s\S]*if\(!settingsDrawer\.hidden\)closeSettings\(\{restore:false\}\);\s*if\(!profileDialog\.hidden\)closeProfiles\(\{restore:false\}\)/);
   assert.doesNotMatch(cockpit,/INSPECTOR|contextMenuSlot|closeInspector|syncInspectorLayout/);
 });
 

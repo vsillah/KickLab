@@ -7,10 +7,15 @@ const controllerPlay=$('#controllerModePlay'),controllerManual=$('#controllerMod
 const wideManualController=$('#wideManualController'),wideManualRows=$('#wideManualRows');
 const prototypePhysics=$('#prototypePhysics'),prototypePhysicsRows=$('#prototypePhysicsRows');
 const settingsDrawer=$('#settingsDrawer'),settingsToggle=$('#settingsToggle');
+const gameOverlayBackdrop=$('#gameOverlayBackdrop'),gameStage=$('.stage'),gamePlayShell=$('.play'),profileDialog=$('#profileDialog');
 
 function contextPanel(name){return $(`#${name==='math'?'physics':name}Detail`);}
-function contextTriggers(name){return name==='math'?[$('#physicsDetailsCompact'),$('#physicsDetailsWide')]:[$(`#${name}DetailToggle`)];}
+function contextTriggers(name){return name==='math'?[$('#physicsDetailsHud'),$('#physicsDetailsCompact'),$('#physicsDetailsWide')]:[$(`#${name}DetailToggle`)];}
 function syncContextTrigger(button,expanded){const action=expanded?'Close':'Open',label=button.dataset.detailLabel||'details',name=`${action} ${label}`;button.setAttribute('aria-expanded',String(expanded));button.setAttribute('aria-label',name);button.title=name;}
+function releaseGameplayForOverlay(){if(typeof releaseMobileHeldInputs==='function')releaseMobileHeldInputs('Game overlay opened');ENGINE.off();document.querySelectorAll('#pad .on').forEach(button=>button.classList.remove('on'));}
+function syncGameOverlayBackdrop(){const profileOpen=!profileDialog.hidden&&profileDialog.classList.contains('game-profile-overlay'),open=!!CONTEXT_DETAILS.open||!settingsDrawer.hidden||profileOpen;gameOverlayBackdrop.hidden=!open;gameStage.classList.toggle('has-game-overlay',open);gamePlayShell.classList.toggle('has-game-overlay',open);}
+function overlayFocusables(panel){return[...panel.querySelectorAll('button:not(:disabled),[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex]:not([tabindex="-1"])')].filter(node=>!node.hidden&&node.getAttribute('aria-hidden')!=='true'&&node.getClientRects().length>0);}
+function trapOverlayFocus(panel,e){if(e.key!=='Tab')return;const items=overlayFocusables(panel);if(!items.length)return;e.stopPropagation();const first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}
 function closeContextDetail({restore=true}={}){
   if(!CONTEXT_DETAILS.open)return;
   const trigger=CONTEXT_DETAILS.trigger,name=CONTEXT_DETAILS.open;
@@ -18,6 +23,7 @@ function closeContextDetail({restore=true}={}){
   CONTEXT_DETAILS.open=null;CONTEXT_DETAILS.trigger=null;
   if(CONTEXT_DETAILS.ownsPause&&PAUSE.why==='context-detail'){PAUSE.why='';resumeGame();}
   CONTEXT_DETAILS.ownsPause=false;
+  syncGameOverlayBackdrop();
   if(restore&&trigger&&trigger.isConnected&&!trigger.hidden)trigger.focus();
   requestAnimationFrame(resize);
 }
@@ -27,13 +33,14 @@ function setContextDetail(name,{trigger=null,focus=false,open=true}={}){
   if(CONTEXT_DETAILS.open===name){closeContextDetail();return;}
   closeContextDetail({restore:false});
   if(!settingsDrawer.hidden)closeSettings({restore:false});
+  if(!profileDialog.hidden)closeProfiles({restore:false});
   CONTEXT_DETAILS.open=name;CONTEXT_DETAILS.trigger=trigger||contextTriggers(name).find(b=>b.offsetParent!==null)||contextTriggers(name)[0];
   document.querySelectorAll('.context-detail').forEach(p=>p.hidden=p!==panel);
-  ['math','review','goals','learn'].forEach(n=>contextTriggers(n).forEach(b=>syncContextTrigger(b,n===name)));
-  panel.hidden=false;
+  ['orientation','math','review','goals','learn'].forEach(n=>contextTriggers(n).forEach(b=>syncContextTrigger(b,n===name)));
+  panel.hidden=false;releaseGameplayForOverlay();
   if(!PAUSE.on){pauseGame('context-detail');CONTEXT_DETAILS.ownsPause=PAUSE.on&&PAUSE.why==='context-detail';}
   if(focus)requestAnimationFrame(()=>panel.querySelector('[data-close-detail]')?.focus());
-  panel.scrollIntoView({block:'nearest'});requestAnimationFrame(resize);
+  syncGameOverlayBackdrop();requestAnimationFrame(resize);
 }
 
 function setSettingsPause(on){
@@ -55,12 +62,12 @@ function setSettingsLevel(level,{category=SETTINGS.category,focus=true}={}){
   if(focus)requestAnimationFrame(()=>{const target=level==='categories'?cats.querySelector('button'):level==='choices'?choices.querySelector('button'):kitRoom.querySelector('button');(target||back).focus();});
 }
 function openSettings(category=null,trigger=settingsToggle){
-  if(CONTEXT_DETAILS.open)closeContextDetail({restore:false});SETTINGS.trigger=trigger;SETTINGS.restoreCategory=trigger&&trigger.dataset?trigger.dataset.category:null;settingsDrawer.hidden=false;settingsToggle.setAttribute('aria-expanded','true');setSettingsPause(true);
-  setSettingsLevel(category?'choices':'categories',{category,focus:true});requestAnimationFrame(resize);
+  if(!profileDialog.hidden)closeProfiles({restore:false});if(CONTEXT_DETAILS.open)closeContextDetail({restore:false});SETTINGS.trigger=trigger;SETTINGS.restoreCategory=trigger&&trigger.dataset?trigger.dataset.category:null;settingsDrawer.hidden=false;settingsToggle.setAttribute('aria-expanded','true');releaseGameplayForOverlay();setSettingsPause(true);
+  setSettingsLevel(category?'choices':'categories',{category,focus:true});syncGameOverlayBackdrop();requestAnimationFrame(resize);
 }
 function closeSettings({restore=true}={}){
   if(settingsDrawer.hidden)return;settingsDrawer.hidden=true;$('#kitroom').hidden=true;settingsToggle.setAttribute('aria-expanded','false');setSettingsPause(false);
-  if(restore){const trigger=SETTINGS.trigger&&SETTINGS.trigger.isConnected?SETTINGS.trigger:SETTINGS.restoreCategory!=null?$(`#quickSettings [data-category="${SETTINGS.restoreCategory}"]`):null;(trigger||settingsToggle).focus();}requestAnimationFrame(resize);
+  syncGameOverlayBackdrop();if(restore){const trigger=SETTINGS.trigger&&SETTINGS.trigger.isConnected&&SETTINGS.trigger.offsetParent!==null?SETTINGS.trigger:SETTINGS.restoreCategory!=null?$(`#quickSettings [data-category="${SETTINGS.restoreCategory}"]`):null;(trigger||$('#orientationDetailToggle')||settingsToggle).focus();}requestAnimationFrame(resize);
 }
 function showKitSettings(trigger=$('#kitRoomToggle')){SETTINGS.trigger=SETTINGS.trigger||trigger;setSettingsLevel('kit',{category:'kit',focus:true});}
 function settingsBack(){if(SETTINGS.level==='kit')setSettingsLevel('choices',{category:'kit'});else if(SETTINGS.level==='choices')setSettingsLevel('categories');}
@@ -71,14 +78,15 @@ $('#settingsBack').addEventListener('click',settingsBack);
 $('#quickSettings').addEventListener('click',e=>{const b=e.target.closest('[data-category]');if(!b)return;openSettings(b.dataset.category||null,b);});
 $('#settingsCategories').addEventListener('click',e=>{const b=e.target.closest('[data-category]');if(!b)return;setSettingsLevel('choices',{category:b.dataset.category});});
 settingsDrawer.addEventListener('pointerdown',e=>e.stopPropagation());
-settingsDrawer.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();closeSettings();}});
+settingsDrawer.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();closeSettings();return;}trapOverlayFocus(settingsDrawer,e);e.stopPropagation();});
 document.addEventListener('pointerdown',e=>{if(settingsDrawer.hidden||settingsDrawer.contains(e.target)||settingsToggle.contains(e.target)||$('#quickSettings').contains(e.target))return;const focusTarget=e.target.closest&&e.target.closest('button,input,select,textarea,[tabindex]');closeSettings({restore:false});if(!focusTarget)requestAnimationFrame(()=>settingsToggle.focus());});
+gameOverlayBackdrop.addEventListener('click',()=>{if(!profileDialog.hidden&&profileDialog.classList.contains('game-profile-overlay'))closeProfiles();else if(CONTEXT_DETAILS.open)closeContextDetail();else if(!settingsDrawer.hidden)closeSettings();});
 
-function bindContextTrigger(button,name){button.addEventListener('click',()=>setContextDetail(name,{trigger:button}));button.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'&&CONTEXT_DETAILS.open){e.preventDefault();closeContextDetail();return;}if(e.key===' '||e.key==='Spacebar'){e.preventDefault();button.click();}});}
+function bindContextTrigger(button,name){button.addEventListener('click',()=>setContextDetail(name,{trigger:button,focus:true}));button.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'&&CONTEXT_DETAILS.open){e.preventDefault();closeContextDetail();return;}if(e.key===' '||e.key==='Spacebar'){e.preventDefault();button.click();}});}
 contextTriggers('math').forEach(b=>bindContextTrigger(b,'math'));
-['review','goals','learn'].forEach(name=>bindContextTrigger(contextTriggers(name)[0],name));
+['orientation','review','goals','learn'].forEach(name=>bindContextTrigger(contextTriggers(name)[0],name));
 document.querySelectorAll('[data-close-detail]').forEach(b=>b.addEventListener('click',()=>closeContextDetail()));
-document.querySelectorAll('.context-detail').forEach(p=>{p.addEventListener('pointerdown',e=>e.stopPropagation());p.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();closeContextDetail();return;}e.stopPropagation();});});
+document.querySelectorAll('.context-detail').forEach(p=>{p.addEventListener('pointerdown',e=>e.stopPropagation());p.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();closeContextDetail();return;}trapOverlayFocus(p,e);e.stopPropagation();});});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&CONTEXT_DETAILS.open){e.preventDefault();e.stopPropagation();closeContextDetail();}});
 
 function cockpitValue(def,value){
@@ -130,6 +138,8 @@ function renderMathConsole(q){
   $('#mathConsoleValues').innerHTML=defs.map(def=>`<span><b>${quickMathName(def)}</b> ${cockpitValue(def,M.V[def.id])}</span>`).join('')||'<span>No live dials</span>';
   q=q||M.eqs();const live=M.LIVE(),line=q.lines[live&&live.length?live[0]:0]||q.lines[0]||M.hint;
   $('#mathConsoleStatus').textContent=plainMath(line);
+  $('#liveMathHudValues').innerHTML=defs.slice(0,1).map(def=>`<span><b>${quickMathName(def)}</b> ${cockpitValue(def,M.V[def.id])}</span>`).join('')||'<span>Live state</span>';
+  $('#liveMathHudStatus').textContent=plainMath(line)||M.hint||'Live physics ready.';
 }
 controllerPlay.addEventListener('click',()=>setControllerMode('play'));
 controllerManual.addEventListener('click',()=>setControllerMode('manual'));
@@ -159,13 +169,24 @@ function challengeSummary(){
   if(!c)return{eyebrow:'Ladder complete',title:'Champion',detail:`All ${n} challenges cleared.`};
   return{eyebrow:`Challenge ${k+1} of ${n}`,title:c.name,detail:c.goal};
 }
-function renderChallengeHud(){const x=challengeSummary();$('#challengeHudSummary').innerHTML=`<span class="eyebrow">${x.eyebrow}</span><b>${x.title}</b><p>${x.detail}</p>`;}
+function liveHudState(){if(M===Fight&&Fight.bout)return`You ${Math.ceil(Fight.bout.me)} HP · ${Fight.bout.T.name} ${Math.ceil(Fight.bout.opp)} HP`;if(M===Race)return Race.state==='run'?`${fmt(Race.st.t,1)} s · ${fmt(Race.st.v*3.6,0)} km/h`:`Race · ${Race.state==='count'?'countdown':'ready'}`;if(M===Kick&&typeof MATCH!=='undefined'&&MATCH.on)return`Match ${MATCH.you}–${MATCH.them}`;if(M===Kick&&typeof LIVEM!=='undefined'&&LIVEM.on)return`Live ${LIVEM.you}–${LIVEM.them} · ${LIVEM.clock()}`;if(M===Kick&&Kick.opt.shot==='dribble')return`Kick · ${(GAMES.find(game=>game.k===curGame())||{}).n||'activity'}`;return M===Kick?`Kick · ${Kick.opt.shot==='header'?'Header duel':'Free kick'}`:`${M.key} lab`;}
+function railHudState(){if(M===Fight&&Fight.bout)return`${Math.ceil(Fight.bout.me)}–${Math.ceil(Fight.bout.opp)} HP`;if(M===Race)return Race.state==='run'?`${fmt(Race.st.v*3.6,0)} km/h`:Race.state==='count'?'Countdown':'Ready';if(M===Kick&&typeof MATCH!=='undefined'&&MATCH.on)return`${MATCH.you}–${MATCH.them}`;if(M===Kick&&typeof LIVEM!=='undefined'&&LIVEM.on)return`${LIVEM.you}–${LIVEM.them}`;if(M===Kick&&Kick.opt.shot==='dribble')return(GAMES.find(game=>game.k===curGame())||{}).n||'Activity';return M===Kick?(Kick.opt.shot==='header'?'Header':'Free kick'):`${M.key} lab`;}
+function renderChallengeHud(){$('#challengeHudSummary').innerHTML=`<span class="mobile-hud-label" aria-hidden="true">Goal</span><b class="hud-summary-cue">${railHudState()}</b>`;}
+function playerHudState(){
+  if(!M)return{action:'Ready',detail:'Choose a lab to begin'};
+  if(M===Race){const action=Race.state==='run'?(Race.brake?'Braking':Race.gas?'Throttle':'Steering'):Race.state==='count'?'Countdown':Race.state==='done'?'Finished':Race.state==='crashed'?'Recovery':'Grid';return{action,detail:`Race · The Rocket · ${action}`};}
+  if(M===Kick&&Kick.opt.shot==='dribble'&&typeof Drib!=='undefined'){const s=Drib.state,keeping=s==='keep',action=s==='run'?'Sprint':s==='beat'?'Attack':keeping?'Set & dive':s==='set'?'Set piece':s==='done'?'Round complete':s==='ready'?'Ready':'Live',game=(GAMES.find(item=>item.k===curGame())||{}).n||'Soccer';return{action,detail:`${game} · ${keeping?'Keeper · ':''}${PLY().n} · ${action}`};}
+  if(M===Kick){const action=Kick.state==='swing'?'Follow-through':Kick.state==='flight'?'Tracking ball':Kick.state==='incoming'?'Head it':Kick.state==='heading'?'Header':Kick.state==='done'?'Round complete':'Set piece';return{action,detail:`${Kick.opt.shot==='header'?'Header duel':'Free kick'} · ${PLY().n} · ${action}`};}
+  const action=Fight.state==='swing'?'Punching':Fight.state==='hold'?'Impact':Fight.state==='recoil'?'Resetting':'Ready';return{action,detail:`Fight · ${action}`};
+}
+function renderPlayerHud(){const state=playerHudState(),compact=$('#hudProfileState'),current=$('#profileCurrentPlay'),context=$('#profileCurrentContext');if(compact)compact.textContent=state.action;if(current)current.textContent=state.action;if(context)context.textContent=state.detail;}
+function renderOrientationHud(){const current=$('#orientationCurrentMode');if(current)current.textContent=MODE_NAMES[M.key]||M.key;}
 function renderHistorySummary(){const latest=LOGS[M.key].filter(x=>!x.sep).slice(-1)[0];$('#historyTitle').textContent=latest?latest.title:'Move log ready';$('#historyLatest').textContent=latest?`${fmtT(latest.t)}${latest.res?` · ${latest.res}`:''}${latest.math?` · ${plainMath(latest.math)}`:''}`:{fight:'Your next punch, dodge or block will appear here.',race:'Your next braking or corner event will appear here.',kick:'Your next shot event will appear here.'}[M.key];}
 function renderGoalsSummary(){
   const total=Object.values(BADGES).reduce((n,l)=>n+l.length,0),earned=Object.keys(best.badges||{}).length;
   $('#goalsSummary').innerHTML=`<span>Level <b>${lvlOf(best.xp)}</b></span><span>XP <b>${fmt(best.xp||0,0)}</b></span><span>Badges <b>${earned}/${total}</b></span><span>Mode <b>${M.key[0].toUpperCase()+M.key.slice(1)}</b></span>`;
 }
-function renderCockpit(q){renderControllerMode();renderMathHud(q);renderMathConsole(q);renderChallengeHud();renderGoalsSummary();renderHistorySummary();syncDialsAvailability();}
+function renderCockpit(q){renderControllerMode();renderMathHud(q);renderMathConsole(q);renderChallengeHud();renderPlayerHud();renderOrientationHud();renderGoalsSummary();renderHistorySummary();syncDialsAvailability();}
 
 new ResizeObserver(entries=>{const active=entries[0].contentRect.width>=980;if(active===WIDE_MANUAL.active)return;WIDE_MANUAL.active=active;if(active&&CONTROLLER.mode==='manual')setControllerMode('play',{restore:false});renderWideManual();}).observe($('.control-deck'));
 
