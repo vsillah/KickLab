@@ -10,6 +10,7 @@ const cockpit=readFileSync(join(root,'src','game','54-web-cockpit.js'),'utf8');
 const replay=readFileSync(join(root,'src','game','60-pause-replay.js'),'utf8');
 const engine=readFileSync(join(root,'src','game','03-audio-fx-engine.js'),'utf8');
 const loop=readFileSync(join(root,'src','game','70-main-loop.js'),'utf8');
+const keys=readFileSync(join(root,'src','game','53-weekly-challenge.js'),'utf8');
 const ui=readFileSync(join(root,'src','game','41-ui.js'),'utf8');
 const progress=readFileSync(join(root,'src','game','01-progress.js'),'utf8');
 const games=readFileSync(join(root,'src','game','42-match.js'),'utf8');
@@ -167,12 +168,25 @@ test('uses one on-game hierarchical settings experience',()=>{
   assert.match(css,/\.quick-setting\{min-height:48px/);
 });
 
-test('lets D-pad selection own the adjacent exact quick variable',()=>{
-  assert.match(cockpit,/if\(mode==='select'\).*return\[defs\[i\]\]/);
-  assert.match(ui,/dialSel\(id\).*renderMathConsole\(\)/);
-  assert.match(cockpit,/D-pad selected variable/);
-  assert.match(cockpit,/data-step="-1"[^>]+aria-label="Less/);
-  assert.match(cockpit,/data-step="1"[^>]+aria-label="More/);
+test('maps the Kick D-pad to stable Shot and Advanced Quick Tune layers',()=>{
+  assert.match(ui,/const DP=\{layer:'shot',flash:null\}/);
+  assert.match(ui,/function dialMode\(\)\{return M===Kick&&Kick\.opt\.shot!=='dribble'&&Kick\.state==='aim'\?'quick':null;\}/);
+  assert.match(ui,/DP\.layer==='advanced'\?\['spin','g'\]:\[hdr\?'jv':'v',hdr\?'thH':'th'\]/);
+  assert.match(ui,/action\(horizontal,'left',-1\),action\(horizontal,'right',1\),action\(vertical,'down',-1\),action\(vertical,'up',1\)/);
+  assert.match(ui,/v:\['v','SPEED','launch speed'\].*th:\['θ','ANGLE','launch angle'\].*spin:\['aₛ','SPIN','spin'\].*g:\['g','GRAVITY','gravity'\]/);
+  assert.match(ui,/aria:`\$\{sign<0\?'Decrease':'Increase'\} \$\{meta\.name\}`/);
+  assert.match(ui,/tag:`\$\{meta\.symbol\}\$\{sign<0\?'−':'\+'\}`/);
+  assert.match(ui,/class="quick-axis horizontal".*\$\{h\.symbol\}.*\$\{h\.label\}.*class="quick-axis vertical".*\$\{v\.symbol\}.*\$\{v\.label\}/);
+  assert.match(ui,/disabled:!def\|\|isLocked\(M\.key,id\)/);
+  assert.match(ui,/function toggleQuickTuneLayer\(\).*DP\.layer=DP\.layer==='shot'\?'advanced':'shot'/);
+  assert.match(ui,/data-id="quick-layer" aria-label="Switch to \$\{DP\.layer==='shot'\?'Advanced':'Shot'\} quick tune/);
+  assert.match(keys,/e\.code==='KeyC'&&dialMode\(\)==='quick'&&!e\.repeat&&!PAUSE\.on&&!CINE\.on&&!resOpen\(\).*toggleQuickTuneLayer\(\)/);
+  assert.match(cockpit,/if\(mode==='quick'\)return quickTuneVariableIds\(\)\.map/);
+  assert.match(cockpit,/`Quick Tune · \$\{DP\.layer==='shot'\?'Shot':'Advanced'\}`/);
+  assert.doesNotMatch(ui,/previous dial|next dial|tag:'DIAL'|dialSelectActions|dialSel\(/);
+  assert.match(css,/\.dpad \.hub\.quick-layer\{[^}]*cursor:pointer/);
+  assert.match(css,/\.dpad \.quick-axis\{[^}]*color:var\(--quick-color\)/);
+  assert.match(kickSide,/id:'v',sym:'v',name:'launch speed'.*col:C\.xray/);
 });
 
 test('shows adjustment math temporarily while keeping environment context persistent',()=>{

@@ -38,10 +38,10 @@ const KEYMAP={Space:'P',ArrowUp:'P',KeyW:'P',ArrowDown:'brake',KeyS:'brake',KeyB
 const held={};
 window.addEventListener('keydown',e=>{if(!$('#kitroom').hidden){if(e.code==='Escape')closeKit();return;}if(!$('#fboard').hidden){if(e.code==='Escape')closeBoard();return;}if(!$('#rvBack').hidden&&e.code==='Escape'){$('#rvBack').hidden=true;return;}
   if(RP.on){if(e.target&&e.target.tagName==='INPUT')return;if(e.code==='Space'){e.preventDefault();$('#rbPlay').click();}else if(e.code==='Escape'){exitReplay();}else if(e.code==='ArrowLeft'){e.preventDefault();RP.t=Math.max(0,RP.t-1);}else if(e.code==='ArrowRight'){e.preventDefault();RP.t+=1;}return;}
-  if(e.code==='KeyP'&&!e.repeat){e.preventDefault();$('#dials').hidden?openDials():closeDials();return;}if(e.code==='Escape'){closeDials();return;}
+  if(e.code==='KeyP'&&!e.repeat){e.preventDefault();$('#dials').hidden?openDials():closeDials();return;}if(e.code==='Escape'){closeDials();return;}if(e.code==='KeyC'&&dialMode()==='quick'&&!e.repeat&&!PAUSE.on&&!CINE.on&&!resOpen()){e.preventDefault();unlock();toggleQuickTuneLayer();return;}
   if(e.target&&e.target.tagName==='INPUT'&&/Arrow/.test(e.key))return;if(PAUSE.on&&KEYMAP[e.code]&&!(e.target&&e.target.tagName==='INPUT')){e.preventDefault();if($('#dials').hidden)resumeGame();return;}
   const dd={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right'}[e.code];let id=null;
-  if(dd){const a=M.actions().find(x=>x.dir===dd);if(a&&a.disabled){e.preventDefault();return;}if(a&&a.step){e.preventDefault();adjustVar(a.step[0],a.step[1]);return;}if(a&&dialSel(a.id)){e.preventDefault();return;}if(a)id=a.id;}
+  if(dd){const a=M.actions().find(x=>x.dir===dd);if(a&&a.disabled){e.preventDefault();return;}if(a&&a.step){e.preventDefault();adjustVar(a.step[0],a.step[1]);return;}if(a)id=a.id;}
   if(resOpen()){const k=KEYMAP[e.code];if(k==='P'||e.code==='Enter'||e.code==='NumpadEnter'){e.preventDefault();if(!e.repeat)ackResults();}else if(id||k)e.preventDefault();return;}
   if(!id)id=KEYMAP[e.code];if(!id)return;if(id==='P')id=primary();if(id==='brake'&&M.key==='fight')id='block';
   if(!M.actions().some(a=>a.id===id)&&!(id==='center'&&M.key==='race'))return;e.preventDefault();if(e.repeat||held[e.code])return;held[e.code]=id;unlock();M.press(id,true);padEls(id).forEach(b=>b.classList.add('on'));});

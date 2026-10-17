@@ -20,10 +20,10 @@ const Kick={
     ...(this.opt.shot==='dribble'?Drib.moveGroups():[{id:'pred',label:'Predicted path on field',choices:[['on','Show','practice'],['off','Hide','challenge']]}])];},
   vars(){const hdr=this.opt.shot==='header';const g={id:'g',sym:'g',name:'gravity',unit:'m/s²',min:1.6,max:25,step:0.01,d:2,col:C.xray,pre:[[1.62,'Moon'],[3.71,'Mars'],[9.81,'Earth'],[24.79,'Jupiter']]};
     if(hdr)return[{id:'thH',sym:'θ',name:'header direction',unit:'°',min:-10,max:35,step:1,d:0,col:C.pink},{id:'jv',sym:'v₀',name:'jump take-off speed',unit:'m/s',min:2,max:3.8,step:0.1,d:1,col:C.good,pre:[[2.4,'hop'],[3.0,'leap'],[3.5,'max']]},g];
-    return[{id:'v',sym:'v',name:'launch speed',unit:'m/s',min:8,max:35,step:0.5,d:1,col:C.good,pre:[[15,'pass'],[22,'free kick'],[30,'rocket']]},
+    return[{id:'v',sym:'v',name:'launch speed',unit:'m/s',min:8,max:35,step:0.5,d:1,col:C.xray,pre:[[15,'pass'],[22,'free kick'],[30,'rocket']]},
       {id:'th',sym:'θ',name:'launch angle',unit:'°',min:3,max:45,step:1,d:0,col:C.pink},g,
       {id:'spin',sym:'a_s',name:'spin (Magnus push, + = topspin dips)',unit:'m/s²',min:-3,max:3,step:0.1,d:1,col:C.violet,pre:[[-2,'backspin'],[0,'none'],[2.5,'topspin']]}];},
-  actions(){if(dialMode()==='select'){const icon=this.opt.shot!=='header'?'kick':this.state==='incoming'?'head':'crossin';return[...dialSelectActions(),{id:'go',label:this.label(),aria:this.label()+' (Space)',icon,color:'#ff8a1f',key:'SPACE',big:true,primary:true,pulse:this.state==='done'||this.state==='incoming'}];}
+  actions(){if(dialMode()==='quick'){const icon=this.opt.shot!=='header'?'kick':this.state==='incoming'?'head':'crossin';return[...quickTuneActions(),{id:'go',label:this.label(),aria:this.label()+' (Space)',icon,color:'#ff8a1f',key:'SPACE',big:true,primary:true,pulse:this.state==='done'||this.state==='incoming'}];}
     const hdr=this.opt.shot==='header',th=hdr?'thH':'th',L=[{id:'th+',dir:'up',tag:'θ',aria:'raise angle',step:[th,1]},{id:'th-',dir:'down',tag:'θ',aria:'lower angle',step:[th,-1]}];
     if(!hdr)L.push({id:'v-',dir:'left',tag:'v',aria:'less speed',step:['v',-0.5]},{id:'v+',dir:'right',tag:'v',aria:'more speed',step:['v',0.5]});
     const icon=!hdr?'kick':this.state==='incoming'?'head':'crossin';

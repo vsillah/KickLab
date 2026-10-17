@@ -225,12 +225,14 @@ canvas#cv{display:block;width:100%;height:auto;aspect-ratio:16/9;touch-action:no
 .dials .live .eqline .ef{font-size:13px}.dials .live .eqline .es{font-size:12px}
 @media (max-width:700px){.dials{position:fixed;left:8px;right:8px;top:auto;bottom:8px;height:58vh;width:auto;z-index:50}}
 /* arcade controls: d-pad left, round buttons right */
-.dpad{display:grid;grid-template-columns:repeat(3,50px);grid-template-rows:repeat(3,50px);filter:drop-shadow(0 8px 14px rgba(0,0,0,.45))}
+.dpad{position:relative;display:grid;grid-template-columns:repeat(3,50px);grid-template-rows:repeat(3,50px);filter:drop-shadow(0 8px 14px rgba(0,0,0,.45))}
 .dpad .arm{appearance:none;border:0;margin:0;padding:0;background:linear-gradient(180deg,#2c3650,#1a2135);color:#d7e0f0;display:grid;place-items:center;cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.12),inset 0 -3px 0 rgba(0,0,0,.35)}
 .dpad .arm svg{width:22px;height:22px}
 .dpad .up{grid-area:1/2;border-radius:12px 12px 0 0}.dpad .down{grid-area:3/2;border-radius:0 0 12px 12px}.dpad .left{grid-area:2/1;border-radius:12px 0 0 12px}.dpad .right{grid-area:2/3;border-radius:0 12px 12px 0}
 .dpad .hub{grid-area:2/2;background:#1f2740;display:grid;place-items:center;font-family:var(--f-mono);font-size:8.5px;letter-spacing:.1em;color:var(--muted);text-align:center;line-height:1.1}
 .dpad .hub i{width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#3b4666,#161c2e);box-shadow:inset 0 2px 3px rgba(0,0,0,.5)}
+.dpad .hub.quick-layer{appearance:none;border:0;margin:0;padding:4px 2px;cursor:pointer;color:var(--xray);box-shadow:inset 0 2px 5px rgba(0,0,0,.5)}.dpad .hub.quick-layer span{font:700 9px/1 var(--f-mono);letter-spacing:.08em}.dpad .hub.quick-layer small{font:600 5.5px/1.05 var(--f-mono);letter-spacing:0;color:var(--muted)}.dpad .hub.quick-layer:focus-visible{outline:2px solid var(--hot);outline-offset:2px}.dpad .hub.quick-layer:active{background:#2b3653}
+.dpad .quick-axis{z-index:2;align-self:center;justify-self:stretch;display:grid;gap:1px;text-align:center;color:var(--quick-color);font:700 5.5px/1 var(--f-mono);letter-spacing:.02em;pointer-events:none;text-shadow:0 1px 2px #000}.dpad .quick-axis b{font-size:9px;line-height:1}.dpad .quick-axis.horizontal{grid-area:1/1}.dpad .quick-axis.vertical{grid-area:3/3}
 .dpad .arm .tag{position:absolute;font-family:var(--f-mono);font-size:8px;color:var(--xray);pointer-events:none}
 .dpad .arm{position:relative}
 .dpad .arm.act{color:var(--xray)}
@@ -250,7 +252,7 @@ canvas#cv{display:block;width:100%;height:auto;aspect-ratio:16/9;touch-action:no
 @keyframes apulse{50%{box-shadow:0 7px 0 color-mix(in srgb,var(--bc) 45%,#000),0 0 0 4px #0b1120,0 0 0 6px rgba(255,255,255,.12),0 0 30px var(--bc)}}
 .abtn:disabled{opacity:.35;cursor:default}
 .abtn:focus-visible .cap,.dpad .arm:focus-visible{outline:2px solid var(--hot);outline-offset:3px}
-@media (max-width:700px){.dpad{grid-template-columns:repeat(3,40px);grid-template-rows:repeat(3,40px)}.dpad .arm svg{width:18px;height:18px}.abtn .cap{width:54px;height:54px}.abtn .cap svg{width:28px;height:28px}.abtn.big .cap{width:64px;height:64px}.abtn.big .cap svg{width:34px;height:34px}.arcade{gap:8px}.abtn .kk{display:none}.dpad .hub{font-size:0}}
+@media (max-width:700px){.dpad{grid-template-columns:repeat(3,40px);grid-template-rows:repeat(3,40px)}.dpad .arm svg{width:18px;height:18px}.abtn .cap{width:54px;height:54px}.abtn .cap svg{width:28px;height:28px}.abtn.big .cap{width:64px;height:64px}.abtn.big .cap svg{width:34px;height:34px}.arcade{gap:8px}.abtn .kk{display:none}.dpad .hub:not(.quick-layer){font-size:0}.dpad .hub.quick-layer small{display:none}}
 @media (prefers-reduced-motion:reduce){.abtn.pulse .cap{animation:none}}
 
 /* Web cockpit: controls stay outside the canvas; secondary material opens from its contextual summary. */
