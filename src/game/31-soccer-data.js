@@ -19,50 +19,41 @@ const PLAYERS={you:{n:'You',d:'set every dial yourself',h:1.80,m:75,top:0,agil:1
   trick:{n:'The Trickster',d:'every skill move, fast feet',h:1.75,m:68,top:9.7,agil:1.2,shot:27,jump:2.8,skill:0.7,num:'11',kit:'#c2366b',all:true,why:'quick feet: each skill move takes 30% less time'},
   cannon:{n:'The Cannon',d:'huge leap, knuckleball king',h:1.87,m:84,top:9.9,agil:0.95,shot:33,jump:3.6,skill:1.0,num:'17',kit:'#c0392b',kn:1.6,why:'jump take-off 3.6 m/s: h = v₀²÷2g ≈ 0.66 m of air'}};
 function PLY(){return PLAYERS[Kick.opt.pl]||PLAYERS.you;}
+function playerLook(id=Kick.opt.pl,overrides={}){const P=PLAYERS[id]||PLAYERS.you,A=GAME_CORE.playerAppearance(id,overrides);return Object.assign({},A,{kit:overrides.kit||P.kit||A.kit,hs:P.h/1.8,ws:Math.sqrt(P.m/75)*1.8/P.h});}
 function applyPlayer(){const P=PLY();if(Kick.opt.pl==='you')return;const set=(k,v)=>{if(!isLocked('kick',k))Kick.V[k]=v;};set('run',+(Math.min(9,P.top/1.22)).toFixed(1));set('vs',P.shot);set('jv',P.jump);}
 const STADIUMS={home:{n:'Home ground',d:'sea level',g:9.81,rho:1.2,sky:['#070d1d','#1a2a4a']},alt:{n:'High altitude',d:'2,240 m up · thin air',g:9.78,rho:0.96,sky:['#0b1430','#2a4370']},mars:{n:'Mars dome',d:'g 3.71 · almost no air',g:3.71,rho:0.02,sky:['#1f0c08','#6b2e1c']},moon:{n:'Moon',d:'g 1.62 · no air at all',g:1.62,rho:0,sky:['#000000','#0b0f1a']}};
 const PITCHES={grass:{n:'Grass',e:0.55,f:0.22,roll:0.35,d:'e 0.55 · grips'},turf:{n:'Turf',e:0.7,f:0.1,roll:0.18,d:'e 0.70 · bouncy'},wet:{n:'Wet pitch',e:0.4,f:0.04,roll:0.08,d:'e 0.40 · skids fast'}};
 const WEATHER={calm:{n:'Calm',base:0,gust:0,d:'no wind'},breezy:{n:'Breezy',base:1.5,gust:0.8,d:'steady crosswind'},gusty:{n:'Gusty',base:1.0,gust:3.0,d:'changes mid-flight'}};
 function stad(){return STADIUMS[Kick.opt.stad]||STADIUMS.home;}function pitch(){return PITCHES[Kick.opt.pitch]||PITCHES.grass;}function wx(){return WEATHER[Kick.opt.wx]||WEATHER.calm;}
 /* ---------- Kit Room: ball + boots ---------- */
-const KIT_DEF={press:'match',size:'5',surf:'tex',studs:'fg',boot:'std'};
-const KITS={
-  press:{label:'Ball pressure',eq:'bounciness e: v_ball = v_foot · M(1+e) ÷ (M+m)',why:'A firmer ball is bouncier (higher e). More of your kick comes back as speed, but every dribble touch also pops further off your foot.',
-    o:{soft:{n:'Soft',d:'0.5 bar · underpumped',bar:0.5,e:0.62},match:{n:'Match',d:'0.9 bar · regulation',bar:0.9,e:0.76},hard:{n:'Rock hard',d:'1.3 bar · overpumped',bar:1.3,e:0.84}}},
-  size:{label:'Ball size',eq:'a = F ÷ m: same push, lighter ball, more speed',why:'Kids play with a size 4. It is lighter, so it leaves your foot faster, but drag and wind push it around more.',
-    o:{'5':{n:'Size 5',d:'0.43 kg · 22 cm · adult',m:0.43,r:0.11},'4':{n:'Size 4',d:'0.36 kg · 20.5 cm · youth',m:0.36,r:0.1025}}},
-  surf:{label:'Ball surface',eq:'F_drag = ½ρC_dAv²,  Magnus a = k·ω·v',why:'Textured panels grab the boot for spin and keep air flowing smoothly. A slick ball has less drag but the air lets go unevenly, so it wobbles: a knuckleball.',
-    o:{tex:{n:'Textured',d:'grippy panels, flies true',Cd:0.25,kn:1,spin:1.1},smooth:{n:'Smooth',d:'slick, less drag, wobbles',Cd:0.21,kn:1.8,spin:0.85}}},
-  studs:{label:'Studs',eq:'a_cut = μ · g: your grip decides how hard you can turn',why:'Studs set your grip (μ). The right studs for the pitch let you cut hard; the wrong ones and you slide.',
-    o:{fg:{n:'Firm-ground studs',d:'molded, for dry grass',mu:{grass:1,turf:0.85,wet:0.75}},sg:{n:'Soft-ground studs',d:'long metal, for mud',mu:{grass:0.95,turf:0.8,wet:1.05}},tf:{n:'Turf shoes',d:'tiny rubber nubs',mu:{grass:0.85,turf:1.0,wet:0.7}},ind:{n:'Indoor flats',d:'flat rubber sole',mu:{grass:0.7,turf:0.85,wet:0.5}}}},
-  boot:{label:'Boot weight',eq:'heavier M adds punch, but your foot swings slower',why:'Extra boot mass barely adds power because it also slows your swing. It does make your feet slower, which is why pros wear light boots.',
-    o:{light:{n:'Light',d:'180 g · quick feet',kg:0.18,sk:0.9},std:{n:'Standard',d:'230 g',kg:0.23,sk:1},heavy:{n:'Heavy',d:'300 g · clunky',kg:0.30,sk:1.12}}}};
-function kit(){return Object.assign({},KIT_DEF,best.kit||{});}
+const KIT_DEF=GAME_CORE.KIT_DEFAULTS;
+const KITS=Object.fromEntries(Object.entries(GAME_CORE.KIT_CATALOG).map(([key,group])=>[key,{label:group.label,eq:group.eq,why:group.why,o:group.options}]));
+function kit(){return GAME_CORE.normalizeKit(best.kit||{});}
 function KI(k){return KITS[k].o[kit()[k]]||KITS[k].o[KIT_DEF[k]];}
 function kitDefault(){const K=kit();return Object.keys(KIT_DEF).every(k=>K[k]===KIT_DEF[k]);}
-function ballM(){return +(KI('size').m+(typeof Kick!=='undefined'&&Kick.opt.pitch==='wet'?0.02:0)).toFixed(3);}
-const LEGM=0.95,TOUCHM=0.5;
-function kickRatio(e,m,boot){const Mf=LEGM+boot;return(1-0.4*(boot-0.23))*Mf*(1+e)/(Mf+m);}
-function kitShot(){return kickRatio(kitE(),ballM(),KI('boot').kg)/kickRatio(0.76,0.43,0.23);}
-function kitTouch(){const r=(e,m)=>TOUCHM*(1+e)/(TOUCHM+m);return Math.pow(r(kitE(),ballM())/r(0.76,0.43),2);}
-function kitReach(){return 1+0.35*(kitTouch()-1);}
-function kitMu(){return KI('studs').mu[(typeof Kick!=='undefined'&&Kick.opt.pitch)||'grass']||1;}
-function kitSpin(){return KI('surf').spin;}
-function applyKit(){const S=KI('size');AIR.m=ballM();AIR.A=+(Math.PI*S.r*S.r).toFixed(4);AIR.Cd=KI('surf').Cd;}
+function kitState(K=kit(),extra={}){return GAME_CORE.kitMetrics(K,Object.assign({temperatureC:temp().c,pitch:(typeof Kick!=='undefined'&&Kick.opt.pitch)||'grass',rho:AIR.rho,airOn:typeof airOn==='function'?airOn():true,baseShotSpeed:typeof Kick!=='undefined'?Kick.V.vs:24},extra));}
+function kitLook(K=kit()){return GAME_CORE.kitAppearance(K);}
+function ballM(K=kit()){return kitState(K).ballMass;}
+function kitShot(K=kit()){return kitState(K).shotMultiplier;}
+function kitTouch(K=kit()){return kitState(K).touchMultiplier;}
+function kitReach(K=kit()){return kitState(K).reachMultiplier;}
+function kitMu(K=kit()){return kitState(K).gripMultiplier;}
+function kitSpin(K=kit()){return kitState(K).spinMultiplier;}
+function applyKit(){const S=kitState();AIR.m=S.ballMass;AIR.A=S.ballArea;AIR.Cd=KI('surf').Cd;}
 const TEMPS={cold:{n:'Freezing',c:-5,d:'−5 °C · night game'},cool:{n:'Cool',c:10,d:'10 °C · autumn'},mild:{n:'Mild',c:20,d:'20 °C · baseline'},hot:{n:'Hot',c:35,d:'35 °C · summer'}};
 function temp(){return TEMPS[(typeof Kick!=='undefined'&&Kick.opt.temp)||'mild']||TEMPS.mild;}
 function tK(){return 273.15+temp().c;}
 const PATM=1.013,T_PUMP=293.15;
-function ballBar(){return(KI('press').bar+PATM)*tK()/T_PUMP-PATM;}
-function eOfBar(b){const P=[[0.3,0.55],[0.5,0.62],[0.9,0.76],[1.3,0.84],[1.6,0.87]];if(b<=P[0][0])return P[0][1];for(let i=1;i<P.length;i++)if(b<=P[i][0]){const[a0,e0]=P[i-1],[a1,e1]=P[i];return+(e0+(e1-e0)*(b-a0)/(a1-a0)).toFixed(3);}return P[P.length-1][1];}
-function kitE(){return eOfBar(ballBar());}
+function ballBar(K=kit()){return kitState(K).pressureBar;}
+function eOfBar(b){return GAME_CORE.restitutionAtPressure(b);}
+function kitE(K=kit()){return kitState(K).restitution;}
 const STRIKE={mid:{n:'Through the middle',d:'no up/down spin · full power',w:0,f:1},over:{n:'Over the top',d:'topspin: clears the wall, then dips',w:1,f:0.92},under:{n:'Under the ball',d:'backspin: floats and rises',w:-1,f:0.92}},STRIKE_W=5;
 function strikeOf(fin){return fin==='knuck'?STRIKE.mid:(STRIKE[Kick.opt.strike]||STRIKE.mid);}
 function strikeF(fin){return strikeOf(fin).f;}
 function strikeAz(v,fin){const S=strikeOf(fin);return S.w?-S.w*MAG*kitSpin()*STRIKE_W*v*(AIR.rho/1.2):0;}
 function applyWorld(){const S=stad();AIR.rho=+(S.rho*T_PUMP/tK()).toFixed(3);G0=M===Kick?S.g:9.81;applyKit();}
 function airOn(){const o=Kick.opt.air||'auto';return AIR.rho>0&&(o==='on'||(o==='auto'&&assistLevel('kick')<2)||stad().rho!==1.2);}
-function dragK(){return airOn()?0.5*AIR.rho*AIR.Cd*AIR.A/AIR.m:0;}
+function dragK(K=kit()){return kitState(K).dragFactor;}
 function shotV(fin){return Kick.V.vs*kitShot()*strikeF(fin)*(fin==='curl'?0.8:fin==='knuck'?1.05:1);}
 function wallH(tau){return tau<=0?0:Math.max(0,WALL_V0*tau-0.5*G0*tau*tau);}
 function ballTick(b,dt){const k=dragK();if(k){const v=Math.hypot(b.vx,b.vy,b.vz);b.vx-=k*v*b.vx*dt;b.vy-=k*v*b.vy*dt;b.vz-=k*v*b.vz*dt;

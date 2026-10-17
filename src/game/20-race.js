@@ -140,7 +140,7 @@ const Race={
     c.fillStyle='#0a0f1c';[[l*0.3,-w/2,1],[l*0.3,w/2,1],[-l*0.34,-w/2,0],[-l*0.34,w/2,0]].forEach(([x,y,f])=>{c.save();c.translate(x,y);if(f)c.rotate(-st*3);c.fillRect(-4.5,-2.5,9,5);c.restore();});
     c.fillStyle=styleCol('race')||car.col;rr(c,-l/2,-w/2+1,l,w-2,this.opt.car==='kart'?3:6);c.fill();
     c.fillStyle='#0a1020';rr(c,l*0.02,-w/2+3,l*0.2,w-6,2);c.fill();
-    if(this.opt.car==='kart'){c.fillStyle=C.hot;c.beginPath();c.arc(-l*0.05,0,w*0.26,0,Math.PI*2);c.fill();}
+    {const A=GAME_CORE.playerAppearance('rocket'),hx=this.opt.car==='kart'?-l*0.05:l*0.08,hr=Math.max(7,w*0.2),turn=clamp(this.curWheel()/180,-1,1);c.fillStyle=A.hair;c.beginPath();c.arc(hx-2,0,hr*1.08,0,Math.PI*2);c.fill();c.fillStyle=A.skin;c.beginPath();c.arc(hx,0,hr,0,Math.PI*2);c.fill();c.strokeStyle=A.kit;c.lineWidth=Math.max(3,hr*0.28);c.beginPath();c.arc(hx,0,hr*0.82,-1.2,1.2);c.stroke();c.fillStyle=A.eye;c.beginPath();c.arc(hx+hr*0.35,-hr*0.3,Math.max(1.2,hr*0.09),0,Math.PI*2);c.arc(hx+hr*0.35,hr*0.3,Math.max(1.2,hr*0.09),0,Math.PI*2);c.fill();c.strokeStyle=A.skin;c.lineWidth=Math.max(3,hr*0.22);c.lineCap='round';line(c,hx-hr*0.65,-hr*0.55,hx+hr*(0.25+turn*0.2),-w*0.38);line(c,hx-hr*0.65,hr*0.55,hx+hr*(0.25-turn*0.2),w*0.38);}
     c.restore();},
   drawXray(c){const s=this.st,car=this.CARS[this.opt.car],P=this.P(),k=1.8*this.S,l=car.len*k,w=car.wid*k;
     const cx=this.sx(this.L),cy=this.sy(P.R);
