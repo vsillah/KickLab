@@ -6,8 +6,10 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
+    "pages:prepare": "node scripts/prepare-pages.mjs",
+    "pages:check": "node scripts/check-pages-prepare.mjs",
     "test": "node --test",
-    "check": "node scripts/build.mjs --emit-game && node --check dist/game.js && node --test && node scripts/check-web.mjs"
+    "check": "node scripts/build.mjs --emit-game && node scripts/prepare-pages.mjs && node --check dist/game.js && node --test && node scripts/check-web.mjs && node scripts/check-pages-prepare.mjs"
   },
   "engines": { "node": ">=18" }
 }
