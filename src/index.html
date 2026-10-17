@@ -62,12 +62,14 @@
   </div></div>
   <div class="play" id="game-cockpit" role="region" aria-labelledby="currentModeTitle" hidden>
     <div class="left">
-      <div class="environment-context" id="environmentContext" aria-label="Current Kick environment" aria-live="polite" aria-atomic="true" hidden><span>Environment</span><b id="environmentContextLabel"></b><small id="environmentContextDetail"></small></div>
       <div class="game-frame">
-        <div class="stage">
-          <nav class="play-nav game-shell-nav" aria-label="Current lab and experience">
+        <header class="game-context-header" aria-label="Current game context">
+          <nav class="play-nav game-shell-nav" aria-label="Current Kick experience">
             <div class="gamebar" id="gameBar" hidden></div>
           </nav>
+          <div class="environment-context" id="environmentContext" role="status" aria-label="Environment for the selected Kick experience" aria-live="polite" aria-atomic="true" hidden><span>Environment</span><b id="environmentContextLabel"></b><small id="environmentContextDetail"></small></div>
+        </header>
+        <div class="stage">
           <canvas id="cv" width="960" height="540" aria-label="Game stage"></canvas>
           <div class="results" id="results" hidden><div class="rc" id="rc"><div class="grade" id="rGrade">A<small>GRADE</small></div><div class="rmain"><div class="rlvl" id="rLvl" hidden></div><div class="rtitle" id="rTitle"></div><div class="rsub" id="rSub"></div><ul class="rrows" id="rRows"></ul><div class="rtotal"><span>XP earned</span><b id="rTotal">+0</b></div><div class="rhint" id="rHint"></div><div class="rboard" id="rBoard" hidden></div><div class="rgo"><div class="racts" id="racts" hidden><button type="button" id="rReview">Coach review</button><button type="button" id="rReplay">Replay</button></div><button type="button" class="rnext" id="rNext">Next round <span aria-hidden="true">▶</span> <kbd>Space</kbd></button></div></div></div></div>
           <div class="lvlup" id="lvlup" hidden><div class="lu"><span class="lu-k">LEVEL UP</span><div class="lu-n" id="luNum">2</div><div class="lu-t" id="luTitle"></div><div class="lu-u" id="luUnlock"></div></div></div>

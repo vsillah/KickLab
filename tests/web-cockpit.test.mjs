@@ -78,7 +78,7 @@ test('opens only one responsive contextual detail at a time',()=>{
 
 test('uses a compact active-play HUD and one translucent field overlay',()=>{
   const stage=html.indexOf('<div class="stage">'),nav=html.indexOf('class="play-nav game-shell-nav"'),canvas=html.indexOf('id="cv"'),hud=html.indexOf('id="gameGuidanceHud"'),settings=html.indexOf('id="settingsDrawer"'),detail=html.indexOf('id="physicsDetail"'),deck=html.indexOf('class="control-deck"');
-  assert.ok(stage<nav&&nav<canvas&&canvas<hud&&hud<settings&&settings<detail&&detail<deck);
+  assert.ok(nav<stage&&stage<canvas&&canvas<hud&&hud<settings&&settings<detail&&detail<deck);
   for(const id of ['gameOverlayBackdrop','liveMathHud','liveMathHudValues','liveMathHudStatus','physicsDetailsHud'])assert.equal((html.match(new RegExp(`id="${id}"`,'g'))||[]).length,1,`${id} must be singular`);
   for(const id of ['orientationDetail','physicsDetail','reviewDetail','goalsDetail','learnDetail','settingsDrawer'])assert.match(html,new RegExp(`id="${id}"[^>]+role="dialog"[^>]+aria-modal="true"`));
   assert.match(cockpit,/function releaseGameplayForOverlay\(\).*releaseMobileHeldInputs\('Game overlay opened'\)/);
@@ -323,10 +323,14 @@ test('shows adjustment math temporarily while keeping environment context persis
   assert.match(ui,/hideStageAdjustment\(\);M\.press\(a\.id,true\)/);
   assert.match(ui,/const set=x=>\{[^}]*showStageAdjustment\(v\.id\)/);
   assert.ok(games.includes('parts=[`${S.n} · g ${fmt(S.g,2)} m/s²`]'));
-  assert.match(html,/id="environmentContext"[^>]+aria-label="Current Kick environment"[^>]+aria-live="polite"[^>]+hidden/);
+  assert.match(html,/class="game-context-header"[^>]+aria-label="Current game context"[\s\S]*id="gameBar"[\s\S]*id="environmentContext"[^>]+role="status"[^>]+aria-label="Environment for the selected Kick experience"[^>]+aria-live="polite"[^>]+hidden/);
+  assert.ok(html.indexOf('id="gameBar"')<html.indexOf('id="environmentContext"'));
+  assert.ok(html.indexOf('id="environmentContext"')<html.indexOf('<div class="stage">'));
   assert.match(games,/function renderEnvironmentContext\(\).*el\.hidden=!active.*environmentContextLabel.*environmentContextDetail/);
   assert.match(live,/function renderAll\(intro=true\)\{renderGameBar\(\);renderEnvironmentContext\(\);/);
-  assert.match(css,/\.environment-context\{[^}]+min-height:34px[^}]+justify-content:center/);
+  assert.match(live,/id="experienceSelector"[^>]+aria-describedby="environmentContext"/);
+  assert.match(css,/\.game-context-header\{[^}]+grid-template-columns:minmax\(280px,1\.45fr\) minmax\(220px,1fr\)/);
+  assert.match(css,/\.game-context-header \.environment-context\{[^}]+min-height:32px[^}]+justify-content:flex-start/);
   assert.match(css,/\.environment-context\[hidden\]\{display:none\}/);
   assert.doesNotMatch(games,/__KICKLAB_ENV_LABEL__|environmentLabelRightInset/);
   assert.doesNotMatch(kickSide,/air drag ON · ρ/);
