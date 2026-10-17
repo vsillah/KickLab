@@ -305,24 +305,45 @@ test('projects every canonical manual variable into the wide control gap',()=>{
   assert.match(css,/\.wide-manual-row\{display:grid;grid-template-columns:82px 76px minmax\(120px,1fr\)/);
 });
 
-test('keeps mechanics-backed coach sliders between analog and gesture controls',()=>{
+test('keeps six-slot mechanics controls between analog and gesture controls',()=>{
   assert.match(html,/id="analogStick"[^]*id="prototypePhysics"[^]*id="gestureAction"/);
   assert.match(html,/id="prototypePhysics" open/);
   assert.match(html,/id="prototypePhysicsStatus" role="status" aria-live="polite"/);
   assert.match(cockpit,/function renderPrototypeManual\(\)/);
   assert.match(cockpit,/const defs=wideManualDefs\(\),profile=activeVariableProfileKey\(\)/);
   assert.match(cockpit,/suggestions=M\.suggest\?M\.suggest\(\):\{\}/);
-  assert.match(cockpit,/GAME_CORE\.sliderRangeModel\(\{min:def\.min,max:def\.max,step:def\.step,value:M\.V\[def\.id\],suggestion,locked,lockReason,name:quickMathName\(def\),unit:def\.unit\}\)/);
+  assert.match(cockpit,/GAME_CORE\.sliderSlotsModel\(\{min:def\.min,max:def\.max,step:def\.step,value:M\.V\[def\.id\],suggestion,locked,lockReason,name:quickMathName\(def\),unit:def\.unit\}\)/);
   assert.match(cockpit,/function prototypeLockReason\(def\)\{const challenge=curCh\(M\.key\)/);
   assert.match(cockpit,/challenge\.name} fixes \$\{quickMathName\(def\)\} at/);
-  assert.match(cockpit,/input\.setAttribute\('aria-label',model\.label\)/);
-  assert.match(cockpit,/prototypePhysicsRows\.addEventListener\('input'/);
-  assert.match(cockpit,/adjustVar\(def\.id,\+input\.value-M\.V\[def\.id\],false\)/);
+  assert.match(cockpit,/Array\.from\(\{length:6\}/);
+  assert.match(cockpit,/class="prototype-slot" data-index="\$\{index\}" role="radio"/);
+  assert.match(cockpit,/button\.setAttribute\('aria-label',slot\.label\)/);
+  assert.match(cockpit,/button\.setAttribute\('aria-checked',String\(slot\.selected\)\)/);
+  assert.match(cockpit,/button\.setAttribute\('aria-expanded',String\(expanded&&slot\.selected\)\)/);
+  assert.match(cockpit,/class="prototype-slot-detail"[^>]+aria-label="Selected \$\{quickMathName\(def\)\} details" hidden/);
+  assert.match(cockpit,/function prototypeGraphicTitle\(def\)/);
+  assert.match(cockpit,/function prototypeEffect\(def,model,suggestion\)/);
+  assert.match(cockpit,/role="img" aria-label="\$\{summary\}"/);
+  assert.match(cockpit,/PROTOTYPE_MANUAL\.expanded=def\.id;PROTOTYPE_MANUAL\.change=\{id:def\.id,from,to:value\}/);
+  assert.match(cockpit,/data-collapse-slots/);
+  assert.match(cockpit,/PROTOTYPE_MANUAL\.expanded=null;renderPrototypeManual\(\)/);
+  assert.match(cockpit,/prototypePhysicsRows\.addEventListener\('click'/);
+  assert.match(cockpit,/prototypePhysicsRows\.addEventListener\('pointercancel'/);
+  assert.match(cockpit,/\['ArrowLeft','ArrowRight','Home','End'\]/);
+  assert.match(cockpit,/adjustVar\(def\.id,value-from,false\)/);
+  assert.doesNotMatch(cockpit,/prototype-slots[^\n]+type="range"/);
   assert.match(css,/@media \(min-width:981px\)\{\.touch-controller\{grid-template-columns:minmax\(205px,1fr\) minmax\(330px,1\.45fr\) minmax\(205px,1fr\)/);
   assert.match(css,/\.prototype-physics\{grid-column:2;grid-row:2/);
-  assert.match(css,/\.prototype-physics-row input\[type="range"\]\{[^}]*pointer-events:auto;touch-action:none;cursor:pointer/);
+  assert.match(css,/\.prototype-slot-group\{display:grid;grid-template-columns:repeat\(6,minmax\(0,1fr\)\)/);
+  assert.match(css,/\.prototype-slot\{[^}]*min-height:44px/);
+  assert.match(css,/\.prototype-slot:focus-visible\{outline:3px solid var\(--hot\)/);
+  assert.match(css,/\.prototype-slot-detail\{[^}]*max-height:190px;overflow:auto/);
+  assert.match(css,/\.prototype-detail-grid\{display:grid;grid-template-columns:minmax\(0,1\.45fr\) minmax\(115px,\.75fr\)/);
+  assert.match(css,/\.prototype-slot-detail figure\{[^}]*min-width:0/);
   assert.match(css,/@media \(min-width:620px\) and \(max-width:980px\)\{\.prototype-physics-rows\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
-  for(const state of ['low','target','perfect','high','locked'])assert.match(css,new RegExp(`prototype-physics-row\\[data-state="${state}"\\]`));
+  assert.match(css,/@media \(max-width:480px\)[^\n]+\.prototype-detail-grid\{grid-template-columns:minmax\(0,1fr\)\}/);
+  for(const state of ['low','target','perfect','high'])assert.match(css,new RegExp(`prototype-slot\\[data-state="${state}"\\]`));
+  assert.match(css,/\.prototype-physics-row\.locked \.prototype-slot/);
 });
 
 test('keeps settings and contextual details mutually exclusive',()=>{

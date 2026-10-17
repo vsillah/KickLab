@@ -2,9 +2,9 @@
 
 This prototype keeps KickLab's classic D-pad and action buttons mounted and unchanged. The **Try analog controls** toggle only swaps the visible controller surface for the current page session. It writes no new storage keys and does not change `impactlab.v1` or `impactlab.nick`.
 
-The prototype surface keeps the analog stick on the left and release ring on the right. On wide layouts, compact manual-physics sliders occupy the center. On narrower layouts, the thumb controls remain side by side and the slider panel stacks beneath them as a collapsible disclosure.
+The prototype surface keeps the analog stick on the left and release ring on the right. On wide layouts, compact manual-physics quick values occupy the center. On narrower layouts, the thumb controls remain side by side and the quick-value panel stacks beneath them as a collapsible disclosure. Each variable offers exactly six large slots so touch users can make a fast choice without precision dragging. Continuous fine adjustment remains available in the detailed physics drawer.
 
-Each slider comes from the same active-variable profile used by Live Math. Its minimum, maximum, step, current value, challenge lock, and coach suggestion are read from the active Fight, Race, or Kick mechanics. Numeric coach suggestions become ordered low, target, ideal, and high track segments; variables without a defensible numeric suggestion stay neutral instead of receiving a decorative target. Locked variables remain visible and explain which active challenge fixed them.
+Each six-slot control comes from the same active-variable profile used by Live Math. Its minimum, maximum, step, current value, challenge lock, and coach suggestion are read from the active Fight, Race, or Kick mechanics. The endpoints are always represented; the four interior values are deterministically rounded to the mechanic's canonical step. An off-grid current value highlights its nearest slot without changing the mechanic until that slot is activated. Numeric coach suggestions color intersecting slots as acceptable or ideal; variables without a defensible numeric suggestion stay neutral. Locked variables retain all six values and explain which active challenge fixed them.
 
 ## Model
 

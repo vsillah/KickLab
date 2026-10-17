@@ -8,7 +8,7 @@ await import('../src/shared/game-core.js');
 const root=join(dirname(fileURLToPath(import.meta.url)),'..');
 const {
   normalizeAnalogStick,powerFromGesture,classifyPower,gestureToSpin,
-  hapticCapability,hapticCueFor,resolveControlMapping,CONTROL_MAPPINGS,sliderRangeModel
+  hapticCapability,hapticCueFor,resolveControlMapping,CONTROL_MAPPINGS,sliderRangeModel,sliderSlotsModel
 }=globalThis.KickLabGameCore;
 
 test('normalizes radial magnitude with a dead zone and center return',()=>{
@@ -84,6 +84,24 @@ test('describes challenge locks and accessible current, range, and coach-band co
   assert.equal(locked.state,'locked');assert.match(locked.label,/Speed\. Current 18 m\/s\./);assert.equal(locked.description,'Soft touch fixes Speed at 18 m/s.');
   const free=sliderRangeModel({min:3,max:45,value:25,suggestion:{lo:22,hi:29},name:'Angle',unit:'°'});
   assert.match(free.description,/Angle range 3 to 45 degrees/);assert.match(free.description,/Coach target 22 to 29 degrees/);
+});
+
+test('derives exactly six ordered step-compatible quick values with reachable endpoints',()=>{
+  const model=sliderSlotsModel({min:.4,max:1,step:.05,value:.82,name:'Grip'});
+  assert.equal(model.slots.length,6);assert.equal(model.values.length,6);assert.equal(model.values[0],.4);assert.equal(model.values[5],1);
+  for(let i=1;i<model.values.length;i++){assert.ok(model.values[i]>model.values[i-1]);assert.ok(Math.abs((model.values[i]-.4)/.05-Math.round((model.values[i]-.4)/.05))<1e-9);}
+  assert.deepEqual(model.slots.map(slot=>slot.index),[0,1,2,3,4,5]);
+});
+
+test('maps off-grid current values to the nearest slot without mutating the value',()=>{
+  const model=sliderSlotsModel({min:0,max:10,step:2,value:5,name:'Force'});
+  assert.deepEqual(model.values,[0,2,4,6,8,10]);assert.equal(model.value,5);assert.equal(model.selectedIndex,2);assert.equal(model.slots[2].selected,true);assert.equal(model.slots[3].selected,false);
+});
+
+test('classifies six-slot coach intersections while retaining lock context',()=>{
+  const model=sliderSlotsModel({min:0,max:10,step:1,value:4,suggestion:{lo:3,hi:7},locked:true,lockReason:'Challenge fixes Force.',name:'Force',unit:'N'});
+  assert.equal(model.state,'locked');assert.equal(model.description,'Challenge fixes Force.');assert.ok(model.slots.some(slot=>slot.state==='low'));assert.ok(model.slots.some(slot=>slot.state==='perfect'));assert.ok(model.slots.some(slot=>slot.state==='high'));
+  for(const slot of model.slots){assert.match(slot.label,/slot \d of 6/);assert.ok(['low','target','perfect','high'].includes(slot.state));}
 });
 
 test('keeps pointer lifecycle, cancellation, multi-touch rejection, resize safety, and scroll prevention explicit',()=>{

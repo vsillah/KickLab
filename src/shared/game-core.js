@@ -145,6 +145,31 @@
     });
   }
 
+  function sliderSlotsModel(options = {}) {
+    const range = sliderRangeModel(options), step = Math.max(Number(options.step) || 1, Number.EPSILON), span = range.max - range.min;
+    const precision = Math.min(8, Math.max(0, String(step).split('.')[1]?.length || 0, String(range.min).split('.')[1]?.length || 0, String(range.max).split('.')[1]?.length || 0));
+    const snap = raw => Number((range.min + Math.round((raw - range.min) / step) * step).toFixed(precision));
+    const values = Array.from({ length: 6 }, (_, index) => index === 0 ? range.min : index === 5 ? range.max : Math.max(range.min, Math.min(range.max, snap(range.min + span * index / 5))));
+    const selectedIndex = values.reduce((best, candidate, index) => Math.abs(candidate - range.value) < Math.abs(values[best] - range.value) ? index : best, 0);
+    const slots = values.map((slotValue, index) => {
+      const center = (slotValue - range.min) / span;
+      const start = index === 0 ? 0 : ((values[index - 1] + slotValue) / 2 - range.min) / span;
+      const end = index === 5 ? 1 : ((slotValue + values[index + 1]) / 2 - range.min) / span;
+      let state = 'neutral';
+      if (range.hasBand) {
+        if (end < range.targetStart) state = 'low';
+        else if (start > range.targetEnd) state = 'high';
+        else if (end >= range.perfectStart && start <= range.perfectEnd) state = 'perfect';
+        else if (end >= range.targetStart && start <= range.targetEnd) state = 'target';
+        else state = center < range.targetStart ? 'low' : 'high';
+      }
+      const unitText = options.unit ? options.unit === '°' ? ' degrees' : ` ${options.unit}` : '';
+      const stateText = { low: 'below coach range', target: 'coach range', perfect: 'coach ideal', high: 'above coach range', neutral: 'no coach range' }[state];
+      return Object.freeze({ index, value: slotValue, start, end, state, selected: index === selectedIndex, label: `${options.name || 'Variable'}, slot ${index + 1} of 6, ${slotValue}${unitText}, ${stateText}${index === selectedIndex ? ', nearest current value' : ''}` });
+    });
+    return Object.freeze({ ...range, selectedIndex, values: Object.freeze(values), slots: Object.freeze(slots) });
+  }
+
   const PLAYER_APPEARANCES = freezeMap({
     you: { skin: '#8d5b3c', hair: '#16100d', hairStyle: 'fade', eye: '#17111a', brow: 'straight', mouth: 'focus', kit: '#2f4a86', accent: '#7fdcff', shorts: '#15213b', socks: '#e8eef9', build: 1, height: 1, shoulders: 1, torso: 1, legs: 1, stance: 0.14, number: '10' },
     wiz: { skin: '#6f452f', hair: '#20140f', hairStyle: 'curls', eye: '#20140f', brow: 'arc', mouth: 'smile', kit: '#6d3fbf', accent: '#cbb8ff', shorts: '#211637', socks: '#ece6ff', build: 0.86, height: 0.93, shoulders: 0.88, torso: 0.91, legs: 0.96, stance: 0.18, number: '10' },
@@ -373,7 +398,7 @@
   }
 
   root.KickLabGameCore = Object.freeze({
-    apiVersion: '1.3.0',
+    apiVersion: '1.4.0',
     STORAGE_KEYS,
     CONTROL_POWER_BANDS,
     CONTROL_MAPPINGS,
@@ -398,6 +423,7 @@
     hapticCapability,
     hapticCueFor,
     resolveControlMapping,
-    sliderRangeModel
+    sliderRangeModel,
+    sliderSlotsModel
   });
 })(globalThis);
