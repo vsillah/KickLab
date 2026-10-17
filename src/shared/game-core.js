@@ -120,6 +120,18 @@
     return Object.freeze({ ...base, ...overrides, id: PLAYER_APPEARANCES[id] ? id : 'you' });
   }
 
+  function headAttachmentGeometry(scale = 1) {
+    const safeScale = Number.isFinite(scale) && scale > 0 ? scale : 1;
+    const headRadius = 0.1344 * safeScale;
+    const headCenterAboveShoulders = 0.18 * safeScale;
+    return Object.freeze({
+      headRadius,
+      headCenterAboveShoulders,
+      neckTopAboveShoulders: headCenterAboveShoulders - headRadius * 0.88,
+      maxVisibleGap: 0.006 * safeScale
+    });
+  }
+
   function kitAppearance(selection = KIT_DEFAULTS) {
     const kit = normalizeKit(selection);
     const size = kitOption(kit, 'size');
@@ -221,6 +233,7 @@
     kitMetrics,
     kitAppearance,
     playerAppearance,
+    headAttachmentGeometry,
     pressureAtTemperature,
     restitutionAtPressure,
     timeAtDistance,

@@ -22,6 +22,10 @@ The second pass changes the strategy instead of adding more sub-pixel detail:
 5. Race exposes steering, throttle, and braking response in a live driver treatment;
 6. ball, boot, stud, glove, and uniform selections remain canonical and visible on the live surfaces.
 
+### Rejected rig evidence (`1814f98`)
+
+The first second-pass evidence is also obsolete: its 3D head centers sat too far above the shoulder line, leaving a visible break between the neck mesh and head volume in Tower, Trickster, and motion poses. The corrected rig derives the head center, radius, and neck-top position from one canonical attachment geometry. Every live 3D frame now publishes a non-sensitive joint audit, and rendered QA fails if the measured head-to-neck surface gap exceeds the bounded tolerance. Goalkeeper framing also uses a dedicated upper-left portrait card plus a larger, front-facing in-world keeper so the face, gloves, uniform, articulated limbs, and airborne pose remain readable without covering the ball or goal mouth.
+
 ## Canonical flow
 
 `src/shared/game-core.js` is the source for:

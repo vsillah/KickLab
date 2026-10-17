@@ -37,6 +37,15 @@ test('keeps archetype silhouette signatures structurally unique', () => {
   assert.ok(core.playerAppearance('rocket').legs > core.playerAppearance('cannon').legs);
 });
 
+test('keeps the canonical head and neck geometry attached', () => {
+  for (const scale of [0.8, 1, 1.25, 1.6]) {
+    const joint = core.headAttachmentGeometry(scale);
+    const neckToCenter = joint.headCenterAboveShoulders - joint.neckTopAboveShoulders;
+    assert.ok(neckToCenter < joint.headRadius, `scale ${scale} leaves a visible head gap`);
+    assert.ok(joint.maxVisibleGap <= 0.01 * scale);
+  }
+});
+
 test('derives kit telemetry from the same canonical model for gameplay and UI', () => {
   const match = core.kitMetrics(core.KIT_DEFAULTS, { baseShotSpeed: 24, pitch: 'grass', temperatureC: 20, rho: 1.2, airOn: true });
   const hardYouth = core.kitMetrics({ press: 'hard', size: '4', surf: 'smooth', studs: 'sg', boot: 'light' }, { baseShotSpeed: 24, pitch: 'wet', temperatureC: 35, rho: 1.2, airOn: true });
@@ -83,6 +92,7 @@ test('wires appearance, equipment, telemetry deltas, and WebGL fallback into bot
   assert.match(renderer, /faceRig\(/);
   assert.match(renderer, /bootRig\(/);
   assert.match(renderer, /this\.ballTextures/);
+  assert.match(renderer, /__KICKLAB_RIG_AUDIT__/);
   assert.match(renderer, /local 3D bundle unavailable/);
   assert.doesNotMatch(renderer, /cdnjs|https?:\/\//);
   assert.match(rig, /portrait\(/);

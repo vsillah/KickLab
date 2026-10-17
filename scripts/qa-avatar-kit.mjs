@@ -20,6 +20,7 @@ const context = await browser.newContext({
 });
 const page = await context.newPage();
 const errors = [];
+const rigAudits = [];
 page.on('pageerror', (error) => errors.push(String(error)));
 page.on('console', (message) => {
   if (message.type() === 'error') errors.push(message.text());
@@ -32,6 +33,13 @@ const stageSnap = async (name) => {
   await page.locator('.stage').screenshot({ path: join(outputDir, `${name}-stage.png`) });
 };
 const pause = (ms = 700) => page.waitForTimeout(ms);
+const auditRig = async (label) => {
+  const joints = await page.evaluate(() => window.__KICKLAB_RIG_AUDIT__ || []);
+  if (!joints.length) throw new Error(`${label}: no live 3D rig audit was exposed`);
+  const maxGap = Math.max(...joints.map((joint) => Number(joint.headNeckGap) || 0));
+  if (maxGap > 0.0065) throw new Error(`${label}: head-to-neck gap ${maxGap.toFixed(4)} exceeds invariant`);
+  rigAudits.push({ label, count: joints.length, maxHeadNeckGap: maxGap, joints });
+};
 const blurControls = () => page.evaluate(() => document.activeElement?.blur());
 const dismissToasts = async () => {
   for (const close of await page.locator('.toast-close').all()) {
@@ -90,6 +98,7 @@ await pause(900);
 await page.keyboard.press('Space');
 await pause(150);
 await stageSnap('1440-free-kick-strike');
+await auditRig('free-kick-strike');
 await pause(1150);
 await dismissToasts();
 await snap('1440-free-kick');
@@ -105,6 +114,8 @@ await page.locator('#kitSum').evaluate((element) => element.scrollIntoView({ blo
 await snap('1440-kit-telemetry');
 await page.getByRole('button', { name: /Close settings/ }).click();
 await blurControls();
+await pause(3300);
+await dismissToasts();
 
 await openActivity('1v1 Dribble');
 await page.getByRole('button', { name: /Open Player settings/ }).click();
@@ -112,7 +123,10 @@ await page.getByRole('button', { name: /The Tower/ }).click();
 await page.getByRole('button', { name: /Close settings/ }).click();
 await page.keyboard.down('Space');
 await page.keyboard.down('ArrowRight');
-await pause(1500);
+await pause(650);
+await stageSnap('1440-dribble-tower-run-attached');
+await auditRig('tower-run');
+await pause(850);
 await page.keyboard.up('ArrowRight');
 await page.keyboard.press('KeyX');
 await pause(800);
@@ -120,6 +134,7 @@ await page.keyboard.up('Space');
 await dismissToasts();
 await snap('1440-dribble-tower');
 await stageSnap('1440-dribble-tower');
+await auditRig('tower-cut');
 
 await page.getByRole('button', { name: /Open Player settings/ }).click();
 await page.getByRole('button', { name: /The Trickster/ }).click();
@@ -128,12 +143,16 @@ await blurControls();
 await pause(500);
 await snap('1440-dribble-trickster');
 await stageSnap('1440-dribble-trickster');
+await auditRig('trickster-idle');
 
 await openActivity('Goalkeeper');
 await page.keyboard.press('Space');
 await pause(1800);
 await page.keyboard.down('ArrowRight');
-await pause(420);
+await pause(160);
+await stageSnap('1440-goalkeeper-airborne-attached');
+await auditRig('goalkeeper-airborne');
+await pause(260);
 await dismissToasts();
 await snap('1440-goalkeeper');
 await stageSnap('1440-goalkeeper-dive');
@@ -183,7 +202,8 @@ const report = {
     p95Ms: sorted[Math.floor(sorted.length * 0.95)],
     maxMs: sorted[sorted.length - 1]
   },
-  responsive
+  responsive,
+  rigAudits
 };
 writeFileSync(join(outputDir, 'qa-report.json'), `${JSON.stringify(report, null, 2)}\n`);
 
