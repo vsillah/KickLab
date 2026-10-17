@@ -68,8 +68,7 @@
             <div class="game-orientation-tools" aria-label="Game orientation and player tools">
               <button type="button" class="mode-home-button" id="modeHomeButton"><span aria-hidden="true">←</span> Labs</button>
               <div class="current-mode"><span>Current lab</span><b id="currentModeTitle">Fight</b></div>
-              <div class="game-player-tools" role="group" aria-label="Player and game settings">
-                <button class="profilebtn game-profile-button" id="profileBtn" type="button" aria-label="Player profile: Lab Rookie" aria-haspopup="dialog" aria-controls="profileDialog"><span id="hudProfileAvatar" aria-hidden="true">R</span><b id="hudProfileName">Lab Rookie</b></button>
+              <div class="game-player-tools" role="group" aria-label="Game settings">
                 <button type="button" class="settings-toggle" id="settingsToggle" aria-label="Game settings" aria-expanded="false" aria-controls="settingsDrawer"><span aria-hidden="true">⚙</span><b>Settings</b></button>
               </div>
             </div>
@@ -98,6 +97,10 @@
             <section class="live-math-hud contextual-summary" id="liveMathHud" aria-label="Essential live math">
               <div class="live-math-summary"><span class="mobile-hud-label" aria-hidden="true">Math</span><span class="desktop-hud-label">Live math</span><div id="liveMathHudValues"></div><p id="liveMathHudStatus">Your active variables and equation will appear here.</p></div>
               <button type="button" class="context-disclosure" id="physicsDetailsHud" data-detail-label="physics details" aria-label="Open physics details" title="Open physics details" aria-expanded="false" aria-controls="physicsDetail"><span aria-hidden="true">⌄</span></button>
+            </section>
+            <section class="profile-hud contextual-summary" id="profileHud" aria-label="Player profile summary">
+              <div class="profile-hud-summary"><span class="mobile-hud-label" aria-hidden="true">Player</span><span class="profile-rail-avatar" id="hudProfileAvatar" aria-hidden="true">R</span><b id="hudProfileName">Lab Rookie</b><small id="hudProfileMeta">Level 1</small></div>
+              <button class="context-disclosure game-profile-button" id="profileBtn" type="button" aria-label="Open player profile: Lab Rookie" title="Open player profile" aria-haspopup="dialog" aria-expanded="false" aria-controls="profileDialog"><span aria-hidden="true">⌄</span></button>
             </section>
           </div>
           <section class="context-detail goals-detail" id="goalsDetail" role="dialog" aria-modal="true" aria-labelledby="goalsDetailTitle" hidden>

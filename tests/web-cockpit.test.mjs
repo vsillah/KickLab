@@ -98,16 +98,17 @@ test('uses a compact active-play HUD and one translucent field overlay',()=>{
   assert.match(css,/@media \(prefers-reduced-motion:reduce\).*\.game-overlay-backdrop/s);
 });
 
-test('keeps four compact summaries inside one divided right-side tray',()=>{
-  for(const label of ['Coach','Log','Math'])assert.match(html,new RegExp(`class="mobile-hud-label"[^>]*>${label}</span>`));
+test('keeps five compact summaries inside one divided right-side tray',()=>{
+  for(const label of ['Coach','Log','Math','Player'])assert.match(html,new RegExp(`class="mobile-hud-label"[^>]*>${label}</span>`));
   assert.match(cockpit,/class="mobile-hud-label" aria-hidden="true">Goal<\/span>/);
   assert.match(css,/\.mobile-hud-label\{display:block/);
   assert.match(css,/\.desktop-hud-label\{display:none\}/);
   assert.match(cockpit,/function railHudState\(\).*Fight\.bout.*Race\.st\.v.*MATCH\.on.*LIVEM\.on/s);
   assert.match(cockpit,/renderChallengeHud\(\).*mobile-hud-label[^`]+hud-summary-cue/s);
   assert.match(cockpit,/liveMathHudValues'\)\.innerHTML=defs\.slice\(0,1\)/);
-  assert.match(html,/id="gameGuidanceHud" aria-label="Gameplay information rail">[\s\S]*id="challengeHud"[\s\S]*id="coach"[\s\S]*id="historyHud"[\s\S]*id="liveMathHud"/);
-  assert.match(html,/class="game-orientation-tools" aria-label="Game orientation and player tools">[\s\S]*id="modeHomeButton"[\s\S]*id="currentModeTitle"[\s\S]*id="profileBtn"[\s\S]*id="settingsToggle"/);
+  assert.match(html,/id="gameGuidanceHud" aria-label="Gameplay information rail">[\s\S]*id="challengeHud"[\s\S]*id="coach"[\s\S]*id="historyHud"[\s\S]*id="liveMathHud"[\s\S]*id="profileHud"[\s\S]*id="profileBtn"/);
+  assert.match(html,/class="game-orientation-tools" aria-label="Game orientation and player tools">[\s\S]*id="modeHomeButton"[\s\S]*id="currentModeTitle"[\s\S]*id="settingsToggle"/);
+  assert.doesNotMatch(html,/class="game-player-tools"[\s\S]{0,500}id="profileBtn"/);
   assert.match(css,/\.game-guidance-hud\{position:absolute[^}]+width:68px[^}]+grid-auto-flow:row/);
   assert.match(css,/\.game-guidance-hud>\.contextual-summary\{[^}]+border:0[^}]+background:transparent[^}]+box-shadow:none/);
   assert.match(css,/\.game-guidance-hud>\.contextual-summary\+ \.contextual-summary\{border-top:/);
@@ -120,6 +121,7 @@ test('keeps four compact summaries inside one divided right-side tray',()=>{
   assert.match(css,/@media \(min-width:1100px\)\{\.game-frame \.stage>canvas#cv,\.game-frame \.stage>#cv3\{width:100%\}/);
   assert.match(css,/\.game-shell-nav \.gamebar\{position:absolute[^}]+left:50%[^}]+transform:translateX\(-50%\)/);
   assert.match(css,/\.game-orientation-tools\{position:absolute[^}]+top:max\(430px[^}]+width:102px[^}]+background:linear-gradient\(145deg,rgba\(5,14,29,\.14\),rgba\(5,14,29,\.03\)\)/);
+  assert.match(css,/@media \(min-width:1100px\)\{\.game-orientation-tools\{top:max\(486px[^}]+width:150px[^}]+grid-template-rows:44px\}/);
   assert.match(css,/@media \(min-width:1100px\)[\s\S]*\.game-guidance-hud\{top:max\(218px[^}]+width:68px/);
 });
 
