@@ -323,11 +323,12 @@ test('shows adjustment math temporarily while keeping environment context persis
   assert.match(ui,/hideStageAdjustment\(\);M\.press\(a\.id,true\)/);
   assert.match(ui,/const set=x=>\{[^}]*showStageAdjustment\(v\.id\)/);
   assert.ok(games.includes('parts=[`${S.n} · g ${fmt(S.g,2)} m/s²`]'));
-  assert.match(games,/function environmentLabelRightInset\(\).*canvasBox\.right-railBox\.left\+8.*W\/canvasBox\.width/);
-  assert.match(games,/bx=Math\.max\(12,W-12-environmentLabelRightInset\(\)-w\)/);
-  assert.match(games,/labelScale=Math\.max\(1,W\/Math\.max\(1,cv\.getBoundingClientRect\(\)\.width\)\)/);
-  assert.match(games,/fontSize=Math\.max\(10,9\*labelScale\)/);
-  assert.match(games,/window\.__KICKLAB_ENV_LABEL__=\{text:txt,x:bx,y:by,width:w,height:h,fontSize,canvasWidth:W,canvasHeight:H\}/);
+  assert.match(html,/id="environmentContext"[^>]+aria-label="Current Kick environment"[^>]+aria-live="polite"[^>]+hidden/);
+  assert.match(games,/function renderEnvironmentContext\(\).*el\.hidden=!active.*environmentContextLabel.*environmentContextDetail/);
+  assert.match(live,/function renderAll\(intro=true\)\{renderGameBar\(\);renderEnvironmentContext\(\);/);
+  assert.match(css,/\.environment-context\{[^}]+min-height:34px[^}]+justify-content:center/);
+  assert.match(css,/\.environment-context\[hidden\]\{display:none\}/);
+  assert.doesNotMatch(games,/__KICKLAB_ENV_LABEL__|environmentLabelRightInset/);
   assert.doesNotMatch(kickSide,/air drag ON · ρ/);
   assert.match(kickSide,/if\(stageAdjustmentVisible\(\)\)\{text\(c,'θ = '/);
   assert.match(kick3d,/if\(stageAdjustmentVisible\(\)&&\(\(s==='beat'/);
