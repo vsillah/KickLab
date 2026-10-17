@@ -34,11 +34,11 @@ let resultsDelay=null;
 function resOpen(){const el=$('#results');return!el.hidden&&!el.classList.contains('mini');}
 function roundOver(){if(M.key==='fight')return!!(M.bout&&M.bout.over);if(M.key==='kick'&&M.opt.shot==='dribble')return Drib.state==='done';return M.state==='done'||M.state==='crashed';}
 function ackResults(){if(!resOpen())return;SND.click();hideResults();if(MATCH.on)return;if(typeof CONTINUOUS!=='undefined'&&CONTINUOUS.on){CONTINUOUS.advance();return;}if(!roundOver())return;
-  if(M.key==='fight'){M.reset();renderActions();COACH.say(M.introLine(),'tip',12);}else{M.reset();if(typeof setLabel==='function')setLabel();renderActions();}}
+  if(M.key==='fight'){M.reset();renderActions();COACH.say(M.introLine(),'tip',12);}else{M.reset();if(typeof setLabel==='function')setLabel();renderActions();}setTimeout(showPendingCoachMathNudge,180);}
 $('#rNext').addEventListener('click',e=>{e.stopPropagation();unlock();ackResults();});
 function award(mode,items,success,meta={}){if(mode==='kick'&&MATCH.on&&!meta.auto&&!MATCH.lock){MATCH.lock=true;const ok=success;meta=Object.assign({},meta,{auto:true,delay:0,after:()=>setTimeout(()=>MATCH.next(ok),1900)});}if(success)STREAK[mode]++;else STREAK[mode]=0;const mult=success?1+0.25*Math.min(Math.max(STREAK[mode]-1,0),4):1;
   const rows=items.filter(i=>i[1]>0).map(([l,x])=>[l,Math.round(x*mult)]);const tot=rows.reduce((a,r)=>a+r[1],0);
-  best.xp+=tot;best.stats.plays[mode]=(best.stats.plays[mode]||0)+1;if(success)best.stats.wins[mode]=(best.stats.wins[mode]||0)+1;HUD.sess+=tot;saveBest();renderStreak();
+  best.xp+=tot;best.stats.plays[mode]=(best.stats.plays[mode]||0)+1;if(success)best.stats.wins[mode]=(best.stats.wins[mode]||0)+1;HUD.sess+=tot;saveBest();renderStreak();meta=Object.assign({},meta,{coachTomi:captureCoachTomiOutcome(mode,success,meta)});
   if(mode==='kick'&&LIVEM.on&&!meta.live){LIVEM.result(success);return;}
   const delay=Math.max(meta.delay||0,meta.auto?0:1000),t0=performance.now(),tally=rows.length*130+(mult>1?130:0)+900;let saw=!!E.slow;HUD.hold=t0+delay+tally;
   const go0=()=>{resultsDelay=null;HUD.hold=performance.now()+tally;showResults(Object.assign({rows,mult,tot},meta));if(meta.after)meta.after();},
@@ -48,12 +48,12 @@ function award(mode,items,success,meta={}){if(mode==='kick'&&MATCH.on&&!meta.aut
 const AFTER_SLOW=1600;
 const GRADE_TONE={S:'#f3e36b',A:'#5fe3a1',B:'#7fdcff',C:'#ffb04a',D:'#ff6b73'};
 function showResults(m){if(typeof hideCoachMathNudge==='function')hideCoachMathNudge({reason:'results'});hideResults();const el=$('#results'),rc=$('#rc');const rr0=RECS[M.key];if(rr0)LASTG[M.key+rr0.id]=m.grade;$('#racts').hidden=!(rr0&&rr0.frames.length&&rr0.moves.length);rc.style.setProperty('--tone',GRADE_TONE[m.grade]||C.good);
-  $('#rGrade').innerHTML=`${m.grade}<small>GRADE</small>`;$('#rTitle').textContent=m.title;$('#rSub').textContent=m.sub||'';$('#rHint').textContent=m.hint||'';
+  $('#rGrade').innerHTML=`${m.grade}<small>GRADE</small>`;$('#rTitle').textContent=m.title;$('#rSub').textContent=m.sub||'';$('#rHint').textContent=m.hint||'';renderCoachTomiResult(M.key,m);
   const rowsHTML=m.rows.map(([l,x],i)=>`<li style="animation-delay:${0.25+i*0.13}s"><span>${l}</span><b>+${fmt(x,0)}</b></li>`).join('')+(m.mult>1?`<li class="cmb" style="animation-delay:${0.25+m.rows.length*0.13}s"><span>combo streak applied</span><b>×${m.mult}</b></li>`:'');
   $('#rRows').innerHTML=rowsHTML;$('#rTotal').textContent='+0';el.classList.toggle('mini',!!m.auto);el.hidden=false;if(typeof syncDialsAvailability==='function')syncDialsAvailability();if(typeof renderMathConsole==='function')renderMathConsole();$('#rLvl').hidden=true;SND.grade(m.grade);if(!m.auto&&LVL_STASH){const n=LVL_STASH;LVL_STASH=0;setTimeout(()=>{if(resOpen())lvlRibbon(n);},500);}if(!m.auto){const next=typeof CONTINUOUS!=='undefined'&&CONTINUOUS.on?CONTINUOUS.nextLabel():(m.next||'Next round');$('#rNext').innerHTML=next+' <span aria-hidden="true">▶</span> <kbd>Space</kbd>';}setTimeout(refreshResBoard,0);
   const start=250+m.rows.length*130+(m.mult>1?130:0);for(let i=0;i<m.rows.length;i++)tallyTimers.push(setTimeout(()=>SND.tick(),250+i*130));
   const steps=14;for(let k=1;k<=steps;k++)tallyTimers.push(setTimeout(()=>{$('#rTotal').textContent='+'+fmt(Math.round(m.tot*k/steps),0);if(k%3===0)SND.tick();if(k===steps){SND.total();const md=$('#medal');md.classList.remove('bump');void md.offsetWidth;md.classList.add('bump');}},start+k*40));
-  if(m.auto){$('#racts').hidden=true;resultsTimer=setTimeout(()=>{$('#results').hidden=true;$('#results').classList.remove('mini');},2100);}}
+  if(m.auto){$('#racts').hidden=true;resultsTimer=setTimeout(()=>{$('#results').hidden=true;$('#results').classList.remove('mini');showPendingCoachMathNudge();},2100);}}
 
 let LVL_STASH=0;
 function lvlRibbon(n){const u=unlocksAt(n),r=$('#rLvl');r.innerHTML=`LEVEL UP <b>${n}</b> ${LEVEL_T[Math.min(n-1,LEVEL_T.length-1)]}`+(u.length?` <small>· unlocked ${u.join(', ')}</small>`:'');r.hidden=false;SND.fanfare();confetti(180);

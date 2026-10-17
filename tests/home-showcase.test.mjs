@@ -56,7 +56,7 @@ test('keeps the hero geometry bounded through desktop, mid-width, tablet, and mo
 
 test('places one local Coach Tomi wisdom treatment on every home lab card',()=>{
   assert.equal((html.match(/class="coach-wisdom"/g)||[]).length,3);
-  assert.equal((html.match(/<use href="#coachTomiPortrait"><\/use>/g)||[]).length,4);
+  assert.equal((html.match(/<use href="#coachTomiPortrait"><\/use>/g)||[]).length,6);
   assert.equal((html.match(/<svg aria-hidden="true" focusable="false"><use href="#coachTomiPortrait">/g)||[]).length,3);
   assert.equal((html.match(/<symbol id="coachTomiPortrait" viewBox="0 0 64 64">/g)||[]).length,1);
   assert.match(html,/id="lab-fight-wisdom"[\s\S]*?Force × time changes momentum\. Time your hit\./);

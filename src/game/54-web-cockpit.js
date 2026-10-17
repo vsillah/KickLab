@@ -10,11 +10,27 @@ const settingsDrawer=$('#settingsDrawer'),settingsToggle=$('#settingsToggle');
 const gameOverlayBackdrop=$('#gameOverlayBackdrop'),gameStage=$('.stage'),gamePlayShell=$('.play'),profileDialog=$('#profileDialog');
 const coachMathNudge=$('#coachMathNudge'),coachMathNudgeAction=$('#coachMathNudgeAction'),coachMathNudgeClose=$('#coachMathNudgeClose');
 const COACH_MATH_NUDGE={sequence:0,current:null,seen:new Set(),lastShownAt:0,timer:null,cooldown:18000};
+const COACH_TOMI_SESSIONS=new Map();
 
-function coachMathLine(){
-  if(M===Fight)return'Force and contact time shape every hit.';
-  if(M===Race)return'Grip and turn radius set your safe speed.';
-  return"Speed, angle, and gravity shape the ball's path.";
+function coachTomiProfileKey(){return profileManager.active().id;}
+function coachTomiSession(mode){const key=`${coachTomiProfileKey()}:${mode}`;if(!COACH_TOMI_SESSIONS.has(key))COACH_TOMI_SESSIONS.set(key,{recent:[],pending:null});return COACH_TOMI_SESSIONS.get(key);}
+function coachTomiHistory(mode){const session=coachTomiSession(mode);return{plays:best.stats.plays[mode]||0,wins:best.stats.wins[mode]||0,cleared:best.ch[mode]||0,recent:session.recent.slice()};}
+function coachTomiVariables(context={}){
+  if(M===Fight)return{dt:Fight.V.dt};
+  if(M===Race)return{limit:Math.sqrt(Race.V.mu*G0*Race.V.R)*3.6};
+  return{speed:Kick.V.v,angle:Kick.V.th,reaction:Kick.V.gkr||.35,passSpeed:Kick.V.pv||18,grip:Kick.V.grip||.8,jump:Kick.V.jv||6,context};
+}
+function renderCoachTomiPregame(meta={}){
+  const context=pacingContext(meta),plan=KickLabCoachTomi.beginning({mode:M.key,activity:pacingActivityName(meta),history:coachTomiHistory(M.key),variables:coachTomiVariables(context),context});
+  $('#coachTomiPregameLevel').textContent=plan.tier==='novice'?'First look':plan.tier==='experienced'?'Next detail':'Build the skill';$('#coachTomiPregameObservation').textContent=plan.observation;$('#coachTomiPregameCue').textContent=plan.cue;$('#coachTomiPregameVariable').textContent=plan.variable;$('#coachTomiPregameFormula').textContent=plan.formula;$('#coachTomiPregameMeter').style.width=`${Math.round(Math.max(.08,plan.level||0)*100)}%`;$('#coachTomiPregame').dataset.tier=plan.tier;return plan;
+}
+function captureCoachTomiOutcome(mode,success,meta={}){
+  const session=coachTomiSession(mode),history=coachTomiHistory(mode),input={mode,success,title:meta.title,sub:meta.sub,grade:meta.grade,history,recent:session.recent};
+  const code=KickLabCoachTomi.outcomeCode(input),need=KickLabCoachTomi.need(Object.assign({},input,{recent:code?[...session.recent,code]:session.recent})),result=KickLabCoachTomi.result(input);
+  session.recent.push(code||'success');if(session.recent.length>4)session.recent.shift();if(need)session.pending=Object.assign({id:`${coachTomiProfileKey()}:${mode}:${++COACH_MATH_NUDGE.sequence}`},need);else if(success)session.pending=null;return result;
+}
+function renderCoachTomiResult(mode,meta={}){
+  const note=meta.coachTomi||KickLabCoachTomi.result({mode,title:meta.title,sub:meta.sub,grade:meta.grade,history:coachTomiHistory(mode)});$('#coachTomiResultLevel').textContent=note.tier==='novice'?'First look':note.tier==='experienced'?'Next detail':'Build the skill';$('#coachTomiResultObservation').textContent=note.observation;$('#coachTomiResultCue').textContent=note.cue;$('#coachTomiResult').dataset.tier=note.tier;return note;
 }
 function hideCoachMathNudge({restore=false,reason='dismissed'}={}){
   if(coachMathNudge.hidden)return;
@@ -23,13 +39,14 @@ function hideCoachMathNudge({restore=false,reason='dismissed'}={}){
   if(restore&&coachMathNudge.contains(document.activeElement))$('#physicsDetailsHud').focus();
 }
 function maybeShowCoachMathNudge(meta={}){
-  const key=meta.coachMathEvent||`${M.key}:${++COACH_MATH_NUDGE.sequence}`,now=Date.now();
+  const need=meta.need;if(!need)return false;const key=meta.coachMathEvent||need.id||`${M.key}:${++COACH_MATH_NUDGE.sequence}`,now=Date.now();
   if(COACH_MATH_NUDGE.seen.has(key)||now-COACH_MATH_NUDGE.lastShownAt<COACH_MATH_NUDGE.cooldown||RP.on||CINE.on||resOpen())return false;
-  COACH_MATH_NUDGE.seen.add(key);COACH_MATH_NUDGE.current=key;COACH_MATH_NUDGE.lastShownAt=now;$('#coachMathNudgeMessage').textContent=coachMathLine();coachMathNudge.hidden=false;coachMathNudge.dataset.event=key;coachMathNudge.dataset.state='visible';
+  COACH_MATH_NUDGE.seen.add(key);COACH_MATH_NUDGE.current=key;COACH_MATH_NUDGE.lastShownAt=now;$('#coachMathNudgeMessage').textContent=`${need.observation} ${need.cue}`;coachMathNudge.hidden=false;coachMathNudge.dataset.event=key;coachMathNudge.dataset.state='visible';coachMathNudge.dataset.rule=need.code||'context';
   clearTimeout(COACH_MATH_NUDGE.timer);COACH_MATH_NUDGE.timer=setTimeout(()=>hideCoachMathNudge({reason:'expired'}),9000);
   Object.assign(window.__KICKLAB_COACH_MATH_NUDGE__,{visible:true,event:key,shown:window.__KICKLAB_COACH_MATH_NUDGE__.shown+1,lastReason:'shown',pause:PAUSE.on});return true;
 }
-window.__KICKLAB_COACH_MATH_NUDGE__={visible:false,shown:0,dismissed:0,openedMath:0,lastReason:'ready',pause:false,show:meta=>maybeShowCoachMathNudge(meta),hide:()=>hideCoachMathNudge(),snapshot:()=>({paused:PAUSE.on,owners:PAUSE_OWNERS.snapshot(),context:CONTEXT_DETAILS.open})};
+function showPendingCoachMathNudge(){const session=coachTomiSession(M.key),pending=session.pending;if(!pending)return false;const shown=maybeShowCoachMathNudge({coachMathEvent:pending.id,need:pending});if(shown)session.pending=null;return shown;}
+window.__KICKLAB_COACH_MATH_NUDGE__={visible:false,shown:0,dismissed:0,openedMath:0,lastReason:'ready',pause:false,show:meta=>maybeShowCoachMathNudge(meta),showPending:()=>showPendingCoachMathNudge(),capture:(mode,success,meta)=>captureCoachTomiOutcome(mode,success,meta),begin:meta=>renderCoachTomiPregame(meta),renderResult:(mode,meta)=>renderCoachTomiResult(mode,meta),hide:()=>hideCoachMathNudge(),snapshot:()=>({paused:PAUSE.on,owners:PAUSE_OWNERS.snapshot(),context:CONTEXT_DETAILS.open,profile:coachTomiProfileKey(),session:coachTomiSession(M.key)})};
 coachMathNudgeClose.addEventListener('click',()=>hideCoachMathNudge({restore:true}));
 coachMathNudgeAction.addEventListener('click',()=>{window.__KICKLAB_COACH_MATH_NUDGE__.openedMath++;hideCoachMathNudge({reason:'math-opened'});setContextDetail('math',{trigger:$('#physicsDetailsHud'),focus:true});});
 

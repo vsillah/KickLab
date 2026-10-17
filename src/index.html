@@ -76,6 +76,10 @@
               <span class="game-pacing-kicker" id="gamePacingKicker">Next activity</span>
               <strong class="game-pacing-phase" id="gamePacingPhase" aria-hidden="true">READY?</strong>
               <b class="game-pacing-activity" id="gamePacingActivity"></b>
+              <section class="coach-tomi-pregame" id="coachTomiPregame" aria-label="Coach Tomi game plan">
+                <svg class="coach-tomi-portrait" aria-hidden="true" focusable="false"><use href="#coachTomiPortrait"></use></svg>
+                <div><b>Coach Tomi <span id="coachTomiPregameLevel"></span></b><p id="coachTomiPregameObservation"></p><small id="coachTomiPregameCue"></small><div class="coach-tomi-variable" aria-label="Highlighted physics variable"><span id="coachTomiPregameVariable"></span><i aria-hidden="true"><em id="coachTomiPregameMeter"></em></i><output id="coachTomiPregameFormula"></output></div></div>
+              </section>
               <div class="game-control-preview" id="gameControlPreview" aria-label="Controls for the next activity"></div>
               <button type="button" class="game-pacing-resume" id="gamePacingResume" hidden>Resume game</button>
             </div>
@@ -85,7 +89,7 @@
             <span id="goalCelebrationStatus" role="status" aria-live="polite">Goal replay</span>
             <button type="button" id="goalCelebrationSkip">Skip replay</button>
           </div>
-          <div class="results" id="results" hidden><div class="rc" id="rc"><div class="grade" id="rGrade">A<small>GRADE</small></div><div class="rmain"><div class="rlvl" id="rLvl" hidden></div><div class="rtitle" id="rTitle"></div><div class="rsub" id="rSub"></div><ul class="rrows" id="rRows"></ul><div class="rtotal"><span>XP earned</span><b id="rTotal">+0</b></div><div class="rhint" id="rHint"></div><div class="rboard" id="rBoard" hidden></div><div class="rgo"><div class="racts" id="racts" hidden><button type="button" id="rReview">Coach review</button><button type="button" id="rReplay">Replay</button></div><button type="button" class="rnext" id="rNext">Next round <span aria-hidden="true">▶</span> <kbd>Space</kbd></button></div></div></div></div>
+          <div class="results" id="results" hidden><div class="rc" id="rc"><div class="grade" id="rGrade">A<small>GRADE</small></div><div class="rmain"><div class="rlvl" id="rLvl" hidden></div><div class="rtitle" id="rTitle"></div><div class="rsub" id="rSub"></div><ul class="rrows" id="rRows"></ul><div class="rtotal"><span>XP earned</span><b id="rTotal">+0</b></div><div class="rhint" id="rHint"></div><section class="coach-tomi-result" id="coachTomiResult" aria-label="Coach Tomi round note"><svg class="coach-tomi-portrait" aria-hidden="true" focusable="false"><use href="#coachTomiPortrait"></use></svg><div><b>Coach Tomi <span id="coachTomiResultLevel"></span></b><p id="coachTomiResultObservation"></p><small id="coachTomiResultCue"></small></div></section><div class="rboard" id="rBoard" hidden></div><div class="rgo"><div class="racts" id="racts" hidden><button type="button" id="rReview">Coach review</button><button type="button" id="rReplay">Replay</button></div><button type="button" class="rnext" id="rNext">Next round <span aria-hidden="true">▶</span> <kbd>Space</kbd></button></div></div></div></div>
           <div class="lvlup" id="lvlup" hidden><div class="lu"><span class="lu-k">LEVEL UP</span><div class="lu-n" id="luNum">2</div><div class="lu-t" id="luTitle"></div><div class="lu-u" id="luUnlock"></div></div></div>
           <div class="feed" id="feed" aria-hidden="true"></div>
           <div class="toasts" id="toasts"></div>
