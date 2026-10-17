@@ -657,7 +657,6 @@ const Drib={
     if(this.state==='run'||this.state==='beat'){const gap=Math.abs(a.y-d.y);c.strokeStyle=gap>=D.reach?C.good:C.bad;c.setLineDash([2,2]);line(c,mx(a.x),my(a.y),mx(a.x),my(d.y));c.setLineDash([]);text(c,`gap ${fmt(gap,1)} m`,x0+w,y0+h+12,'700 10px '+MONO,gap>=D.reach?C.good:C.bad,'right');}
     c.restore();},
   hud(c){const a=this.att,d=this.def,D=this.D(),s=this.state;
-    {const A=playerLook(),keeping=s==='keep';RIG.portrait(c,24,82,224,128,A,{kit:keeping?'#27c7ff':A.kit,label:(keeping?'KEEPER · ':'')+PLY().n.toUpperCase(),action:s==='run'?'SPRINT':s==='beat'?'ATTACK':keeping?'SET & DIVE':s==='set'?'SET PIECE':'LIVE',boot:kitLook().boot,tilt:keeping&&this.gk.dive?.12*this.gk.dir:0});}
     if(this.bc){const bc=this.bc,x=W/2+36,y=124;c.save();c.fillStyle='rgba(6,11,24,0.85)';rr(c,x-150,y-18,300,36,10);c.fill();text(c,`${Math.ceil(bc.t)}s`,x-136,y+8,'22px '+DISP,bc.t<10?C.bad:C.ink);text(c,`${bc.score} pts`,x+136,y+8,'22px '+DISP,C.hot,'right');text(c,`bars ${bc.bars} · best ${best.barHi||0}`,x,y+5,'700 10px '+MONO,C.muted,'center');
       c.fillStyle=bc.t<10?C.bad:C.good;c.fillRect(x-150,y+16,300*bc.t/60,3);c.restore();}
     if(this.cb){const cb=this.cb;c.save();const names=cb.chain.map(x=>`${x.name.toUpperCase()}${x.m>1?' ×'+x.m:''}`),txt=names.length?names.join('  →  '):'PASS → ONE-TWO → FIRST TIME';const w=Math.min(520,Math.max(260,txt.length*7.6+120)),x=W/2-w/2+40,y=106;
