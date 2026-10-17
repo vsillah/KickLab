@@ -30,6 +30,11 @@ header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:spac
 .tab[aria-selected="true"]{border-color:var(--xray);background:var(--panel-2);box-shadow:inset 0 -3px 0 var(--xray)}
 button:focus-visible,input:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
 .stage{position:relative;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#050a16}
+.goal-celebration-controls{position:absolute;z-index:8;left:18px;right:calc(var(--game-rail-space,0px) + 18px);bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:12px;pointer-events:none}
+.goal-celebration-controls[hidden]{display:none}.goal-celebration-controls span{padding:7px 11px;border:1px solid rgba(255,176,74,.58);border-radius:999px;background:rgba(5,14,29,.78);color:var(--hot);font:700 11px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;box-shadow:0 8px 26px rgba(0,0,0,.35);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.goal-celebration-controls button{pointer-events:auto;min-width:44px;min-height:44px;padding:8px 14px;border:1px solid rgba(255,255,255,.5);border-radius:999px;background:rgba(5,14,29,.9);color:var(--ink);font:700 12px/1 var(--f-body);box-shadow:0 8px 26px rgba(0,0,0,.4)}.goal-celebration-controls button:is(:hover,:focus-visible){border-color:var(--hot);outline:2px solid rgba(255,176,74,.42);outline-offset:2px}
+@media(max-width:640px){.goal-celebration-controls{left:8px;right:calc(var(--game-rail-space,0px) + 8px);bottom:8px}.goal-celebration-controls span{max-width:52%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.goal-celebration-controls button{padding-inline:11px}}
+@media(prefers-reduced-motion:reduce){.goal-celebration-controls button{transition:none!important}}
 #cv3{position:absolute;left:0;top:0;width:100%;height:auto;aspect-ratio:16/9;display:none;pointer-events:none}
 canvas#cv{position:relative;z-index:1}
 canvas#cv{display:block;width:100%;height:auto;aspect-ratio:16/9;touch-action:none;user-select:none;-webkit-user-select:none;cursor:pointer}

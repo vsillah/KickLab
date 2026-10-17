@@ -22,6 +22,7 @@ const SND={
   grade(g){const m={S:[523,659,784,1047],A:[523,659,784],B:[523,659],C:[392,330],D:[330,262]}[g]||[523];m.forEach((f,i)=>tone(f,0.16,'triangle',0.1,null,i*0.07));},
   badge(){[1047,1319,1568,2093].forEach((f,i)=>tone(f,0.22,'triangle',0.09,null,i*0.07));},
   fanfare(){[523,659,784,1047].forEach((f,i)=>tone(f,0.14,'sawtooth',0.06,null,i*0.1));tone(1319,0.7,'sawtooth',0.07,null,0.42);tone(262,0.9,'triangle',0.12,null,0.42);tone(392,0.9,'triangle',0.08,null,0.42);noise(1.2,3000,0.05,0.4,0.6,'highpass',0.05);},
+  goal(){const played=!!AC&&!best.mute;window.__KICKLAB_GOAL_SOUND_AUDIT__={requested:true,played,muted:!!best.mute,reduced:reduce};if(!played)return false;const notes=reduce?[523,784]:[392,523,659,784];notes.forEach((f,i)=>tone(f,reduce?0.12:0.18,'triangle',reduce?0.045:0.075,null,i*0.055));if(!reduce)noise(0.65,1350,0.08,0.05,0.7,'bandpass',0.12);return true;},
   cheer(){noise(1.8,1100,0.2,0,0.6,'bandpass',0.35);noise(1.4,2400,0.07,0.1,0.8,'bandpass',0.3);},
   skid(){noise(0.25,2600,0.05,0,3,'bandpass',0.02);}};
 const ENGINE={o:null,g:null,on(){if(!AC||best.mute||this.o)return;try{this.o=AC.createOscillator();this.o.type='sawtooth';const f=AC.createBiquadFilter();f.type='lowpass';f.frequency.value=700;this.g=AC.createGain();this.g.gain.value=0.0001;this.o.connect(f).connect(this.g).connect(AC.destination);this.o.start();}catch(e){this.o=null;}},

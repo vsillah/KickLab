@@ -42,7 +42,7 @@ function award(mode,items,success,meta={}){if(mode==='kick'&&MATCH.on&&!meta.aut
   if(mode==='kick'&&LIVEM.on&&!meta.live){LIVEM.result(success);return;}
   const delay=Math.max(meta.delay||0,meta.auto?0:1000),t0=performance.now(),tally=rows.length*130+(mult>1?130:0)+900;let saw=!!E.slow;HUD.hold=t0+delay+tally;
   const go0=()=>{resultsDelay=null;HUD.hold=performance.now()+tally;showResults(Object.assign({rows,mult,tot},meta));if(meta.after)meta.after();},
-    go=()=>{if(mode==='kick'&&V3.on&&!meta.auto&&Kick.opt.shot!=='dribble'&&(Kick.opt.shot==='free'||Kick.state==='done'||Kick.outcome)&&!CINE.on){resultsDelay=null;CINE.start(Kick.opt.shot==='free'?'fk':'hd',go0,Kick);}else go0();};
+    go=()=>{if(success&&mode==='kick'&&!meta.auto&&!CINE.on){resultsDelay=null;const model=Kick.opt.shot==='dribble'?Drib:Kick;CINE.start(Kick.opt.shot==='free'?'fk':Kick.opt.shot==='dribble'?'goal':'hd',go0,model,{celebrate:true});}else go0();};
   const wait=()=>{if(E.slow||PAUSE.on){saw=saw||!!E.slow;HUD.hold=performance.now()+tally+1600;resultsDelay=setTimeout(wait,80);return;}const now=performance.now(),need=Math.max(t0+delay,saw?(E.slowEnd||now)+AFTER_SLOW:0);if(now<need){resultsDelay=setTimeout(wait,Math.min(120,need-now));return;}go();};
   clearTimeout(resultsDelay);resultsDelay=setTimeout(wait,60);}
 const AFTER_SLOW=1600;
@@ -58,7 +58,7 @@ function showResults(m){hideResults();const el=$('#results'),rc=$('#rc');const r
 let LVL_STASH=0;
 function lvlRibbon(n){const u=unlocksAt(n),r=$('#rLvl');r.innerHTML=`LEVEL UP <b>${n}</b> ${LEVEL_T[Math.min(n-1,LEVEL_T.length-1)]}`+(u.length?` <small>· unlocked ${u.join(', ')}</small>`:'');r.hidden=false;SND.fanfare();confetti(180);
   COACH.say(`LEVEL ${n}! You're a ${LEVEL_T[Math.min(n-1,LEVEL_T.length-1)]} now.`+(u.length?` You unlocked ${u.join(' and ')}. Pick it under Style.`:' Keep stacking combos.'),'hype',10);if(M)renderOpts();}
-function showLevelUp(n){if(typeof RP!=='undefined'&&RP.on){HUD.lvlPending=n;return;}
+function showLevelUp(n){if(typeof RP!=='undefined'&&RP.on){HUD.lvlPending=n;return;}if(typeof CINE!=='undefined'&&CINE.on){LVL_STASH=n;return;}
   if(resOpen()){lvlRibbon(n);return;}if(resultsDelay){LVL_STASH=n;return;}
   const el=$('#lvlup');el.classList.add('compact');$('#luNum').textContent=String(n);$('#luTitle').textContent=LEVEL_T[Math.min(n-1,LEVEL_T.length-1)];const u=unlocksAt(n);$('#luUnlock').textContent=u.length?'Unlocked: '+u.join(', '):'';
   el.hidden=true;void el.offsetWidth;el.hidden=false;SND.fanfare();confetti(180);clearTimeout(showLevelUp.t);showLevelUp.t=setTimeout(()=>{el.hidden=true;},2700);
