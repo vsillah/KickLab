@@ -29,11 +29,12 @@ $('#kitroom').addEventListener('click',e=>{const c=e.target.closest('[data-k]');
 $('#boardBtn').addEventListener('click',()=>{SND.click();openBoard();});
 $('#fbClose').addEventListener('click',closeBoard);
 $('#fboard').addEventListener('click',e=>{if(e.target.id==='fbPlayWk'){unlock();SND.click();startWeekly();return;}if(e.target.id==='fboard')closeBoard();const c=e.target.closest('[data-c]');if(c){BOARD.cat=c.dataset.c;BOARD.arm=null;renderBoard();}
+  const source=e.target.closest('[data-source]');if(source){BOARD.source=source.dataset.source;BOARD.arm=null;renderBoard();}
   const d=e.target.closest('.del');if(d&&BOARD.owner&&BOARD.db){const id=d.dataset.id;if(BOARD.arm===id){BOARD.arm=null;BOARD.db.collection('board').doc(id).delete().catch(()=>{});}else{BOARD.arm=id;renderBoard();}}});
 $('#fbNick').addEventListener('input',e=>{BOARD.setNick(e.target.value);delete $('#fbMsg').dataset.hold;renderBoard();});
 $('#fbNick').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter')postBoard();});
 $('#fbPost').addEventListener('click',postBoard);
-$('#rBoard').addEventListener('click',e=>{if(e.target.id==='rPost'){e.stopPropagation();if(BOARD.nick())postBoard();else openBoard();}});
+$('#rBoard').addEventListener('click',e=>{if(e.target.id==='rPost'){e.stopPropagation();openBoard(e.target);}});
 $('#mute').addEventListener('click',()=>{best.mute=!best.mute;saveBest();if(best.mute)ENGINE.off();$('#mute').setAttribute('aria-pressed',String(!!best.mute));$('#mute').textContent=best.mute?'Sound off':'Sound on';if(!best.mute){unlock();SND.click();}});
 $('#mute').setAttribute('aria-pressed',String(!!best.mute));$('#mute').textContent=best.mute?'Sound off':'Sound on';
 const primary=()=>M.actions().find(a=>a.primary).id;

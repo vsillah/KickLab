@@ -1,3 +1,4 @@
 dist/
 node_modules/
+qa-artifacts/
 .DS_Store

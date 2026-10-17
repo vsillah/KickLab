@@ -26,9 +26,10 @@ src/
     40-quiz-notebook.js
     41-ui.js
     42-match.js
+    49-profiles.js          local player setup, switching and stats
     50-renderer-3d.js       Three.js stadium
     51-live-match.js
-    52-leaderboard.js       family board (shared db)
+    52-leaderboard.js       local device and optional family boards
     53-weekly-challenge.js
     60-pause-replay.js
     70-main-loop.js         wrapper closes here
@@ -50,7 +51,7 @@ npm test         # runs the DOM-free shared-core tests
 npm run check    # build + syntax check + tests (what CI runs)
 ```
 
-Open `dist/kicklab.html` in a browser to play. The family leaderboard and weekly challenge use the Claude artifact runtime's shared database, so those only light up when the built file is published as a Claude artifact. Everything else runs anywhere.
+Open `dist/kicklab.html` in a browser to play. Local player profiles and the Local device leaderboard work offline in browser storage. The optional family leaderboard uses the Claude artifact runtime's shared database, so that separate view only lights up when the built file is published as a Claude artifact. Everything else runs anywhere.
 
 ## Working with branches
 
@@ -58,7 +59,7 @@ Open `dist/kicklab.html` in a browser to play. The family leaderboard and weekly
 2. Edit files under `src/`, run `npm run check`, play-test `dist/kicklab.html`.
 3. Push and open a pull request. CI builds the game and attaches the HTML to the run so it can be play-tested before merging.
 
-Saved progress and the weekly challenge seed still use the old `impactlab` keys on purpose, so nobody's XP, kit or leaderboard history resets after the rename.
+Saved progress and the weekly challenge seed still use the old `impactlab` keys on purpose, so nobody's XP, kit or leaderboard history resets after the rename. Multi-profile builds store their versioned envelope in `kicklab.profiles.v1` and mirror the active player back to `impactlab.v1` and `impactlab.nick` for compatibility. See [`docs/architecture/local-player-profiles.md`](docs/architecture/local-player-profiles.md).
 
 Cross-platform work starts with the [architecture contract](docs/architecture/cross-platform-contract.md). The current HTML artifact remains supported while deterministic game rules move behind shared interfaces and Capacitor shells are introduced in separately owned platform lanes.
 
