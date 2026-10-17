@@ -61,10 +61,18 @@ test('renders procedural fallback pitch and stadium layers in both soccer camera
   const renderer = read('src/game/50-renderer-3d.js');
 
   assert.match(side, /fallbackSideScene\(c,k\)/);
-  for (const layer of ['fallbackSideAtmosphere', 'fallbackSideRoof', 'fallbackSideStands', 'fallbackSidePitch']) {
+  for (const layer of ['fallbackSideAtmosphere', 'fallbackSideRoof', 'fallbackSideStands', 'fallbackSideReturns', 'fallbackSideBoards', 'fallbackSidePitch']) {
     assert.match(side, new RegExp(`${layer}\\(c`), `side-view stadium must call ${layer}`);
   }
   assert.match(side, /__KICKLAB_SIDE_STADIUM__/);
+  assert.match(side, /__KICKLAB_SIDE_GOAL__/);
+  assert.match(side, /drawSideGoal\(c,X,Y,S\)/);
+  for (const primitive of ['frontFrame', 'rearFrame', 'sideNet', 'backNet', 'perspectiveGrid']) assert.match(side, new RegExp(`${primitive}:true`));
+  assert.match(side, /boardPhase:this\._sideBoardPhase/);
+  assert.match(side, /performance\.now\(\)\/1000\*38/);
+  assert.match(side, /perspective-pitch/);
+  assert.match(side, /side-returns/);
+  assert.match(side, /Math\.pow\(t0,1\.75\)/);
   assert.match(side, /mode:this\.opt\.shot/);
   assert.match(loop, /Kick\.opt\.shot!==['"]dribble['"]\)Kick\.fallbackSideScene\(ctx,k\)/);
   assert.match(renderer, /Kick\.opt\.shot===['"]dribble['"]/);
@@ -72,6 +80,19 @@ test('renders procedural fallback pitch and stadium layers in both soccer camera
   assert.match(field, /fallbackPitch\(c,st\)/);
   assert.match(field, /__KICKLAB_FALLBACK_ENV__/);
   assert.doesNotMatch(`${side}\n${field}`, /new Image\(|https?:\/\//);
+});
+
+test('keeps true side-view spatial fidelity animated and dimensional', () => {
+  const side = read('src/game/30-kick-sideview.js');
+  assert.match(side, /drawSideGoal\(c,X,Y,S\)/);
+  for (const primitive of ['frontFrame', 'rearFrame', 'sideNet', 'backNet', 'perspectiveGrid']) assert.match(side, new RegExp(`${primitive}:true`));
+  assert.match(side, /fallbackSideBoards\(c,E,h\)/);
+  assert.match(side, /performance\.now\(\)\/1000\*38/);
+  assert.match(side, /boardPhase:this\._sideBoardPhase/);
+  assert.match(side, /fallbackSidePitch\(c,E,h\)/);
+  assert.match(side, /Math\.pow\(t0,1\.75\)/);
+  assert.match(side, /fallbackSideReturns\(c,E,h\)/);
+  assert.match(side, /side-returns/);
 });
 
 test('derives kit telemetry from the same canonical model for gameplay and UI', () => {
