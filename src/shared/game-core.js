@@ -13,6 +13,96 @@
     return Object.freeze(value);
   };
 
+  const CONTROL_POWER_BANDS = Object.freeze({ targetStart: 0.52, perfectStart: 0.64, perfectEnd: 0.7, targetEnd: 0.8, overchargeStart: 0.9 });
+
+  const CONTROL_MAPPINGS = freezeMap({
+    fight: { id: 'fight', title: 'Fight stance', x: ['Block', 'Ready'], y: ['Duck', 'Rise'], action: ['Punch', 'Release in the perfect band'], color: '#ff6b73', icon: 'cross' },
+    race: { id: 'race', title: 'Race controls', x: ['Steer left', 'Steer right'], y: ['Brake', 'Throttle'], action: ['Throttle', 'Hold for graded acceleration'], color: '#5fe3a1', icon: 'gas', continuous: true },
+    kickFree: { id: 'kick-free', title: 'Free kick', x: ['Backspin', 'Topspin'], y: ['Lower angle', 'Raise angle'], action: ['Kick', 'Power plus curved swipe sets spin'], color: '#ff8a1f', icon: 'kick' },
+    kickHeader: { id: 'kick-header', title: 'Header', x: ['Direct left', 'Direct right'], y: ['Lower jump', 'Higher jump'], action: ['Head it', 'Release on the target band'], color: '#f3e36b', icon: 'head' },
+    kickRun: { id: 'kick-run', title: 'Dribble run', x: ['Feint left', 'Feint right'], y: ['Slow', 'Sprint'], action: ['Cut or shoot', 'Charge, curve, then release'], color: '#9b6bff', icon: 'cut' },
+    kickPass: { id: 'kick-pass', title: 'Passing', x: ['Pick left', 'Pick right'], y: ['Short lead', 'Long lead'], action: ['Pass', 'Release in the target band'], color: '#7fdcff', icon: 'run' },
+    kickKeeper: { id: 'kick-keeper', title: 'Goalkeeper', x: ['Dive left', 'Dive right'], y: ['Back to line', 'Come out / high'], action: ['Set or save', 'Release when the shot commits'], color: '#27c7ff', icon: 'shield' },
+    kickCombo: { id: 'kick-combo', title: 'Give and go', x: ['Steer left', 'Steer right'], y: ['Slow', 'Sprint'], action: ['Pass or volley', 'Charge and release at contact'], color: '#ff8fc7', icon: 'crossin' }
+  });
+
+  function clampControl(value, min = 0, max = 1) {
+    return Math.max(min, Math.min(max, Number.isFinite(value) ? value : 0));
+  }
+
+  function normalizeAnalogStick(dx, dy, radius, options = {}) {
+    const safeRadius = Math.max(1, Number(radius) || 1);
+    const deadZone = clampControl(options.deadZone == null ? 0.16 : options.deadZone, 0, 0.9);
+    const curve = Math.max(0.2, Number(options.curve) || 1.45);
+    const rawMagnitude = clampControl(Math.hypot(dx, dy) / safeRadius);
+    const liveMagnitude = rawMagnitude <= deadZone ? 0 : (rawMagnitude - deadZone) / (1 - deadZone);
+    const magnitude = Math.pow(clampControl(liveMagnitude), curve);
+    const length = Math.hypot(dx, dy) || 1;
+    return Object.freeze({
+      x: magnitude ? dx / length * magnitude : 0,
+      y: magnitude ? dy / length * magnitude : 0,
+      magnitude,
+      rawMagnitude,
+      angle: magnitude ? Math.atan2(dy, dx) : 0,
+      deadZone,
+      curve
+    });
+  }
+
+  function powerFromGesture({ elapsedMs = 0, displacement = 0 } = {}) {
+    const timeCharge = Math.max(0, Number(elapsedMs) || 0) / 1700;
+    const thumbCharge = clampControl(displacement);
+    return clampControl(0.85 * timeCharge + 0.2 * thumbCharge);
+  }
+
+  function classifyPower(power, bands = CONTROL_POWER_BANDS) {
+    const value = clampControl(power);
+    if (value >= bands.overchargeStart) return 'overcharge';
+    if (value >= bands.perfectStart && value <= bands.perfectEnd) return 'perfect';
+    if (value >= bands.targetStart && value <= bands.targetEnd) return 'target';
+    return 'early';
+  }
+
+  function gestureToSpin(points = []) {
+    if (!Array.isArray(points) || points.length < 2) return Object.freeze({ spin: 0, direction: 'none', curvature: 0, velocity: 0 });
+    let path = 0;
+    let turn = 0;
+    for (let i = 1; i < points.length; i += 1) path += Math.hypot(points[i].x - points[i - 1].x, points[i].y - points[i - 1].y);
+    for (let i = 1; i < points.length - 1; i += 1) {
+      const a = points[i - 1], b = points[i], c = points[i + 1];
+      turn += (b.x - a.x) * (c.y - b.y) - (b.y - a.y) * (c.x - b.x);
+    }
+    const first = points[0], last = points[points.length - 1];
+    const direct = Math.hypot(last.x - first.x, last.y - first.y);
+    const duration = Math.max(16, (last.t || 0) - (first.t || 0));
+    const velocity = path / duration;
+    const curvature = path > 0 ? clampControl(Math.abs(turn) / (path * path), 0, 1) * Math.sign(turn || 1) : 0;
+    const horizontal = direct > 0 ? (last.x - first.x) / direct : 0;
+    const intensity = clampControl(path / 60 * velocity / 0.45);
+    const spin = clampControl((horizontal * 0.65 + curvature * 2.2) * intensity, -1, 1);
+    return Object.freeze({ spin, direction: spin < -0.08 ? 'left' : spin > 0.08 ? 'right' : 'straight', curvature, velocity });
+  }
+
+  function hapticCapability(platform = {}) {
+    return Object.freeze({ supported: typeof platform.vibrate === 'function', label: typeof platform.vibrate === 'function' ? 'Haptics ready' : 'Visual cues only' });
+  }
+
+  function hapticCueFor(event) {
+    return Object.freeze({ target: [12], perfect: [18, 12, 22], overcharge: [30, 10, 30], cancel: [8] }[event] || []);
+  }
+
+  function resolveControlMapping(context = {}) {
+    if (context.mode === 'fight') return CONTROL_MAPPINGS.fight;
+    if (context.mode === 'race') return CONTROL_MAPPINGS.race;
+    if (context.mode !== 'kick') return CONTROL_MAPPINGS.fight;
+    if (context.shot === 'free') return CONTROL_MAPPINGS.kickFree;
+    if (context.shot === 'header') return CONTROL_MAPPINGS.kickHeader;
+    if (context.pass || context.pso === 'pass' || context.state === 'pass' || context.state === 'pfly') return CONTROL_MAPPINGS.kickPass;
+    if (context.keeper || context.pso === 'gk' || context.state === 'keep') return CONTROL_MAPPINGS.kickKeeper;
+    if (context.combo || context.pso === 'combo' || ['crun', 'cpass', 'cret', 'cwhiff', 'cshot'].includes(context.state)) return CONTROL_MAPPINGS.kickCombo;
+    return CONTROL_MAPPINGS.kickRun;
+  }
+
   const PLAYER_APPEARANCES = freezeMap({
     you: { skin: '#8d5b3c', hair: '#16100d', hairStyle: 'fade', eye: '#17111a', brow: 'straight', mouth: 'focus', kit: '#2f4a86', accent: '#7fdcff', shorts: '#15213b', socks: '#e8eef9', build: 1, height: 1, shoulders: 1, torso: 1, legs: 1, stance: 0.14, number: '10' },
     wiz: { skin: '#6f452f', hair: '#20140f', hairStyle: 'curls', eye: '#20140f', brow: 'arc', mouth: 'smile', kit: '#6d3fbf', accent: '#cbb8ff', shorts: '#211637', socks: '#ece6ff', build: 0.86, height: 0.93, shoulders: 0.88, torso: 0.91, legs: 0.96, stance: 0.18, number: '10' },
@@ -241,8 +331,10 @@
   }
 
   root.KickLabGameCore = Object.freeze({
-    apiVersion: '1.1.0',
+    apiVersion: '1.2.0',
     STORAGE_KEYS,
+    CONTROL_POWER_BANDS,
+    CONTROL_MAPPINGS,
     PLAYER_APPEARANCES,
     FALLBACK_ENVIRONMENTS,
     KIT_DEFAULTS,
@@ -256,6 +348,13 @@
     pressureAtTemperature,
     restitutionAtPressure,
     timeAtDistance,
-    calculateFreeKick
+    calculateFreeKick,
+    normalizeAnalogStick,
+    powerFromGesture,
+    classifyPower,
+    gestureToSpin,
+    hapticCapability,
+    hapticCueFor,
+    resolveControlMapping
   });
 })(globalThis);

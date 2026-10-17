@@ -40,7 +40,7 @@ function setupIcon(id){return ICONS[SETUP_ICON_KEY[id]||'setup_controls'];}
 function setupLabel(id,label){return`<span class="setup-label">${setupIcon(id)}<span>${label}</span></span>`;}
 function setupChoice(id,label,sub,locked=false){return`${setupIcon(id)}<span class="choice-copy">${locked?'<span class="lock-mark" aria-hidden="true">LOCKED</span> ':''}<b>${label}</b><small>${sub}</small></span>`;}
 function padEls(id){return document.querySelectorAll(`#pad [data-id="${id}"]`);}
-function setLabel(){M.actions().forEach(x=>{padEls(x.id).forEach(el=>{el.classList.toggle('sel',!!x.sel);el.classList.toggle('pulse',!!x.pulse);el.disabled=!!x.disabled;if(x.icon&&el._icon!==x.icon){const c=el.querySelector('.cap');if(c){c.innerHTML=ICONS[x.icon];el._icon=x.icon;}}const label=x.label||String(x.aria||x.id).replace(/\s*\(.*/, '');const vl=el.querySelector('.action-label');if(vl)vl.textContent=label;el.setAttribute('aria-label',x.aria||x.label||x.id);});});}
+function setLabel(){M.actions().forEach(x=>{padEls(x.id).forEach(el=>{el.classList.toggle('sel',!!x.sel);el.classList.toggle('pulse',!!x.pulse);el.disabled=!!x.disabled;if(x.icon&&el._icon!==x.icon){const c=el.querySelector('.cap');if(c){c.innerHTML=ICONS[x.icon];el._icon=x.icon;}}const label=x.label||String(x.aria||x.id).replace(/\s*\(.*/, '');const vl=el.querySelector('.action-label');if(vl)vl.textContent=label;el.setAttribute('aria-label',x.aria||x.label||x.id);});});if(typeof renderAnalogControls==='function')renderAnalogControls();}
 function adjustVar(id,delta,allowManualPause=false){const e=varEls.find(v=>v.def.id===id),d=activeVariableProfile().find(v=>v.id===id);if(!d||isLocked(M.key,id)||(e&&e.inp.disabled&&!(allowManualPause&&PAUSE.why==='manual-physics')))return false;const nv=clamp(Math.round((M.V[id]+delta)/d.step)*d.step,d.min,d.max);M.V[id]=nv;if(e){e.inp.value=nv;e.out.textContent=e.show(nv);const box=e.inp.closest('.var');if(box){box.classList.remove('dflash');void box.offsetWidth;box.classList.add('dflash');}}if(M.onVar)M.onVar(id);showStageAdjustment(id);return true;}
 const DP={layer:'shot',flash:null};
 const STAGE_ADJUST={id:null,t:0,duration:reduce?1800:2400,fade:reduce?0:500};
@@ -125,4 +125,4 @@ function renderActions(){$('#padL').innerHTML='';$('#padR').innerHTML='';const a
   const up=()=>{clearTimeout(rep);if(b.classList.contains('on')){b.classList.remove('on');if(!a.step&&a.id!=='dials')M.press(a.id,false);}};
   ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>b.addEventListener(ev,up));
   b.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.repeat){e.preventDefault();e.stopPropagation();if(resOpen()){ackResults();return;}hideStageAdjustment();M.press(a.id,true);}});b.addEventListener('keyup',e=>{if(e.key==='Enter')M.press(a.id,false);});
-  (a.dir?dp:arc).appendChild(b);});}
+  (a.dir?dp:arc).appendChild(b);});if(typeof renderAnalogControls==='function')renderAnalogControls();}

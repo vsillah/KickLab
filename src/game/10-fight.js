@@ -406,7 +406,8 @@ function autoWheel(s,P){const pp=racePath(s.x,s.y,P);let eh=pp.phi-s.th;while(eh
   const Ld=Math.max(8,0.7*s.v),kc=pp.kp+2*Math.sin(eh+Math.atan(pp.e/Ld))/Ld;return Math.max(-180,Math.min(180,P.ratio*Math.atan(kc*P.Lwb)*180/Math.PI));}
 function raceStep(s,P,inp,dt){
   const G=9.81,drag=(P.F/P.m)/(P.top*P.top);
-  let a;if(inp.brake)a=-0.95*P.mu*G;else if(inp.gas)a=Math.min(P.F/P.m,P.mu*G);else a=-0.5;
+  const gas=typeof inp.gas==='number'?Math.max(0,Math.min(1,inp.gas)):inp.gas?1:0,brake=typeof inp.brake==='number'?Math.max(0,Math.min(1,inp.brake)):inp.brake?1:0;
+  let a;if(brake)a=-0.95*P.mu*G*brake;else if(gas)a=Math.min(P.F/P.m,P.mu*G)*gas;else a=-0.5;
   a-=drag*s.v*s.v;s.v=Math.max(0,s.v+a*dt);
   const wheel=inp.auto?autoWheel(s,P):inp.wheel;s.wheel=wheel;
   const d=wheel/P.ratio*Math.PI/180,kc=Math.tan(d)/P.Lwb,kmax=P.mu*G/Math.max(s.v*s.v,0.01),k=Math.max(-kmax,Math.min(kmax,kc));

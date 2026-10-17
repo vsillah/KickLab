@@ -119,7 +119,28 @@
           </section>
         </div>
         <div class="control-deck" aria-label="Game controls">
+          <div class="prototype-control-bar"><button type="button" id="prototypeControlsToggle" aria-pressed="false" aria-controls="touchController"><span aria-hidden="true">◉</span><b>Try analog controls</b><small>Prototype · classic stays available</small></button></div>
           <div class="pad" id="pad">
+            <section class="touch-controller" id="touchController" hidden aria-label="Analog and gesture controller" aria-describedby="touchControllerInstructions">
+              <p class="sr-only" id="touchControllerInstructions">Left thumbstick: drag in any direction, with distance controlling intensity. Keyboard users can hold arrow keys. Right action surface: hold and slide, then release to act. Release inside the target band for the best result. Escape cancels either control.</p>
+              <div class="touch-control-map"><span id="touchMapTitle">Fight stance</span><b id="touchMapAxes">Guard · Duck</b><small id="touchHapticStatus">Checking haptics…</small></div>
+              <div class="analog-zone">
+                <div class="analog-axis-label axis-up" id="analogUpLabel">Rise</div><div class="analog-axis-label axis-right" id="analogRightLabel">Guard right</div><div class="analog-axis-label axis-down" id="analogDownLabel">Duck</div><div class="analog-axis-label axis-left" id="analogLeftLabel">Guard left</div>
+                <div class="analog-stick" id="analogStick" role="application" aria-roledescription="analog thumbstick" aria-label="Movement thumbstick. Drag for direction and intensity; use arrow keys for keyboard control." tabindex="0">
+                  <span class="analog-deadzone" aria-hidden="true"></span><span class="analog-knob" id="analogKnob" aria-hidden="true"></span>
+                </div>
+                <output class="analog-readout" id="analogReadout" aria-live="polite">Centered · 0%</output>
+              </div>
+              <div class="gesture-zone">
+                <button type="button" class="gesture-action" id="gestureAction" aria-describedby="gestureInstructions gesturePowerStatus">
+                  <span class="gesture-ring" aria-hidden="true"><i class="ring-progress"></i><i class="ring-target"></i><i class="ring-perfect"></i></span>
+                  <span class="gesture-core"><span class="gesture-icon" id="gestureActionIcon" aria-hidden="true"></span><small id="gestureActionVerb">Punch</small><b id="gesturePowerValue">0%</b><span id="gestureSpinValue">No spin</span></span>
+                </button>
+                <div class="gesture-bands" aria-hidden="true"><span>Early</span><span>Target</span><span>Perfect</span><span>Over</span></div>
+                <p id="gestureInstructions">Hold to charge · curve your slide for spin · release to act</p>
+                <output id="gesturePowerStatus" class="gesture-status" aria-live="polite">Ready · release timing sets power</output>
+              </div>
+            </section>
             <div class="control-left-slot" id="controlLeftSlot">
               <div class="controller-mode-toggle" role="group" aria-label="Controller mode" aria-describedby="controllerModeStatus"><button type="button" id="controllerModePlay" aria-pressed="true"><span aria-hidden="true">✥</span> Play</button><button type="button" id="controllerModeManual" aria-pressed="false"><span aria-hidden="true">⌁</span> Manual</button></div>
               <span class="controller-mode-status" id="controllerModeStatus" role="status" aria-live="polite">D-pad controls active.</span>
