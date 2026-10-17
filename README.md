@@ -46,9 +46,10 @@ All the `game/` files form a single script scope once joined, so a constant defi
 
 ## Build
 
-Needs Node 18 or newer. No packages to install.
+The browser-only build needs Node 18 or newer. Shared mobile preparation needs Node 22 or newer and the exact dependencies from `package-lock.json`.
 
 ```
+npm ci           # required before shared mobile preparation
 npm run build    # writes dist/kicklab.html
 npm test         # runs the DOM-free shared-core tests
 npm run mobile:prepare # writes the offline-hardened dist/mobile/index.html

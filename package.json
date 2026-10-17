@@ -14,12 +14,12 @@
     "check": "node scripts/build.mjs --emit-game && node scripts/prepare-pages.mjs && node scripts/prepare-mobile.mjs && node --check dist/game.js && node --test && node scripts/check-web.mjs && node scripts/check-pages-prepare.mjs"
   },
   "dependencies": {
-    "@capacitor/app": "7.1.2",
-    "@capacitor/core": "7.6.9",
-    "@capacitor/haptics": "7.0.5"
+    "@capacitor/app": "8.1.2",
+    "@capacitor/core": "8.5.3",
+    "@capacitor/haptics": "8.0.2"
   },
   "devDependencies": {
-    "@capacitor/cli": "7.6.9"
+    "@capacitor/cli": "8.5.3"
   },
-  "engines": { "node": ">=20" }
+  "engines": { "node": ">=22" }
 }

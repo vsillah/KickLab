@@ -10,7 +10,7 @@ Last reviewed: 2026-10-17
 - Offline play is a product requirement. Network access may enrich the game, but it cannot be required for the core labs or saved local progress.
 - KickLab serves children ages 9–15. The game core must not collect identity, contact, location, advertising, or analytics data. Parent/guardian-controlled services must sit outside the game core.
 - The existing `impactlab.v1` progress key and `impactlab.nick` nickname key are compatibility identifiers, not stale branding to rename. Existing players must keep their progress.
-- The repository currently has no runtime dependencies or package lock. This foundation keeps that property; package/workspace tooling should be introduced only when a platform shell needs it.
+- The existing browser artifact remains self-contained. The shared mobile foundation introduces only exact-version Capacitor dependencies and a package lock; broader workspace tooling waits until a platform shell needs it.
 - The current browser UI owns rendering, sound, input, timers, and DOM state. Moving those concerns is outside this foundation slice.
 
 ## Target repository layout
@@ -97,6 +97,8 @@ Native shells must not assume browser local storage is transferable. Their first
 ## Shared Capacitor foundation
 
 The canonical application id is provisionally `com.amadutown.kicklab`. Changing it requires a replacement decision record because it affects both platform lanes and future store identity. `capacitor.config.json` points only to the generated `dist/mobile` package; it omits `server.url`, keeps cleartext disabled, and has an empty navigation allowlist.
+
+The foundation pins Capacitor 8 and requires Node 22 or newer. Generated shells must retain the supported platform floor: iOS 15 or newer and Android minimum SDK 24, compile SDK 36, and target SDK 36. Android's compile/target level follows the pinned Capacitor major and the current store-submission policy; a platform lane may not work around a stale Capacitor major by overriding it to an unsupported SDK target.
 
 `npm run mobile:prepare` rebuilds the audited self-contained game as `dist/mobile/index.html`, removes remote stylesheet references, and injects a Content Security Policy with `connect-src 'none'`. The native artifact therefore uses packaged assets and local storage on first launch. It creates no cloud identity and enables no remote sync.
 

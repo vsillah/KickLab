@@ -44,4 +44,6 @@ Reconsider the packaging choice when reproducible evidence shows that a supporte
 
 ## Foundation implementation note
 
-The shared foundation pins Capacitor 7.6.9 because KickLab's existing CI runs Node 20 while the Capacitor 8 CLI requires Node 22. The platform plugins remain narrow: App for lifecycle state and Haptics for the three declared feedback cues. This version choice can be revisited through a dependency-upgrade PR after CI and both platform lanes qualify the newer toolchain; it does not change the application id or the local-first contract.
+The shared foundation pins Capacitor Core and CLI 8.5.3, App 8.1.2, and Haptics 8.0.2, with Node 22 or newer in development and CI. The platform plugins remain narrow: App for lifecycle state and Haptics for the three declared feedback cues.
+
+Capacitor 8 establishes the first native support floor: iOS 15 or newer and Android minimum SDK 24, compile SDK 36, and target SDK 36. The Android target follows both the SDK level supported by the pinned Capacitor major and the current Google Play submission requirement. Platform lanes must not force an unsupported target SDK onto an older Capacitor major. Future target-policy changes require a reviewed dependency/toolchain update; they do not change the application id or local-first contract.

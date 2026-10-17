@@ -12,6 +12,10 @@ This is a finite seven-gate evidence path. A later gate cannot inherit qualifica
 | 6. TestFlight and Play internal testing | Separately approved store records, privacy/data-safety declarations, uploaded exact builds, tester access, install evidence, crash/feedback intake | `not_run` |
 | 7. Feedback and release candidate | Triaged tester evidence, fixed blockers, rerun affected gates, version/build numbers, release notes, rollback decision, explicit release approval | `not_run` |
 
+## Supported platform floor
+
+The shared foundation pins Capacitor 8 and Node 22 or newer. Platform projects generated from it must use iOS 15 or newer and Android minimum SDK 24, compile SDK 36, and target SDK 36. Android SDK targets follow the SDK level supported by the pinned Capacitor major and the current Google Play submission policy; overriding an older Capacitor major to an unsupported target is not an accepted qualification path.
+
 ## Evidence rules
 
 - Allowed status values are `not_run`, `not_qualified`, and `qualified`.
@@ -22,7 +26,7 @@ This is a finite seven-gate evidence path. A later gate cannot inherit qualifica
 
 ## Platform-lane handoff
 
-Amina owns iOS project generation and iOS Simulator evidence in her branch. Yaa Asantewaa owns Android project generation and emulator evidence in her branch. Each starts from the merged shared-foundation commit, runs `npm ci` and `npm run mobile:check`, generates only its platform project, and confirms the copied web artifact hash matches `dist/mobile/kicklab-mobile-manifest.json`. Neither platform lane may mark physical-device, accessibility, signing, internal-testing, feedback, or release-candidate gates qualified without the evidence listed above.
+Amina owns iOS project generation and iOS Simulator evidence in her branch. Yaa Asantewaa owns Android project generation and emulator evidence in her branch. Each starts from the merged shared-foundation commit with Node 22 or newer, runs `npm ci` and `npm run mobile:check`, generates only its platform project, and confirms the copied web artifact hash matches `dist/mobile/kicklab-mobile-manifest.json`. Amina must confirm the generated deployment target is iOS 15 or newer. Yaa must confirm Android minimum SDK 24 and compile/target SDK 36. Neither platform lane may mark physical-device, accessibility, signing, internal-testing, feedback, or release-candidate gates qualified without the evidence listed above.
 
 The Integration Captain must provide the exact merged foundation commit before either lane starts. Amina must preserve the earlier SwiftUI/WKWebView experiment unchanged and use a clean Capacitor worktree rather than overwriting or deleting it.
 

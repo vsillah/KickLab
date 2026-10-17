@@ -1,6 +1,15 @@
 {
   "schemaVersion": 1,
   "updatedAt": "2026-10-17",
+  "platformFloor": {
+    "node": ">=22",
+    "ios": ">=15",
+    "android": {
+      "minimumSdk": 24,
+      "compileSdk": 36,
+      "targetSdk": 36
+    }
+  },
   "gates": [
     {
       "id": "browser-baseline",

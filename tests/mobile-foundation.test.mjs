@@ -15,6 +15,8 @@ const packageJson=json('package.json');
 const mobile=read('dist/mobile/index.html');
 const lifecycle=read('src/game/56-mobile-lifecycle.js');
 const qualification=json('docs/release/mobile-qualification-status.json');
+const ciWorkflow=read('.github/workflows/ci.yml');
+const pagesWorkflow=read('.github/workflows/pages-prepare.yml');
 
 test('locks artifact identity and provisional stable app id',()=>{
   assert.equal(config.appId,'com.amadutown.kicklab');
@@ -25,9 +27,17 @@ test('locks artifact identity and provisional stable app id',()=>{
   assert.equal(manifest.artifact,'dist/mobile/index.html');
   assert.equal(manifest.sha256,createHash('sha256').update(mobile).digest('hex'));
   assert.match(mobile,/<meta name="kicklab-artifact" content="capacitor-local-v1">/);
-  assert.equal(packageJson.dependencies['@capacitor/core'],'7.6.9');
-  assert.equal(packageJson.devDependencies['@capacitor/cli'],'7.6.9');
-  assert.equal(packageJson.engines.node,'>=20');
+  assert.equal(packageJson.dependencies['@capacitor/core'],'8.5.3');
+  assert.equal(packageJson.dependencies['@capacitor/app'],'8.1.2');
+  assert.equal(packageJson.dependencies['@capacitor/haptics'],'8.0.2');
+  assert.equal(packageJson.devDependencies['@capacitor/cli'],'8.5.3');
+  assert.equal(packageJson.engines.node,'>=22');
+  assert.equal(contract.platforms.ios.minimumVersion,15);
+  assert.deepEqual(contract.platforms.android,{minimumSdk:24,compileSdk:36,targetSdk:36});
+  assert.match(contract.platforms.targetPolicy,/supported by the pinned Capacitor major/);
+  assert.deepEqual(qualification.platformFloor,{node:'>=22',ios:'>=15',android:{minimumSdk:24,compileSdk:36,targetSdk:36}});
+  assert.match(ciWorkflow,/node-version: 22/);
+  assert.match(pagesWorkflow,/node-version: 22/);
 });
 
 test('keeps the packaged shell offline and fail-closed for navigation and egress',()=>{
