@@ -23,8 +23,8 @@ test('keeps relocated feature roots canonical and singular',()=>{
 });
 
 test('maps the four contextual summaries to accessible disclosures',()=>{
-  for(const [trigger,panel] of [['physicsDetailsCompact','physicsDetail'],['physicsDetailsWide','physicsDetail'],['reviewDetailToggle','reviewDetail'],['goalsDetailToggle','goalsDetail'],['learnDetailToggle','learnDetail']]){
-    assert.match(html,new RegExp(`id="${trigger}"[^>]+aria-expanded="false"[^>]+aria-controls="${panel}"`));
+  for(const [trigger,panel,label] of [['physicsDetailsCompact','physicsDetail','physics details'],['physicsDetailsWide','physicsDetail','physics details'],['reviewDetailToggle','reviewDetail','move history'],['goalsDetailToggle','goalsDetail','goal details'],['learnDetailToggle','learnDetail','coach notebook']]){
+    assert.match(html,new RegExp(`id="${trigger}"[^>]+data-detail-label="${label}"[^>]+aria-label="Open ${label}"[^>]+title="Open ${label}"[^>]+aria-expanded="false"[^>]+aria-controls="${panel}"[^>]*><span aria-hidden="true">⌄</span></button>`));
   }
   for(const id of ['physicsDetail','reviewDetail','goalsDetail','learnDetail'])assert.equal((html.match(new RegExp(`id="${id}"`,'g'))||[]).length,1);
   assert.doesNotMatch(html,/id="contextMenuSlot"|id="inspector"|id="ins-tab-|id="ins-pane-/);
@@ -49,6 +49,7 @@ test('keeps canonical Math content in the physics disclosure',()=>{
 });
 
 test('keeps contextual detail input ownership and focus return explicit',()=>{
+  assert.match(cockpit,/function bindContextTrigger\(button,name\).*if\(e\.key==='Escape'&&CONTEXT_DETAILS\.open\).*closeContextDetail\(\).*if\(e\.key===' '\|\|e\.key==='Spacebar'\).*button\.click\(\)/);
   assert.match(cockpit,/document\.querySelectorAll\('\.context-detail'\)\.forEach\(p=>\{p\.addEventListener\('pointerdown',e=>e\.stopPropagation\(\)\);p\.addEventListener\('keydown',e=>\{if\(e\.key==='Escape'\).*closeContextDetail\(\)/);
   assert.match(cockpit,/if\(restore&&trigger&&trigger\.isConnected&&!trigger\.hidden\)trigger\.focus\(\)/);
   assert.match(cockpit,/if\(e\.key==='Escape'&&CONTEXT_DETAILS\.open\).*closeContextDetail\(\)/);
@@ -58,7 +59,8 @@ test('keeps contextual detail input ownership and focus return explicit',()=>{
 
 test('opens only one responsive contextual detail at a time',()=>{
   assert.match(cockpit,/document\.querySelectorAll\('\.context-detail'\)\.forEach\(p=>p\.hidden=p!==panel\)/);
-  assert.match(cockpit,/\['math','review','goals','learn'\]\.forEach\(n=>contextTriggers\(n\)\.forEach\(b=>b\.setAttribute\('aria-expanded',String\(n===name\)\)\)\)/);
+  assert.match(cockpit,/function syncContextTrigger\(button,expanded\).*button\.setAttribute\('aria-label',name\);button\.title=name/);
+  assert.match(cockpit,/\['math','review','goals','learn'\]\.forEach\(n=>contextTriggers\(n\)\.forEach\(b=>syncContextTrigger\(b,n===name\)\)\)/);
   assert.match(cockpit,/if\(!PAUSE\.on\)\{pauseGame\('context-detail'\)/);
   assert.match(cockpit,/if\(CONTEXT_DETAILS\.ownsPause&&PAUSE\.why==='context-detail'\).*resumeGame\(\)/);
   assert.match(css,/\.contextual-summary:has\(>\.context-detail:not\(\[hidden\]\)\)\{grid-column:1\/-1\}/);

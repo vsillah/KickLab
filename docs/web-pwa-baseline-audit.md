@@ -50,7 +50,7 @@ The post-PR #4 inventory found four singular content owners behind a redundant g
 - **Challenge card → Goals detail:** `#challengeHud` remains the current-goal summary and discloses level, XP, badges, mode, canonical challenge details, records, and missions. Transient completion notifications remain on stage and open this persistent detail.
 - **Coach card → Learn detail:** `#coach` remains the live guidance summary and discloses full working, notebook steps, core idea, and quick check.
 
-The former global menu, tabs, and inspector shell are removed. Each summary uses a real button with `aria-expanded` and `aria-controls`; opening one contextual detail closes the prior detail, Escape closes the active detail and restores its trigger, and Settings remains mutually exclusive with contextual detail ownership.
+The former global menu, tabs, and inspector shell are removed. Each summary uses a compact chevron-only button with `aria-expanded`, `aria-controls`, and a synchronized `Open…` or `Close…` accessible name and tooltip. Opening one contextual detail closes the prior detail, Escape closes the active detail and restores its trigger, and Settings remains mutually exclusive with contextual detail ownership. The symbol stays in the existing summary or controller row so it reduces label pressure without adding another vertical layer.
 
 ### Contextual ownership and guards
 

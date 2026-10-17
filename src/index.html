@@ -57,7 +57,7 @@
           <div class="game-guidance-hud" id="gameGuidanceHud" aria-label="Live coach and challenge guidance">
             <section class="challenge-hud contextual-summary" id="challengeHud" aria-label="Active goal">
               <div id="challengeHudSummary"></div>
-              <button type="button" class="context-disclosure" id="goalsDetailToggle" aria-expanded="false" aria-controls="goalsDetail">Goal details <span aria-hidden="true">⌄</span></button>
+              <button type="button" class="context-disclosure" id="goalsDetailToggle" data-detail-label="goal details" aria-label="Open goal details" title="Open goal details" aria-expanded="false" aria-controls="goalsDetail"><span aria-hidden="true">⌄</span></button>
               <div class="context-detail goals-detail" id="goalsDetail" hidden>
                 <header class="context-detail-head"><div><span>Goals</span><h2>Challenge, progress and missions</h2></div><button type="button" data-close-detail="goals">Close goals</button></header>
                 <p class="context-detail-state">Game pauses while goal details are open.</p>
@@ -69,7 +69,7 @@
             <section class="coach contextual-summary" id="coach">
               <div class="av" id="coachAv">DR</div>
               <div class="coach-copy"><div class="cn"><b id="coachName">Coach Dre</b><span id="coachRole">boxing coach</span><span class="streak" id="streak"></span></div><p id="coachMsg" aria-live="polite" aria-atomic="true"></p></div>
-              <button type="button" class="context-disclosure" id="learnDetailToggle" aria-expanded="false" aria-controls="learnDetail">Coach notebook <span aria-hidden="true">⌄</span></button>
+              <button type="button" class="context-disclosure" id="learnDetailToggle" data-detail-label="coach notebook" aria-label="Open coach notebook" title="Open coach notebook" aria-expanded="false" aria-controls="learnDetail"><span aria-hidden="true">⌄</span></button>
               <div class="context-detail learn-detail" id="learnDetail" hidden>
                 <header class="context-detail-head"><div><span>Learn</span><h2>Working, notebook and quick check</h2></div><button type="button" data-close-detail="learn">Close notebook</button></header>
                 <p class="context-detail-state">Game pauses while the coach notebook is open.</p>
@@ -83,7 +83,7 @@
             </section>
             <section class="history-hud contextual-summary" id="historyHud" aria-label="Latest game event">
               <div class="history-summary"><span>Latest event</span><b id="historyTitle">Move log ready</b><p id="historyLatest">Your next move and its math will appear here.</p></div>
-              <button type="button" class="context-disclosure" id="reviewDetailToggle" aria-expanded="false" aria-controls="reviewDetail">Move history <span aria-hidden="true">⌄</span></button>
+              <button type="button" class="context-disclosure" id="reviewDetailToggle" data-detail-label="move history" aria-label="Open move history" title="Open move history" aria-expanded="false" aria-controls="reviewDetail"><span aria-hidden="true">⌄</span></button>
               <div class="context-detail review-detail" id="reviewDetail" hidden>
                 <header class="context-detail-head"><div><span>Review</span><h2>Latest moves and replay controls</h2></div><button type="button" data-close-detail="review">Close history</button></header>
                 <p class="context-detail-state">Game pauses while move history is open.</p>
@@ -122,7 +122,7 @@
             <div class="control-left-slot" id="controlLeftSlot">
               <div class="controller-mode-toggle" role="group" aria-label="Controller mode" aria-describedby="controllerModeStatus"><button type="button" id="controllerModePlay" aria-pressed="true"><span aria-hidden="true">✥</span> Play</button><button type="button" id="controllerModeManual" aria-pressed="false"><span aria-hidden="true">⌁</span> Manual</button></div>
               <span class="controller-mode-status" id="controllerModeStatus" role="status" aria-live="polite">D-pad controls active.</span>
-              <button type="button" class="context-disclosure physics-detail-toggle compact-physics-detail-toggle" id="physicsDetailsCompact" aria-expanded="false" aria-controls="physicsDetail">Physics details <span aria-hidden="true">⌄</span></button>
+              <button type="button" class="context-disclosure physics-detail-toggle compact-physics-detail-toggle" id="physicsDetailsCompact" data-detail-label="physics details" aria-label="Open physics details" title="Open physics details" aria-expanded="false" aria-controls="physicsDetail"><span aria-hidden="true">⌄</span></button>
               <div class="grp l" id="padL"></div>
               <section class="manual-controller" id="manualController" hidden aria-label="Manual physics controller">
                 <div class="manual-variable-head"><button type="button" id="manualPrev" aria-label="Previous physics variable">‹</button><span><b id="manualVariableName">Variable</b><output id="manualVariableValue"></output></span><button type="button" id="manualNext" aria-label="Next physics variable">›</button></div>
@@ -131,7 +131,7 @@
               </section>
             </div>
             <section class="wide-manual-controller" id="wideManualController" aria-label="Desktop manual physics controls">
-              <div class="wide-manual-head"><b>Manual physics</b><span id="wideManualStatus">Changes apply immediately.</span><button type="button" class="context-disclosure physics-detail-toggle" id="physicsDetailsWide" aria-expanded="false" aria-controls="physicsDetail">Physics details <span aria-hidden="true">⌄</span></button></div>
+              <div class="wide-manual-head"><b>Manual physics</b><span id="wideManualStatus">Changes apply immediately.</span><button type="button" class="context-disclosure physics-detail-toggle" id="physicsDetailsWide" data-detail-label="physics details" aria-label="Open physics details" title="Open physics details" aria-expanded="false" aria-controls="physicsDetail"><span aria-hidden="true">⌄</span></button></div>
               <div class="wide-manual-rows" id="wideManualRows"></div>
             </section>
             <div class="grp r" id="padR"></div>

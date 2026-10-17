@@ -9,10 +9,11 @@ const settingsDrawer=$('#settingsDrawer'),settingsToggle=$('#settingsToggle');
 
 function contextPanel(name){return $(`#${name==='math'?'physics':name}Detail`);}
 function contextTriggers(name){return name==='math'?[$('#physicsDetailsCompact'),$('#physicsDetailsWide')]:[$(`#${name}DetailToggle`)];}
+function syncContextTrigger(button,expanded){const action=expanded?'Close':'Open',label=button.dataset.detailLabel||'details',name=`${action} ${label}`;button.setAttribute('aria-expanded',String(expanded));button.setAttribute('aria-label',name);button.title=name;}
 function closeContextDetail({restore=true}={}){
   if(!CONTEXT_DETAILS.open)return;
   const trigger=CONTEXT_DETAILS.trigger,name=CONTEXT_DETAILS.open;
-  contextPanel(name).hidden=true;contextTriggers(name).forEach(b=>b.setAttribute('aria-expanded','false'));
+  contextPanel(name).hidden=true;contextTriggers(name).forEach(b=>syncContextTrigger(b,false));
   CONTEXT_DETAILS.open=null;CONTEXT_DETAILS.trigger=null;
   if(CONTEXT_DETAILS.ownsPause&&PAUSE.why==='context-detail'){PAUSE.why='';resumeGame();}
   CONTEXT_DETAILS.ownsPause=false;
@@ -27,7 +28,7 @@ function setContextDetail(name,{trigger=null,focus=false,open=true}={}){
   if(!settingsDrawer.hidden)closeSettings({restore:false});
   CONTEXT_DETAILS.open=name;CONTEXT_DETAILS.trigger=trigger||contextTriggers(name).find(b=>b.offsetParent!==null)||contextTriggers(name)[0];
   document.querySelectorAll('.context-detail').forEach(p=>p.hidden=p!==panel);
-  ['math','review','goals','learn'].forEach(n=>contextTriggers(n).forEach(b=>b.setAttribute('aria-expanded',String(n===name))));
+  ['math','review','goals','learn'].forEach(n=>contextTriggers(n).forEach(b=>syncContextTrigger(b,n===name)));
   panel.hidden=false;
   if(!PAUSE.on){pauseGame('context-detail');CONTEXT_DETAILS.ownsPause=PAUSE.on&&PAUSE.why==='context-detail';}
   if(focus)requestAnimationFrame(()=>panel.querySelector('[data-close-detail]')?.focus());
@@ -71,8 +72,9 @@ $('#settingsCategories').addEventListener('click',e=>{const b=e.target.closest('
 settingsDrawer.addEventListener('pointerdown',e=>e.stopPropagation());
 settingsDrawer.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();closeSettings();}});
 
-contextTriggers('math').forEach(b=>b.addEventListener('click',()=>setContextDetail('math',{trigger:b})));
-['review','goals','learn'].forEach(name=>{const b=contextTriggers(name)[0];b.addEventListener('click',()=>setContextDetail(name,{trigger:b}));});
+function bindContextTrigger(button,name){button.addEventListener('click',()=>setContextDetail(name,{trigger:button}));button.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'&&CONTEXT_DETAILS.open){e.preventDefault();closeContextDetail();return;}if(e.key===' '||e.key==='Spacebar'){e.preventDefault();button.click();}});}
+contextTriggers('math').forEach(b=>bindContextTrigger(b,'math'));
+['review','goals','learn'].forEach(name=>bindContextTrigger(contextTriggers(name)[0],name));
 document.querySelectorAll('[data-close-detail]').forEach(b=>b.addEventListener('click',()=>closeContextDetail()));
 document.querySelectorAll('.context-detail').forEach(p=>{p.addEventListener('pointerdown',e=>e.stopPropagation());p.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();closeContextDetail();return;}e.stopPropagation();});});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&CONTEXT_DETAILS.open){e.preventDefault();e.stopPropagation();closeContextDetail();}});
