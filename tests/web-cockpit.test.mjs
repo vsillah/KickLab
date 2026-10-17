@@ -78,6 +78,10 @@ test('reuses Coach Tomi for a bounded non-blocking route into canonical Math',()
   assert.match(cockpit,/function showCoachTomiControlRoute\(route,\{source\}=\{\}\).*prototypePhysicsRows\.querySelector.*wideManualRows\.querySelector.*setControllerMode\('manual'/s);
   assert.match(cockpit,/claimPauseOwner\('coach-recommendation'\).*COACH_TOMI_ACTIONS\.ownsPause=true/);
   assert.match(cockpit,/if\(ownsPause\)releasePauseOwner\('coach-recommendation'\)/);
+  assert.match(cockpit,/function coachTomiRecommendationOwnsStage\(\)\{return!!COACH_TOMI_ACTIONS\.current;\}/);
+  assert.match(cockpit,/cancelGameTransition\('coach-recommendation',\{retain:true\}\).*E\.title=null/s);
+  assert.match(replay,/drawPause\(c\).*coachTomiRecommendationOwnsStage\(\).*c\.restore\(\);return/s);
+  assert.match(loop,/if\(E\.title&&!\(typeof coachTomiRecommendationOwnsStage.*coachTomiRecommendationOwnsStage\(\)\)\)/s);
   assert.match(cockpit,/function showCoachTomiMathRoute\(route\).*setContextDetail\('math'.*coachTomiMathRecommendation\.focus/s);
   assert.match(cockpit,/scrollIntoView\(\{behavior:reduce\?'auto':'smooth',block:'nearest'\}\)/);
   assert.match(html,/id="coachTomiPregameAction">Try this<\/button>/);

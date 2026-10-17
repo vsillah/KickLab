@@ -18,7 +18,7 @@ function frame(now){const rdt=Math.min(0.05,(now-last)/1000);last=now;
   if(physicsVision)xrayFrame(ctx,E.env);
   M.hud(ctx);drawDialHud(ctx);drawWorld(ctx);drawMatch(ctx);drawLive(ctx);drawPause(ctx);drawReplayBadge(ctx);if(CINE.on)CINE.draw(ctx);COACH.tick(rdt);tickHUD(rdt);
   if(E.flash>0){ctx.save();ctx.globalAlpha=E.flash*0.45;ctx.fillStyle='#fff6e0';ctx.fillRect(0,0,W,H);ctx.restore();E.flash=Math.max(0,E.flash-rdt*5);}
-  if(E.title){E.title.t+=rdt;const t=E.title.t;if(t>1.6)E.title=null;else{const sc2=t<0.22?1.8-t/0.22*0.8:1,a=t<0.1?t/0.1:t>1.1?Math.max(0,(1.6-t)/0.5):1;ctx.save();ctx.globalAlpha=a;ctx.translate(W/2,H/2-20);ctx.scale(sc2,sc2);glow(ctx,C.xray,24);text(ctx,E.title.text,0,0,'64px '+DISP,C.ink,'center','middle');ctx.shadowBlur=0;text(ctx,E.title.sub,0,46,'600 16px '+BODY,C.xray,'center','middle');ctx.restore();}}
+  if(E.title&&!(typeof coachTomiRecommendationOwnsStage==='function'&&coachTomiRecommendationOwnsStage())){E.title.t+=rdt;const t=E.title.t;if(t>1.6)E.title=null;else{const sc2=t<0.22?1.8-t/0.22*0.8:1,a=t<0.1?t/0.1:t>1.1?Math.max(0,(1.6-t)/0.5):1;ctx.save();ctx.globalAlpha=a;ctx.translate(W/2,H/2-20);ctx.scale(sc2,sc2);glow(ctx,C.xray,24);text(ctx,E.title.text,0,0,'64px '+DISP,C.ink,'center','middle');ctx.shadowBlur=0;text(ctx,E.title.sub,0,46,'600 16px '+BODY,C.xray,'center','middle');ctx.restore();}}
   stepParts(SPARTS,rdt);drawParts(ctx,SPARTS);
   if(physicsVision&&E.env>0.5&&M.callouts){ctx.save();ctx.globalAlpha=clamp((E.env-0.5)*2,0,1);M.callouts(ctx);ctx.restore();}
   conT+=rdt;if(conT>0.1){conT=0;{const r=RECS[M.key];$('#mlClock').textContent=RP.on?fmtT(RP.t):fmtT(r?r.t:0);

@@ -12,7 +12,7 @@ $('#dialsClose').addEventListener('click',closeDials);
 $('#dialTop').addEventListener('pointerdown',e=>{e.stopPropagation();});
 $('#dialTop').addEventListener('click',e=>{e.stopPropagation();unlock();$('#dials').hidden?openDials():closeDials();});
 function drawPause(c){if(!PAUSE.on)return;c.save();c.fillStyle='rgba(4,8,18,0.6)';c.fillRect(0,0,W,H);
-  if(PAUSE.why==='manual'||PAUSE.why==='transition'){c.restore();return;}
+  if(PAUSE.why==='manual'||PAUSE.why==='transition'||(typeof coachTomiRecommendationOwnsStage==='function'&&coachTomiRecommendationOwnsStage())){c.restore();return;}
   const cx=PAUSE.why==='dials'&&cv.clientWidth>700?W*0.3:W/2;glow(c,C.xray,18);text(c,'TIME-OUT',cx,H/2-30,'54px '+DISP,C.ink,'center','middle');c.shadowBlur=0;
   const note=PAUSE.why==='dials'?'Work your dials, then tap Back in':PAUSE.why==='manual-physics'?'Manual Physics owns this pause. Close it to return.':PAUSE.why==='settings'?'Game paused while settings are open. Close settings to return.':PAUSE.why==='context-detail'?'Game paused while details are open. Close them to return.':'Return to the stage to resume.';
   text(c,note,cx,H/2+20,'600 16px '+BODY,C.xray,'center','middle');c.restore();}
