@@ -53,22 +53,23 @@ const Race={
     if(id==='brake'){this.inp.brake=down;this.brake=down;}if(id==='left')this.inp.left=down;if(id==='right')this.inp.right=down;if(id==='center')this.wheel=0;},
   curWheel(){return this.opt.steer==='auto'?this.st.wheel:this.wheel;},
   update(dt,rdt){const P=this.P(),s=this.st;
-    if(this.opt.steer==='you'){const d=(this.inp.left?1:0)-(this.inp.right?1:0);if(d)this.wheel=clamp(this.wheel+d*150*rdt,-180,180);}
+    const analog=this.analogControl&&this.analogControl.active?this.analogControl:null,gas=analog?Math.max(0,-analog.y):this.inp.gas,brake=analog?Math.max(0,analog.y):this.inp.brake;
+    if(this.opt.steer==='you'){if(analog)this.wheel=clamp(-analog.x*180,-180,180);else{const d=(this.inp.left?1:0)-(this.inp.right?1:0);if(d)this.wheel=clamp(this.wheel+d*150*rdt,-180,180);}}
     if(this.state==='count'){const before=Math.floor((2.4-this.cd)/0.8);this.cd-=rdt;const after=Math.floor((2.4-this.cd)/0.8);if(after>before&&after<3)tone(440,0.2,'square',0.05);if(this.cd<=0){this.state='run';tone(880,0.35,'square',0.06);const P=this.P(),a=P.F/P.m,cap=P.mu*G0;logMove('race',{who:'sys',kind:'go',title:'GO!',math:`a = F÷m = ${fmt(P.F,0)}÷${fmt(P.m,0)} = ${fmt(a)} m/s²${a>cap?` → grip cap μg = ${fmt(cap)}`:''}`,tone:'info'});}return;}
-    if(this.state==='run'){ENGINE.on();ENGINE.set(42+s.v*3.4+(this.inp.gas?18:0),0.035);}else ENGINE.off();
-    if(this.state==='run'&&(s.slide||(this.inp.brake&&s.v>8))){const car=this.CARS[this.opt.car],back=car.len*0.34*1.8,side=car.wid*0.46*1.8,cx=s.x-Math.cos(s.th)*back,cy=s.y-Math.sin(s.th)*back,nx=-Math.sin(s.th)*side,ny=Math.cos(s.th)*side;
+    if(this.state==='run'){ENGINE.on();ENGINE.set(42+s.v*3.4+(gas?18*gas:0),0.035);}else ENGINE.off();
+    if(this.state==='run'&&(s.slide||(brake&&s.v>8))){const car=this.CARS[this.opt.car],back=car.len*0.34*1.8,side=car.wid*0.46*1.8,cx=s.x-Math.cos(s.th)*back,cy=s.y-Math.sin(s.th)*back,nx=-Math.sin(s.th)*side,ny=Math.cos(s.th)*side;
       const seg={l:{x:cx+nx,y:cy+ny},r:{x:cx-nx,y:cy-ny}};if(this.skidPrev)this.skids.push([this.skidPrev,seg]);this.skidPrev=seg;if(this.skids.length>1500)this.skids.shift();
       if(s.slide&&Math.random()<rdt*40)burst(PARTS,this.sx(cx),this.sy(cy),1,{sp:[5,25],life:1.1,size:5,kind:'smoke',col:'#c9d2e3',drag:1});
       this.skidSnd=(this.skidSnd||0)-rdt;if(s.slide&&this.skidSnd<=0){SND.skid();this.skidSnd=0.2;}}else this.skidPrev=null;
     if(this.state==='run'){const n=Math.max(1,Math.ceil(dt/0.004)),h=dt/n;
-      for(let i=0;i<n;i++){raceStep(s,P,{gas:this.inp.gas,brake:this.inp.brake,wheel:this.wheel,auto:this.opt.steer==='auto'},h);
+      for(let i=0;i<n;i++){raceStep(s,P,{gas,brake,wheel:this.wheel,auto:this.opt.steer==='auto'},h);
         if(s.x<P.L&&s.v>this.vPeak)this.vPeak=s.v;
         if(s.zone===1){this.wSum+=Math.abs(s.wheel)*h;this.wT+=h;}
-        if(this.inp.brake&&!this.wasBrake&&s.zone===0&&s.v>3){const vm=Math.sqrt(P.mu*G0*P.R),d2c=P.L-s.x,dN=s.v>vm?(s.v*s.v-vm*vm)/(2*0.95*P.mu*G0):0;logMove('race',{who:'you',kind:'brake',d2c,dN,v:s.v,title:`Brake at ${fmt(d2c,0)} m to the corner`,res:`${fmt(s.v*3.6,0)} km/h`,math:`need d = (v²−v_max²)÷(2·0.95·μ·g) = ${fmt(dN,0)} m`,tone:d2c>=dN-2&&d2c<=dN+25?'good':'bad'});}
-        this.wasBrake=this.inp.brake;
+        if(brake&&!this.wasBrake&&s.zone===0&&s.v>3){const vm=Math.sqrt(P.mu*G0*P.R),d2c=P.L-s.x,dN=s.v>vm?(s.v*s.v-vm*vm)/(2*0.95*P.mu*G0):0;logMove('race',{who:'you',kind:'brake',d2c,dN,v:s.v,title:`Brake at ${fmt(d2c,0)} m to the corner`,res:`${fmt(s.v*3.6,0)} km/h`,math:`need d = (v²−v_max²)÷(2·0.95·μ·g) = ${fmt(dN,0)} m`,tone:d2c>=dN-2&&d2c<=dN+25?'good':'bad'});}
+        this.wasBrake=brake;
         if(s.slide&&!this.sliding&&s.v>3){this.sliding=true;logMove('race',{who:'rex',kind:'slide',v:s.v,need:s.need,have:P.mu*G0,title:'Tires sliding',res:`${fmt(s.v*3.6,0)} km/h`,math:`v²÷R_turn = ${fmt(s.need)} > μg = ${fmt(P.mu*G0)} m/s²`,tone:'bad'});}else if(!s.slide)this.sliding=false;
         if(s.slide){this.slideT+=h;if(!this.warnS&&s.zone>0){this.warnS=true;COACH.say("You're sliding: v² ÷ R_turn is bigger than μ·g. Ease off the gas or unwind the wheel a touch.",'warn',5);}}
-        if(s.zone===0&&!this.inp.brake&&!this.warnB){const vm=Math.sqrt(P.mu*G0*P.R);if(s.v>vm*1.05){const dNeed=(s.v*s.v-vm*vm)/(2*0.95*P.mu*G0);if(P.L-s.x<dNeed+10){this.warnB=true;COACH.say(`Brake now! ${fmt(s.v*3.6,0)} km/h and this corner tops out at ${fmt(vm*3.6,0)}. You need ${fmt(dNeed,0)} m to slow down.`,'warn',5);}}}
+        if(s.zone===0&&!brake&&!this.warnB){const vm=Math.sqrt(P.mu*G0*P.R);if(s.v>vm*1.05){const dNeed=(s.v*s.v-vm*vm)/(2*0.95*P.mu*G0);if(P.L-s.x<dNeed+10){this.warnB=true;COACH.say(`Brake now! ${fmt(s.v*3.6,0)} km/h and this corner tops out at ${fmt(vm*3.6,0)}. You need ${fmt(dNeed,0)} m to slow down.`,'warn',5);}}}
         if(s.zone===1&&!this.warnT&&this.opt.steer==='you'&&s.th<0.3){const need=this.RATIO*Math.atan(this.CARS[this.opt.car].Lwb/P.R)/DEG;if(s.x>P.L+3&&Math.abs(this.wheel-need)>20){this.warnT=true;COACH.say(`Turn in! This corner wants about ${fmt(need,0)}° of wheel. You have ${fmt(this.wheel,0)}°.`,'warn',5);}}
         if(!this.inTurn&&s.zone===1){this.inTurn=true;this.vEntry=s.v;{const vm=Math.sqrt(P.mu*G0*P.R);logMove('race',{who:'you',kind:'entry',v:s.v,vmax:vm,title:`Corner entry ${fmt(s.v*3.6,0)} km/h`,res:`${Math.round(s.v/vm*100)}% of limit`,math:`v_max = √(μ·g·R) = √(${fmt(P.mu,2)}×9.81×${P.R}) = ${fmt(vm*3.6,0)} km/h`,tone:s.v<=vm*1.02?(s.v>=vm*0.85?'good':'info'):'bad'});}startSlow({focus:()=>({x:this.sx(this.st.x),y:this.sy(this.st.y)}),zoom:1.9,dur:1.8,min:0.2});}
         if(Math.abs(s.e)>this.HW){burst(PARTS,this.sx(s.x),this.sy(s.y),26,{sp:[20,90],life:1.4,size:6,kind:'smoke',col:'#b8a27a',drag:1.2});this.state='crashed';this.finish(false,s.e>0?'outside':'inside');sfx(0.7,0.7);E.shake=reduce?0:8;break;}
