@@ -55,3 +55,7 @@ The browser wrappers in `31-soccer-data.js` pass the active temperature, pitch, 
 ## Asset strategy decision
 
 KickLab remains a dependency-free ordered HTML/JavaScript build with a locally bundled Three.js file. A GLB pipeline would add an asset loader, skeleton/animation authoring contract, binary provenance, and fallback synchronization burden that is disproportionate to this bounded visual pass. The chosen approach is therefore the smallest reusable local procedural rig: shared geometry and material descriptors are created once, joint transforms are updated in place, and the Canvas fallback consumes the same canonical appearance data. The renderer no longer attempts a runtime CDN fetch when the local Three.js bundle is unavailable; it fails closed to the Canvas path.
+
+## Canvas stadium fidelity
+
+The 2D fallback remains procedural and repository-owned. `GAME_CORE.fallbackEnvironment()` supplies presentation-only palettes and atmosphere labels for Home ground, High altitude, Mars dome, and Moon without altering the existing gravity, density, weather, pitch, or gameplay models. Both soccer camera styles consume those descriptors to draw layered stands, crowd rows, rails, boards, environment framing, pitch bands, texture, markings, and goal/net depth. The fallback publishes the selected visual environment to the QA probe so rendered checks can verify real environment switching rather than selector state alone.

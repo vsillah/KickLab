@@ -22,6 +22,13 @@
     cannon: { skin: '#75462f', hair: '#17110e', hairStyle: 'locs', eye: '#15121a', brow: 'strong', mouth: 'focus', kit: '#c0392b', accent: '#ffb09f', shorts: '#461812', socks: '#ffe2dc', build: 1.12, height: 1.05, shoulders: 1.14, torso: 1.06, legs: 1.02, stance: 0.16, number: '17' }
   });
 
+  const FALLBACK_ENVIRONMENTS = freezeMap({
+    home: { skyTop: '#07101f', skyBottom: '#20365c', haze: '#88a5d1', stand: '#111d3b', tier: '#1b2a4d', rail: '#a9bedf', crowd: ['#ffb04a', '#5fe3a1', '#7fdcff', '#c9a7ff'], field: '#174b31', band: '#1d5b39', board: '#071225', accent: '#7fdcff', atmosphere: 'floodlights' },
+    alt: { skyTop: '#101b42', skyBottom: '#5378ad', haze: '#c3dbf4', stand: '#17284e', tier: '#284369', rail: '#d5e7ff', crowd: ['#ffd166', '#9ee7ff', '#d7c2ff', '#ffffff'], field: '#205741', band: '#28684c', board: '#0b1730', accent: '#c9e5ff', atmosphere: 'mountains' },
+    mars: { skyTop: '#190806', skyBottom: '#8e3d23', haze: '#e58b58', stand: '#44211d', tier: '#6a3025', rail: '#ffc08d', crowd: ['#ffb07c', '#ffd166', '#7fdcff', '#f6e2d0'], field: '#81412d', band: '#9a5034', board: '#24100d', accent: '#ffb07c', atmosphere: 'dome' },
+    moon: { skyTop: '#000000', skyBottom: '#101522', haze: '#b7c5db', stand: '#171b26', tier: '#2a303e', rail: '#ecf4ff', crowd: ['#d9e5f7', '#7fdcff', '#c9a7ff', '#f3e36b'], field: '#505762', band: '#616975', board: '#090c13', accent: '#eaf3ff', atmosphere: 'habitat' }
+  });
+
   const KIT_DEFAULTS = Object.freeze({ press: 'match', size: '5', surf: 'tex', studs: 'fg', boot: 'std' });
   const KIT_CATALOG = freezeMap({
     press: { label: 'Ball pressure', eq: 'bounciness e: v_ball = v_foot · M(1+e) ÷ (M+m)', why: 'A firmer ball is bouncier (higher e). More of your kick comes back as speed, but every dribble touch also pops further off your foot.',
@@ -132,6 +139,16 @@
     });
   }
 
+  function fallbackEnvironment(id = 'home', pitchId = 'grass') {
+    const base = FALLBACK_ENVIRONMENTS[id] || FALLBACK_ENVIRONMENTS.home;
+    const pitchTone = pitchId === 'turf'
+      ? { field: id === 'mars' ? '#985034' : id === 'moon' ? '#636b77' : '#216846', band: id === 'mars' ? '#aa5b3b' : id === 'moon' ? '#727b87' : '#287a50' }
+      : pitchId === 'wet'
+        ? { field: id === 'mars' ? '#68362c' : id === 'moon' ? '#454c57' : '#123c2d', band: id === 'mars' ? '#7b4032' : id === 'moon' ? '#555d69' : '#184b37' }
+        : {};
+    return Object.freeze({ ...base, ...pitchTone, id: FALLBACK_ENVIRONMENTS[id] ? id : 'home', pitchId });
+  }
+
   function kitAppearance(selection = KIT_DEFAULTS) {
     const kit = normalizeKit(selection);
     const size = kitOption(kit, 'size');
@@ -227,6 +244,7 @@
     apiVersion: '1.1.0',
     STORAGE_KEYS,
     PLAYER_APPEARANCES,
+    FALLBACK_ENVIRONMENTS,
     KIT_DEFAULTS,
     KIT_CATALOG,
     normalizeKit,
@@ -234,6 +252,7 @@
     kitAppearance,
     playerAppearance,
     headAttachmentGeometry,
+    fallbackEnvironment,
     pressureAtTemperature,
     restitutionAtPressure,
     timeAtDistance,

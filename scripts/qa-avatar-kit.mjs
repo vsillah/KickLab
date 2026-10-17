@@ -21,6 +21,7 @@ const context = await browser.newContext({
 const page = await context.newPage();
 const errors = [];
 const rigAudits = [];
+const environmentAudits = [];
 page.on('pageerror', (error) => errors.push(String(error)));
 page.on('console', (message) => {
   if (message.type() === 'error') errors.push(message.text());
@@ -69,6 +70,16 @@ const openActivity = async (name) => {
   await page.getByRole('button', { name: 'Play activity', exact: true }).click();
   await blurControls();
   await pause();
+};
+const setEnvironment = async (name, id) => {
+  await page.getByRole('button', { name: /Open Environment settings/ }).click();
+  await page.getByRole('button', { name: new RegExp(`^${name}`) }).click();
+  await page.getByRole('button', { name: /Close settings/ }).click();
+  await blurControls();
+  await pause(500);
+  const scene = await page.evaluate(() => window.__KICKLAB_FALLBACK_ENV__ || null);
+  if (!scene || scene.id !== id) throw new Error(`${name}: fallback environment audit did not update`);
+  environmentAudits.push(scene);
 };
 
 await page.goto(`${baseUrl}?qa=avatar-kit-final`, { waitUntil: 'networkidle' });
@@ -177,6 +188,29 @@ await page.getByRole('button', { name: /Close settings/ }).click();
 await pause(700);
 await snap('1440-classic-fallback');
 
+await openActivity('1v1 Dribble');
+await setEnvironment('Home ground', 'home');
+await page.keyboard.down('Space');
+await page.keyboard.down('ArrowRight');
+await pause(800);
+await snap('1440-fallback-home-gameplay');
+await stageSnap('1440-fallback-home-gameplay');
+await page.keyboard.up('ArrowRight');
+await page.keyboard.up('Space');
+for (const [name, id] of [['High altitude', 'alt'], ['Mars dome', 'mars'], ['Moon', 'moon']]) {
+  await setEnvironment(name, id);
+  await snap(`1440-fallback-${id}`);
+  await stageSnap(`1440-fallback-${id}`);
+}
+await setEnvironment('Home ground', 'home');
+await openActivity('Free kick');
+await page.keyboard.press('Space');
+await pause(220);
+await snap('1440-fallback-free-kick-gameplay');
+await stageSnap('1440-fallback-free-kick-gameplay');
+await openActivity('1v1 Dribble');
+await setEnvironment('Home ground', 'home');
+
 const viewports = [[768, 1024], [390, 844]];
 const responsive = [];
 for (const [width, height] of viewports) {
@@ -203,7 +237,8 @@ const report = {
     maxMs: sorted[sorted.length - 1]
   },
   responsive,
-  rigAudits
+  rigAudits,
+  environmentAudits
 };
 writeFileSync(join(outputDir, 'qa-report.json'), `${JSON.stringify(report, null, 2)}\n`);
 

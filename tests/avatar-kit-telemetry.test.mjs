@@ -46,6 +46,25 @@ test('keeps the canonical head and neck geometry attached', () => {
   }
 });
 
+test('keeps fallback stadium environments visually distinct without changing physics', () => {
+  const ids = ['home', 'alt', 'mars', 'moon'];
+  const scenes = ids.map((id) => core.fallbackEnvironment(id, 'grass'));
+  assert.equal(new Set(scenes.map((scene) => `${scene.skyTop}:${scene.field}:${scene.atmosphere}`)).size, ids.length);
+  assert.equal(core.fallbackEnvironment('unknown').id, 'home');
+  assert.notEqual(core.fallbackEnvironment('home', 'wet').field, core.fallbackEnvironment('home', 'grass').field);
+});
+
+test('renders procedural fallback pitch and stadium layers in both soccer cameras', () => {
+  const side = read('src/game/30-kick-sideview.js');
+  const field = read('src/game/32-soccer-3d-modes.js');
+
+  assert.match(side, /fallbackSideScene\(c\)/);
+  assert.match(field, /fallbackStadium\(c,st\)/);
+  assert.match(field, /fallbackPitch\(c,st\)/);
+  assert.match(field, /__KICKLAB_FALLBACK_ENV__/);
+  assert.doesNotMatch(`${side}\n${field}`, /new Image\(|https?:\/\//);
+});
+
 test('derives kit telemetry from the same canonical model for gameplay and UI', () => {
   const match = core.kitMetrics(core.KIT_DEFAULTS, { baseShotSpeed: 24, pitch: 'grass', temperatureC: 20, rho: 1.2, airOn: true });
   const hardYouth = core.kitMetrics({ press: 'hard', size: '4', surf: 'smooth', studs: 'sg', boot: 'light' }, { baseShotSpeed: 24, pitch: 'wet', temperatureC: 35, rho: 1.2, airOn: true });
