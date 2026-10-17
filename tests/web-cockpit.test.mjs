@@ -220,7 +220,7 @@ test('starts on a dedicated mode home and keeps the full lab chooser out of acti
   const home=html.indexOf('id="modeHome"'),tabs=html.indexOf('class="tabs"'),cockpit=html.indexOf('id="game-cockpit"');
   assert.ok(home>=0&&home<tabs&&tabs<cockpit);
   assert.match(html,/id="modeHome" aria-labelledby="modeHomeTitle"/);
-  assert.match(html,/class="hudbar home-progress" id="progressHud" aria-label="Overall player progress across Fight, Race, and Kick\. Saved on this device\."/);
+  assert.match(html,/class="hudbar home-progress" id="progressHud" aria-labelledby="homeScorecardTitle" aria-describedby="homeScorecardScope"/);
   for(const mode of ['fight','race','kick'])assert.match(html,new RegExp(`class="tab lab-showcase" id="lab-tab-${mode}"[^>]+data-mode="${mode}"[^>]+aria-pressed=`));
   assert.match(html,/id="game-cockpit" role="region" aria-labelledby="currentModeTitle" hidden/);
   assert.match(html,/id="modeHomeButton"[^>]*>[\s\S]*All labs[\s\S]*<\/button>/);

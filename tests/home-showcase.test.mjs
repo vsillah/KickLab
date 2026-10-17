@@ -52,14 +52,22 @@ test('uses muted looping local video with reduced-motion, constrained-device, an
 });
 
 test('labels progress as overall, three-lab, and device-local without claiming a global board',()=>{
-  assert.match(html,/id="progressHud" aria-label="Overall player progress across Fight, Race, and Kick\. Saved on this device\."/);
-  assert.match(html,/Overall player progress/);
-  assert.match(html,/Fight · Race · Kick/);
-  assert.match(html,/Saved only on this device\./);
+  assert.match(html,/id="progressHud" aria-labelledby="homeScorecardTitle" aria-describedby="homeScorecardScope"/);
+  assert.match(html,/class="home-scorecard-header"/);
+  assert.match(html,/id="homeScorecardTitle">Your all-lab scorecard</);
+  assert.match(html,/id="homeScorecardScope">Fight, Race, and Kick progress · saved on this device</);
+  assert.match(html,/class="home-scorecard-body"/);
+  assert.match(html,/class="scorecard-records" aria-label="Player records"/);
   assert.match(html,/id="boardBtn" type="button">Local boards</);
   assert.match(html,/aria-label="Device and family player boards"/);
   assert.match(html,/Device-local rankings/);
   assert.doesNotMatch(html,/global leaderboard/i);
+  assert.match(css,/\.home-progress\{display:block;overflow:hidden;padding:0/);
+  assert.match(css,/\.home-scorecard-header\{display:flex;[\s\S]*?border-bottom:/);
+  assert.match(css,/\.home-scorecard-body\{display:grid;grid-template-columns:/);
+  assert.match(css,/\.home-progress \.hudtools button\{min-height:44px/);
+  assert.match(css,/@media \(max-width:760px\)[^\n]*\.home-progress \.stat\.sess,\.home-progress \.stat\.badges\{display:grid\}/);
+  for(const guard of ['scorecard.headerBeforeBody','scorecard.contained','scorecard.subordinate','scorecard.actions.some'])assert.ok(read('scripts/qa-home-showcase.mjs').includes(guard),guard);
 });
 
 test('copies the reviewed local preview package into web, Pages, and mobile artifacts',()=>{

@@ -29,16 +29,16 @@
     </nav>
   </section>
 
-  <div class="hudbar home-progress" id="progressHud" aria-label="Overall player progress across Fight, Race, and Kick. Saved on this device.">
-    <div class="home-progress-heading"><span>Overall player progress</span><b>Fight · Race · Kick</b><small>Saved only on this device.</small></div>
-    <button class="home-profile" id="homeProfileButton" type="button" aria-haspopup="dialog"><span class="profile-avatar" id="homeProfileAvatar" aria-hidden="true">R</span><span><small>Playing as</small><b id="homeProfileName">Lab Rookie</b><em id="homeProfileMeta">Level 1 · 0 XP</em></span><i>Profile &amp; stats</i></button>
-    <div class="medal" id="medal"><small>LVL</small><span id="lvlNum">1</span></div>
-    <div class="rank"><div class="rt"><b id="lvlName">Rookie</b><span id="xpTxt">0 / 400 XP</span></div><div class="xpbar"><i id="xpBar"></i></div><small id="nextUnlock"></small></div>
-    <div class="stat sess"><span>This session</span><b id="sessXP">0</b></div>
-    <div class="stat combo"><span>Combo</span><b id="comboX">×1</b><div class="pips" id="pips"><i></i><i></i><i></i><i></i><i></i></div></div>
-    <div class="stat badges"><span>Badges</span><b id="sBadges">0</b></div>
-    <div class="hudtools"><button class="boardbtn" id="boardBtn" type="button">Local boards</button><button class="mute" id="mute" type="button" aria-pressed="false">Sound on</button></div>
-  </div>
+  <section class="hudbar home-progress" id="progressHud" aria-labelledby="homeScorecardTitle" aria-describedby="homeScorecardScope">
+    <header class="home-scorecard-header"><div><span>Your combined performance</span><h2 id="homeScorecardTitle">Your all-lab scorecard</h2></div><p id="homeScorecardScope">Fight, Race, and Kick progress · saved on this device</p></header>
+    <div class="home-scorecard-body">
+      <button class="home-profile" id="homeProfileButton" type="button" aria-haspopup="dialog"><span class="profile-avatar" id="homeProfileAvatar" aria-hidden="true">R</span><span><small>Playing as</small><b id="homeProfileName">Lab Rookie</b><em id="homeProfileMeta">Level 1 · 0 XP</em></span><i>Profile &amp; stats</i></button>
+      <div class="medal" id="medal"><small>LVL</small><span id="lvlNum">1</span></div>
+      <div class="rank"><div class="rt"><b id="lvlName">Rookie</b><span id="xpTxt">0 / 400 XP</span></div><div class="xpbar"><i id="xpBar"></i></div><small id="nextUnlock"></small></div>
+      <div class="scorecard-records" aria-label="Player records"><div class="stat sess"><span>This session</span><b id="sessXP">0</b></div><div class="stat combo"><span>Combo</span><b id="comboX">×1</b><div class="pips" id="pips"><i></i><i></i><i></i><i></i><i></i></div></div><div class="stat badges"><span>Badges</span><b id="sBadges">0</b></div></div>
+      <div class="hudtools"><button class="boardbtn" id="boardBtn" type="button">Local boards</button><button class="mute" id="mute" type="button" aria-pressed="false">Sound on</button></div>
+    </div>
+  </section>
 
   <div class="profile-dialog" id="profileDialog" hidden role="dialog" aria-modal="true" aria-labelledby="profileTitle"><section class="profile-panel">
     <header class="profile-head"><div><span>Player lab</span><h2 id="profileTitle">Profile &amp; stats</h2><p id="profileIntro">Your progress stays on this device.</p></div><button type="button" id="profileClose" aria-label="Close profiles">Close ✕</button></header>

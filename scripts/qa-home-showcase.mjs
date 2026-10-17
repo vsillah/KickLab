@@ -68,7 +68,11 @@ async function homeAudit(page, label) {
       clientWidth: node.clientWidth,
       clipped: node.scrollWidth > node.clientWidth + 1,
     }));
-    const progressChildren = [...document.querySelector('#progressHud').children].filter(node => getComputedStyle(node).display !== 'none').map(node => ({ selector: node.id || node.className, box: node.getBoundingClientRect().toJSON() }));
+    const progress = box('#progressHud'), scorecardHeader = box('.home-scorecard-header'), scorecardBody = box('.home-scorecard-body');
+    const progressChildren = [...document.querySelector('.home-scorecard-body').children].filter(node => getComputedStyle(node).display !== 'none').map(node => ({ selector: node.id || node.className, box: node.getBoundingClientRect().toJSON() }));
+    const scorecardText = [...document.querySelectorAll('.home-scorecard-header h2,.home-scorecard-header p,.home-scorecard-header span,.home-scorecard-body b,.home-scorecard-body small,.home-scorecard-body i,.home-scorecard-body button')].filter(node => getComputedStyle(node).display !== 'none').map(node => ({ text: node.textContent.trim(), clipped: node.scrollWidth > node.clientWidth + 1 }));
+    const scorecardActions = [...document.querySelectorAll('#homeProfileButton,#boardBtn,#mute')].map(node => ({ id: node.id, box: node.getBoundingClientRect().toJSON() }));
+    const scorecardRecords = [...document.querySelectorAll('.scorecard-records .stat')].filter(node => getComputedStyle(node).display !== 'none').map(node => node.textContent.replace(/\s+/g, ' ').trim());
     const cardText = [...document.querySelectorAll('.lab-card-copy .n,.lab-card-copy .d,.lab-card-copy .mode-enter')].filter(node => getComputedStyle(node).display !== 'none').map(node => ({ text: node.textContent.trim(), clipped: node.scrollWidth > node.clientWidth + 1 }));
     return {
       viewport: { width: innerWidth, height: innerHeight },
@@ -86,10 +90,23 @@ async function homeAudit(page, label) {
       cards: cardBoxes,
       cardsOverlap: cardBoxes.some((card, index) => cardBoxes.slice(index + 1).some(other => overlap(card, other))),
       cardText,
-      progress: box('#progressHud'),
+      progress,
+      scorecard: {
+        title: document.querySelector('#homeScorecardTitle')?.textContent.trim(),
+        scope: document.querySelector('#homeScorecardScope')?.textContent.trim(),
+        labelledBy: document.querySelector('#progressHud')?.getAttribute('aria-labelledby'),
+        describedBy: document.querySelector('#progressHud')?.getAttribute('aria-describedby'),
+        header: scorecardHeader,
+        body: scorecardBody,
+        headerBeforeBody: scorecardHeader.bottom <= scorecardBody.top + 1,
+        contained: inside(scorecardHeader, progress) && inside(scorecardBody, progress),
+        subordinate: progress.height < box('#modeHome').height && progress.top >= box('#modeHome').bottom,
+        text: scorecardText,
+        actions: scorecardActions,
+        records: scorecardRecords,
+      },
       progressChildren,
       progressOverlap: progressChildren.some((item, index) => progressChildren.slice(index + 1).some(other => overlap(item.box, other.box))),
-      progressLabel: document.querySelector('#progressHud')?.getAttribute('aria-label'),
       labsBeforeProgress: cardBoxes.every(card => card.bottom <= box('#progressHud').top + 1),
       actions: cards.map(card => ({
         label: card.textContent.replace(/\s+/g, ' ').trim(),
@@ -106,11 +123,11 @@ async function homeAudit(page, label) {
       })),
     };
   });
-  if (audit.overflow > 1 || audit.wordmark !== 'KICKLAB' || audit.actions.length !== 3 || audit.heroGeometry.collision || !audit.heroGeometry.contained || audit.heroGeometry.text.some(item => item.clipped) || audit.cardsOverlap || audit.cardText.some(item => item.clipped) || audit.progressOverlap || !audit.labsBeforeProgress) {
+  if (audit.overflow > 1 || audit.wordmark !== 'KICKLAB' || audit.actions.length !== 3 || audit.heroGeometry.collision || !audit.heroGeometry.contained || audit.heroGeometry.text.some(item => item.clipped) || audit.cardsOverlap || audit.cardText.some(item => item.clipped) || audit.progressOverlap || !audit.labsBeforeProgress || !audit.scorecard.headerBeforeBody || !audit.scorecard.contained || !audit.scorecard.subordinate || audit.scorecard.text.some(item => item.clipped) || audit.scorecard.actions.some(item => item.box.width < 44 || item.box.height < 44)) {
     throw new Error(`${label}: layout contract failed (${JSON.stringify(audit)})`);
   }
-  if (audit.progressLabel !== 'Overall player progress across Fight, Race, and Kick. Saved on this device.') {
-    throw new Error(`${label}: progress semantics failed (${JSON.stringify(audit)})`);
+  if (audit.scorecard.title !== 'Your all-lab scorecard' || audit.scorecard.scope !== 'Fight, Race, and Kick progress · saved on this device' || audit.scorecard.labelledBy !== 'homeScorecardTitle' || audit.scorecard.describedBy !== 'homeScorecardScope' || !audit.scorecard.records.some(item => item.startsWith('This session')) || !audit.scorecard.records.some(item => item.startsWith('Badges'))) {
+    throw new Error(`${label}: scorecard semantics failed (${JSON.stringify(audit.scorecard)})`);
   }
   if (audit.actions.some(action => !action.label || !action.describedBy || !action.source?.startsWith('media/') || !action.poster?.startsWith('media/') || !action.muted || !action.loop || !action.playsInline || action.controls || action.currentTime <= 0)) {
     throw new Error(`${label}: preview semantics failed (${JSON.stringify(audit.actions)})`);
