@@ -13,6 +13,7 @@ const contract=json('config/mobile-release-contract.json');
 const manifest=json('dist/mobile/kicklab-mobile-manifest.json');
 const packageJson=json('package.json');
 const mobile=read('dist/mobile/index.html');
+const styles=read('src/styles.css');
 const lifecycle=read('src/game/56-mobile-lifecycle.js');
 const qualification=json('docs/release/mobile-qualification-status.json');
 const ciWorkflow=read('.github/workflows/ci.yml');
@@ -30,6 +31,7 @@ test('locks artifact identity and provisional stable app id',()=>{
   assert.equal(packageJson.dependencies['@capacitor/core'],'8.5.3');
   assert.equal(packageJson.dependencies['@capacitor/app'],'8.1.2');
   assert.equal(packageJson.dependencies['@capacitor/haptics'],'8.0.2');
+  assert.equal(packageJson.dependencies['@capacitor/ios'],'8.5.3');
   assert.equal(packageJson.devDependencies['@capacitor/cli'],'8.4.3');
   assert.equal(packageJson.engines.node,'>=22');
   assert.equal(contract.platforms.ios.minimumVersion,15);
@@ -55,6 +57,15 @@ test('keeps the packaged shell offline and fail-closed for navigation and egress
   assert.doesNotMatch(mobile,/fonts\.(?:googleapis|gstatic)\.com/);
 });
 
+test('keeps native page and profile chrome inside all iOS safe-area edges',()=>{
+  assert.match(mobile,/viewport-fit=cover/);
+  for(const edge of ['top','right','bottom','left']){
+    assert.match(styles,new RegExp(`padding-${edge}:calc\\([^;]+env\\(safe-area-inset-${edge}, 0px\\)\\)`));
+  }
+  assert.match(styles,/\.profile-dialog\{[\s\S]*?padding-top:calc\(18px \+ env\(safe-area-inset-top, 0px\)\)/);
+  assert.match(styles,/\.profile-panel\{[\s\S]*?min-height:calc\(100vh - env\(safe-area-inset-top, 0px\) - env\(safe-area-inset-bottom, 0px\)\)/);
+});
+
 test('preserves local profiles, leaderboards, and legacy storage continuity',()=>{
   assert.deepEqual(contract.storage.keys,['impactlab.v1','impactlab.nick','kicklab.profiles.v1']);
   assert.equal(contract.storage.mode,'local-first');
@@ -71,11 +82,12 @@ test('exposes only narrow lifecycle and haptic hooks and cancels held inputs',()
   assert.deepEqual(contract.hooks.haptics,['target','perfect','overcharge']);
 });
 
-test('retains explicit no-authority boundaries and no generated native projects',()=>{
+test('retains protected authority boundaries and scopes native generation to iOS',()=>{
   for(const [capability,allowed] of Object.entries(contract.authority))assert.equal(allowed,false,`${capability} must remain unauthorized`);
   assert.deepEqual(manifest.authority,contract.authority);
   assert.doesNotMatch(packageJson.scripts['mobile:prepare'],/cap\s+(?:add|sync|open|run|build)/);
-  assert.equal(existsSync(join(root,'ios')),false);
+  assert.equal(existsSync(join(root,'ios/App/App.xcodeproj/project.pbxproj')),true);
+  assert.equal(existsSync(join(root,'ios/App/App/PrivacyInfo.xcprivacy')),true);
   assert.equal(existsSync(join(root,'android')),false);
 });
 
