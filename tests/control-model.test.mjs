@@ -8,7 +8,7 @@ await import('../src/shared/game-core.js');
 const root=join(dirname(fileURLToPath(import.meta.url)),'..');
 const {
   normalizeAnalogStick,powerFromGesture,classifyPower,gestureToSpin,
-  hapticCapability,hapticCueFor,resolveControlMapping,CONTROL_MAPPINGS,sliderRangeModel,sliderSlotsModel
+  hapticCapability,hapticCueFor,resolveControlMapping,CONTROL_MAPPINGS,sliderRangeModel,sliderSlotsModel,objectiveImpact
 }=globalThis.KickLabGameCore;
 
 test('normalizes radial magnitude with a dead zone and center return',()=>{
@@ -102,6 +102,13 @@ test('classifies six-slot coach intersections while retaining lock context',()=>
   const model=sliderSlotsModel({min:0,max:10,step:1,value:4,suggestion:{lo:3,hi:7},locked:true,lockReason:'Challenge fixes Force.',name:'Force',unit:'N'});
   assert.equal(model.state,'locked');assert.equal(model.description,'Challenge fixes Force.');assert.ok(model.slots.some(slot=>slot.state==='low'));assert.ok(model.slots.some(slot=>slot.state==='perfect'));assert.ok(model.slots.some(slot=>slot.state==='high'));
   for(const slot of model.slots){assert.match(slot.label,/slot \d of 6/);assert.ok(['low','target','perfect','high'].includes(slot.state));}
+});
+
+test('classifies objective benefit, cost, trade-off, and neutral outcomes without collapsing mixed effects',()=>{
+  assert.deepEqual(objectiveImpact({benefit:'Safer',cost:'Weaker hit',prediction:'Below armor.'}),{kind:'tradeoff',label:'Safer · Weaker hit',benefit:'Safer',cost:'Weaker hit',prediction:'Below armor.'});
+  assert.deepEqual(objectiveImpact({benefit:'Cracks armor',prediction:'Above armor.'}),{kind:'helps',label:'Cracks armor',benefit:'Cracks armor',cost:'',prediction:'Above armor.'});
+  assert.deepEqual(objectiveImpact({cost:'Harder incoming hit',prediction:'More damage.'}),{kind:'hurts',label:'Harder incoming hit',benefit:'',cost:'Harder incoming hit',prediction:'More damage.'});
+  assert.deepEqual(objectiveImpact({neutral:'Damage neutral',prediction:'Pressure only.'}),{kind:'neutral',label:'Damage neutral',benefit:'',cost:'',prediction:'Pressure only.'});
 });
 
 test('keeps pointer lifecycle, cancellation, multi-touch rejection, resize safety, and scroll prevention explicit',()=>{

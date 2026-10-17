@@ -170,6 +170,14 @@
     return Object.freeze({ ...range, selectedIndex, values: Object.freeze(values), slots: Object.freeze(slots) });
   }
 
+  function objectiveImpact({ benefit = '', cost = '', neutral = '', prediction = '' } = {}) {
+    const helps = String(benefit || '').trim(), hurts = String(cost || '').trim(), neither = String(neutral || '').trim();
+    if (helps && hurts) return Object.freeze({ kind: 'tradeoff', label: `${helps} · ${hurts}`, benefit: helps, cost: hurts, prediction });
+    if (helps) return Object.freeze({ kind: 'helps', label: helps, benefit: helps, cost: '', prediction });
+    if (hurts) return Object.freeze({ kind: 'hurts', label: hurts, benefit: '', cost: hurts, prediction });
+    return Object.freeze({ kind: 'neutral', label: neither || 'Neutral / explore', benefit: '', cost: '', prediction });
+  }
+
   const PLAYER_APPEARANCES = freezeMap({
     you: { skin: '#8d5b3c', hair: '#16100d', hairStyle: 'fade', eye: '#17111a', brow: 'straight', mouth: 'focus', kit: '#2f4a86', accent: '#7fdcff', shorts: '#15213b', socks: '#e8eef9', build: 1, height: 1, shoulders: 1, torso: 1, legs: 1, stance: 0.14, number: '10' },
     wiz: { skin: '#6f452f', hair: '#20140f', hairStyle: 'curls', eye: '#20140f', brow: 'arc', mouth: 'smile', kit: '#6d3fbf', accent: '#cbb8ff', shorts: '#211637', socks: '#ece6ff', build: 0.86, height: 0.93, shoulders: 0.88, torso: 0.91, legs: 0.96, stance: 0.18, number: '10' },
@@ -398,7 +406,7 @@
   }
 
   root.KickLabGameCore = Object.freeze({
-    apiVersion: '1.4.0',
+    apiVersion: '1.5.0',
     STORAGE_KEYS,
     CONTROL_POWER_BANDS,
     CONTROL_MAPPINGS,
@@ -424,6 +432,7 @@
     hapticCueFor,
     resolveControlMapping,
     sliderRangeModel,
-    sliderSlotsModel
+    sliderSlotsModel,
+    objectiveImpact
   });
 })(globalThis);
