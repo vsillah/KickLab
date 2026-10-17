@@ -42,7 +42,8 @@ function confetti(n=140){if(reduce)n=Math.round(n/3);burst(SPARTS,W/2,H*0.45,n,{
 
 /* ---------- engine: time, slow motion, camera ---------- */
 const E={slow:null,env:0,ts:1,shake:0,flash:0,title:null,cam:{x:W/2,y:H/2,z:1}};
-function startSlow(o){if(reduce)o.zoom=Math.min(o.zoom||2,1.6);E.slow=Object.assign({t:0,dur:2.2,zoom:2.2,min:0.06},o);}
+function startSlow(o){if(reduce)o.zoom=Math.min(o.zoom||2,1.6);const kickAction=typeof M!=='undefined'&&typeof Kick!=='undefined'&&M===Kick;E.slow=Object.assign({t:0,dur:2.2,zoom:2.2,min:0.06,annotations:!kickAction},o);}
+function physicsAnnotationsVisible(){return!!(RP.on||!E.slow||E.slow.annotations!==false);}
 function camNow(){if(!E.slow||E.env<=0)return{x:W/2,y:H/2,z:1};const s=E.slow,f=typeof s.focus==='function'?s.focus():s.focus;const e=E.env;return{x:lerp(W/2,f.x,e),y:lerp(H/2,f.y,e),z:lerp(1,s.zoom,e)};}
 function toS(x,y){const k=E.cam;return{x:(x-k.x)*k.z+W/2,y:(y-k.y)*k.z+H/2};}
 

@@ -8,6 +8,8 @@ const root=join(dirname(fileURLToPath(import.meta.url)),'..');
 const html=readFileSync(join(root,'src','index.html'),'utf8');
 const cockpit=readFileSync(join(root,'src','game','54-web-cockpit.js'),'utf8');
 const replay=readFileSync(join(root,'src','game','60-pause-replay.js'),'utf8');
+const engine=readFileSync(join(root,'src','game','03-audio-fx-engine.js'),'utf8');
+const loop=readFileSync(join(root,'src','game','70-main-loop.js'),'utf8');
 const ui=readFileSync(join(root,'src','game','41-ui.js'),'utf8');
 const progress=readFileSync(join(root,'src','game','01-progress.js'),'utf8');
 const games=readFileSync(join(root,'src','game','42-match.js'),'utf8');
@@ -184,6 +186,19 @@ test('shows adjustment math temporarily while keeping environment context persis
   assert.doesNotMatch(kickSide,/air drag ON · ρ/);
   assert.match(kickSide,/if\(stageAdjustmentVisible\(\)\)\{text\(c,'θ = '/);
   assert.match(kick3d,/if\(stageAdjustmentVisible\(\)&&\(\(s==='beat'/);
+});
+
+test('suppresses Kick stage annotations after action start without changing Fight, Race, or replay',()=>{
+  assert.match(engine,/const kickAction=typeof M!=='undefined'&&typeof Kick!=='undefined'&&M===Kick/);
+  assert.match(engine,/annotations:!kickAction/);
+  assert.match(engine,/function physicsAnnotationsVisible\(\)\{return!!\(RP\.on\|\|!E\.slow\|\|E\.slow\.annotations!==false\);\}/);
+  assert.match(loop,/if\(E\.env>0&&physicsAnnotationsVisible\(\)\).*M\.drawXray\(ctx\)/);
+  assert.match(loop,/if\(E\.env>0&&physicsAnnotationsVisible\(\)\)xrayFrame\(ctx,E\.env\)/);
+  assert.match(loop,/if\(E\.env>0\.5&&physicsAnnotationsVisible\(\)&&M\.callouts\)/);
+  assert.match(replay,/if\(!RP\.on&&mode!=='kick'\)pushFeed\(m\);else if\(!RP\.on&&mode==='kick'\)\$\('#feed'\)\.innerHTML=''/);
+  assert.match(kickSide,/if\(stageAdjustmentVisible\(\)\)text\(c,'bar 2\.44 m'/);
+  assert.match(kickSide,/if\(this\.state==='flight'&&!this\.outcome&&stageAdjustmentVisible\(\)\)/);
+  assert.match(kick3d,/if\(stageAdjustmentVisible\(\)\)text\(c,'wall 1\.85 m \(\+jump\)'/);
 });
 
 test('swaps the D-pad footprint into guarded Manual Physics',()=>{

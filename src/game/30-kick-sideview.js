@@ -185,10 +185,10 @@ const Kick={
     for(let m=0;m<=20;m+=5){text(c,m+' m',X(m),this.OY+22,'600 11px '+MONO,'rgba(232,238,249,0.7)','center');c.fillStyle='rgba(232,238,249,0.5)';c.fillRect(X(m)-1,this.OY,2,7);}
     if(!v3){c.save();c.strokeStyle='rgba(232,238,249,0.22)';c.lineWidth=1;const nb=this.netT!=null?Math.exp(-this.netT*2.5)*Math.sin(this.netT*18)*0.5:0;for(let i=0;i<=10;i++){const bx=nb*(1-Math.abs(i-5)/6);line(c,X(this.D+0.2*i+bx),Y(this.BAR-0.1*i),X(this.D+0.2*i+bx*0.6),Y(0));}for(let j=0;j<=8;j++){const yy=this.BAR*j/8;line(c,X(this.D),Y(yy),X(this.D+2),Y(Math.min(yy,this.BAR-1)));}c.restore();
     c.fillStyle=C.ink;c.fillRect(X(this.D)-3,Y(this.BAR+0.12),6,this.BAR*S+0.12*S);}
-    text(c,'bar 2.44 m',X(this.D)+8,Y(this.BAR+0.3),'600 11px '+MONO,C.muted);
+    if(stageAdjustmentVisible())text(c,'bar 2.44 m',X(this.D)+8,Y(this.BAR+0.3),'600 11px '+MONO,C.muted);
     if(free){const jw=this.WH-1.85;for(let i=0;i<4;i++)this.drawPerson(c,this.WX+i*0.07-0.1,{kit:i%2?'#8a3242':'#7a2d3a',skin:i%2?'#6d4a33':'#a0694a',arms:0.1,j:jw,wall:true,facing:-1});
-      c.save();c.setLineDash([4,4]);c.strokeStyle='rgba(255,107,115,0.6)';line(c,X(this.WX)-14,Y(this.WH),X(this.WX)+14,Y(this.WH));c.restore();text(c,`wall ${fmt(this.WH,2)} m`,X(this.WX),Y(this.WH)-10,'600 11px '+MONO,jw>0?C.hot:C.muted,'center');
-      if(this.keeper){c.fillStyle='rgba(255,107,115,0.14)';c.fillRect(X(this.D)-2,Y(this.keeper),0.3*S,this.keeper*S);this.drawPerson(c,this.D-0.35,{kit:'#d4a017',skin:'#6d4a33',arms:this.keeper-0.93,keeper:true,facing:-1});text(c,`keeper ${fmt(this.keeper,1)} m`,X(this.D)-8,Y(this.keeper)-8,'600 11px '+MONO,C.hot,'right');}
+      c.save();c.setLineDash([4,4]);c.strokeStyle='rgba(255,107,115,0.6)';line(c,X(this.WX)-14,Y(this.WH),X(this.WX)+14,Y(this.WH));c.restore();if(stageAdjustmentVisible())text(c,`wall ${fmt(this.WH,2)} m`,X(this.WX),Y(this.WH)-10,'600 11px '+MONO,jw>0?C.hot:C.muted,'center');
+      if(this.keeper){c.fillStyle='rgba(255,107,115,0.14)';c.fillRect(X(this.D)-2,Y(this.keeper),0.3*S,this.keeper*S);this.drawPerson(c,this.D-0.35,{kit:'#d4a017',skin:'#6d4a33',arms:this.keeper-0.93,keeper:true,facing:-1});if(stageAdjustmentVisible())text(c,`keeper ${fmt(this.keeper,1)} m`,X(this.D)-8,Y(this.keeper)-8,'600 11px '+MONO,C.hot,'right');}
       if(this.wind){const tt=performance.now()/1000;c.save();c.strokeStyle='rgba(127,220,255,0.35)';c.lineWidth=2;for(let i=0;i<9;i++){const xx=((i*137-tt*260)%(W+200)+W+200)%(W+200)-100,yy=90+(i*53)%120;line(c,xx,yy,xx+40,yy);}c.restore();text(c,`HEADWIND ${fmt(-this.wind,0)} m/s² ←`,W/2,86,'700 13px '+MONO,C.xray,'center');}}
     if(this.ghost&&this.ghost.length){c.fillStyle='rgba(232,238,249,0.16)';this.ghost.forEach(p=>c.fillRect(X(p.x)-1.5,Y(p.y)-1.5,3,3));}
     if(this.opt.pred==='on'&&(this.state==='aim'||this.state==='incoming')){const pts=this.predPts(),ok=free?(()=>{const r=this.freeCalc(this.V.v,this.V.th);return r.clear&&r.under;})():(()=>{const r=this.headerCalc(1);return r.yg<this.BAR-this.BR&&r.yg>this.BR;})();
@@ -202,10 +202,10 @@ const Kick={
         text(c,`your peak ${fmt(pkMe,2)} m`,X(this.HX-0.65),Y(pkMe)-4,'700 10px '+MONO,'#7fdcff','right');text(c,`${D.name} ${fmt(pkHim,2)} m`,X(this.HX+1.15),Y(pkHim)-4,'700 10px '+MONO,C.bad,'left');}
       this.drawPerson(c,this.HX,{j,headX:hp.x,headY:hp.y,arms:0.5+j,rec:true,sock:'#e8eef9'});}
     this.trail.forEach((p,i)=>{c.fillStyle=`rgba(255,176,74,${0.25+0.5*i/this.trail.length})`;c.beginPath();c.arc(X(p.x),Y(p.y),2,0,Math.PI*2);c.fill();});
-    if(this.apex){const a=this.apex;c.fillStyle=C.violet;c.beginPath();c.arc(X(a.x),Y(a.y),4,0,Math.PI*2);c.fill();text(c,'top: vy = 0  (h = '+fmt(a.y)+' m)',X(a.x),Y(a.y)-12,'600 11px '+MONO,C.violet,'center');}
+    if(this.apex&&stageAdjustmentVisible()){const a=this.apex;c.fillStyle=C.violet;c.beginPath();c.arc(X(a.x),Y(a.y),4,0,Math.PI*2);c.fill();text(c,'top: vy = 0  (h = '+fmt(a.y)+' m)',X(a.x),Y(a.y)-12,'600 11px '+MONO,C.violet,'center');}
     const b=this.ball;if(!v3){c.fillStyle='rgba(0,0,0,0.35)';c.beginPath();c.ellipse(X(b.x),this.OY+2,0.14*S*clamp(1.4-b.y/8,0.4,1.4),3,0,0,Math.PI*2);c.fill();
     this.drawBall(c,X(b.x),Y(b.y),this.BR*S*1.35,b.rot,this.squash());}
-    if(this.state==='flight'&&!this.outcome){const vs=4;arrow(c,X(b.x),Y(b.y),X(b.x)+b.vx*vs,Y(b.y),C.xray,2.5);arrow(c,X(b.x),Y(b.y),X(b.x),Y(b.y)-b.vy*vs,C.violet,2.5);
+    if(this.state==='flight'&&!this.outcome&&stageAdjustmentVisible()){const vs=4;arrow(c,X(b.x),Y(b.y),X(b.x)+b.vx*vs,Y(b.y),C.xray,2.5);arrow(c,X(b.x),Y(b.y),X(b.x),Y(b.y)-b.vy*vs,C.violet,2.5);
       text(c,'vx '+fmt(b.vx),X(b.x)+b.vx*vs+6,Y(b.y)+4,'600 11px '+MONO,C.xray);text(c,'vy '+fmt(b.vy),X(b.x)+6,Y(b.y)-b.vy*vs+(b.vy>0?-4:12),'600 11px '+MONO,C.violet);}
     if(this.state==='aim'){const th=(free?this.V.th:this.V.thH)*DEG,ox=free?b.x:this.HX+0.36,oy=free?b.y:2.3,len=free?this.V.v*4:50;
       arrow(c,X(ox),Y(oy),X(ox)+Math.cos(th)*len,Y(oy)-Math.sin(th)*len,C.good,3);
