@@ -75,6 +75,21 @@ async function homeAudit(page, label) {
     const scorecardActions = [...document.querySelectorAll('#homeProfileButton,#boardBtn,#mute')].map(node => ({ id: node.id, box: node.getBoundingClientRect().toJSON() }));
     const scorecardRecords = [...document.querySelectorAll('.scorecard-records .stat')].filter(node => getComputedStyle(node).display !== 'none').map(node => node.textContent.replace(/\s+/g, ' ').trim());
     const cardText = [...document.querySelectorAll('.lab-card-copy .n,.lab-card-copy .d,.lab-card-copy .mode-enter')].filter(node => getComputedStyle(node).display !== 'none').map(node => ({ text: node.textContent.trim(), clipped: node.scrollWidth > node.clientWidth + 1 }));
+    const coachWisdom = cards.map(card => {
+      const wisdom = card.querySelector('.coach-wisdom'), portrait = wisdom?.querySelector('svg'), copy = wisdom?.querySelector(':scope>span');
+      const wisdomBox = wisdom?.getBoundingClientRect().toJSON(), portraitBox = portrait?.getBoundingClientRect().toJSON(), copyBox = copy?.getBoundingClientRect().toJSON(), cardCopyBox = card.querySelector('.lab-card-copy')?.getBoundingClientRect().toJSON();
+      return {
+        mode: card.dataset.mode,
+        text: wisdom?.textContent.replace(/\s+/g, ' ').trim(),
+        portraitAriaHidden: portrait?.getAttribute('aria-hidden'),
+        portraitFocusable: portrait?.getAttribute('focusable'),
+        portraitHref: portrait?.querySelector('use')?.getAttribute('href'),
+        contained: !!wisdomBox && inside(wisdomBox, cardCopyBox),
+        portraitContained: !!portraitBox && inside(portraitBox, wisdomBox),
+        copyContained: !!copyBox && inside(copyBox, wisdomBox),
+        textClipped: [...wisdom.querySelectorAll('b,q')].some(node => node.scrollWidth > node.clientWidth + 1 || node.scrollHeight > node.clientHeight + 1),
+      };
+    });
     return {
       viewport: { width: innerWidth, height: innerHeight },
       overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
@@ -106,6 +121,7 @@ async function homeAudit(page, label) {
       cards: cardBoxes,
       cardsOverlap: cardBoxes.some((card, index) => cardBoxes.slice(index + 1).some(other => overlap(card, other))),
       cardText,
+      coachWisdom,
       progress,
       scorecard: {
         title: document.querySelector('#homeScorecardTitle')?.textContent.trim(),
@@ -140,7 +156,13 @@ async function homeAudit(page, label) {
     };
   });
   const vector = audit.heroGeometry.vectorWordmark;
-  if (audit.overflow > 1 || audit.wordmark !== 'KickLab' || vector.value !== 'KICKLAB' || vector.viewBox !== '-9 0 376 64' || vector.ariaHidden !== 'true' || vector.kickPaths !== 4 || vector.labPaths !== 3 || vector.hostedFont || audit.actions.length !== 3 || audit.heroGeometry.collision || audit.heroGeometry.markNameCollision || !audit.heroGeometry.contained || audit.heroGeometry.text.some(item => item.clipped) || audit.heroGeometry.markTitle !== 'Kinetic K KickLab mark' || !audit.heroGeometry.markDescription?.includes('speed streaks') || audit.heroGeometry.markViewBox !== '0 0 132 96' || audit.heroGeometry.markParts.some(item => !item.present) || audit.cardsOverlap || audit.cardText.some(item => item.clipped) || audit.progressOverlap || !audit.labsBeforeProgress || !audit.scorecard.headerBeforeBody || !audit.scorecard.contained || !audit.scorecard.subordinate || audit.scorecard.text.some(item => item.clipped) || audit.scorecard.actions.some(item => item.box.width < 44 || item.box.height < 44)) {
+  const expectedCoachWisdom = {
+    fight: 'Coach TomiForce × time changes momentum. Time your hit.',
+    race: 'Coach TomiGrip limits the corner. Steer smooth, brake early.',
+    kick: 'Coach TomiAim the launch vector. Gravity bends the projectile.',
+  };
+  const coachFailed = audit.coachWisdom.length !== 3 || audit.coachWisdom.some(item => item.text !== expectedCoachWisdom[item.mode] || item.portraitAriaHidden !== 'true' || item.portraitFocusable !== 'false' || item.portraitHref !== '#coachTomiPortrait' || !item.contained || !item.portraitContained || !item.copyContained || item.textClipped);
+  if (audit.overflow > 1 || audit.wordmark !== 'KickLab' || vector.value !== 'KICKLAB' || vector.viewBox !== '-9 0 376 64' || vector.ariaHidden !== 'true' || vector.kickPaths !== 4 || vector.labPaths !== 3 || vector.hostedFont || audit.actions.length !== 3 || audit.heroGeometry.collision || audit.heroGeometry.markNameCollision || !audit.heroGeometry.contained || audit.heroGeometry.text.some(item => item.clipped) || audit.heroGeometry.markTitle !== 'Kinetic K KickLab mark' || !audit.heroGeometry.markDescription?.includes('speed streaks') || audit.heroGeometry.markViewBox !== '0 0 132 96' || audit.heroGeometry.markParts.some(item => !item.present) || audit.cardsOverlap || audit.cardText.some(item => item.clipped) || coachFailed || audit.progressOverlap || !audit.labsBeforeProgress || !audit.scorecard.headerBeforeBody || !audit.scorecard.contained || !audit.scorecard.subordinate || audit.scorecard.text.some(item => item.clipped) || audit.scorecard.actions.some(item => item.box.width < 44 || item.box.height < 44)) {
     throw new Error(`${label}: layout contract failed (${JSON.stringify(audit)})`);
   }
   if (audit.scorecard.title !== 'Your all-lab scorecard' || audit.scorecard.scope !== 'Fight, Race, and Kick progress · saved on this device' || audit.scorecard.labelledBy !== 'homeScorecardTitle' || audit.scorecard.describedBy !== 'homeScorecardScope' || !audit.scorecard.records.some(item => item.startsWith('This session')) || !audit.scorecard.records.some(item => item.startsWith('Badges'))) {

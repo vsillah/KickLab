@@ -54,6 +54,23 @@ test('keeps the hero geometry bounded through desktop, mid-width, tablet, and mo
   for(const guard of ['heroGeometry.collision','heroGeometry.contained','progressOverlap','cardText.some'])assert.ok(read('scripts/qa-home-showcase.mjs').includes(guard),guard);
 });
 
+test('places one local Coach Tomi wisdom treatment on every home lab card',()=>{
+  assert.equal((html.match(/class="coach-wisdom"/g)||[]).length,3);
+  assert.equal((html.match(/<use href="#coachTomiPortrait"><\/use>/g)||[]).length,3);
+  assert.equal((html.match(/<svg aria-hidden="true" focusable="false"><use href="#coachTomiPortrait">/g)||[]).length,3);
+  assert.equal((html.match(/<symbol id="coachTomiPortrait" viewBox="0 0 64 64">/g)||[]).length,1);
+  assert.match(html,/id="lab-fight-wisdom"[\s\S]*?Force × time changes momentum\. Time your hit\./);
+  assert.match(html,/id="lab-race-wisdom"[\s\S]*?Grip limits the corner\. Steer smooth, brake early\./);
+  assert.match(html,/id="lab-kick-wisdom"[\s\S]*?Aim the launch vector\. Gravity bends the projectile\./);
+  assert.doesNotMatch(html,/<use href="https?:/i);
+  const wisdomSnippets=[...html.matchAll(/<span class="coach-wisdom"[\s\S]*?<\/q><\/span><\/span>/g)].map(match=>match[0]);
+  assert.equal(wisdomSnippets.length,3);
+  assert.ok(wisdomSnippets.every(snippet=>!/<img\b/i.test(snippet)));
+  assert.match(css,/\.coach-wisdom\{grid-column:1\/-1;grid-row:3;min-width:0;display:grid;grid-template-columns:36px minmax\(0,1fr\)/);
+  assert.match(css,/@media \(max-width:520px\)[^\n]*\.coach-wisdom\{grid-template-columns:28px minmax\(0,1fr\)/);
+  for(const guard of ['coachWisdom','portraitContained','textClipped'])assert.ok(read('scripts/qa-home-showcase.mjs').includes(guard),guard);
+});
+
 test('uses muted looping local video with reduced-motion, constrained-device, and error fallback',()=>{
   assert.equal((html.match(/<video muted loop playsinline preload="metadata"/g)||[]).length,3);
   assert.doesNotMatch(html,/<video[^>]+controls/);
