@@ -1,6 +1,6 @@
 # Canonical input model
 
-This prototype keeps KickLab's classic D-pad and action buttons mounted and unchanged. The **Try analog controls** toggle only swaps the visible controller surface for the current page session. It writes no new storage keys and does not change `impactlab.v1` or `impactlab.nick`.
+This prototype keeps KickLab's classic D-pad and action buttons mounted and unchanged. The compact **Classic | Analog** selector only swaps the visible controller surface for the current page session. It writes no new storage keys and does not change `impactlab.v1` or `impactlab.nick`.
 
 The prototype surface keeps the analog stick on the left and release ring on the right. On wide layouts, compact manual-physics quick values occupy the center. On narrower layouts, the thumb controls remain side by side and the quick-value panel stacks beneath them as a collapsible disclosure. Each variable offers exactly six large slots so touch users can make a fast choice without precision dragging. Continuous fine adjustment remains available in the detailed physics drawer.
 

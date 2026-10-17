@@ -1,7 +1,7 @@
 /* ---------- reversible analog + gesture controller prototype ---------- */
 const ANALOG_CONTROL={enabled:false,pointer:null,center:null,value:{x:0,y:0,magnitude:0},pressed:new Set(),keys:new Set(),lastStep:0};
 const GESTURE_CONTROL={pointer:null,start:0,origin:null,points:[],power:0,state:'early',targetBuzzed:false,overBuzzed:false,frame:0,continuousId:null};
-const prototypeToggle=$('#prototypeControlsToggle'),touchController=$('#touchController'),analogStick=$('#analogStick'),analogKnob=$('#analogKnob'),gestureAction=$('#gestureAction');
+const controlStyleGroup=$('.prototype-control-bar'),classicControlsButton=$('#classicControlsButton'),analogControlsButton=$('#analogControlsButton'),touchController=$('#touchController'),analogStick=$('#analogStick'),analogKnob=$('#analogKnob'),gestureAction=$('#gestureAction');
 const nativeHapticPlugin=globalThis.Capacitor&&globalThis.Capacitor.Plugins&&globalThis.Capacitor.Plugins.Haptics;
 const haptic=GAME_CORE.hapticCapability(nativeHapticPlugin?{vibrate(){}}:navigator);
 
@@ -13,7 +13,7 @@ function vibrateFor(name){if(typeof MOBILE_SHELL!=='undefined')return MOBILE_SHE
 function powerLabel(state){return{early:'Early',target:'Target band',perfect:'Perfect',overcharge:'Overcharge'}[state]||'Ready';}
 
 function renderAnalogControls(){
-  if(!prototypeToggle)return;
+  if(!analogControlsButton)return;
   const map=analogMapping(),primary=primaryAction();touchController.style.setProperty('--control-accent',map.color);
   $('#touchMapTitle').textContent=map.title;$('#touchMapAxes').textContent=`${map.x.join(' ↔ ')} · ${map.y.join(' ↔ ')}`;
   $('#analogLeftLabel').textContent=map.x[0];$('#analogRightLabel').textContent=map.x[1];$('#analogDownLabel').textContent=map.y[0];$('#analogUpLabel').textContent=map.y[1];
@@ -25,7 +25,7 @@ function renderAnalogControls(){
 }
 
 function setPrototypeControls(on){
-  ANALOG_CONTROL.enabled=!!on;prototypeToggle.setAttribute('aria-pressed',String(ANALOG_CONTROL.enabled));prototypeToggle.querySelector('b').textContent=ANALOG_CONTROL.enabled?'Use classic controls':'Try analog controls';
+  ANALOG_CONTROL.enabled=!!on;classicControlsButton.setAttribute('aria-pressed',String(!ANALOG_CONTROL.enabled));analogControlsButton.setAttribute('aria-pressed',String(ANALOG_CONTROL.enabled));
   touchController.hidden=!ANALOG_CONTROL.enabled;$('.control-deck').classList.toggle('prototype-active',ANALOG_CONTROL.enabled);
   if(!ANALOG_CONTROL.enabled){cancelAnalog('Classic controls restored');cancelGesture('Classic controls restored');}
   else{$('#gesturePowerStatus').textContent='Ready · release timing sets power';renderAnalogControls();}
@@ -103,7 +103,9 @@ gestureAction.addEventListener('keydown',e=>{if(![' ','Enter'].includes(e.key)||
 gestureAction.addEventListener('keyup',e=>{if(![' ','Enter'].includes(e.key)||GESTURE_CONTROL.pointer!=='keyboard')return;e.preventDefault();e.stopPropagation();finishGesture();});
 gestureAction.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();cancelGesture('Input cancelled');}});
 
-prototypeToggle.addEventListener('click',()=>setPrototypeControls(!ANALOG_CONTROL.enabled));
+classicControlsButton.addEventListener('click',()=>setPrototypeControls(false));
+analogControlsButton.addEventListener('click',()=>setPrototypeControls(true));
+controlStyleGroup.addEventListener('keydown',e=>{const keys=['ArrowLeft','ArrowRight','Home','End'];if(!keys.includes(e.key))return;e.preventDefault();e.stopPropagation();const analog=e.key==='ArrowRight'||e.key==='End';setPrototypeControls(analog);(analog?analogControlsButton:classicControlsButton).focus();});
 window.addEventListener('blur',()=>{cancelAnalog('Focus lost');cancelGesture('Focus lost');});
 document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnalog('Page hidden');cancelGesture('Page hidden');}});
 ['resize','orientationchange'].forEach(type=>window.addEventListener(type,()=>{cancelAnalog('Layout changed');cancelGesture('Layout changed');}));

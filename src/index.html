@@ -165,7 +165,7 @@
           </section>
         </div>
         <div class="control-deck" aria-label="Game controls">
-          <div class="prototype-control-bar"><button type="button" id="prototypeControlsToggle" aria-pressed="false" aria-controls="touchController"><span aria-hidden="true">◉</span><b>Try analog controls</b><small>Prototype · classic stays available</small></button></div>
+          <div class="prototype-control-bar" role="group" aria-label="Control style" aria-describedby="controlStyleDescription"><span class="sr-only" id="controlStyleDescription">Choose classic buttons or the experimental analog and gesture controller. Classic controls stay available.</span><button type="button" id="classicControlsButton" aria-pressed="true" aria-controls="pad">Classic</button><button type="button" id="analogControlsButton" aria-pressed="false" aria-controls="touchController">Analog</button></div>
           <div class="pad" id="pad">
             <section class="touch-controller" id="touchController" hidden aria-label="Analog and gesture controller" aria-describedby="touchControllerInstructions">
               <p class="sr-only" id="touchControllerInstructions">Left thumbstick: drag in any direction, with distance controlling intensity. Keyboard users can hold arrow keys. Right action surface: hold and slide, then release to act. Release inside the target band for the best result. Escape cancels either control.</p>

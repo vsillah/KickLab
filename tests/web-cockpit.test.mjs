@@ -22,6 +22,7 @@ const challenges=readFileSync(join(root,'src','game','02-challenges-coaches.js')
 const kit=readFileSync(join(root,'src','game','52-leaderboard.js'),'utf8');
 const css=readFileSync(join(root,'src','styles.css'),'utf8');
 const rig=readFileSync(join(root,'src','game','04-body-rig.js'),'utf8');
+const analog=readFileSync(join(root,'src','game','55-analog-gesture-controls.js'),'utf8');
 
 test('keeps relocated feature roots canonical and singular',()=>{
   for(const id of ['quickSettings','settingsDrawer','settingsCategories','settingsChoices','kitroom','liveEq','vars','chart','ticker','mlList','chal','missions','eqs','steps','idea','quiz']){
@@ -455,6 +456,19 @@ test('keeps six-slot mechanics controls between analog and gesture controls',()=
   assert.match(css,/@media \(max-width:480px\)[^\n]+\.prototype-detail-grid\{grid-template-columns:minmax\(0,1fr\)\}/);
   for(const state of ['low','target','perfect','high'])assert.match(css,new RegExp(`prototype-slot\\[data-state="${state}"\\]`));
   assert.match(css,/\.prototype-physics-row\.locked \.prototype-slot/);
+});
+
+test('uses a compact accessible Classic and Analog control-style selector',()=>{
+  assert.match(html,/class="prototype-control-bar" role="group" aria-label="Control style" aria-describedby="controlStyleDescription"/);
+  assert.match(html,/id="classicControlsButton" aria-pressed="true"[^>]*>Classic<\/button>/);
+  assert.match(html,/id="analogControlsButton" aria-pressed="false"[^>]*>Analog<\/button>/);
+  assert.doesNotMatch(html,/Prototype · classic stays available|Try analog controls|Use classic controls/);
+  assert.match(analog,/classicControlsButton\.setAttribute\('aria-pressed',String\(!ANALOG_CONTROL\.enabled\)\)/);
+  assert.match(analog,/analogControlsButton\.setAttribute\('aria-pressed',String\(ANALOG_CONTROL\.enabled\)\)/);
+  assert.match(analog,/\['ArrowLeft','ArrowRight','Home','End'\]/);
+  assert.match(css,/\.prototype-control-bar\{[^}]+width:170px[^}]+min-height:48px[^}]+grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+  assert.match(css,/\.prototype-control-bar button\{[^}]+min-height:44px/);
+  assert.match(css,/\.prototype-control-bar button\[aria-pressed="true"\]\{[^}]*border-color:#7fdcff[^}]*background:#17304d/);
 });
 
 test('keeps settings and contextual details mutually exclusive',()=>{
