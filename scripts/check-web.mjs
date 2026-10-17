@@ -18,9 +18,11 @@ for (const label of ['Fight', 'Race', 'Kick']) {
   assert.match(built, new RegExp(`data-mode="${label.toLowerCase()}"`), `${label} lab must remain in the build`);
 }
 
-for (const feature of ['impactlab.v1', 'impactlab.nick', 'Family board', 'Weekly challenge', 'three.min.js']) {
+for (const feature of ['impactlab.v1', 'impactlab.nick', 'Family board', 'Weekly challenge']) {
   assert.ok(source.includes(feature) || built.includes(feature) || game.includes(feature), `${feature} continuity marker must remain`);
 }
+assert.match(readFileSync(join(root, 'scripts', 'build.mjs'), 'utf8'), /vendor\/three\.min\.js/, 'local Three.js bundle must remain wired into the build');
+assert.ok(readFileSync(join(root, 'src', 'vendor', 'three.min.js'), 'utf8').length > 100_000, 'local Three.js bundle must remain populated');
 
 for (const inputContract of ['keydown', 'keyup', 'pointerdown', 'pointermove', 'pointerup', 'pointercancel']) {
   assert.ok(game.includes(inputContract), `${inputContract} input contract must remain`);

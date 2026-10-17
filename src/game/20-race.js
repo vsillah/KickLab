@@ -1,5 +1,6 @@
 const Race={
   key:'race',
+  gas:false,brake:false,
   opt:{car:'street',steer:'you'},
   V:{mu:0.9,m:1400,F:8500,R:32},
   COL:{mu:['μ',C.xray],m:['m',C.violet],F:['F',C.hot],R:['R',C.pink],v:['v',C.good],w:['θ',C.yellow]},
@@ -48,8 +49,8 @@ const Race={
     return{title:r.title,noun:'run',stats:[['Time',sm.ok?fmt(sm.t,2)+' s':'DNF'],['Top speed',fmt((sm.vp||0)*3.6,0)+' km/h'],['Corner entry',en?`${fmt(en.v*3.6,0)} km/h`:'—'],['Corner limit',fmt((m.vmax||0)*3.6,0)+' km/h'],['Sliding',fmt(sm.slideT||0,1)+' s'],['Wheel avg / needed',sm.wNeed?`${fmt(sm.wAvg,0)}° / ${fmt(sm.wNeed,0)}°`:'—']],best:topN(best,3),work:topN(work,3),plan:plan.slice(0,4)};},
   needW(){return this.RATIO*Math.atan(this.CARS[this.opt.car].Lwb/this.V.R)/DEG;},
   reset(){if(RECS.race&&RECS.race.on)stopRec('race');this.sliding=false;this.wasBrake=false;const ch=curCh('race');this.HW=(ch&&ch.env&&ch.env.hw)||7;this.st={x:4,y:0,th:0,v:0,t:0,e:0,k:0,kc:0,alat:0,need:0,zone:0,slide:false,wheel:0};this.wheel=0;this.state='grid';this.inp={gas:false,brake:false,left:false,right:false};this.cd=0;this.inTurn=false;this.vEntry=0;this.vPeak=0;this.trail=[];this.trailT=0;this.res=null;this.spin=0;this.endT=0;this.skids=[];this.skidPrev=null;this.wSum=0;this.wT=0;this.slideT=0;this.warnB=false;this.warnS=false;this.warnT=false;},
-  press(id,down){if(id==='gas'){this.inp.gas=down;if(down&&this.state==='grid'){this.state='count';this.cd=2.4;hideResults();{const P=this.P();startRec('race',`Run · ${this.CARS[this.opt.car].name} · μ ${fmt(P.mu,2)} · R ${P.R} m`);RECS.race.meta={mu:P.mu,R:P.R,L:P.L,vmax:Math.sqrt(P.mu*G0*P.R),need:this.needW()};}tone(440,0.2,'square',0.05);}else if(down&&(this.state==='done'||this.state==='crashed')&&this.endT>0.8)this.reset();}
-    if(id==='brake')this.inp.brake=down;if(id==='left')this.inp.left=down;if(id==='right')this.inp.right=down;if(id==='center')this.wheel=0;},
+  press(id,down){if(id==='gas'){this.inp.gas=down;this.gas=down;if(down&&this.state==='grid'){this.state='count';this.cd=2.4;hideResults();{const P=this.P();startRec('race',`Run · ${this.CARS[this.opt.car].name} · μ ${fmt(P.mu,2)} · R ${P.R} m`);RECS.race.meta={mu:P.mu,R:P.R,L:P.L,vmax:Math.sqrt(P.mu*G0*P.R),need:this.needW()};}tone(440,0.2,'square',0.05);}else if(down&&(this.state==='done'||this.state==='crashed')&&this.endT>0.8)this.reset();}
+    if(id==='brake'){this.inp.brake=down;this.brake=down;}if(id==='left')this.inp.left=down;if(id==='right')this.inp.right=down;if(id==='center')this.wheel=0;},
   curWheel(){return this.opt.steer==='auto'?this.st.wheel:this.wheel;},
   update(dt,rdt){const P=this.P(),s=this.st;
     if(this.opt.steer==='you'){const d=(this.inp.left?1:0)-(this.inp.right?1:0);if(d)this.wheel=clamp(this.wheel+d*150*rdt,-180,180);}
@@ -140,7 +141,7 @@ const Race={
     c.fillStyle='#0a0f1c';[[l*0.3,-w/2,1],[l*0.3,w/2,1],[-l*0.34,-w/2,0],[-l*0.34,w/2,0]].forEach(([x,y,f])=>{c.save();c.translate(x,y);if(f)c.rotate(-st*3);c.fillRect(-4.5,-2.5,9,5);c.restore();});
     c.fillStyle=styleCol('race')||car.col;rr(c,-l/2,-w/2+1,l,w-2,this.opt.car==='kart'?3:6);c.fill();
     c.fillStyle='#0a1020';rr(c,l*0.02,-w/2+3,l*0.2,w-6,2);c.fill();
-    if(this.opt.car==='kart'){c.fillStyle=C.hot;c.beginPath();c.arc(-l*0.05,0,w*0.26,0,Math.PI*2);c.fill();}
+    {const A=GAME_CORE.playerAppearance('rocket'),hx=this.opt.car==='kart'?-l*0.05:l*0.08,hr=Math.max(9,w*0.26),turn=clamp(this.curWheel()/180,-1,1),brake=this.brake?1:0,gas=this.gas?1:0;c.fillStyle=A.kit;c.beginPath();c.ellipse(hx-hr*.72,0,hr*.7,hr*1.02,0,0,Math.PI*2);c.fill();c.strokeStyle=A.accent;c.lineWidth=Math.max(2,hr*.14);c.beginPath();c.moveTo(hx-hr*1.18,-hr*.65);c.lineTo(hx-hr*.5,0);c.lineTo(hx-hr*1.18,hr*.65);c.stroke();c.fillStyle=A.hair;c.beginPath();c.arc(hx-2,0,hr*1.1,0,Math.PI*2);c.fill();c.fillStyle=A.skin;c.beginPath();c.arc(hx,0,hr,0,Math.PI*2);c.fill();c.fillStyle=A.eye;c.beginPath();c.arc(hx+hr*.4,-hr*.32,Math.max(1.4,hr*.1),0,Math.PI*2);c.arc(hx+hr*.4,hr*.32,Math.max(1.4,hr*.1),0,Math.PI*2);c.fill();c.strokeStyle=A.skin;c.lineWidth=Math.max(4,hr*.28);c.lineCap='round';line(c,hx-hr*.55,-hr*.6,hx+hr*(.35+turn*.28),-w*.41);line(c,hx-hr*.55,hr*.6,hx+hr*(.35-turn*.28),w*.41);c.strokeStyle=A.accent;c.lineWidth=Math.max(2,hr*.1);c.beginPath();c.arc(hx+hr*.42,0,hr*.58,-1.1,1.1);c.stroke();c.fillStyle=gas?C.good:brake?C.bad:A.accent;c.beginPath();c.arc(hx-hr*.75,0,hr*.16,0,Math.PI*2);c.fill();}
     c.restore();},
   drawXray(c){const s=this.st,car=this.CARS[this.opt.car],P=this.P(),k=1.8*this.S,l=car.len*k,w=car.wid*k;
     const cx=this.sx(this.L),cy=this.sy(P.R);
@@ -176,6 +177,7 @@ const Race={
     c.fillStyle='#1b2744';c.fillRect(32,390,140,8);c.fillStyle=use>1?C.bad:use>0.75?C.hot:C.good;c.fillRect(32,390,140*Math.min(use,1),8);
     text(c,Math.round(use*100)+'%',198,398,'600 11px '+MONO,use>1?C.bad:C.ink,'right');c.restore();
     text(c,fmt(s.t,2)+' s',W-24,40,'22px '+DISP,C.ink,'right');
+    RIG.portrait(c,W-202,66,178,110,GAME_CORE.playerAppearance('rocket'),{label:'THE ROCKET',action:this.state==='run'?(this.brake?'BRAKING':this.gas?'THROTTLE':'STEERING'):'GRID',tilt:clamp(-this.curWheel()/520,-.18,.18)});
     if(s.slide&&this.state==='run'){text(c,'SLIDING: need more grip than μ·g',W/2,66,'700 13px '+MONO,C.bad,'center');}
     if(this.state==='count'||this.state==='grid'){const lit=this.state==='count'?Math.min(3,Math.floor((2.4-this.cd)/0.8)+1):0;
       c.save();c.fillStyle='rgba(6,11,24,0.85)';rr(c,W/2-74,74,148,46,23);c.fill();for(let i=0;i<3;i++){c.fillStyle=i<lit?C.bad:'#2a3552';c.beginPath();c.arc(W/2-44+i*44,97,14,0,Math.PI*2);c.fill();}c.restore();}

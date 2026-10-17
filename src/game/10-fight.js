@@ -39,7 +39,7 @@ const Fight={
   stunned(){const b=this.bout;return!!(b&&b.stun>0);},
   omega(){return this.bout?3.2+this.bout.i*0.3:3.2;},
   target(){return this.opt.type==='upper'?{x:622,y:292+this.rDrop()}:{x:604,y:262};},
-  pose(){const t=this.opt.type,pp=clamp(this.p,0,1);let dx=0,dy=0,r=0;
+  pose(){const t=this.opt.type,p0=clamp(this.p,0,1),pp=p0*p0*(3-2*p0);let dx=0,dy=0,r=0;
     if(t==='jab'){dx=6*pp;}
     else if(t==='cross'){dx=20*pp;r=pp;}
     else{r=0.6*pp;dx=10*pp;dy=pp<0.35?16*(pp/0.35):16-26*((pp-0.35)/0.65);}
@@ -50,7 +50,7 @@ const Fight={
   shoulder(){return this.pose().punchS;},
   rest(which,P){return which==='front'?{x:484+P.dx,y:252+P.dy}:{x:464+P.dx,y:230+P.dy};},
   gloveR(){return this.V.dt>=10?clamp(10+(this.V.dt-10)*0.35,11,20):0;},
-  fistAt(p){const t=this.opt.type,T0=this.target(),P=this.pose();
+  fistAt(p){const t=this.opt.type,T0=this.target(),P=this.pose(),raw=p;p=raw<=1?clamp(raw,0,1)*clamp(raw,0,1)*(3-2*clamp(raw,0,1)):raw;
     if(t==='upper'){const R0=this.rest('rear',P),Lw={x:470+P.dx,y:326},Q={x:560,y:356},dx=T0.x-Q.x,dy=T0.y-Q.y;
       if(p<0.25){const u=p/0.25;return{x:lerp(R0.x,Lw.x,u),y:lerp(R0.y,Lw.y,u),dx,dy};}
       if(p<=1){const q=(p-0.25)/0.75,u=1-q;return{x:u*u*Lw.x+2*u*q*Q.x+q*q*T0.x,y:u*u*Lw.y+2*u*q*Q.y+q*q*T0.y,dx,dy};}
@@ -261,7 +261,8 @@ const Fight={
   drawFighter(c){const R=this.rig(),P=R.P,t=R.t,J=R.J,gr=this.gloveR(),guard=R.guard,punching=!guard,fist=R.fist;
     c.save();this.meFall(c);c.translate(this.meX,0);
     const armFront=!guard&&t!=='jab'&&P.pp>0.12;
-    RIG.side(c,J,{u:150,skin:'#8d5b3c',kit:'#2f4a86',shorts:'#1b2440',sock:'#e8eef9',boot:'#10192d',band:C.hot,belt:C.hot,glove:gr?gr*0.95:0,gloveCol:styleCol('fight'),armFront,chest:22,olw:2.4,headR:20});
+    const A=GAME_CORE.playerAppearance('you');
+    RIG.side(c,J,{u:150,skin:A.skin,hair:A.hair,hairStyle:A.hairStyle,eye:A.eye,brow:A.brow,mouth:A.mouth,kit:A.kit,accent:A.accent,shorts:A.shorts,sock:A.socks,boot:{color:'#10192d',accent:C.hot,sole:'flat',soleColor:'#e8eef9'},band:C.hot,belt:C.hot,glove:gr?gr*0.95:0,gloveCol:styleCol('fight'),armFront,chest:22,olw:2.4,headR:20});
     if(punching&&this.state==='swing'&&this.p>0.2){const Fp=t==='jab'?J.haF:J.haR,L=Math.hypot(fist.dx,fist.dy)||1;c.save();c.strokeStyle='rgba(232,238,249,0.35)';c.lineWidth=2;for(let i=0;i<3;i++){const o=(i-1)*7;line(c,Fp.x-fist.dx/L*(30+i*8)-fist.dy/L*o,Fp.y-fist.dy/L*(30+i*8)+fist.dx/L*o,Fp.x-fist.dx/L*14-fist.dy/L*o,Fp.y-fist.dy/L*14+fist.dx/L*o);}c.restore();}
     if(guard){c.strokeStyle='rgba(127,220,255,0.8)';c.lineWidth=3;glow(c,C.xray,12);c.beginPath();c.arc(456+P.dx,208+P.dy,42,-1.1,1.1);c.stroke();c.shadowBlur=0;}
     c.restore();},
