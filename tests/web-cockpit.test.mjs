@@ -28,7 +28,7 @@ test('keeps relocated feature roots canonical and singular',()=>{
 });
 
 test('maps the four contextual summaries to accessible disclosures',()=>{
-  for(const [trigger,panel,label] of [['physicsDetailsCompact','physicsDetail','physics details'],['physicsDetailsWide','physicsDetail','physics details'],['reviewDetailToggle','reviewDetail','move history'],['goalsDetailToggle','goalsDetail','goal details'],['learnDetailToggle','learnDetail','coach notebook']]){
+  for(const [trigger,panel,label] of [['physicsDetailsHud','physicsDetail','physics details'],['physicsDetailsCompact','physicsDetail','physics details'],['physicsDetailsWide','physicsDetail','physics details'],['reviewDetailToggle','reviewDetail','move history'],['goalsDetailToggle','goalsDetail','goal details'],['learnDetailToggle','learnDetail','coach notebook']]){
     assert.match(html,new RegExp(`id="${trigger}"[^>]+data-detail-label="${label}"[^>]+aria-label="Open ${label}"[^>]+title="Open ${label}"[^>]+aria-expanded="false"[^>]+aria-controls="${panel}"[^>]*><span aria-hidden="true">⌄</span></button>`));
   }
   for(const id of ['physicsDetail','reviewDetail','goalsDetail','learnDetail'])assert.equal((html.match(new RegExp(`id="${id}"`,'g'))||[]).length,1);
@@ -39,8 +39,9 @@ test('keeps gameplay controls outside the canvas stage',()=>{
   const stageEnd=html.indexOf('</div>\n        <div class="control-deck"');
   assert.ok(stageEnd>html.indexOf('<div class="stage">'));
   assert.ok(html.indexOf('id="pad"')>stageEnd);
-  assert.ok(html.indexOf('id="physicsDetail"')>html.indexOf('id="pad"'));
-  assert.ok(html.indexOf('id="physicsDetail"')<html.indexOf('id="rbar"'));
+  assert.ok(html.indexOf('id="physicsDetail"')>html.indexOf('id="cv"'));
+  assert.ok(html.indexOf('id="physicsDetail"')<stageEnd);
+  assert.ok(html.indexOf('id="rbar"')>stageEnd);
 });
 
 test('keeps canonical Math content in the physics disclosure',()=>{
@@ -58,8 +59,8 @@ test('keeps contextual detail input ownership and focus return explicit',()=>{
   assert.match(cockpit,/document\.querySelectorAll\('\.context-detail'\)\.forEach\(p=>\{p\.addEventListener\('pointerdown',e=>e\.stopPropagation\(\)\);p\.addEventListener\('keydown',e=>\{if\(e\.key==='Escape'\).*closeContextDetail\(\)/);
   assert.match(cockpit,/if\(restore&&trigger&&trigger\.isConnected&&!trigger\.hidden\)trigger\.focus\(\)/);
   assert.match(cockpit,/if\(e\.key==='Escape'&&CONTEXT_DETAILS\.open\).*closeContextDetail\(\)/);
-  assert.match(css,/\.context-detail\{[^}]*max-height:min\(390px,42vh\);overflow-y:auto;overscroll-behavior:contain/);
-  assert.doesNotMatch(css,/\.context-detail\{[^}]*position:(?:fixed|absolute)/);
+  assert.match(cockpit,/function trapOverlayFocus\(panel,e\)/);
+  assert.match(css,/\.stage \.context-detail,\.stage \.settings-drawer\{position:absolute;z-index:25/);
 });
 
 test('opens only one responsive contextual detail at a time',()=>{
@@ -68,8 +69,24 @@ test('opens only one responsive contextual detail at a time',()=>{
   assert.match(cockpit,/\['math','review','goals','learn'\]\.forEach\(n=>contextTriggers\(n\)\.forEach\(b=>syncContextTrigger\(b,n===name\)\)\)/);
   assert.match(cockpit,/if\(!PAUSE\.on\)\{pauseGame\('context-detail'\)/);
   assert.match(cockpit,/if\(CONTEXT_DETAILS\.ownsPause&&PAUSE\.why==='context-detail'\).*resumeGame\(\)/);
-  assert.match(css,/\.contextual-summary:has\(>\.context-detail:not\(\[hidden\]\)\)\{grid-column:1\/-1\}/);
-  assert.match(css,/@media \(max-width:700px\)[\s\S]*\.context-detail\{max-height:min\(330px,40vh\)/);
+  assert.match(cockpit,/function syncGameOverlayBackdrop\(\)/);
+  assert.match(css,/\.game-overlay-backdrop\{appearance:none;position:absolute;z-index:20;inset:0/);
+});
+
+test('uses a compact active-play HUD and one translucent field overlay',()=>{
+  const stage=html.indexOf('<div class="stage">'),nav=html.indexOf('class="play-nav game-shell-nav"'),canvas=html.indexOf('id="cv"'),hud=html.indexOf('id="gameGuidanceHud"'),settings=html.indexOf('id="gameSettings"'),detail=html.indexOf('id="physicsDetail"'),deck=html.indexOf('class="control-deck"');
+  assert.ok(stage<nav&&nav<canvas&&canvas<hud&&hud<settings&&settings<detail&&detail<deck);
+  for(const id of ['gameOverlayBackdrop','liveMathHud','liveMathHudValues','liveMathHudStatus','physicsDetailsHud'])assert.equal((html.match(new RegExp(`id="${id}"`,'g'))||[]).length,1,`${id} must be singular`);
+  for(const id of ['physicsDetail','reviewDetail','goalsDetail','learnDetail','settingsDrawer'])assert.match(html,new RegExp(`id="${id}"[^>]+role="dialog"[^>]+aria-modal="true"`));
+  assert.match(cockpit,/function releaseGameplayForOverlay\(\).*releaseMobileHeldInputs\('Game overlay opened'\)/);
+  assert.match(cockpit,/gameOverlayBackdrop\.addEventListener\('click'/);
+  assert.match(cockpit,/\$\('#liveMathHudValues'\)\.innerHTML=defs\.slice\(0,2\)/);
+  assert.match(cockpit,/function liveHudState\(\).*Fight\.bout.*Race\.st\.t.*MATCH\.on.*LIVEM\.on/s);
+  assert.match(css,/\.game-shell-nav\{position:absolute;z-index:12/);
+  assert.match(css,/\.game-guidance-hud\{position:absolute;z-index:10/);
+  assert.match(css,/backdrop-filter:blur\(14px\) saturate\(1\.15\)/);
+  assert.match(css,/env\(safe-area-inset-top\)/);
+  assert.match(css,/@media \(prefers-reduced-motion:reduce\).*\.game-overlay-backdrop/s);
 });
 
 test('derives compact math from mode definitions and explicit equation data',()=>{
@@ -151,8 +168,9 @@ test('starts on a dedicated mode home and keeps the full lab chooser out of acti
   assert.match(keys,/function showModeHome\(\{focus=true\}=\{\}\)/);
   assert.match(keys,/\$\('#game-cockpit'\)\.hidden=true;\$\('#modeHome'\)\.hidden=false/);
   assert.match(keys,/\$\('#modeHome'\)\.after\(\$\('#progressHud'\)\)/);
+  assert.match(keys,/\$\('#progressHud'\)\.hidden=false/);
   assert.match(keys,/function setMode\(k\)\{\$\('#modeHome'\)\.hidden=true;\$\('#game-cockpit'\)\.hidden=false/);
-  assert.match(keys,/\$\('\.play-nav'\)\.after\(\$\('#progressHud'\)\)/);
+  assert.match(keys,/\$\('#progressHud'\)\.hidden=true/);
   assert.match(keys,/CONTINUOUS\.menuOpen\|\|CONTINUOUS\.pickerOpen.*CONTINUOUS\.closeSelector\(\)/);
   assert.match(loop,/setMode\('fight'\);showModeHome\(\{focus:false\}\)/);
   assert.match(css,/\.mode-home\{display:grid/);

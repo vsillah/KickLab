@@ -62,61 +62,68 @@
   </div></div>
   <div class="play" id="game-cockpit" role="region" aria-labelledby="currentModeTitle" hidden>
     <div class="left">
-      <div class="play-nav" aria-label="Current lab and experience">
-        <button type="button" class="mode-home-button" id="modeHomeButton"><span aria-hidden="true">←</span> Labs</button>
-        <div class="current-mode"><span>Current lab</span><b id="currentModeTitle">Fight</b></div>
-        <div class="gamebar" id="gameBar" hidden></div>
-      </div>
       <div class="game-frame">
-        <div class="stage"><canvas id="cv" width="960" height="540" aria-label="Game stage"></canvas>
+        <div class="stage">
+          <nav class="play-nav game-shell-nav" aria-label="Current lab and experience">
+            <button type="button" class="mode-home-button" id="modeHomeButton"><span aria-hidden="true">←</span> Labs</button>
+            <div class="current-mode"><span>Current lab</span><b id="currentModeTitle">Fight</b></div>
+            <div class="gamebar" id="gameBar" hidden></div>
+          </nav>
+          <canvas id="cv" width="960" height="540" aria-label="Game stage"></canvas>
           <div class="results" id="results" hidden><div class="rc" id="rc"><div class="grade" id="rGrade">A<small>GRADE</small></div><div class="rmain"><div class="rlvl" id="rLvl" hidden></div><div class="rtitle" id="rTitle"></div><div class="rsub" id="rSub"></div><ul class="rrows" id="rRows"></ul><div class="rtotal"><span>XP earned</span><b id="rTotal">+0</b></div><div class="rhint" id="rHint"></div><div class="rboard" id="rBoard" hidden></div><div class="rgo"><div class="racts" id="racts" hidden><button type="button" id="rReview">Coach review</button><button type="button" id="rReplay">Replay</button></div><button type="button" class="rnext" id="rNext">Next round <span aria-hidden="true">▶</span> <kbd>Space</kbd></button></div></div></div></div>
           <div class="lvlup" id="lvlup" hidden><div class="lu"><span class="lu-k">LEVEL UP</span><div class="lu-n" id="luNum">2</div><div class="lu-t" id="luTitle"></div><div class="lu-u" id="luUnlock"></div></div></div>
           <div class="feed" id="feed" aria-hidden="true"></div>
           <div class="toasts" id="toasts"></div>
+          <button type="button" class="game-overlay-backdrop" id="gameOverlayBackdrop" aria-label="Close open game overlay" hidden></button>
           <div class="game-guidance-hud" id="gameGuidanceHud" aria-label="Live coach and challenge guidance">
             <section class="challenge-hud contextual-summary" id="challengeHud" aria-label="Active goal">
               <div id="challengeHudSummary"></div>
               <button type="button" class="context-disclosure" id="goalsDetailToggle" data-detail-label="goal details" aria-label="Open goal details" title="Open goal details" aria-expanded="false" aria-controls="goalsDetail"><span aria-hidden="true">⌄</span></button>
-              <div class="context-detail goals-detail" id="goalsDetail" hidden>
-                <header class="context-detail-head"><div><span>Goals</span><h2>Challenge, progress and missions</h2></div><button type="button" data-close-detail="goals">Close goals</button></header>
-                <p class="context-detail-state">Game pauses while goal details are open.</p>
-                <div class="goals-summary" id="goalsSummary"></div>
-                <div class="chal" id="chal"></div>
-                <div class="card missions"><span class="tag" id="misTitle">Missions</span><div class="records"><span class="score">Punch <b id="sPunch">—</b></span><span class="score">Run <b id="sLap">—</b></span><span class="score">Goals <b id="sGoals">0</b></span></div><ul id="missions"></ul></div>
-              </div>
             </section>
             <section class="coach contextual-summary" id="coach">
               <div class="av" id="coachAv">DR</div>
               <div class="coach-copy"><div class="cn"><b id="coachName">Coach Dre</b><span id="coachRole">boxing coach</span><span class="streak" id="streak"></span></div><p id="coachMsg" aria-live="polite" aria-atomic="true"></p></div>
               <button type="button" class="context-disclosure" id="learnDetailToggle" data-detail-label="coach notebook" aria-label="Open coach notebook" title="Open coach notebook" aria-expanded="false" aria-controls="learnDetail"><span aria-hidden="true">⌄</span></button>
-              <div class="context-detail learn-detail" id="learnDetail" hidden>
-                <header class="context-detail-head"><div><span>Learn</span><h2>Working, notebook and quick check</h2></div><button type="button" data-close-detail="learn">Close notebook</button></header>
-                <p class="context-detail-state">Game pauses while the coach notebook is open.</p>
-                <div class="full"><h2>Full working</h2><div class="eqs" id="eqs"></div></div>
-                <section class="notebook" aria-live="polite">
-                  <div class="nb-head"><div class="row"><h2 id="nbTitle">Lab notebook</h2><span class="big" id="nbBig"></span></div><p class="nb-sub" id="nbSub"></p></div>
-                  <div class="nb-grid"><ol class="steps" id="steps"></ol><div class="nb-side"><div class="card" id="idea"></div><div class="card" id="quiz"></div></div></div>
-                  <p class="foot">Real-world values: a size-5 ball is 0.43 kg, a free-kick wall stands 9.15 m back, the crossbar is 2.44 m high, a car's steering ratio is about 15:1. Air resistance is left out of the ball flight to keep the math clean.</p>
-                </section>
-              </div>
             </section>
             <section class="history-hud contextual-summary" id="historyHud" aria-label="Latest game event">
               <div class="history-summary"><span>Latest event</span><b id="historyTitle">Move log ready</b><p id="historyLatest">Your next move and its math will appear here.</p></div>
               <button type="button" class="context-disclosure" id="reviewDetailToggle" data-detail-label="move history" aria-label="Open move history" title="Open move history" aria-expanded="false" aria-controls="reviewDetail"><span aria-hidden="true">⌄</span></button>
-              <div class="context-detail review-detail" id="reviewDetail" hidden>
-                <header class="context-detail-head"><div><span>Review</span><h2>Latest moves and replay controls</h2></div><button type="button" data-close-detail="review">Close history</button></header>
-                <p class="context-detail-state">Game pauses while move history is open.</p>
-                <div class="ticker" id="ticker"><span class="tk-l">LIVE</span><div class="tk" id="tk"><span class="tkc sys"><span class="w">LOG</span>Every move and its math will scroll here.</span></div></div>
-                <div class="mlog"><div class="ml-h"><span class="rec" id="mlRec" hidden></span><h2>Move log</h2><span class="clk" id="mlClock">0:00.0</span><button type="button" id="mlReview" disabled>Review</button><button type="button" id="mlReplay" disabled>Replay</button></div><ol class="ml" id="mlList"></ol></div>
-              </div>
+            </section>
+            <section class="live-math-hud contextual-summary" id="liveMathHud" aria-label="Essential live math">
+              <div class="live-math-summary"><span>Live math</span><div id="liveMathHudValues"></div><p id="liveMathHudStatus">Your active variables and equation will appear here.</p></div>
+              <button type="button" class="context-disclosure" id="physicsDetailsHud" data-detail-label="physics details" aria-label="Open physics details" title="Open physics details" aria-expanded="false" aria-controls="physicsDetail"><span aria-hidden="true">⌄</span></button>
             </section>
           </div>
+          <section class="context-detail goals-detail" id="goalsDetail" role="dialog" aria-modal="true" aria-labelledby="goalsDetailTitle" hidden>
+            <header class="context-detail-head"><div><span>Goals</span><h2 id="goalsDetailTitle">Challenge, progress and missions</h2></div><button type="button" data-close-detail="goals" aria-label="Close goals">Close <span aria-hidden="true">✕</span></button></header>
+            <p class="context-detail-state">Game pauses while goal details are open.</p>
+            <div class="goals-summary" id="goalsSummary"></div>
+            <div class="chal" id="chal"></div>
+            <div class="card missions"><span class="tag" id="misTitle">Missions</span><div class="records"><span class="score">Punch <b id="sPunch">—</b></span><span class="score">Run <b id="sLap">—</b></span><span class="score">Goals <b id="sGoals">0</b></span></div><ul id="missions"></ul></div>
+          </section>
+          <section class="context-detail learn-detail" id="learnDetail" role="dialog" aria-modal="true" aria-labelledby="learnDetailTitle" hidden>
+            <header class="context-detail-head"><div><span>Learn</span><h2 id="learnDetailTitle">Working, notebook and quick check</h2></div><button type="button" data-close-detail="learn" aria-label="Close coach notebook">Close <span aria-hidden="true">✕</span></button></header>
+            <p class="context-detail-state">Game pauses while the coach notebook is open.</p>
+            <div class="full"><h2>Full working</h2><div class="eqs" id="eqs"></div></div>
+            <section class="notebook" aria-live="polite">
+              <div class="nb-head"><div class="row"><h2 id="nbTitle">Lab notebook</h2><span class="big" id="nbBig"></span></div><p class="nb-sub" id="nbSub"></p></div>
+              <div class="nb-grid"><ol class="steps" id="steps"></ol><div class="nb-side"><div class="card" id="idea"></div><div class="card" id="quiz"></div></div></div>
+              <p class="foot">Real-world values: a size-5 ball is 0.43 kg, a free-kick wall stands 9.15 m back, the crossbar is 2.44 m high, a car's steering ratio is about 15:1. Air resistance is left out of the ball flight to keep the math clean.</p>
+            </section>
+          </section>
+          <section class="context-detail review-detail" id="reviewDetail" role="dialog" aria-modal="true" aria-labelledby="reviewDetailTitle" hidden>
+            <header class="context-detail-head"><div><span>Review</span><h2 id="reviewDetailTitle">Latest moves and replay controls</h2></div><button type="button" data-close-detail="review" aria-label="Close move history">Close <span aria-hidden="true">✕</span></button></header>
+            <p class="context-detail-state">Game pauses while move history is open.</p>
+            <div class="ticker" id="ticker"><span class="tk-l">LIVE</span><div class="tk" id="tk"><span class="tkc sys"><span class="w">LOG</span>Every move and its math will scroll here.</span></div></div>
+            <div class="mlog"><div class="ml-h"><span class="rec" id="mlRec" hidden></span><h2>Move log</h2><span class="clk" id="mlClock">0:00.0</span><button type="button" id="mlReview" disabled>Review</button><button type="button" id="mlReplay" disabled>Replay</button></div><ol class="ml" id="mlList"></ol></div>
+          </section>
           <section class="game-settings" id="gameSettings" aria-label="Game settings">
             <div class="settings-rail">
               <button type="button" class="settings-toggle" id="settingsToggle" aria-expanded="false" aria-controls="settingsDrawer"><span aria-hidden="true">⚙</span><b>Settings</b></button>
               <div class="quick-settings" id="quickSettings" aria-label="Current game settings"></div>
             </div>
-            <section class="settings-drawer" id="settingsDrawer" hidden aria-label="Game settings drawer">
+          </section>
+          <section class="settings-drawer" id="settingsDrawer" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" hidden>
               <header class="settings-drawer-head">
                 <button type="button" class="settings-back" id="settingsBack" hidden>Back</button>
                 <div><span id="settingsBreadcrumb">Settings</span><h2 id="settingsTitle">Choose a category</h2></div>
@@ -133,7 +140,16 @@
                   <div class="kit-foot"><button type="button" class="fb-x" id="kitReset">Reset to match kit</button></div>
                 </section>
               </div>
-            </section>
+          </section>
+          <section class="context-detail physics-detail" id="physicsDetail" role="dialog" aria-modal="true" aria-labelledby="mathHudTitle" hidden>
+            <header class="context-detail-head"><div><span>Math</span><h2 id="mathHudTitle">Current physics</h2></div><button type="button" data-close-detail="math" aria-label="Close physics details">Close <span aria-hidden="true">✕</span></button></header>
+            <p class="context-detail-state">Game pauses while physics details are open.</p>
+            <div class="math-context-summary"><div class="math-console-values" id="mathConsoleValues"></div><p class="math-console-status" id="mathConsoleStatus" role="status" aria-live="polite"></p><button class="dialtop" id="dialTop" type="button" aria-label="Pause and open Dials" aria-describedby="dialTopStatus">Dials <span class="k">P</span></button><span class="dial-status" id="dialTopStatus" aria-live="polite"></span></div>
+            <section class="math-context-controls" aria-label="Live math controls"><div class="math-console-head"><span>Live controls</span><b id="mathConsoleHeading">Adjust the math you play</b></div><div class="math-console-controls" id="mathConsoleControls"></div></section>
+            <div class="ph"><h2>Live math</h2><p id="cHint"></p></div>
+            <div class="live" id="liveEq"></div>
+            <div class="vars" id="vars"></div>
+            <figure class="chart"><canvas id="chart" aria-label="Relationship chart"></canvas><figcaption id="chartCap"></figcaption></figure>
           </section>
         </div>
         <div class="control-deck" aria-label="Game controls">
@@ -181,16 +197,6 @@
             </section>
             <div class="grp r" id="padR"></div>
           </div>
-          <section class="context-detail physics-detail" id="physicsDetail" hidden aria-label="Physics details">
-            <header class="context-detail-head"><div><span>Math</span><h2 id="mathHudTitle">Current physics</h2></div><button type="button" data-close-detail="math">Close physics details</button></header>
-            <p class="context-detail-state">Game pauses while physics details are open.</p>
-            <div class="math-context-summary"><div class="math-console-values" id="mathConsoleValues"></div><p class="math-console-status" id="mathConsoleStatus" role="status" aria-live="polite"></p><button class="dialtop" id="dialTop" type="button" aria-label="Pause and open Dials" aria-describedby="dialTopStatus">Dials <span class="k">P</span></button><span class="dial-status" id="dialTopStatus" aria-live="polite"></span></div>
-            <section class="math-context-controls" aria-label="Live math controls"><div class="math-console-head"><span>Live controls</span><b id="mathConsoleHeading">Adjust the math you play</b></div><div class="math-console-controls" id="mathConsoleControls"></div></section>
-            <div class="ph"><h2>Live math</h2><p id="cHint"></p></div>
-            <div class="live" id="liveEq"></div>
-            <div class="vars" id="vars"></div>
-            <figure class="chart"><canvas id="chart" aria-label="Relationship chart"></canvas><figcaption id="chartCap"></figcaption></figure>
-          </section>
           <div class="rbar" id="rbar" hidden><span class="rb-tag">REPLAY</span><button type="button" id="rbBack" aria-label="Back 3 seconds">Back 3s</button><button type="button" id="rbPlay" aria-label="Play or pause">Pause</button><div class="rb-sp"><button type="button" data-sp="0.25">¼×</button><button type="button" data-sp="0.5" aria-pressed="true">½×</button><button type="button" data-sp="1">1×</button></div><input type="range" id="rbScrub" min="0" max="1000" value="0" aria-label="Scrub replay"><span class="rb-t" id="rbTime">0:00.0</span><button type="button" id="rbReview">Review</button><button type="button" id="rbExit">Exit replay</button></div>
         </div>
         <div class="dials" id="dials" hidden role="dialog" aria-modal="true" aria-label="Dials, game paused"><div class="dh"><b>TIME-OUT · YOUR CORNER</b><button type="button" id="dialsClose">Back in <span aria-hidden="true">▶</span></button></div><div class="db" id="dialsBody"></div></div>
