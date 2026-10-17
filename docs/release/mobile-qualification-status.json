@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-10-17",
+  "platformFloor": {
+    "node": ">=22",
+    "ios": ">=15",
+    "android": {
+      "minimumSdk": 24,
+      "compileSdk": 36,
+      "targetSdk": 36
+    }
+  },
+  "gates": [
+    {
+      "id": "browser-baseline",
+      "status": "not_qualified",
+      "evidence": "Automated build and contract checks only; full browser evidence packet not run in this lane."
+    },
+    {
+      "id": "ios-simulator-android-emulator",
+      "status": "not_run",
+      "evidence": "Native projects are intentionally absent from the shared lane."
+    },
+    {
+      "id": "physical-devices",
+      "status": "not_run",
+      "evidence": "No device installation or device session was authorized."
+    },
+    {
+      "id": "accessibility",
+      "status": "not_run",
+      "evidence": "Native screen reader, text scaling, contrast, motion, and switch-control qualification remain open."
+    },
+    {
+      "id": "signing",
+      "status": "not_run",
+      "evidence": "No certificates, provisioning profiles, keystores, or account changes were authorized."
+    },
+    {
+      "id": "testflight-play-internal",
+      "status": "not_run",
+      "evidence": "No upload, distribution, store record, or internal testing release was authorized."
+    },
+    {
+      "id": "feedback-release-candidate",
+      "status": "not_run",
+      "evidence": "Requires qualified upstream gates and recorded tester feedback."
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "appId": "com.amadutown.kicklab",
+  "appName": "KickLab",
+  "webDir": "dist/mobile",
+  "server": {
+    "androidScheme": "https",
+    "cleartext": false,
+    "allowNavigation": []
+  }
+}
