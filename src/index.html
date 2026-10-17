@@ -89,6 +89,11 @@
           <div class="lvlup" id="lvlup" hidden><div class="lu"><span class="lu-k">LEVEL UP</span><div class="lu-n" id="luNum">2</div><div class="lu-t" id="luTitle"></div><div class="lu-u" id="luUnlock"></div></div></div>
           <div class="feed" id="feed" aria-hidden="true"></div>
           <div class="toasts" id="toasts"></div>
+          <aside class="coach-math-nudge" id="coachMathNudge" role="status" aria-live="polite" aria-atomic="true" aria-labelledby="coachMathNudgeTitle" aria-describedby="coachMathNudgeMessage" hidden>
+            <svg class="coach-tomi-portrait" aria-hidden="true" focusable="false"><use href="#coachTomiPortrait"></use></svg>
+            <div class="coach-math-nudge-copy"><b id="coachMathNudgeTitle">Coach Tomi</b><span id="coachMathNudgeMessage"></span><button type="button" id="coachMathNudgeAction">See the math</button></div>
+            <button type="button" class="coach-math-nudge-close" id="coachMathNudgeClose" aria-label="Dismiss Coach Tomi math tip">×</button>
+          </aside>
           <button type="button" class="game-overlay-backdrop" id="gameOverlayBackdrop" aria-label="Close open game overlay" hidden></button>
           <div class="game-guidance-hud" id="gameGuidanceHud" aria-label="Gameplay information rail">
             <section class="orientation-hud contextual-summary" id="orientationHud" aria-label="Current lab and navigation">

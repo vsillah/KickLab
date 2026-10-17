@@ -23,6 +23,8 @@ const kit=readFileSync(join(root,'src','game','52-leaderboard.js'),'utf8');
 const css=readFileSync(join(root,'src','styles.css'),'utf8');
 const rig=readFileSync(join(root,'src','game','04-body-rig.js'),'utf8');
 const analog=readFileSync(join(root,'src','game','55-analog-gesture-controls.js'),'utf8');
+const pacing=readFileSync(join(root,'src','game','61-gameplay-pacing.js'),'utf8');
+const renderer3d=readFileSync(join(root,'src','game','50-renderer-3d.js'),'utf8');
 
 test('keeps relocated feature roots canonical and singular',()=>{
   for(const id of ['quickSettings','settingsDrawer','settingsCategories','settingsChoices','kitroom','liveEq','vars','chart','ticker','mlList','chal','missions','eqs','steps','idea','quiz']){
@@ -55,6 +57,27 @@ test('keeps canonical Math content in the physics disclosure',()=>{
   assert.match(cockpit,/function quickMathDefs\(\).*activeVariableProfile\(\)/);
   assert.match(cockpit,/adjustVar\(def\.id,def\.step\*\+b\.dataset\.step,manual\)/);
   assert.doesNotMatch(cockpit,/mathConsoleControls[^\n]+appendChild\(\$\('#(?:liveEq|vars)'\)\)/);
+});
+
+test('reuses Coach Tomi for a bounded non-blocking route into canonical Math',()=>{
+  assert.equal((html.match(/<symbol id="coachTomiPortrait" viewBox="0 0 64 64">/g)||[]).length,1);
+  assert.match(html,/id="coachMathNudge"[^>]+role="status"[^>]+aria-live="polite"[^>]+hidden/);
+  assert.match(html,/class="coach-tomi-portrait"[^>]+aria-hidden="true"[^>]+focusable="false"><use href="#coachTomiPortrait"><\/use><\/svg>/);
+  assert.match(html,/id="coachMathNudgeAction">See the math<\/button>/);
+  assert.match(html,/id="coachMathNudgeClose" aria-label="Dismiss Coach Tomi math tip"/);
+  for(const line of ['Force and contact time shape every hit.','Grip and turn radius set your safe speed.',"Speed, angle, and gravity shape the ball's path."])assert.ok(cockpit.includes(line),line);
+  assert.match(cockpit,/COACH_MATH_NUDGE=\{sequence:0,current:null,seen:new Set\(\),lastShownAt:0,timer:null,cooldown:18000\}/);
+  assert.match(cockpit,/COACH_MATH_NUDGE\.seen\.has\(key\).*lastShownAt<COACH_MATH_NUDGE\.cooldown/s);
+  assert.match(cockpit,/coachMathNudgeAction\.addEventListener\('click'.*setContextDetail\('math',\{trigger:\$\('#physicsDetailsHud'\),focus:true\}\)/s);
+  assert.match(cockpit,/function releaseGameplayForOverlay\(\)\{hideCoachMathNudge/);
+  assert.match(pacing,/onComplete\(meta\).*releasePauseOwner\('transition'.*maybeShowCoachMathNudge\(meta\)/);
+  assert.match(pacing,/function startGameTransition\(meta=\{\}\)\{hideCoachMathNudge\(\{reason:'transition'\}\)/);
+  assert.match(progress,/function showResults\(m\)\{if\(typeof hideCoachMathNudge==='function'\)hideCoachMathNudge\(\{reason:'results'\}\)/);
+  assert.match(replay,/function startReplay\(t\).*hideCoachMathNudge\(\{reason:'replay'\}\)/);
+  assert.match(renderer3d,/hideCoachMathNudge\(\{reason:'celebration'\}\)/);
+  assert.match(css,/\.coach-math-nudge\{position:absolute;z-index:7;top:/);
+  assert.match(css,/\.coach-math-nudge\{[^}]+width:min\(340px,calc\(100% - var\(--game-rail-space,72px\) - 28px\)\)/);
+  assert.match(css,/@media \(prefers-reduced-motion:reduce\).*\.coach-math-nudge\{animation:none\}/s);
 });
 
 test('keeps contextual detail input ownership and focus return explicit',()=>{

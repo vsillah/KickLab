@@ -8,11 +8,35 @@ const wideManualController=$('#wideManualController'),wideManualRows=$('#wideMan
 const prototypePhysics=$('#prototypePhysics'),prototypePhysicsRows=$('#prototypePhysicsRows');
 const settingsDrawer=$('#settingsDrawer'),settingsToggle=$('#settingsToggle');
 const gameOverlayBackdrop=$('#gameOverlayBackdrop'),gameStage=$('.stage'),gamePlayShell=$('.play'),profileDialog=$('#profileDialog');
+const coachMathNudge=$('#coachMathNudge'),coachMathNudgeAction=$('#coachMathNudgeAction'),coachMathNudgeClose=$('#coachMathNudgeClose');
+const COACH_MATH_NUDGE={sequence:0,current:null,seen:new Set(),lastShownAt:0,timer:null,cooldown:18000};
+
+function coachMathLine(){
+  if(M===Fight)return'Force and contact time shape every hit.';
+  if(M===Race)return'Grip and turn radius set your safe speed.';
+  return"Speed, angle, and gravity shape the ball's path.";
+}
+function hideCoachMathNudge({restore=false,reason='dismissed'}={}){
+  if(coachMathNudge.hidden)return;
+  clearTimeout(COACH_MATH_NUDGE.timer);COACH_MATH_NUDGE.timer=null;coachMathNudge.hidden=true;coachMathNudge.dataset.state=reason;
+  if(window.__KICKLAB_COACH_MATH_NUDGE__)Object.assign(window.__KICKLAB_COACH_MATH_NUDGE__,{visible:false,lastReason:reason,dismissed:window.__KICKLAB_COACH_MATH_NUDGE__.dismissed+(reason==='dismissed'?1:0)});
+  if(restore&&coachMathNudge.contains(document.activeElement))$('#physicsDetailsHud').focus();
+}
+function maybeShowCoachMathNudge(meta={}){
+  const key=meta.coachMathEvent||`${M.key}:${++COACH_MATH_NUDGE.sequence}`,now=Date.now();
+  if(COACH_MATH_NUDGE.seen.has(key)||now-COACH_MATH_NUDGE.lastShownAt<COACH_MATH_NUDGE.cooldown||RP.on||CINE.on||resOpen())return false;
+  COACH_MATH_NUDGE.seen.add(key);COACH_MATH_NUDGE.current=key;COACH_MATH_NUDGE.lastShownAt=now;$('#coachMathNudgeMessage').textContent=coachMathLine();coachMathNudge.hidden=false;coachMathNudge.dataset.event=key;coachMathNudge.dataset.state='visible';
+  clearTimeout(COACH_MATH_NUDGE.timer);COACH_MATH_NUDGE.timer=setTimeout(()=>hideCoachMathNudge({reason:'expired'}),9000);
+  Object.assign(window.__KICKLAB_COACH_MATH_NUDGE__,{visible:true,event:key,shown:window.__KICKLAB_COACH_MATH_NUDGE__.shown+1,lastReason:'shown',pause:PAUSE.on});return true;
+}
+window.__KICKLAB_COACH_MATH_NUDGE__={visible:false,shown:0,dismissed:0,openedMath:0,lastReason:'ready',pause:false,show:meta=>maybeShowCoachMathNudge(meta),hide:()=>hideCoachMathNudge(),snapshot:()=>({paused:PAUSE.on,owners:PAUSE_OWNERS.snapshot(),context:CONTEXT_DETAILS.open})};
+coachMathNudgeClose.addEventListener('click',()=>hideCoachMathNudge({restore:true}));
+coachMathNudgeAction.addEventListener('click',()=>{window.__KICKLAB_COACH_MATH_NUDGE__.openedMath++;hideCoachMathNudge({reason:'math-opened'});setContextDetail('math',{trigger:$('#physicsDetailsHud'),focus:true});});
 
 function contextPanel(name){return $(`#${name==='math'?'physics':name}Detail`);}
 function contextTriggers(name){return name==='math'?[$('#physicsDetailsHud'),$('#physicsDetailsCompact'),$('#physicsDetailsWide')]:[$(`#${name}DetailToggle`)];}
 function syncContextTrigger(button,expanded){const action=expanded?'Close':'Open',label=button.dataset.detailLabel||'details',name=`${action} ${label}`;button.setAttribute('aria-expanded',String(expanded));button.setAttribute('aria-label',name);button.title=name;}
-function releaseGameplayForOverlay(){if(typeof releaseMobileHeldInputs==='function')releaseMobileHeldInputs('Game overlay opened');ENGINE.off();document.querySelectorAll('#pad .on').forEach(button=>button.classList.remove('on'));}
+function releaseGameplayForOverlay(){hideCoachMathNudge({reason:'overlay-opened'});if(typeof releaseMobileHeldInputs==='function')releaseMobileHeldInputs('Game overlay opened');ENGINE.off();document.querySelectorAll('#pad .on').forEach(button=>button.classList.remove('on'));}
 function syncGameOverlayBackdrop(){const profileOpen=!profileDialog.hidden&&profileDialog.classList.contains('game-profile-overlay'),open=!!CONTEXT_DETAILS.open||!settingsDrawer.hidden||profileOpen;gameOverlayBackdrop.hidden=!open;gameStage.classList.toggle('has-game-overlay',open);gamePlayShell.classList.toggle('has-game-overlay',open);}
 function overlayFocusables(panel){return[...panel.querySelectorAll('button:not(:disabled),[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex]:not([tabindex="-1"])')].filter(node=>!node.hidden&&node.getAttribute('aria-hidden')!=='true'&&node.getClientRects().length>0);}
 function trapOverlayFocus(panel,e){if(e.key!=='Tab')return;const items=overlayFocusables(panel);if(!items.length)return;e.stopPropagation();const first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}
