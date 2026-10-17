@@ -30,7 +30,7 @@ test('locks artifact identity and provisional stable app id',()=>{
   assert.equal(packageJson.dependencies['@capacitor/core'],'8.5.3');
   assert.equal(packageJson.dependencies['@capacitor/app'],'8.1.2');
   assert.equal(packageJson.dependencies['@capacitor/haptics'],'8.0.2');
-  assert.equal(packageJson.devDependencies['@capacitor/cli'],'8.5.3');
+  assert.equal(packageJson.devDependencies['@capacitor/cli'],'8.4.3');
   assert.equal(packageJson.engines.node,'>=22');
   assert.equal(contract.platforms.ios.minimumVersion,15);
   assert.deepEqual(contract.platforms.android,{minimumSdk:24,compileSdk:36,targetSdk:36});

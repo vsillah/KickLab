@@ -44,6 +44,6 @@ Reconsider the packaging choice when reproducible evidence shows that a supporte
 
 ## Foundation implementation note
 
-The shared foundation pins Capacitor Core and CLI 8.5.3, App 8.1.2, and Haptics 8.0.2, with Node 22 or newer in development and CI. The platform plugins remain narrow: App for lifecycle state and Haptics for the three declared feedback cues.
+The shared foundation pins Capacitor Core 8.5.3, CLI 8.4.3, App 8.1.2, and Haptics 8.0.2, with Node 22 or newer in development and CI. CLI 8.4.3 is the latest audited Capacitor 8 CLI line without the vulnerable transitive `xcode` dependency introduced in CLI 8.5.3. The platform plugins remain narrow: App for lifecycle state and Haptics for the three declared feedback cues.
 
 Capacitor 8 establishes the first native support floor: iOS 15 or newer and Android minimum SDK 24, compile SDK 36, and target SDK 36. The Android target follows both the SDK level supported by the pinned Capacitor major and the current Google Play submission requirement. Platform lanes must not force an unsupported target SDK onto an older Capacitor major. Future target-policy changes require a reviewed dependency/toolchain update; they do not change the application id or local-first contract.
