@@ -233,13 +233,16 @@ test('shows adjustment math temporarily while keeping environment context persis
   assert.match(kick3d,/if\(stageAdjustmentVisible\(\)&&\(\(s==='beat'/);
 });
 
-test('suppresses Kick stage annotations after action start without changing Fight, Race, or replay',()=>{
+test('keeps Kick action X-ray transient while suppressing persistent stage math',()=>{
   assert.match(engine,/const kickAction=typeof M!=='undefined'&&typeof Kick!=='undefined'&&M===Kick/);
-  assert.match(engine,/annotations:!kickAction/);
-  assert.match(engine,/function physicsAnnotationsVisible\(\)\{return!!\(RP\.on\|\|!E\.slow\|\|E\.slow\.annotations!==false\);\}/);
-  assert.match(loop,/if\(E\.env>0&&physicsAnnotationsVisible\(\)\).*M\.drawXray\(ctx\)/);
-  assert.match(loop,/if\(E\.env>0&&physicsAnnotationsVisible\(\)\)xrayFrame\(ctx,E\.env\)/);
-  assert.match(loop,/if\(E\.env>0\.5&&physicsAnnotationsVisible\(\)&&M\.callouts\)/);
+  assert.match(engine,/annotations:!kickAction,physicsVision:true/);
+  assert.match(engine,/function physicsVisionVisible\(\)\{return!!\(RP\.on\|\|\(E\.slow&&E\.slow\.physicsVision!==false\)\);\}/);
+  assert.match(loop,/const physicsVision=E\.env>0&&physicsVisionVisible\(\)/);
+  assert.match(loop,/persistentMath:typeof stageAdjustmentVisible==='function'&&stageAdjustmentVisible\(\)/);
+  assert.match(loop,/if\(physicsVision\).*M\.drawXray\(ctx\)/);
+  assert.match(loop,/if\(physicsVision\)xrayFrame\(ctx,E\.env\)/);
+  assert.match(loop,/if\(physicsVision&&E\.env>0\.5&&M\.callouts\)/);
+  assert.match(ui,/hideStageAdjustment\(\);M\.press\(a\.id,true\)/);
   assert.match(replay,/if\(!RP\.on&&mode!=='kick'\)pushFeed\(m\);else if\(!RP\.on&&mode==='kick'\)\$\('#feed'\)\.innerHTML=''/);
   assert.match(kickSide,/if\(stageAdjustmentVisible\(\)\)text\(c,'bar 2\.44 m'/);
   assert.match(kickSide,/if\(this\.state==='flight'&&!this\.outcome&&stageAdjustmentVisible\(\)\)/);
