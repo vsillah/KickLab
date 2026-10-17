@@ -48,7 +48,7 @@ test('keeps canonical Math content in the physics disclosure',()=>{
   assert.ok(detail<liveEq&&liveEq<vars&&vars<rbar);
   for(const id of ['mathHudTitle','mathConsoleValues','mathConsoleStatus','mathConsoleHeading','mathConsoleControls','dialTop','dialTopStatus'])assert.equal((html.match(new RegExp(`id="${id}"`,'g'))||[]).length,1);
   assert.doesNotMatch(html,/id="mathConsole"|id="mathConsolePull"|id="utilitySlot"|id="mathHud"|id="mathHudEquation"|id="mathHudValues"/);
-  assert.match(cockpit,/function quickMathDefs\(\).*M\.vars\(\)/);
+  assert.match(cockpit,/function quickMathDefs\(\).*activeVariableProfile\(\)/);
   assert.match(cockpit,/adjustVar\(def\.id,def\.step\*\+b\.dataset\.step,manual\)/);
   assert.doesNotMatch(cockpit,/mathConsoleControls[^\n]+appendChild\(\$\('#(?:liveEq|vars)'\)\)/);
 });
@@ -73,7 +73,7 @@ test('opens only one responsive contextual detail at a time',()=>{
 });
 
 test('derives compact math from mode definitions and explicit equation data',()=>{
-  assert.match(cockpit,/M\.vars\(\)/);
+  assert.match(cockpit,/activeVariableProfile\(\)/);
   assert.match(cockpit,/M\.LIVE\(\)/);
   assert.match(cockpit,/M\.eqs\(\)/);
   assert.doesNotMatch(cockpit,/liveEq[^\n]+(?:innerText|textContent)/);
@@ -168,20 +168,51 @@ test('uses one on-game hierarchical settings experience',()=>{
   assert.match(css,/\.quick-setting\{min-height:48px/);
 });
 
+test('resolves a real active-variable profile for every game and Kick activity state',()=>{
+  const profilesMatch=ui.match(/const ACTIVE_VARIABLE_PROFILES=(\{[^\n]+\});/),resolverMatch=ui.match(/function resolveActiveVariableProfile\([^\n]+/);
+  assert.ok(profilesMatch&&resolverMatch,'profile table and pure resolver must remain inspectable');
+  const profiles=Function(`return (${profilesMatch[1]})`)();
+  const resolve=Function(`return (${resolverMatch[0]})`)();
+  const cases=[
+    ['Fight ready','fight',null,null,'ready',{},['fight','default'],['m','dt','A']],
+    ['Race grid','race',null,null,'grid',{},['race','default'],['mu','R','m','F']],
+    ['Free kick','kick','free','free','aim',{},['kick','free'],['v','th','g','spin']],
+    ['Header and Match corner','kick','header','match','aim',{},['kick','header'],['jv','thH','g']],
+    ['Passing','kick','dribble','pass','pass',{pass:true},['kick','pass'],['pv']],
+    ['Combo','kick','dribble','combo','crun',{combo:true},['kick','combo'],['run','grip','vs']],
+    ['Goalkeeper drill','kick','dribble','gk','ready',{},['kick','keeper'],['gkr','gka']],
+    ['Penalty shooter','kick','dribble','pso','set',{},['kick','shot'],['vs','curl']],
+    ['Penalty keeper','kick','dribble','pso','keep',{},['kick','keeper'],['gkr','gka']],
+    ['Crossbar','kick','dribble','bar','set',{},['kick','shot'],['vs','curl']],
+    ['Match run','kick','dribble','match','run',{},['kick','run'],['run','grip','curl','vs']],
+    ['Match combo','kick','dribble','match','cpass',{combo:true},['kick','combo'],['run','grip','vs']],
+    ['Match counter','kick','dribble','match','keep',{},['kick','keeper'],['gkr','gka']],
+    ['Live kickoff pass','kick','dribble','live','ready',{},['kick','pass'],['pv']],
+    ['Live run','kick','dribble','live','run',{},['kick','run'],['run','grip','curl','vs']],
+    ['Live goalkeeper','kick','dribble','live','keep',{},['kick','keeper'],['gkr','gka']],
+  ];
+  for(const [name,game,shot,pso,state,flags,key,ids] of cases){assert.deepEqual(resolve(game,shot,pso,state,flags),key,name);assert.deepEqual(profiles[key[0]][key[1]],ids,`${name} variables`);assert.ok(ids.length,`${name} must not be empty`);}
+  assert.match(kick3d,/id:'gkr',sym:'tᵣ',name:'keeper reaction time'/);
+  assert.match(kick3d,/id:'gka',sym:'a_dive',name:'keeper dive acceleration'/);
+  assert.match(kick3d,/0\.5\*Kick\.V\.gka\*Math\.max\(0,t-Kick\.V\.gkr\)\*\*2/);
+  assert.match(kick3d,/g\.vy=clamp\(g\.vy\+Math\.sign\(dy\)\*Kick\.V\.gka\*dt/);
+  assert.doesNotMatch(kick3d,/GK_REACT|GK_DIVE_A/);
+});
+
 test('maps the Kick D-pad to stable Shot and Advanced Quick Tune layers',()=>{
   assert.match(ui,/const DP=\{layer:'shot',flash:null\}/);
   assert.match(ui,/function dialMode\(\)\{return M===Kick&&Kick\.opt\.shot!=='dribble'&&Kick\.state==='aim'\?'quick':null;\}/);
-  assert.match(ui,/DP\.layer==='advanced'\?\['spin','g'\]:\[hdr\?'jv':'v',hdr\?'thH':'th'\]/);
+  assert.match(ui,/DP\.layer==='advanced'\?\(hdr\?\['g'\]:\['spin','g'\]\):\(hdr\?\['jv','thH'\]:\['v','th'\]\)/);
   assert.match(ui,/action\(horizontal,'left',-1\),action\(horizontal,'right',1\),action\(vertical,'down',-1\),action\(vertical,'up',1\)/);
   assert.match(ui,/v:\['v','SPEED','launch speed'\].*th:\['θ','ANGLE','launch angle'\].*spin:\['aₛ','SPIN','spin'\].*g:\['g','GRAVITY','gravity'\]/);
   assert.match(ui,/aria:`\$\{sign<0\?'Decrease':'Increase'\} \$\{meta\.name\}`/);
   assert.match(ui,/tag:`\$\{meta\.symbol\}\$\{sign<0\?'−':'\+'\}`/);
-  assert.match(ui,/class="quick-axis horizontal".*\$\{h\.symbol\}.*\$\{h\.label\}.*class="quick-axis vertical".*\$\{v\.symbol\}.*\$\{v\.label\}/);
+  assert.match(ui,/\$\{h\?`<span class="quick-axis horizontal".*\$\{h\.symbol\}.*\$\{h\.label\}.*\$\{v\?`<span class="quick-axis vertical".*\$\{v\.symbol\}.*\$\{v\.label\}/);
   assert.match(ui,/disabled:!def\|\|isLocked\(M\.key,id\)/);
   assert.match(ui,/function toggleQuickTuneLayer\(\).*DP\.layer=DP\.layer==='shot'\?'advanced':'shot'/);
   assert.match(ui,/data-id="quick-layer" aria-label="Switch to \$\{DP\.layer==='shot'\?'Advanced':'Shot'\} quick tune/);
   assert.match(keys,/e\.code==='KeyC'&&dialMode\(\)==='quick'&&!e\.repeat&&!PAUSE\.on&&!CINE\.on&&!resOpen\(\).*toggleQuickTuneLayer\(\)/);
-  assert.match(cockpit,/if\(mode==='quick'\)return quickTuneVariableIds\(\)\.map/);
+  assert.match(cockpit,/if\(dialMode\(\)==='quick'\)return quickTuneVariableIds\(\)\.map/);
   assert.match(cockpit,/`Quick Tune · \$\{DP\.layer==='shot'\?'Shot':'Advanced'\}`/);
   assert.doesNotMatch(ui,/previous dial|next dial|tag:'DIAL'|dialSelectActions|dialSel\(/);
   assert.match(css,/\.dpad \.hub\.quick-layer\{[^}]*cursor:pointer/);
@@ -221,10 +252,12 @@ test('swaps the D-pad footprint into guarded Manual Physics',()=>{
   assert.match(html,/id="controllerModeManual" aria-pressed="false"/);
   assert.match(html,/id="controllerModeStatus" role="status" aria-live="polite"/);
   assert.match(html,/id="padL"[^]*id="manualController" hidden/);
-  assert.match(cockpit,/function manualMathDefs\(\)\{return M\.vars\(\)/);
+  assert.match(cockpit,/function manualMathDefs\(\)\{return activeVariableProfile\(\)/);
   assert.match(cockpit,/function selectedManualDef\(\)/);
   assert.match(cockpit,/slider\.min=def\.min;slider\.max=def\.max;slider\.step=def\.step/);
   assert.match(cockpit,/CONTROLLER\.sel\+=delta/);
+  assert.match(cockpit,/canCycle=defs\.length>1/);
+  assert.match(cockpit,/\$\('#manualPrev'\)\.disabled=!canCycle;\$\('#manualNext'\)\.disabled=!canCycle/);
   assert.match(cockpit,/pauseGame\('manual-physics'\)/);
   assert.match(cockpit,/PAUSE\.why==='manual-physics'/);
   assert.match(cockpit,/function manualUnavailableReason\(\)/);
@@ -243,18 +276,20 @@ test('projects every canonical manual variable into the wide control gap',()=>{
   assert.match(html,/id="wideManualStatus">Changes apply immediately/);
   assert.match(html,/id="wideManualRows"/);
   assert.match(cockpit,/const WIDE_MANUAL=\{active:false,sig:''\}/);
-  assert.match(cockpit,/function wideManualDefs\(\)\{return M\.vars\(\);\}/);
+  assert.match(cockpit,/function wideManualDefs\(\)\{return activeVariableProfile\(\);\}/);
   assert.match(cockpit,/class="wide-manual-row" data-var="\$\{def\.id\}"/);
   assert.match(cockpit,/input type="range"[^>]+aria-label="\$\{quickMathName\(def\)\}"/);
   assert.match(cockpit,/input\.setAttribute\('aria-valuetext',cockpitValue\(def,M\.V\[def\.id\]\)\)/);
   assert.match(cockpit,/wideManualRows\.addEventListener\('input'/);
   assert.match(cockpit,/adjustVar\(def\.id,\+input\.value-M\.V\[def\.id\],false\)/);
   assert.match(cockpit,/manualUnavailableReason\(\).*isLocked\(M\.key,def\.id\)/s);
+  assert.match(cockpit,/row\.classList\.toggle\('locked',locked\);row\.classList\.toggle\('temporarily-locked',temporary\)/);
   assert.match(cockpit,/new ResizeObserver\(entries=>\{const active=entries\[0\]\.contentRect\.width>=980/);
   assert.match(css,/\.wide-manual-controller\{display:none/);
   assert.match(css,/\.wide-manual-controller\{display:none;[^}]*pointer-events:auto/);
   assert.match(css,/\.manual-controller input\[type="range"\],\.wide-manual-row input\[type="range"\]\{pointer-events:auto;touch-action:none;cursor:pointer\}/);
   assert.match(css,/\.manual-controller input\[type="range"\]:disabled,\.wide-manual-row input\[type="range"\]:disabled\{pointer-events:none;cursor:not-allowed\}/);
+  assert.match(css,/\.wide-manual-row\.temporarily-locked\{opacity:1\}/);
   assert.match(css,/@container \(min-width:980px\)\{\.control-deck \.pad\{display:grid;grid-template-columns:minmax\(220px,1fr\) minmax\(380px,520px\) minmax\(220px,1fr\)/);
   assert.match(css,/\.control-deck #padR\{width:100%;height:190px;align-items:center;justify-content:center\}/);
   assert.match(css,/\.control-deck \.dpad\{grid-template-columns:repeat\(3,54px\);grid-template-rows:repeat\(3,54px\)\}/);

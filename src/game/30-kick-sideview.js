@@ -1,7 +1,7 @@
 const Kick={
   key:'kick',
   opt:{shot:'free',pred:'on',move:'step',foot:'in',fin:'drive',pso:'run',duel:'duel',air:'auto',stad:'home',pitch:'grass',wx:'calm',pl:'you',strike:'mid',temp:'mild',gfx:best.gfx||'3d'},
-  V:{v:22,th:17,g:9.81,spin:0,thH:8,run:6,grip:0.8,curl:6,vs:24,jv:3.0,pv:13},
+  V:{v:22,th:17,g:9.81,spin:0,thH:8,run:6,grip:0.8,curl:6,vs:24,jv:3.0,pv:13,gkr:0.3,gka:22},
   COL:{v:['v',C.good],th:['θ',C.pink],thH:['θ',C.pink],g:['g',C.xray],spin:['a_s',C.violet],vx:['vx',C.xray],vy:['vy',C.violet],run:['v_run',C.good],grip:['μ',C.xray],curl:['ω',C.violet],vs:['v_shot',C.hot],jv:['v₀',C.good],pv:['v_pass',C.good]},
   D:21,WX:9.15,WH:1.85,BAR:2.44,BR:0.11,M:0.43,S:27,OX:212,OY:470,DT_KICK:0.009,DT_HEAD:0.012,HX:10.0,
   hint:'Get both checks green, then kick',

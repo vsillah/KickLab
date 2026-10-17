@@ -78,7 +78,7 @@ function gkTick(g,K,bh,tNow,dt){let seen=null;const ts=tNow-K.tr;for(const h of 
   g.y+=g.vy*dt;}
 /* ---------- goalkeeper + passing data ---------- */
 const GK_SCN=[{n:'Penalty',x:29,y:0,run:false},{n:'Edge of the box',x:22,y:3,run:false},{n:'Angled run',x:26,y:-8,run:true},{n:'Long range',x:17,y:-2,run:false},{n:'Breakaway 1v1',x:28,y:2,run:true},{n:'Tight angle',x:33,y:8,run:true}];
-const STRK=[{name:'Rio',v:17,acc:1.3,chip:0,hon:0.85,col:'#d4553a'},{name:'Dex',v:18.5,acc:1.1,chip:0.25,hon:0.75,col:'#c0392b'},{name:'Mo',v:19.5,acc:0.9,chip:0.4,hon:0.65,col:'#a53a6b'},{name:'Tank',v:21,acc:0.75,chip:0.5,hon:0.55,col:'#7a2d3a'},{name:'Captain Kai',v:22.5,acc:0.6,chip:0.6,hon:0.45,col:'#4a1f5c'}],GK_REACT=0.3,GK_DIVE_A=22;
+const STRK=[{name:'Rio',v:17,acc:1.3,chip:0,hon:0.85,col:'#d4553a'},{name:'Dex',v:18.5,acc:1.1,chip:0.25,hon:0.75,col:'#c0392b'},{name:'Mo',v:19.5,acc:0.9,chip:0.4,hon:0.65,col:'#a53a6b'},{name:'Tank',v:21,acc:0.75,chip:0.5,hon:0.55,col:'#7a2d3a'},{name:'Captain Kai',v:22.5,acc:0.6,chip:0.6,hon:0.45,col:'#4a1f5c'}];
 const PASSL=[{tr:0.5,a:6,vm:4.2,press:1.4},{tr:0.42,a:7,vm:4.8,press:1.8},{tr:0.36,a:7.5,vm:5.3,press:2.1},{tr:0.3,a:8,vm:5.8,press:2.4},{tr:0.25,a:8.5,vm:6.3,press:2.7}],PASS_CTRL=16,PASS_TH=30*Math.PI/180,MATES=[{name:'Kim',num:'7'},{name:'Zara',num:'11'},{name:'Leo',num:'8'}];
 const PASS_SC=[
   {n:'Find the runner',m:[{x:16,y:-7,vx:5.5,vy:0.8},{x:15,y:7,vx:6,vy:-0.4}],d:[{x:19,y:-2.5},{x:20,y:4}]},
