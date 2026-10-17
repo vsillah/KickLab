@@ -13,6 +13,7 @@ const contract=json('config/mobile-release-contract.json');
 const manifest=json('dist/mobile/kicklab-mobile-manifest.json');
 const packageJson=json('package.json');
 const mobile=read('dist/mobile/index.html');
+const styles=read('src/styles.css');
 const lifecycle=read('src/game/56-mobile-lifecycle.js');
 const qualification=json('docs/release/mobile-qualification-status.json');
 const ciWorkflow=read('.github/workflows/ci.yml');
@@ -54,6 +55,15 @@ test('keeps the packaged shell offline and fail-closed for navigation and egress
   assert.match(mobile,/form-action 'none'/);
   assert.doesNotMatch(mobile,/<(?:script|link|img|audio|video|source)\b[^>]*(?:src|href)=["']https?:\/\//i);
   assert.doesNotMatch(mobile,/fonts\.(?:googleapis|gstatic)\.com/);
+});
+
+test('keeps native page and profile chrome inside all iOS safe-area edges',()=>{
+  assert.match(mobile,/viewport-fit=cover/);
+  for(const edge of ['top','right','bottom','left']){
+    assert.match(styles,new RegExp(`padding-${edge}:calc\\([^;]+env\\(safe-area-inset-${edge}, 0px\\)\\)`));
+  }
+  assert.match(styles,/\.profile-dialog\{[\s\S]*?padding-top:calc\(18px \+ env\(safe-area-inset-top, 0px\)\)/);
+  assert.match(styles,/\.profile-panel\{[\s\S]*?min-height:calc\(100vh - env\(safe-area-inset-top, 0px\) - env\(safe-area-inset-bottom, 0px\)\)/);
 });
 
 test('preserves local profiles, leaderboards, and legacy storage continuity',()=>{

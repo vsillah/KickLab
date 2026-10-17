@@ -37,7 +37,7 @@ Verified release-asset checksums:
 | Check | Result |
 | --- | --- |
 | Native launch | Passed; the packaged local HTML opened in the Capacitor shell. |
-| Responsive iPhone layout | Passed at 402 x 874 portrait and 874 x 402 landscape. Profile setup, lab selection, Fight stage, controls, and HUD remained usable; the synthetic nickname uses intentional ellipsis in the compact landscape profile card. |
+| Responsive iPhone layout | Passed at 402 x 874 portrait and 874 x 402 landscape. The app wrapper and full-screen Profile sheet clear all four iOS safe-area insets; the wordmark, Profile title, Close control, lab selection, Fight stage, controls, and HUD remain usable. The synthetic nickname uses intentional ellipsis in the compact landscape profile card. |
 | Profile persistence | Passed; synthetic player `AminaQA` remained selected after a full process terminate and relaunch. |
 | Gameplay input | Passed; a held Cross input produced a scored `Cross · counter` event and updated both fighters' HP. |
 | Lifecycle | Passed; Home/background placed the Fight stage into `TIME-OUT`, foregrounding did not auto-resume, and a deliberate stage tap resumed play. |
@@ -47,17 +47,17 @@ Verified release-asset checksums:
 
 Packaged artifact SHA-256 values:
 
-- `ios/App/App/public/index.html`: `2e02281b0e8289ce93e01795ab9c5ce2b9de211eb7d301599302401117155319`
-- `ios/App/App/public/kicklab-mobile-manifest.json`: `ec7a740d8f25e36291580cc74524735b766605f52daf04852cf41b6e8dc9caf2`
+- `ios/App/App/public/index.html`: `a347eb3474c53520f018fd06182fed1bf05beb64ce8079e249406c3becb2b610`
+- `ios/App/App/public/kicklab-mobile-manifest.json`: `720c70dffc91e7087c769634f324e3f406a467324645fb82e2a4213888f6e2a1`
 
 ## Review artifacts
 
-- `02-ready.png` — responsive profile setup state.
-- `03-synthetic-profile-saved.png` — isolated on-device profile and stats.
+- `02-ready.png` — corrected portrait lab chooser with the wordmark below the Dynamic Island.
+- `03-synthetic-profile-saved.png` — corrected full-screen Profile and Stats sheet with its title and Close control inside the top safe area.
 - `04-lifecycle-resume.png` — foreground return held in `TIME-OUT`, requiring player action.
 - `05-relaunch-persistence.png` — selected synthetic player preserved after terminate/relaunch.
-- `06-landscape-lab-selection.png` — landscape mode selection with all three labs visible.
-- `07-final-build.png` — final rebuilt app, including the bundled privacy manifest, with local profile continuity intact.
-- `kicklab-ios-capacitor-walkthrough.mp4` — playable 69-second H.264, 720 x 1566, 30 fps walkthrough covering profile creation, Fight input, lifecycle timeout/resume, and process relaunch.
+- `06-landscape-lab-selection.png` — landscape mode selection with all three labs visible and clear of the left and right system insets.
+- `07-final-build.png` — final corrected portrait build, including the bundled privacy manifest, with local profile continuity intact.
+- `kicklab-ios-capacitor-walkthrough.mp4` — playable 69-second H.264, 720 x 1566, 60 fps walkthrough covering corrected top chrome, local Profile and Stats, Fight, lifecycle timeout/resume, and process relaunch. SHA-256: `1884ead90e1ddc8e18d46cebc5d3f3c17905ed25948cc19683f05c670eb8503d`.
 
 All names and progress shown are synthetic local fixture data. The evidence contains no credentials, account records, private communications, or production customer data.

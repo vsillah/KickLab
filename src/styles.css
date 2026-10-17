@@ -868,3 +868,40 @@ header.top .brand p{display:none}
 .fb-source{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:12px 0 6px}.fb-source button{appearance:none;min-height:42px;border:1px solid var(--line);border-radius:9px;background:var(--panel-2);color:var(--ink);font:700 10px var(--f-body);cursor:pointer}.fb-source button[aria-pressed="true"]{border-color:var(--xray);background:#17304d;color:var(--xray)}.fb-source-note{margin:0 0 10px;color:var(--muted);font:600 9px/1.4 var(--f-body)}.fboard[data-source="local"] .fb-me{display:none}
 @media(max-width:800px){.profile-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.profile-hero{grid-column:1/-1}.profile-list{grid-template-columns:repeat(2,minmax(0,1fr))}.profile-choice-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:520px){.home-profile{grid-template-columns:auto minmax(0,1fr)}.home-profile>i{grid-column:1/-1;text-align:right}.profile-dialog{padding:0;place-items:stretch}.profile-panel{width:100%;max-height:none;min-height:100vh;border:0;border-radius:0;padding:14px}.profile-head h2{font-size:18px}.profile-summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.profile-stat{padding:9px}.profile-stat b{font-size:15px}.profile-achievements{grid-template-columns:minmax(0,1fr)}.profile-list{grid-template-columns:minmax(0,1fr)}.profile-choice-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.profile-section-head{display:grid}.profile-actions{display:grid;grid-template-columns:1fr 1fr}.profile-actions button:last-child{grid-column:1/-1}.hudtools{gap:4px}.profilebtn b{display:none}.profilebtn{padding:4px}.fb-source{grid-template-columns:minmax(0,1fr)}}
+
+/* Keep full-viewport Capacitor content clear of iOS cutouts and system chrome.
+   In ordinary browsers the env() fallbacks are zero, preserving existing gutters. */
+.wrap{
+  padding-top:calc(18px + env(safe-area-inset-top, 0px));
+  padding-right:calc(16px + env(safe-area-inset-right, 0px));
+  padding-bottom:calc(48px + env(safe-area-inset-bottom, 0px));
+  padding-left:calc(16px + env(safe-area-inset-left, 0px));
+}
+.profile-dialog{
+  box-sizing:border-box;
+  padding-top:calc(18px + env(safe-area-inset-top, 0px));
+  padding-right:calc(18px + env(safe-area-inset-right, 0px));
+  padding-bottom:calc(18px + env(safe-area-inset-bottom, 0px));
+  padding-left:calc(18px + env(safe-area-inset-left, 0px));
+}
+.profile-panel{
+  max-height:calc(100vh - 36px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+}
+@media(max-width:700px){
+  .wrap{
+    padding-right:calc(8px + env(safe-area-inset-right, 0px));
+    padding-left:calc(8px + env(safe-area-inset-left, 0px));
+  }
+}
+@media(max-width:520px){
+  .profile-dialog{
+    padding-top:env(safe-area-inset-top, 0px);
+    padding-right:env(safe-area-inset-right, 0px);
+    padding-bottom:env(safe-area-inset-bottom, 0px);
+    padding-left:env(safe-area-inset-left, 0px);
+  }
+  .profile-panel{
+    min-height:calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    max-height:none;
+  }
+}
