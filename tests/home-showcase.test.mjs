@@ -23,6 +23,16 @@ test('makes the three real-game labs the primary home actions',()=>{
   assert.match(css,/@media \(max-width:520px\)[^}]*[\s\S]*\.mode-home \.tabs\{grid-template-columns:minmax\(0,1fr\)\}/);
 });
 
+test('keeps the hero geometry bounded through desktop, mid-width, tablet, and mobile layouts',()=>{
+  assert.match(css,/\.home-hero \.brand\{display:grid;grid-template-columns:minmax\(0,1\.05fr\) minmax\(300px,\.95fr\)/);
+  assert.match(css,/\.kicklab-wordmark\{min-width:0;[\s\S]*?font-size:clamp\(40px,5\.6vw,76px\)!important/);
+  assert.match(css,/\.kicklab-name\{min-width:0;[\s\S]*?white-space:nowrap/);
+  assert.match(css,/\.hero-copy\{min-width:0;/);
+  assert.match(css,/@media \(max-width:820px\)\{\.home-hero \.brand\{grid-template-columns:minmax\(0,1fr\)/);
+  for(const width of [1440,1280,1113,1024,900,768,520,390,320])assert.match(read('scripts/qa-home-showcase.mjs'),new RegExp(`\\['w${width}', \\{ width: ${width},`));
+  for(const guard of ['heroGeometry.collision','heroGeometry.contained','progressOverlap','cardText.some'])assert.ok(read('scripts/qa-home-showcase.mjs').includes(guard),guard);
+});
+
 test('uses muted looping local video with reduced-motion, constrained-device, and error fallback',()=>{
   assert.equal((html.match(/<video muted loop playsinline preload="metadata"/g)||[]).length,3);
   assert.doesNotMatch(html,/<video[^>]+controls/);

@@ -56,17 +56,39 @@ async function loadHome(page, label) {
 async function homeAudit(page, label) {
   const audit = await page.evaluate(() => {
     const box = selector => document.querySelector(selector)?.getBoundingClientRect().toJSON();
+    const overlap = (a, b) => a.left < b.right - .5 && a.right > b.left + .5 && a.top < b.bottom - .5 && a.bottom > b.top + .5;
+    const inside = (child, parent) => child.left >= parent.left - 1 && child.right <= parent.right + 1 && child.top >= parent.top - 1 && child.bottom <= parent.bottom + 1;
     const cards = [...document.querySelectorAll('.lab-showcase')];
     const cardBoxes = cards.map(card => card.getBoundingClientRect().toJSON());
-    const overlaps = (a, b) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+    const hero = box('.home-hero'), brand = box('.home-hero .brand'), wordmark = box('.kicklab-wordmark'), heroCopy = box('.hero-copy');
+    const heroText = [...document.querySelectorAll('.kicklab-name,.hero-copy>strong,.hero-copy>p,.hero-badges')].map(node => ({
+      selector: node.className || node.tagName,
+      box: node.getBoundingClientRect().toJSON(),
+      scrollWidth: node.scrollWidth,
+      clientWidth: node.clientWidth,
+      clipped: node.scrollWidth > node.clientWidth + 1,
+    }));
+    const progressChildren = [...document.querySelector('#progressHud').children].filter(node => getComputedStyle(node).display !== 'none').map(node => ({ selector: node.id || node.className, box: node.getBoundingClientRect().toJSON() }));
+    const cardText = [...document.querySelectorAll('.lab-card-copy .n,.lab-card-copy .d,.lab-card-copy .mode-enter')].filter(node => getComputedStyle(node).display !== 'none').map(node => ({ text: node.textContent.trim(), clipped: node.scrollWidth > node.clientWidth + 1 }));
     return {
       viewport: { width: innerWidth, height: innerHeight },
       overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
       wordmark: document.querySelector('.kicklab-name')?.textContent.trim(),
-      hero: box('.home-hero'),
+      hero,
+      heroGeometry: {
+        brand,
+        wordmark,
+        heroCopy,
+        collision: overlap(wordmark, heroCopy),
+        contained: inside(wordmark, hero) && inside(heroCopy, hero) && inside(wordmark, brand) && inside(heroCopy, brand),
+        text: heroText,
+      },
       cards: cardBoxes,
-      cardsOverlap: cardBoxes.some((card, index) => cardBoxes.slice(index + 1).some(other => overlaps(card, other))),
+      cardsOverlap: cardBoxes.some((card, index) => cardBoxes.slice(index + 1).some(other => overlap(card, other))),
+      cardText,
       progress: box('#progressHud'),
+      progressChildren,
+      progressOverlap: progressChildren.some((item, index) => progressChildren.slice(index + 1).some(other => overlap(item.box, other.box))),
       progressLabel: document.querySelector('#progressHud')?.getAttribute('aria-label'),
       labsBeforeProgress: cardBoxes.every(card => card.bottom <= box('#progressHud').top + 1),
       actions: cards.map(card => ({
@@ -84,7 +106,7 @@ async function homeAudit(page, label) {
       })),
     };
   });
-  if (audit.overflow > 1 || audit.wordmark !== 'KICKLAB' || audit.actions.length !== 3 || audit.cardsOverlap || !audit.labsBeforeProgress) {
+  if (audit.overflow > 1 || audit.wordmark !== 'KICKLAB' || audit.actions.length !== 3 || audit.heroGeometry.collision || !audit.heroGeometry.contained || audit.heroGeometry.text.some(item => item.clipped) || audit.cardsOverlap || audit.cardText.some(item => item.clipped) || audit.progressOverlap || !audit.labsBeforeProgress) {
     throw new Error(`${label}: layout contract failed (${JSON.stringify(audit)})`);
   }
   if (audit.progressLabel !== 'Overall player progress across Fight, Race, and Kick. Saved on this device.') {
@@ -134,9 +156,15 @@ async function clickLabs(page, label) {
 }
 
 const viewports = [
-  ['desktop', { width: 1440, height: 1000 }],
-  ['tablet', { width: 768, height: 1024 }],
-  ['mobile', { width: 390, height: 844 }],
+  ['w1440', { width: 1440, height: 1000 }],
+  ['w1280', { width: 1280, height: 900 }],
+  ['w1113', { width: 1113, height: 988 }],
+  ['w1024', { width: 1024, height: 900 }],
+  ['w900', { width: 900, height: 900 }],
+  ['w768', { width: 768, height: 1024 }],
+  ['w520', { width: 520, height: 900 }],
+  ['w390', { width: 390, height: 844 }],
+  ['w320', { width: 320, height: 800 }],
 ];
 
 for (const [label, viewport] of viewports) {
@@ -150,8 +178,8 @@ for (const [label, viewport] of viewports) {
   await page.addStyleTag({ content: '.skip-link{display:none!important}' });
   await page.screenshot({ path: screenshotPath, fullPage: true });
   checks.push({ label, kind: 'screenshot', screenshotPath });
-  await testDialogs(page, label);
-  if (label === 'desktop') await clickLabs(page, label);
+  if (label === 'w1440' || label === 'w390') await testDialogs(page, label);
+  if (label === 'w1440') await clickLabs(page, label);
   await context.close();
 }
 
