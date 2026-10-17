@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -54,6 +54,8 @@ if (/<(?:script|link|img|audio|video|source)\b[^>]*(?:src|href)=["']https?:\/\//
 const outputDir = join(root, dirname(outputPath));
 mkdirSync(outputDir, { recursive: true });
 writeFileSync(join(root, outputPath), mobile);
+rmSync(join(outputDir, 'media'), { recursive: true, force: true });
+cpSync(join(root, 'dist', 'media'), join(outputDir, 'media'), { recursive: true });
 
 const manifest = {
   schemaVersion: contract.schemaVersion,

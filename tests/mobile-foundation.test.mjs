@@ -53,6 +53,7 @@ test('keeps the packaged shell offline and fail-closed for navigation and egress
   assert.match(mobile,/form-action 'none'/);
   assert.doesNotMatch(mobile,/<(?:script|link|img|audio|video|source)\b[^>]*(?:src|href)=["']https?:\/\//i);
   assert.doesNotMatch(mobile,/fonts\.(?:googleapis|gstatic)\.com/);
+  for(const file of ['fight.mp4','fight-poster.png','race.mp4','race-poster.png','kick.mp4','kick-poster.png','manifest.json'])assert.ok(existsSync(join(root,'dist','mobile','media','home-previews',file)),`${file} must be packaged locally`);
 });
 
 test('preserves local profiles, leaderboards, and legacy storage continuity',()=>{

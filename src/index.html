@@ -13,30 +13,32 @@
 <a class="skip-link" href="#game-content">Skip to the game</a>
 
 <main class="wrap" id="game-content" tabindex="-1">
-  <header class="top">
+  <header class="top home-hero">
     <div class="brand">
-      <h1>KICK<span>LAB</span></h1>
-      <p>Punch, drive, kick. Slide a variable, watch the equation and the game change together, and earn XP from your coach.</p>
+      <h1 class="kicklab-wordmark" aria-label="KickLab"><span class="kicklab-mark"><svg viewBox="0 0 132 96" role="img" aria-labelledby="kicklabMarkTitle kicklabMarkDesc" focusable="false"><title id="kicklabMarkTitle">Kinetic K KickLab mark</title><desc id="kicklabMarkDesc">A fast-moving K with cyan and mint speed streaks, an orange ball trajectory, and a measured angle arc.</desc><defs><linearGradient id="kicklabCyan" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#7fdcff"/><stop offset="1" stop-color="#08aef0"/></linearGradient><linearGradient id="kicklabMint" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#66f5ca"/><stop offset="1" stop-color="#24caa6"/></linearGradient><marker id="kicklabArrow" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0 0 7 3.5 0 7z" fill="#ff9d32"/></marker></defs><g class="mark-streaks"><path class="mark-streak mark-streak-cyan" d="M3 29h34l-4 7H0z"/><path class="mark-streak mark-streak-mint" d="M8 43h27l-4 7H3z"/><path class="mark-streak mark-streak-blue" d="M15 57h20l-4 7H10z"/></g><g class="mark-k"><path class="mark-k-shaft" d="M39 14h25L51 82H26z"/><path class="mark-k-upper" d="M55 47 91 17h27L72 52z"/><path class="mark-k-lower" d="m67 52 34 30H74L50 60z"/></g><g class="mark-measure"><path class="mark-axis" d="M72 69h39"/><path class="mark-angle-arc" d="M96 69a24 24 0 0 0-13-21"/><path class="mark-measure-arc" d="M113 79a42 42 0 0 0-25-39"/></g><path class="mark-trajectory" d="M72 53Q98 34 117 17" marker-end="url(#kicklabArrow)"/><g class="mark-ball" transform="translate(121 12)"><circle r="8"/><path d="m0-4 4 3-2 5h-4l-2-5z"/><path d="M0-4 0-8M4-1 8-3M2 4 5 7M-2 4-5 7M-4-1-8-3"/></g></svg></span><svg class="kicklab-name" data-wordmark="KICKLAB" viewBox="-9 0 376 64" aria-hidden="true" focusable="false"><g class="wordmark-vector" transform="skewX(-8)"><g class="wordmark-kick"><path d="M0 2h14v23L34 2h18L25 31l28 31H34L14 39v23H0z"/><path d="M61 2h15v60H61z"/><path d="M129 2H96Q82 2 80 16l-5 32q-2 14 13 14h34l4-13H94q-6 0-5-6l3-24q1-5 7-5h27z"/><path d="M136 2h14v23l20-23h18l-27 29 28 31h-19l-20-23v23h-14z"/></g><g class="wordmark-lab"><path d="M197 2h15v47h31l-3 13h-43z"/><path fill-rule="evenodd" d="M267 2h19l19 60h-16l-4-12h-23l-6 12h-16zm0 36h14l-5-21z"/><path fill-rule="evenodd" d="M314 2h31q18 0 16 17l-1 5q-1 7-10 10 9 3 8 13v3q-2 12-20 12h-34zm14 12-2 13h14q6 0 7-6v-1q1-6-6-6zm-4 24-2 12h16q6 0 7-6t-6-6z"/></g></g></svg></h1>
+      <div class="hero-copy"><strong>Physics you can play.</strong><p>Punch, drive, kick—and feel the math change the game.</p><div class="hero-badges" aria-label="KickLab highlights"><span>Ages 9–15</span><span>3 playable labs</span><span>Progress stays here</span></div></div>
     </div>
   </header>
 
   <section class="mode-home" id="modeHome" aria-labelledby="modeHomeTitle">
-    <div class="mode-home-copy"><span>Choose your lab</span><h2 id="modeHomeTitle">Where do you want to experiment?</h2><p>Each game turns a different set of physics into something you can feel, tune and master.</p><button class="home-profile" id="homeProfileButton" type="button" aria-haspopup="dialog"><span class="profile-avatar" id="homeProfileAvatar" aria-hidden="true">R</span><span><small>Playing as</small><b id="homeProfileName">Lab Rookie</b><em id="homeProfileMeta">Level 1 · 0 XP</em></span><i>Profile &amp; stats</i></button></div>
+    <div class="mode-home-copy"><span>Choose your lab</span><h2 id="modeHomeTitle">Pick a game. Test the physics.</h2><p>Every preview is captured from the real game. Choose a lab to start playing.</p></div>
     <nav class="tabs" aria-label="Choose a lab">
-      <button class="tab" id="lab-tab-fight" type="button" data-mode="fight" aria-pressed="true"><span class="mode-icon" aria-hidden="true">✦</span><span class="n">Fight</span><span class="d">Momentum, impulse, pressure</span><span class="mode-enter">Enter Fight <span aria-hidden="true">→</span></span></button>
-      <button class="tab" id="lab-tab-race" type="button" data-mode="race" aria-pressed="false"><span class="mode-icon" aria-hidden="true">◈</span><span class="n">Race</span><span class="d">Steering, grip, cornering</span><span class="mode-enter">Enter Race <span aria-hidden="true">→</span></span></button>
-      <button class="tab" id="lab-tab-kick" type="button" data-mode="kick" aria-pressed="false"><span class="mode-icon" aria-hidden="true">●</span><span class="n">Kick</span><span class="d">Vectors, gravity, projectiles</span><span class="mode-enter">Enter Kick <span aria-hidden="true">→</span></span></button>
+      <button class="tab lab-showcase" id="lab-tab-fight" type="button" data-mode="fight" data-preview-state="poster" aria-pressed="true" aria-describedby="lab-fight-summary"><span class="lab-preview" aria-hidden="true"><img src="media/home-previews/fight-poster.png" alt=""><video muted loop playsinline preload="metadata" poster="media/home-previews/fight-poster.png"><source src="media/home-previews/fight.mp4" type="video/mp4"></video><span class="preview-badge">Real gameplay</span></span><span class="lab-card-copy"><span class="mode-icon" aria-hidden="true">✦</span><span class="n">Fight</span><span class="d" id="lab-fight-summary">Momentum, impulse, pressure</span><span class="mode-enter">Enter Fight <span aria-hidden="true">→</span></span></span></button>
+      <button class="tab lab-showcase" id="lab-tab-race" type="button" data-mode="race" data-preview-state="poster" aria-pressed="false" aria-describedby="lab-race-summary"><span class="lab-preview" aria-hidden="true"><img src="media/home-previews/race-poster.png" alt=""><video muted loop playsinline preload="metadata" poster="media/home-previews/race-poster.png"><source src="media/home-previews/race.mp4" type="video/mp4"></video><span class="preview-badge">Real gameplay</span></span><span class="lab-card-copy"><span class="mode-icon" aria-hidden="true">◈</span><span class="n">Race</span><span class="d" id="lab-race-summary">Steering, grip, cornering</span><span class="mode-enter">Enter Race <span aria-hidden="true">→</span></span></span></button>
+      <button class="tab lab-showcase" id="lab-tab-kick" type="button" data-mode="kick" data-preview-state="poster" aria-pressed="false" aria-describedby="lab-kick-summary"><span class="lab-preview" aria-hidden="true"><img src="media/home-previews/kick-poster.png" alt=""><video muted loop playsinline preload="metadata" poster="media/home-previews/kick-poster.png"><source src="media/home-previews/kick.mp4" type="video/mp4"></video><span class="preview-badge">Real gameplay</span></span><span class="lab-card-copy"><span class="mode-icon" aria-hidden="true">●</span><span class="n">Kick</span><span class="d" id="lab-kick-summary">Vectors, gravity, projectiles</span><span class="mode-enter">Enter Kick <span aria-hidden="true">→</span></span></span></button>
     </nav>
   </section>
 
-  <div class="hudbar" id="progressHud" aria-label="Your progress">
-    <div class="medal" id="medal"><small>LVL</small><span id="lvlNum">1</span></div>
-    <div class="rank"><div class="rt"><b id="lvlName">Rookie</b><span id="xpTxt">0 / 400 XP</span></div><div class="xpbar"><i id="xpBar"></i></div><small id="nextUnlock"></small></div>
-    <div class="stat sess"><span>This session</span><b id="sessXP">0</b></div>
-    <div class="stat combo"><span>Combo</span><b id="comboX">×1</b><div class="pips" id="pips"><i></i><i></i><i></i><i></i><i></i></div></div>
-    <div class="stat badges"><span>Badges</span><b id="sBadges">0</b></div>
-    <div class="hudtools"><button class="boardbtn" id="boardBtn" type="button">🏆 Boards</button><button class="mute" id="mute" type="button" aria-pressed="false">Sound on</button></div>
-  </div>
+  <section class="hudbar home-progress" id="progressHud" aria-labelledby="homeScorecardTitle" aria-describedby="homeScorecardScope">
+    <header class="home-scorecard-header"><div><span>Your combined performance</span><h2 id="homeScorecardTitle">Your all-lab scorecard</h2></div><p id="homeScorecardScope">Fight, Race, and Kick progress · saved on this device</p></header>
+    <div class="home-scorecard-body">
+      <button class="home-profile" id="homeProfileButton" type="button" aria-haspopup="dialog"><span class="profile-avatar" id="homeProfileAvatar" aria-hidden="true">R</span><span><small>Playing as</small><b id="homeProfileName">Lab Rookie</b><em id="homeProfileMeta">Level 1 · 0 XP</em></span><i>Profile &amp; stats</i></button>
+      <div class="medal" id="medal"><small>LVL</small><span id="lvlNum">1</span></div>
+      <div class="rank"><div class="rt"><b id="lvlName">Rookie</b><span id="xpTxt">0 / 400 XP</span></div><div class="xpbar"><i id="xpBar"></i></div><small id="nextUnlock"></small></div>
+      <div class="scorecard-records" aria-label="Player records"><div class="stat sess"><span>This session</span><b id="sessXP">0</b></div><div class="stat combo"><span>Combo</span><b id="comboX">×1</b><div class="pips" id="pips"><i></i><i></i><i></i><i></i><i></i></div></div><div class="stat badges"><span>Badges</span><b id="sBadges">0</b></div></div>
+      <div class="hudtools"><button class="boardbtn" id="boardBtn" type="button">Local boards</button><button class="mute" id="mute" type="button" aria-pressed="false">Sound on</button></div>
+    </div>
+  </section>
 
   <div class="profile-dialog" id="profileDialog" hidden role="dialog" aria-modal="true" aria-labelledby="profileTitle"><section class="profile-panel">
     <header class="profile-head"><div><span>Player lab</span><h2 id="profileTitle">Profile &amp; stats</h2><p id="profileIntro">Your progress stays on this device.</p></div><button type="button" id="profileClose" aria-label="Close profiles">Close ✕</button></header>
@@ -47,8 +49,8 @@
     <p class="profile-local-note">Profiles stay in this browser on this device. Removing profiles is intentionally deferred until a safe recovery flow exists.</p>
   </section></div>
 
-  <div class="fboard" id="fboard" hidden role="dialog" aria-modal="true" aria-label="Player leaderboards"><div class="fb">
-    <div class="fb-h"><div><span>Player rankings</span><h2>BOARDS</h2></div><button class="fb-x" id="fbClose" type="button">Close ✕</button></div>
+  <div class="fboard" id="fboard" hidden role="dialog" aria-modal="true" aria-label="Device and family player boards"><div class="fb">
+    <div class="fb-h"><div><span>Device-local rankings</span><h2>PLAYER BOARDS</h2></div><button class="fb-x" id="fbClose" type="button">Close ✕</button></div>
     <div class="fb-source" role="group" aria-label="Leaderboard source"><button type="button" data-source="local" aria-pressed="true">Local device</button><button type="button" data-source="shared" aria-pressed="false">Family board / shared</button></div>
     <p class="fb-source-note" id="fbSourceNote">Ranks players saved in this browser. Nothing is uploaded.</p>
     <div class="fb-me"><span>Your nickname</span><input id="fbNick" maxlength="16" placeholder="Make up a nickname" autocomplete="off"><button type="button" id="fbPost">Post my bests</button><div class="fb-msg" id="fbMsg"></div></div>
