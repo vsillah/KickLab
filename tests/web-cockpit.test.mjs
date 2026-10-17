@@ -11,6 +11,8 @@ const replay=readFileSync(join(root,'src','game','60-pause-replay.js'),'utf8');
 const ui=readFileSync(join(root,'src','game','41-ui.js'),'utf8');
 const progress=readFileSync(join(root,'src','game','01-progress.js'),'utf8');
 const games=readFileSync(join(root,'src','game','42-match.js'),'utf8');
+const kickSide=readFileSync(join(root,'src','game','30-kick-sideview.js'),'utf8');
+const kick3d=readFileSync(join(root,'src','game','32-soccer-3d-modes.js'),'utf8');
 const live=readFileSync(join(root,'src','game','51-live-match.js'),'utf8');
 const challenges=readFileSync(join(root,'src','game','02-challenges-coaches.js'),'utf8');
 const kit=readFileSync(join(root,'src','game','52-leaderboard.js'),'utf8');
@@ -97,7 +99,7 @@ test('renders readable labels with the existing control symbols',()=>{
 });
 
 test('keeps Match, Live Match, and bounded Freestyle selection in one attached rail',()=>{
-  assert.match(live,/const CONTINUOUS=\{experience:'freestyle',running:false,on:false,picks:\[\],i:0,status:''/);
+  assert.match(live,/const CONTINUOUS=\{experience:'freestyle',running:false,on:false,pickerOpen:false,picks:\[\],i:0,status:''/);
   assert.match(live,/games\(\)\{return GAMES\.filter\(g=>!g\.sequence\);\}/);
   assert.match(live,/id="experienceMatch"[\s\S]*?id="experienceLive"[\s\S]*?id="experienceFreestyle"/);
   assert.match(live,/if\(experience==='match'\)MATCH\.begin\(\);else LIVEM\.begin\(\);/);
@@ -106,10 +108,14 @@ test('keeps Match, Live Match, and bounded Freestyle selection in one attached r
   assert.match(live,/const LIVEM=\{on:false,T:240,left:240,you:0,them:0,saves:0,passes:0/);
   assert.match(live,/clock\(\)\{const s=Math\.ceil\(this\.left\)/);
   assert.match(live,/Live Match started · four minutes of nonstop possession, attack, goalkeeping, clock, and score\./);
-  assert.match(live,/Choose one for a single activity\. Choose more than one for Continuous Play\./);
+  assert.doesNotMatch(live,/Choose one for a single activity\. Choose more than one for Continuous Play\./);
   assert.match(live,/if\(this\.picks\.length>=3\).*Three-activity limit reached/);
-  assert.match(live,/primaryLabel\(\)\{return!this\.picks\.length\?'Choose activity':this\.picks\.length===1\?'Play activity':'Start continuous';\}/);
-  assert.match(live,/id="freestyleStart"\$\{selected\.length&&!CONTINUOUS\.running\?'':' disabled'\}/);
+  assert.match(live,/primaryLabel\(\)\{return this\.picks\.length===1\?'Play activity':'Start continuous';\}/);
+  assert.doesNotMatch(live,/Choose activity|id="freestyleStart"[^>]*disabled/);
+  assert.match(live,/aria-expanded="\$\{freestyle&&CONTINUOUS\.pickerOpen\}" aria-controls="freestylePicker"/);
+  assert.match(live,/freestyle&&CONTINUOUS\.pickerOpen\?'<div class="freestyle-picker" id="freestylePicker"/);
+  assert.match(live,/this\.pickerOpen=false;renderGameBar\(\);requestAnimationFrame\(\(\)=>\$\('#experienceFreestyle'\)\?\.focus\(\)\)/);
+  assert.match(live,/class="freestyle-chip"/);
   assert.match(live,/setAttribute\('role','checkbox'\)/);
   assert.match(live,/setAttribute\('aria-checked'/);
   assert.match(live,/class="game-order"/);
@@ -125,7 +131,9 @@ test('keeps Match, Live Match, and bounded Freestyle selection in one attached r
   assert.match(progress,/CONTINUOUS\.nextLabel\(\)/);
   assert.match(games,/k:'match'[\s\S]*?sequence:true/);
   assert.match(games,/k:'live'[\s\S]*?sequence:true/);
-  assert.match(css,/\.gamebar-track\{[^}]*overflow-x:auto/);
+  assert.match(css,/\.gamebar-grid\{display:grid;grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
+  assert.match(css,/@media \(max-width:700px\)[^\n]*\.gamebar-grid\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+  assert.doesNotMatch(css,/\.gamebar-track\{[^}]*overflow-x:auto/);
   assert.match(css,/\.continuous-start,\.continuous-cancel\{[^}]*min-height:44px/);
   assert.match(css,/\.experience-tabs\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
   assert.match(css,/\.game-order\{position:absolute/);
@@ -145,10 +153,14 @@ test('uses one on-game hierarchical settings experience',()=>{
   assert.match(cockpit,/if\(SETTINGS\.level==='kit'\).*'choices'/);
   assert.match(cockpit,/else if\(SETTINGS\.level==='choices'\).*'categories'/);
   assert.match(cockpit,/if\(e\.key==='Escape'\).*closeSettings\(\)/);
+  assert.match(cockpit,/document\.addEventListener\('pointerdown',e=>\{if\(settingsDrawer\.hidden\|\|settingsDrawer\.contains\(e\.target\)\|\|settingsToggle\.contains\(e\.target\)\|\|\$\('#quickSettings'\)\.contains\(e\.target\)\)return/);
+  assert.match(cockpit,/closeSettings\(\{restore:false\}\);if\(!focusTarget\)requestAnimationFrame\(\(\)=>settingsToggle\.focus\(\)\)/);
+  assert.match(html,/id="settingsClose" aria-label="Close settings"><span aria-hidden="true">✕<\/span><span class="settings-close-label">Close<\/span>/);
   assert.match(kit,/function openKit\(trigger=.*showKitSettings\(trigger\)/);
   assert.match(kit,/function closeKit\(\).*setSettingsLevel\('choices'/);
   assert.match(css,/\.settings-drawer\{position:absolute/);
   assert.match(css,/\.settings-drawer-body\{[^}]*overflow-y:auto;overscroll-behavior:contain/);
+  assert.match(css,/\.settings-drawer-head\{position:relative;z-index:2/);
   assert.match(css,/\.settings-drawer \.setup-choice\{min-height:48px/);
   assert.match(css,/\.quick-setting\{min-height:48px/);
 });
@@ -159,6 +171,19 @@ test('lets D-pad selection own the adjacent exact quick variable',()=>{
   assert.match(cockpit,/D-pad selected variable/);
   assert.match(cockpit,/data-step="-1"[^>]+aria-label="Less/);
   assert.match(cockpit,/data-step="1"[^>]+aria-label="More/);
+});
+
+test('shows adjustment math temporarily while keeping environment context persistent',()=>{
+  assert.match(ui,/const STAGE_ADJUST=\{id:null,t:0,duration:reduce\?1800:2400,fade:reduce\?0:500\}/);
+  assert.match(ui,/function showStageAdjustment\(id\)/);
+  assert.match(ui,/function stageAdjustmentVisible\(\)/);
+  assert.match(ui,/if\(!stageAdjustmentVisible\(\)\|\|PAUSE\.on\|\|RP\.on\|\|CINE\.on\|\|resOpen\(\)\)return/);
+  assert.match(ui,/hideStageAdjustment\(\);M\.press\(a\.id,true\)/);
+  assert.match(ui,/const set=x=>\{[^}]*showStageAdjustment\(v\.id\)/);
+  assert.ok(games.includes('parts=[`${S.n} · g ${fmt(S.g,2)} m/s²`]'));
+  assert.doesNotMatch(kickSide,/air drag ON · ρ/);
+  assert.match(kickSide,/if\(stageAdjustmentVisible\(\)\)\{text\(c,'θ = '/);
+  assert.match(kick3d,/if\(stageAdjustmentVisible\(\)&&\(\(s==='beat'/);
 });
 
 test('swaps the D-pad footprint into guarded Manual Physics',()=>{

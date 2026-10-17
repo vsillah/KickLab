@@ -42,23 +42,22 @@ function setupChoice(id,label,sub,locked=false){return`${setupIcon(id)}<span cla
 function padEls(id){return document.querySelectorAll(`#pad [data-id="${id}"]`);}
 function setLabel(){M.actions().forEach(x=>{padEls(x.id).forEach(el=>{el.classList.toggle('sel',!!x.sel);el.classList.toggle('pulse',!!x.pulse);el.disabled=!!x.disabled;if(x.icon&&el._icon!==x.icon){const c=el.querySelector('.cap');if(c){c.innerHTML=ICONS[x.icon];el._icon=x.icon;}}const label=x.label||String(x.aria||x.id).replace(/\s*\(.*/, '');const vl=el.querySelector('.action-label');if(vl)vl.textContent=label;el.setAttribute('aria-label',x.aria||x.label||x.id);});});}
 function adjustVar(id,delta,allowManualPause=false){const e=varEls.find(v=>v.def.id===id);if(!e||(e.inp.disabled&&!(allowManualPause&&PAUSE.why==='manual-physics'&&!isLocked(M.key,id))))return false;const d=e.def,nv=clamp(Math.round((M.V[id]+delta)/d.step)*d.step,d.min,d.max);e.inp.value=nv;e.inp.dispatchEvent(new Event('input'));
-  DP.flash={id,t:performance.now()};const box=e.inp.closest('.var');if(box){box.classList.remove('dflash');void box.offsetWidth;box.classList.add('dflash');}return true;}
+  showStageAdjustment(id);const box=e.inp.closest('.var');if(box){box.classList.remove('dflash');void box.offsetWidth;box.classList.add('dflash');}return true;}
 const DP={sel:0,flash:null};
+const STAGE_ADJUST={id:null,t:0,duration:reduce?1800:2400,fade:reduce?0:500};
+function showStageAdjustment(id){DP.flash={id,t:performance.now()};STAGE_ADJUST.id=id;STAGE_ADJUST.t=performance.now();}
+function hideStageAdjustment(){STAGE_ADJUST.id=null;STAGE_ADJUST.t=0;}
+function stageAdjustmentVisible(){return!!(STAGE_ADJUST.id&&STAGE_ADJUST.t&&performance.now()-STAGE_ADJUST.t<STAGE_ADJUST.duration);}
 function dialVars(){return M.vars().filter(v=>!isLocked(M.key,v.id));}
 function dialStep(v){return Math.max(v.step,Math.round((v.max-v.min)/40/v.step)*v.step);}
 /* which d-pad style applies right now: 'bound' (arms fixed to dials, easy levels), 'select' (you pick the dial), or null */
 function dialMode(){if(M===Kick&&Kick.opt.shot!=='dribble'&&Kick.state==='aim')return assistLevel('kick')===2?'bound':'select';if(M===Kick&&Kick.opt.shot==='dribble'&&Drib.state==='ready'&&!MATCH.on)return'select';return null;}
 function dialSelectActions(){const vs=dialVars();if(!vs.length)return[];const n=vs.length,cur=vs[((DP.sel%n)+n)%n],st=dialStep(cur);
   return[{id:'dsel-',dir:'left',tag:'DIAL',aria:'previous dial'},{id:'dsel+',dir:'right',aria:'next dial'},{id:'dinc',dir:'up',tag:cur.sym,aria:`raise ${cur.name}`,step:[cur.id,st]},{id:'ddec',dir:'down',tag:cur.sym,aria:`lower ${cur.name}`,step:[cur.id,-st]}];}
-function dialSel(id){if(id!=='dsel-'&&id!=='dsel+')return false;DP.sel+=id==='dsel+'?1:-1;const vs=dialVars(),cur=vs[((DP.sel%vs.length)+vs.length)%vs.length];if(cur){DP.flash={id:cur.id,t:performance.now()};const e=varEls.find(v=>v.def.id===cur.id),box=e&&e.inp.closest('.var');if(box){box.classList.remove('dflash');void box.offsetWidth;box.classList.add('dflash');}}SND.click();renderActions();setLabel();if(typeof renderMathConsole==='function')renderMathConsole();return true;}
-function drawDialHud(c){const md=dialMode();if(!md)return;const vs=dialVars();if(!vs.length)return;const acts=M.actions(),fresh=DP.flash&&performance.now()-DP.flash.t<700;
-  const rows=md==='bound'?acts.filter(a=>a.step).reduce((L,a)=>{const v=vs.find(x=>x.id===a.step[0]);if(v&&!L.some(r=>r.v===v))L.push({v,keys:acts.filter(b=>b.step&&b.step[0]===v.id).map(b=>({up:'▲',down:'▼',left:'◀',right:'▶'})[b.dir]).join('')});return L;},[]):null;
-  const x=14,h=md==='bound'?26+rows.length*19:62,y=360-h,w=278;c.save();c.fillStyle='rgba(6,11,24,0.86)';rr(c,x,y,w,h,9);c.fill();c.strokeStyle=C.line;c.stroke();
-  text(c,md==='bound'?'D-PAD CHANGES THESE DIALS':'D-PAD: ◀ ▶ PICK A DIAL · ▲ ▼ CHANGE IT',x+10,y+15,'700 9.5px '+MONO,C.muted);
-  if(md==='bound')rows.forEach((r,i)=>{const yy=y+33+i*19,hot=fresh&&DP.flash.id===r.v.id;text(c,r.keys,x+10,yy,'700 12px '+MONO,hot?'#fff':C.muted);text(c,`${r.v.sym}`,x+44,yy,'700 13px '+MONO,r.v.col);text(c,`${r.v.name} = ${fmt(M.V[r.v.id],r.v.d)}${r.v.unit?(r.v.unit==='°'?'°':' '+r.v.unit):''}`,x+70,yy,'600 11px '+MONO,hot?'#fff':C.ink);});
-  else{const n=vs.length,ci=((DP.sel%n)+n)%n,cur=vs[ci];let xx=x+10;vs.forEach((v,i)=>{const on=i===ci;c.font='700 11px '+MONO;const tw=c.measureText(v.sym).width+12;c.fillStyle=on?v.col:'rgba(255,255,255,0.06)';rr(c,xx,y+22,tw,17,5);c.fill();text(c,v.sym,xx+6,y+34,'700 11px '+MONO,on?'#08101f':C.muted);xx+=tw+5;});
-    const hot=fresh&&DP.flash.id===cur.id;text(c,`${cur.name} = ${fmt(M.V[cur.id],cur.d)}${cur.unit?(cur.unit==='°'?'°':' '+cur.unit):''}`,x+10,y+55,'700 12px '+MONO,hot?'#fff':cur.col);}
-  c.restore();}
+function dialSel(id){if(id!=='dsel-'&&id!=='dsel+')return false;DP.sel+=id==='dsel+'?1:-1;const vs=dialVars(),cur=vs[((DP.sel%vs.length)+vs.length)%vs.length];if(cur){showStageAdjustment(cur.id);const e=varEls.find(v=>v.def.id===cur.id),box=e&&e.inp.closest('.var');if(box){box.classList.remove('dflash');void box.offsetWidth;box.classList.add('dflash');}}SND.click();renderActions();setLabel();if(typeof renderMathConsole==='function')renderMathConsole();return true;}
+function drawDialHud(c){if(!stageAdjustmentVisible()||PAUSE.on||RP.on||CINE.on||resOpen())return;if(M===Kick&&Kick.opt.shot==='dribble'&&typeof Drib!=='undefined'&&((Drib.state==='beat'&&Drib.att.x>=DR.SHOOT-4)||Drib.state==='set')&&!Drib.ball.shot)return;const def=M.vars().find(v=>v.id===STAGE_ADJUST.id);if(!def)return;const age=performance.now()-STAGE_ADJUST.t,fadeAt=STAGE_ADJUST.duration-STAGE_ADJUST.fade,alpha=STAGE_ADJUST.fade&&age>fadeAt?clamp(1-(age-fadeAt)/STAGE_ADJUST.fade,0,1):1;
+  const value=`${def.name} = ${fmt(M.V[def.id],def.d)}${def.unit?(def.unit==='°'?'°':' '+def.unit):''}`,q=M.eqs(),live=(M.LIVE?M.LIVE():[]).map(i=>q.lines[i]).filter(Boolean),raw=live.find(line=>line.includes(def.sym)||line.includes(def.id))||live[0]||q.lines[0]||'',formula=(typeof plainMath==='function'?plainMath(raw):String(raw).replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim()),short=formula.length>92?formula.slice(0,89)+'…':formula;
+  c.save();c.globalAlpha=alpha;c.font='700 14px '+MONO;const w=Math.min(W-28,Math.max(286,Math.min(540,Math.max(c.measureText(value).width,c.measureText(short).width)+28))),h=54,x=14,y=M===Fight?H-h-92:H-h-18;c.fillStyle='rgba(3,8,20,0.95)';rr(c,x,y,w,h,10);c.fill();c.strokeStyle=def.col||C.xray;c.lineWidth=2;c.stroke();text(c,value,x+14,y+21,'700 14px '+MONO,'#fff');text(c,short,x+14,y+42,'600 10px '+MONO,C.ink);c.restore();}
 function modeSettingsGroup(){const k=M.key,n=CH[k].length;return{id:'__play',label:'Mode',kind:'mode',choices:k==='fight'?[['ch','Bout vs Rex',best.ch.fight<n?REX[best.ch.fight].name:'champion rematch'],['free','Free lab','no opponent']]:[['ch','Challenge',best.ch[k]<n?`${best.ch[k]+1} of ${n}`:'complete'],['free','Free play','no limits']]};}
 function settingsGroups(){const cs=COSMETICS[M.key],lv=lvlOf(best.xp),groups=[modeSettingsGroup(),...M.groups().map(g=>({...g,kind:'option'}))];
   if(M===Kick)groups.splice(Math.min(4,groups.length),0,{id:'kit',label:'Kit',kind:'kit',choices:[]});
@@ -85,7 +84,7 @@ function renderVars(){const box=$('#vars');box.innerHTML='';varEls.length=0;M.va
   const show=x=>fmt(x,v.d)+(v.unit?(v.unit==='°'?'':' ')+v.unit:'');
   el.innerHTML=`<label class="vh" for="${id}"><span class="sym">${v.sym}</span><span class="nm">${v.name}</span><output>${show(M.V[v.id])}</output></label><div class="track"><input type="range" id="${id}" min="${v.min}" max="${v.max}" step="${v.step}" value="${M.V[v.id]}"><i class="band" hidden></i></div><p class="vnote" hidden></p>`+(v.pre?`<div class="pre">${v.pre.map(([x,l])=>`<button type="button" data-v="${x}">${l} ${fmt(x,v.d)}</button>`).join('')}</div>`:'');
   const inp=el.querySelector('input'),out=el.querySelector('output');
-  const set=x=>{M.V[v.id]=clamp(+x,v.min,v.max);inp.value=M.V[v.id];out.textContent=show(M.V[v.id]);if(M.onVar)M.onVar(v.id);};
+  const set=x=>{M.V[v.id]=clamp(+x,v.min,v.max);inp.value=M.V[v.id];out.textContent=show(M.V[v.id]);showStageAdjustment(v.id);if(M.onVar)M.onVar(v.id);};
   inp.addEventListener('input',()=>set(inp.value));el.querySelectorAll('.pre button').forEach(b=>b.addEventListener('click',()=>{if(!inp.disabled)set(b.dataset.v);}));
   varEls.push({def:v,inp,el,band:el.querySelector('.band'),note:el.querySelector('.vnote')});box.appendChild(el);});lastAssist='';}
 /* coach zones: suggested ranges on each slider, fading out on higher tiers */
@@ -117,8 +116,8 @@ function renderActions(){$('#padL').innerHTML='';$('#padR').innerHTML='';const a
     if(PAUSE.on){if($('#dials').hidden)resumeGame();return;}
     if(dialSel(a.id)){b.classList.remove('on');return;}
     if(resOpen()){if(a.primary)ackResults();else{b.classList.remove('on');$('#rNext').animate([{transform:'scale(1)'},{transform:'scale(1.12)'},{transform:'scale(1)'}],{duration:260});}return;}
-    M.press(a.id,true);});
+    hideStageAdjustment();M.press(a.id,true);});
   const up=()=>{clearTimeout(rep);if(b.classList.contains('on')){b.classList.remove('on');if(!a.step&&a.id!=='dials')M.press(a.id,false);}};
   ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>b.addEventListener(ev,up));
-  b.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.repeat){e.preventDefault();e.stopPropagation();if(resOpen()){ackResults();return;}M.press(a.id,true);}});b.addEventListener('keyup',e=>{if(e.key==='Enter')M.press(a.id,false);});
+  b.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.repeat){e.preventDefault();e.stopPropagation();if(resOpen()){ackResults();return;}hideStageAdjustment();M.press(a.id,true);}});b.addEventListener('keyup',e=>{if(e.key==='Enter')M.press(a.id,false);});
   (a.dir?dp:arc).appendChild(b);});}
