@@ -1,14 +1,16 @@
-name: prepare-pages-artifact
+name: pages-release
 
 on:
-  workflow_dispatch:
+  push:
+    branches: [main]
   pull_request:
-    paths:
-      - .github/workflows/pages-prepare.yml
-      - docs/web-release.md
-      - package.json
-      - scripts/**
-      - src/**
+  workflow_dispatch:
+    inputs:
+      deploy_production:
+        description: Deploy the main branch artifact to https://vsillah.github.io/KickLab/
+        required: true
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -25,3 +27,18 @@ jobs:
       - uses: actions/upload-pages-artifact@v5
         with:
           path: dist/pages
+
+  deploy:
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy_production && github.ref == 'refs/heads/main')
+    needs: prepare
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

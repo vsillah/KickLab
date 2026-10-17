@@ -21,18 +21,33 @@ assert.match(workflow, /^permissions:\n  contents: read$/m, 'workflow permission
 assert.match(workflow, /actions\/upload-pages-artifact@v5/, 'workflow must package a Pages artifact');
 assert.match(workflow, /path: dist\/pages/, 'workflow must upload the prepared Pages root');
 assert.match(workflow, /run: npm run check/, 'workflow must preserve the full repository check contract');
+assert.match(workflow, /^  push:\n    branches: \[main\]$/m, 'automatic deployment must be limited to pushes on main');
+assert.match(workflow, /^  pull_request:$/m, 'every pull request must validate and package without deploying');
+assert.match(workflow, /deploy_production:\n        description: Deploy the main branch artifact to https:\/\/vsillah\.github\.io\/KickLab\/\n        required: true\n        type: boolean\n        default: false/, 'manual deployment must require an explicit production confirmation');
+
+const deployJob = workflow.slice(workflow.indexOf('\n  deploy:\n'));
+assert.ok(deployJob.startsWith('\n  deploy:\n'), 'workflow must define a dedicated deploy job');
+assert.match(deployJob, /^    if: github\.event_name == 'push' \|\| \(github\.event_name == 'workflow_dispatch' && inputs\.deploy_production && github\.ref == 'refs\/heads\/main'\)$/m, 'deploy job must exclude pull requests and non-main manual dispatches');
+assert.match(deployJob, /^    needs: prepare$/m, 'deploy job must depend on the artifact preparation job');
+assert.match(deployJob, /^    permissions:\n      pages: write\n      id-token: write$/m, 'deploy job must have only the required write permissions');
+assert.match(deployJob, /^    environment:\n      name: github-pages\n      url: \$\{\{ steps\.deployment\.outputs\.page_url \}\}$/m, 'deploy job must report the official Pages environment URL');
+assert.match(deployJob, /actions\/deploy-pages@v5/, 'deploy job must use the official Pages deployment action');
+assert.doesNotMatch(deployJob, /pull_request/, 'pull requests must never satisfy the deploy job condition');
+
+const actionUses = [...workflow.matchAll(/^\s+(?:- )?uses: ([^\s]+)$/gm)].map((match) => match[1]);
+assert.deepEqual(actionUses, [
+  'actions/checkout@v4',
+  'actions/setup-node@v4',
+  'actions/upload-pages-artifact@v5',
+  'actions/deploy-pages@v5',
+], 'workflow must not invoke provider or unreviewed actions');
 
 for (const forbidden of [
-  /pages:\s*write/i,
-  /id-token:\s*write/i,
-  /^\s+[a-z-]+:\s*write\s*$/im,
-  /actions\/deploy-pages/i,
-  /^\s*environment:/m,
   /^\s*deployment:/m,
-  /^\s*push:/m,
   /\$\{\{\s*secrets\./i,
+  /\b(?:cname|custom[-_ ]?domain|dns)\b/i,
 ]) {
-  assert.doesNotMatch(workflow, forbidden, `prepare-only workflow contains forbidden deployment capability: ${forbidden}`);
+  assert.doesNotMatch(workflow, forbidden, `Pages workflow contains forbidden external integration behavior: ${forbidden}`);
 }
 
-console.log('prepare-only Pages contract checks passed');
+console.log('bounded Pages release contract checks passed');
