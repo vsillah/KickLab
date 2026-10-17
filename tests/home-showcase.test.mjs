@@ -23,6 +23,19 @@ test('makes the three real-game labs the primary home actions',()=>{
   assert.match(css,/@media \(max-width:520px\)[^}]*[\s\S]*\.mode-home \.tabs\{grid-template-columns:minmax\(0,1fr\)\}/);
 });
 
+test('uses the selected kinetic K mark without the obsolete shield and barbell geometry',()=>{
+  assert.match(html,/viewBox="0 0 132 96" role="img" aria-labelledby="kicklabMarkTitle kicklabMarkDesc"/);
+  assert.match(html,/<title id="kicklabMarkTitle">Kinetic K KickLab mark<\/title>/);
+  assert.match(html,/<desc id="kicklabMarkDesc">A fast-moving K with cyan and mint speed streaks, an orange ball trajectory, and a measured angle arc\.<\/desc>/);
+  for(const part of ['mark-streak-cyan','mark-streak-mint','mark-streak-blue','mark-k-shaft','mark-k-upper','mark-k-lower','mark-trajectory','mark-ball','mark-angle-arc','mark-measure-arc'])assert.match(html,new RegExp(`class="[^"]*${part}`));
+  assert.doesNotMatch(html,/M8 11h48v31L32 57 8 42z/);
+  assert.doesNotMatch(html,/M21 20v23M43 20v23M21 32h22/);
+  assert.doesNotMatch(css,/\.kicklab-mark svg path\+path/);
+  assert.match(css,/\.kicklab-mark\{width:clamp\(82px,9\.6vw,130px\);aspect-ratio:1\.375/);
+  assert.match(css,/@media \(max-width:400px\)\{\.kicklab-wordmark\{font-size:clamp\(32px,10vw,40px\)!important\}\.kicklab-mark\{width:clamp\(70px,22vw,88px\)\}\}/);
+  for(const guard of ['markNameCollision','markTitle','markDescription','markViewBox','markParts'])assert.ok(read('scripts/qa-home-showcase.mjs').includes(guard),guard);
+});
+
 test('keeps the hero geometry bounded through desktop, mid-width, tablet, and mobile layouts',()=>{
   assert.match(css,/\.home-hero \.brand\{display:grid;grid-template-columns:minmax\(0,1\.05fr\) minmax\(300px,\.95fr\)/);
   assert.match(css,/\.kicklab-wordmark\{min-width:0;[\s\S]*?font-size:clamp\(40px,5\.6vw,76px\)!important/);

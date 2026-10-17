@@ -60,7 +60,8 @@ async function homeAudit(page, label) {
     const inside = (child, parent) => child.left >= parent.left - 1 && child.right <= parent.right + 1 && child.top >= parent.top - 1 && child.bottom <= parent.bottom + 1;
     const cards = [...document.querySelectorAll('.lab-showcase')];
     const cardBoxes = cards.map(card => card.getBoundingClientRect().toJSON());
-    const hero = box('.home-hero'), brand = box('.home-hero .brand'), wordmark = box('.kicklab-wordmark'), heroCopy = box('.hero-copy');
+    const hero = box('.home-hero'), brand = box('.home-hero .brand'), wordmark = box('.kicklab-wordmark'), mark = box('.kicklab-mark'), name = box('.kicklab-name'), heroCopy = box('.hero-copy');
+    const markParts = ['mark-streak-cyan','mark-streak-mint','mark-streak-blue','mark-k-shaft','mark-k-upper','mark-k-lower','mark-trajectory','mark-ball','mark-angle-arc','mark-measure-arc'].map(className => ({ className, present: !!document.querySelector(`.${className}`) }));
     const heroText = [...document.querySelectorAll('.kicklab-name,.hero-copy>strong,.hero-copy>p,.hero-badges')].map(node => ({
       selector: node.className || node.tagName,
       box: node.getBoundingClientRect().toJSON(),
@@ -82,9 +83,16 @@ async function homeAudit(page, label) {
       heroGeometry: {
         brand,
         wordmark,
+        mark,
+        name,
         heroCopy,
         collision: overlap(wordmark, heroCopy),
-        contained: inside(wordmark, hero) && inside(heroCopy, hero) && inside(wordmark, brand) && inside(heroCopy, brand),
+        markNameCollision: overlap(mark, name),
+        contained: inside(wordmark, hero) && inside(heroCopy, hero) && inside(wordmark, brand) && inside(heroCopy, brand) && inside(mark, wordmark) && inside(name, wordmark),
+        markTitle: document.querySelector('#kicklabMarkTitle')?.textContent.trim(),
+        markDescription: document.querySelector('#kicklabMarkDesc')?.textContent.trim(),
+        markViewBox: document.querySelector('.kicklab-mark svg')?.getAttribute('viewBox'),
+        markParts,
         text: heroText,
       },
       cards: cardBoxes,
@@ -123,7 +131,7 @@ async function homeAudit(page, label) {
       })),
     };
   });
-  if (audit.overflow > 1 || audit.wordmark !== 'KICKLAB' || audit.actions.length !== 3 || audit.heroGeometry.collision || !audit.heroGeometry.contained || audit.heroGeometry.text.some(item => item.clipped) || audit.cardsOverlap || audit.cardText.some(item => item.clipped) || audit.progressOverlap || !audit.labsBeforeProgress || !audit.scorecard.headerBeforeBody || !audit.scorecard.contained || !audit.scorecard.subordinate || audit.scorecard.text.some(item => item.clipped) || audit.scorecard.actions.some(item => item.box.width < 44 || item.box.height < 44)) {
+  if (audit.overflow > 1 || audit.wordmark !== 'KICKLAB' || audit.actions.length !== 3 || audit.heroGeometry.collision || audit.heroGeometry.markNameCollision || !audit.heroGeometry.contained || audit.heroGeometry.text.some(item => item.clipped) || audit.heroGeometry.markTitle !== 'Kinetic K KickLab mark' || !audit.heroGeometry.markDescription?.includes('speed streaks') || audit.heroGeometry.markViewBox !== '0 0 132 96' || audit.heroGeometry.markParts.some(item => !item.present) || audit.cardsOverlap || audit.cardText.some(item => item.clipped) || audit.progressOverlap || !audit.labsBeforeProgress || !audit.scorecard.headerBeforeBody || !audit.scorecard.contained || !audit.scorecard.subordinate || audit.scorecard.text.some(item => item.clipped) || audit.scorecard.actions.some(item => item.box.width < 44 || item.box.height < 44)) {
     throw new Error(`${label}: layout contract failed (${JSON.stringify(audit)})`);
   }
   if (audit.scorecard.title !== 'Your all-lab scorecard' || audit.scorecard.scope !== 'Fight, Race, and Kick progress · saved on this device' || audit.scorecard.labelledBy !== 'homeScorecardTitle' || audit.scorecard.describedBy !== 'homeScorecardScope' || !audit.scorecard.records.some(item => item.startsWith('This session')) || !audit.scorecard.records.some(item => item.startsWith('Badges'))) {
