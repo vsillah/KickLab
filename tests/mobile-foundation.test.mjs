@@ -30,6 +30,7 @@ test('locks artifact identity and provisional stable app id',()=>{
   assert.equal(packageJson.dependencies['@capacitor/core'],'8.5.3');
   assert.equal(packageJson.dependencies['@capacitor/app'],'8.1.2');
   assert.equal(packageJson.dependencies['@capacitor/haptics'],'8.0.2');
+  assert.equal(packageJson.dependencies['@capacitor/ios'],'8.5.3');
   assert.equal(packageJson.devDependencies['@capacitor/cli'],'8.4.3');
   assert.equal(packageJson.engines.node,'>=22');
   assert.equal(contract.platforms.ios.minimumVersion,15);
@@ -71,11 +72,12 @@ test('exposes only narrow lifecycle and haptic hooks and cancels held inputs',()
   assert.deepEqual(contract.hooks.haptics,['target','perfect','overcharge']);
 });
 
-test('retains explicit no-authority boundaries and no generated native projects',()=>{
+test('retains protected authority boundaries and scopes native generation to iOS',()=>{
   for(const [capability,allowed] of Object.entries(contract.authority))assert.equal(allowed,false,`${capability} must remain unauthorized`);
   assert.deepEqual(manifest.authority,contract.authority);
   assert.doesNotMatch(packageJson.scripts['mobile:prepare'],/cap\s+(?:add|sync|open|run|build)/);
-  assert.equal(existsSync(join(root,'ios')),false);
+  assert.equal(existsSync(join(root,'ios/App/App.xcodeproj/project.pbxproj')),true);
+  assert.equal(existsSync(join(root,'ios/App/App/PrivacyInfo.xcprivacy')),true);
   assert.equal(existsSync(join(root,'android')),false);
 });
 
