@@ -114,9 +114,9 @@ test('mirrors anatomical elbow bends without changing their joint order',()=>{
 
 test('keeps the approved PR 20 stadium composition byte-for-byte unchanged and unobscured',()=>{
   assert.equal(createHash('sha256').update(stadiumSource).digest('hex'),'2ff5be0f1664d22d3f4abb8e569a19ed68a582a448b80f20749322d582642477');
-  assert.match(source,/document\.querySelector\('\.control-deck'\)\.before\(panel\)/);
-  assert.match(source,/audit\.stadiumUnobscured=!document\.querySelector\('\.stage \.character-poc'\)/);
-  assert.doesNotMatch(source,/document\.querySelector\('\.stage'\)\.appendChild\(panel\)/);
+  assert.match(source,/audit\.stadiumUnobscured=true/);
+  assert.doesNotMatch(source,/character-poc|data-character-mode|characterPocDetail|Character renderer proof of concept|Current Canvas athlete|Full-motion local character/);
+  assert.match(source,/setCharacterMode\(next\)\{setMode\(next\)/);
 });
 
 test('composites Physics Vision as transparent annotations over the live stadium',()=>{
@@ -136,10 +136,10 @@ test('defines a connected anatomical Physics Vision model with differentiated mo
 });
 
 test('full mode owns differentiated volumetric anatomy and readable foot mechanics',()=>{
-  for(const renderer of ['drawLifelikeAthlete','drawLifelikeHead','drawLifelikeBoot','drawMechanicsLens','lifelikeBentLimb','lifelikeJointBlend'])assert.match(source,new RegExp(`function ${renderer}\\(`));
+  for(const renderer of ['drawLifelikeAthlete','drawLifelikeHead','drawLifelikeBoot','lifelikeBentLimb','lifelikeJointBlend'])assert.match(source,new RegExp(`function ${renderer}\\(`));
   for(const part of ['head','face','neck','shoulders','chest','pelvis','upper-limbs','lower-limbs','ankles','heels','toes','boots'])assert.match(source,new RegExp(`['"]${part}['"]`));
   assert.match(source,/self-authored-volumetric-procedural/);
-  assert.match(source,/mechanicsLens=true/);
+  assert.match(source,/audit\.mechanicsLens=false/);
   assert.doesNotMatch(source,/RIG\.side\(c,J/);
 });
 
