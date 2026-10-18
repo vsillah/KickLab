@@ -69,7 +69,8 @@ test('keeps the player-facing switch hidden and fails closed to existing fallbac
   assert.match(runtime,/best\.gfx===['"]2d['"]\)return['"]canvas['"]/);
   assert.match(runtime,/get\('quality'\)===['"]low['"]\)return['"]reduced-quality['"]/);
   assert.match(runtime,/assets\/3d\/kicklab-direction-c-athlete\/v2\/kicklab-makehuman-athlete\.glb/);
-  assert.match(runtime,/root\.rotation\.y=0/);
+  assert.match(runtime,/attackRight:Object\.freeze\(\{primaryYaw:Math\.PI\/2,opponentYaw:-Math\.PI\/2/);
+  assert.match(runtime,/meetCrossLeft:Object\.freeze\(\{primaryYaw:-Math\.PI\/2,opponentYaw:-Math\.PI\/2/);
   assert.doesNotMatch(runtime,/https?:\/\//);
   assert.doesNotMatch(html,/Direction C|athlete dimensions|renderer chooser/i);
   assert.match(runtime,/if\(!PAUSE\.on&&!\(RP\.on&&!RP\.playing\)\)this\.clock\+=rdt\*\(RP\.on\?RP\.speed:1\)/);
@@ -97,7 +98,7 @@ test('defines a specific athlete, camera, and contact profile for all eight Kick
   }
   assert.doesNotMatch(runtime,/generic|gray disabled/i);
   assert.match(runtime,/profiles:Object\.keys\(this\.profiles\)/);
-  assert.match(runtime,/root\.scale\.setScalar\(t\.space===['"]world['"]\?\.92:1\)/);
+  assert.match(runtime,/root\.scale\.setScalar\(target\.space===['"]world['"]\?\.92:1\)/);
 });
 
 test('ships deterministic self-authored activity clips on the existing v2 skeleton',async()=>{
@@ -127,10 +128,11 @@ test('keeps the dimensional procedural stadium in the multi-activity regression 
   assert.match(renderer,/stands>=4&&layers\.sideReturns>=2/);
   assert.match(renderer,/roofPanels>=4&&layers\.roofTrusses>=20/);
   assert.match(renderer,/animatedBoards>=4/);
-  assert.match(renderer,/crowdLayers>=4/);
+  assert.match(renderer,/crowdLayers>=12/);
+  assert.match(renderer,/spectatorDepthLayers>=12/);
   assert.match(renderer,/shadowMap&&layers\.shadowCaster&&layers\.hemisphereLight&&layers\.directionalLight/);
   assert.match(qa,/activities\.length\*viewports\.length/);
-  assert.match(qa,/key===['"]free['"]\|\|key===['"]run['"]/);
+  assert.match(qa,/key===['"]free['"]\|\|key===['"]header['"]\|\|key===['"]run['"]/);
   assert.match(qa,/animated boards did not advance/);
   assert.match(qa,/phaseTimeChanged/);
   assert.match(qa,/motionSignature/);
