@@ -19,6 +19,7 @@ const executablePath=[process.env.KICKLAB_CHROMIUM_PATH,chromium.executablePath(
 if(!executablePath)throw new Error('No local Chrome or Chromium executable found.');
 const browser=await chromium.launch({headless:true,executablePath,args:['--enable-precise-memory-info']});
 const errors=[],requests=[],checks=[];
+let stadiumPixelBaseline=null,anatomyPaletteBaseline=null;
 const listen=page=>{page.on('pageerror',error=>errors.push(String(error)));page.on('console',message=>{if(message.type()==='error')errors.push(message.text());});page.on('request',request=>{const url=new URL(request.url());if(!['127.0.0.1','localhost'].includes(url.hostname)&&url.protocol!=='data:')requests.push(url.href);});};
 const urlFor=mode=>`${baseUrl}?kicklabPoc=1${mode?`&kicklabCharacter=${mode}`:''}&rev=${encodeURIComponent(revision)}`;
 const legacy={progress:JSON.stringify({xp:321,goals:7,badges:{qa:true}}),nickname:'Local QA'};
@@ -32,7 +33,6 @@ async function setup(page,mode=''){
 }
 async function stageSnap(page,name){await page.locator('.toast').evaluateAll(nodes=>nodes.forEach(node=>node.remove()));await page.locator('.stage').screenshot({path:join(outputDir,`${name}.png`)});}
 async function detailSnap(page,name){await page.locator('#characterPocDetail').screenshot({path:join(outputDir,`${name}.png`)});}
-async function stateSnap(page,name){await stageSnap(page,name);await detailSnap(page,`${name}-character`);}
 async function showDetail(page,ms=650){await page.locator('#characterPocDetail').evaluate(node=>node.scrollIntoView({block:'center'}));await page.waitForTimeout(ms);await page.locator('.stage').evaluate(node=>node.scrollIntoView({block:'center'}));await page.waitForTimeout(120);}
 async function dismissToasts(page){for(const close of await page.locator('.toast-close').all())if(await close.isVisible().catch(()=>false))await close.click({force:true}).catch(()=>{});await page.waitForTimeout(100);}
 async function closeQaOverlays(page){
@@ -43,6 +43,39 @@ async function closeQaOverlays(page){
 }
 async function heap(page){return page.evaluate(()=>performance.memory?performance.memory.usedJSHeapSize:null);}
 async function audit(page){return page.evaluate(()=>structuredClone(window.__KICKLAB_CHARACTER_POC__));}
+async function stadiumPixels(page,image){return page.evaluate(async encoded=>{
+  const source=new Image();source.src=`data:image/png;base64,${encoded}`;await source.decode();
+  const canvas=document.createElement('canvas');canvas.width=source.naturalWidth;canvas.height=source.naturalHeight;const context=canvas.getContext('2d',{willReadFrequently:true});context.drawImage(source,0,0);
+  const regions={roof:[.06,.04,.88,.18],stands:[.08,.18,.84,.42],boards:[.08,.60,.84,.12]};
+  const measure=([nx,ny,nw,nh])=>{
+    const x=Math.floor(canvas.width*nx),y=Math.floor(canvas.height*ny),w=Math.max(2,Math.floor(canvas.width*nw)),h=Math.max(2,Math.floor(canvas.height*nh)),data=context.getImageData(x,y,w,h).data;
+    let count=0,sum=0,sumSq=0,edge=0,edgeCount=0,color=0,nonDark=0,previous=null;
+    for(let py=0;py<h;py+=2){previous=null;for(let px=0;px<w;px+=2){const i=(py*w+px)*4,r=data[i],g=data[i+1],b=data[i+2],l=.2126*r+.7152*g+.0722*b;count++;sum+=l;sumSq+=l*l;color+=Math.max(r,g,b)-Math.min(r,g,b);if(l>=24)nonDark++;if(previous!==null){edge+=Math.abs(l-previous);edgeCount++;}previous=l;}}
+    const mean=sum/count;return{mean:Number(mean.toFixed(3)),stddev:Number(Math.sqrt(Math.max(0,sumSq/count-mean*mean)).toFixed(3)),edge:Number((edge/edgeCount).toFixed(3)),color:Number((color/count).toFixed(3)),nonDark:Number((nonDark/count).toFixed(4))};
+  };
+  const palette={cyan:0,plant:0,strike:0,violet:0},targets={cyan:[127,220,255],plant:[95,227,161],strike:[255,176,74],violet:[185,162,255]},pixels=context.getImageData(0,0,canvas.width,canvas.height).data;
+  const stride=canvas.width<600?4:16;for(let i=0;i<pixels.length;i+=stride){for(const [name,[r,g,b]] of Object.entries(targets))if(Math.hypot(pixels[i]-r,pixels[i+1]-g,pixels[i+2]-b)<62)palette[name]++;}palette.sampledPixels=Math.ceil(pixels.length/stride);
+  return{canvas:{width:canvas.width,height:canvas.height},regions:Object.fromEntries(Object.entries(regions).map(([name,rect])=>[name,measure(rect)])),palette,scene:structuredClone(window.__KICKLAB_SIDE_STADIUM__),goal:structuredClone(window.__KICKLAB_SIDE_GOAL__),physics:structuredClone(window.__KICKLAB_PHYSICS_VISION__),character:structuredClone(window.__KICKLAB_CHARACTER_POC__)};
+},image.toString('base64'));}
+async function assertRenderedStadium(page,label,{baseline=false,path}={}){
+  await page.locator('.toast').evaluateAll(nodes=>nodes.forEach(node=>node.remove()));const image=await page.locator('.stage').screenshot(path?{path}:undefined),rendered=await stadiumPixels(page,image);
+  if(rendered.character?.effective!=='canvas'&&(!rendered.scene||!rendered.goal))throw new Error(`${label} lost the rendered stadium or goal: ${JSON.stringify(rendered)}`);
+  if(rendered.physics?.backdropAlpha!==0||rendered.physics?.composition!=='transparent-annotation-layer')throw new Error(`${label} Physics Vision is not transparently composited: ${JSON.stringify(rendered.physics)}`);
+  if(baseline||!stadiumPixelBaseline){stadiumPixelBaseline=structuredClone(rendered.regions);anatomyPaletteBaseline=structuredClone(rendered.palette);}
+  const ratios={};
+  for(const [name,metrics] of Object.entries(rendered.regions)){
+    const reference=stadiumPixelBaseline[name];ratios[name]={mean:Number((metrics.mean/reference.mean).toFixed(3)),stddev:Number((metrics.stddev/reference.stddev).toFixed(3)),edge:Number((metrics.edge/reference.edge).toFixed(3)),color:Number((metrics.color/reference.color).toFixed(3)),nonDark:Number((metrics.nonDark/reference.nonDark).toFixed(3))};
+    const canvasFallback=rendered.character?.effective==='canvas',flattened=canvasFallback?metrics.stddev<8||metrics.edge<1.5||metrics.color<5||metrics.nonDark<.025:ratios[name].mean<.68||ratios[name].stddev<.45||ratios[name].edge<.45||ratios[name].color<.45||ratios[name].nonDark<.65;
+    if(flattened)throw new Error(`${label} flattened rendered ${name} texture: ${JSON.stringify({renderer:canvasFallback?'original-canvas-webgl':'approved-side-stadium',metrics,reference,ratios:ratios[name],physics:rendered.physics})}`);
+  }
+  if(rendered.physics?.active&&rendered.physics.env>.35&&rendered.character?.effective!=='canvas'){
+    const definition=rendered.character?.xrayDefinition,deltas=Object.fromEntries(['cyan','plant','strike','violet'].map(name=>[name,rendered.palette[name]-(anatomyPaletteBaseline?.[name]||0)])),rates=Object.fromEntries(['cyan','plant','strike','violet'].map(name=>[name,Number((rendered.palette[name]/rendered.palette.sampledPixels).toFixed(5))]));
+    if(definition?.model!=='connected-anatomical-movement'||definition.transparentBackdrop!==true||definition.parts?.length<13||rates.cyan<.002||rates.plant<.00015||rates.strike<.00015||rates.violet<.001)throw new Error(`${label} anatomical X-ray did not render distinctly: ${JSON.stringify({definition,palette:rendered.palette,rates,baseline:anatomyPaletteBaseline,deltas})}`);
+    checks.push({label:`rendered-anatomy-${label}`,definition,palette:rendered.palette,rates,deltas});
+  }
+  checks.push({label:`rendered-stadium-${label}`,renderer:rendered.character?.effective==='canvas'?'original-canvas-webgl':'approved-side-stadium',pixels:rendered.regions,ratios,physics:rendered.physics});return rendered;
+}
+async function stateSnap(page,name){await assertRenderedStadium(page,name,{path:join(outputDir,`${name}.png`)});await detailSnap(page,`${name}-character`);}
 async function stadiumAudit(page){
   const required=['atmosphere','roof-truss','upper-stands','lower-stands','crowd','side-returns','animated-boards','perspective-pitch'],goalRequired=['frontFrame','rearFrame','sideNet','backNet','perspectiveGrid'];
   const first=await page.evaluate(()=>({scene:structuredClone(window.__KICKLAB_SIDE_STADIUM__),goal:structuredClone(window.__KICKLAB_SIDE_GOAL__),stagePanel:!!document.querySelector('.stage .character-poc'),outsidePanel:!!document.querySelector('.game-frame>.character-poc')}));
@@ -54,6 +87,7 @@ async function stadiumAudit(page){
   checks.push({label:'approved-stadium-composition',layers:first.scene.layers,goal:first.goal,boardTravel,stagePanel:first.stagePanel,outsidePanel:first.outsidePanel});
 }
 async function clickMode(page,mode){await closeQaOverlays(page);await page.locator(`[data-character-mode="${mode}"]`).click();await closeQaOverlays(page);await page.waitForTimeout(250);const current=await audit(page);if(current.requested!==mode)throw new Error(`renderer did not select ${mode}`);return current;}
+async function seekReplayPhysics(page,speed){const frame=await page.evaluate(value=>window.__KICKLAB_CHARACTER_POC_QA__.seekReplayPhysics(value),speed);if(!frame)throw new Error('no replay Physics Vision frame available');await page.waitForTimeout(100);return frame;}
 async function kick(page,{approachName,plantName,contactName,followName,recoveryName,celebrationName}={}){const next=page.getByRole('button',{name:'Next shot (Space)'});if(await next.isVisible().catch(()=>false)){await next.click();await page.waitForTimeout(180);}const counts=await page.evaluate(()=>({plant:window.__KICKLAB_CHARACTER_POC__?.events?.filter(event=>event.name==='plant-foot-lock').length||0,contact:window.__KICKLAB_CHARACTER_POC__?.events?.filter(event=>event.name==='physics-contact').length||0}));await page.getByRole('button',{name:'Kick (Space)'}).click();if(approachName){await page.waitForFunction(()=>window.__KICKLAB_CHARACTER_POC__?.clip==='approach',{timeout:5000});await stateSnap(page,approachName);}await page.waitForFunction(count=>(window.__KICKLAB_CHARACTER_POC__?.events?.filter(event=>event.name==='plant-foot-lock').length||0)>count,counts.plant,{timeout:10000});if(plantName)await stateSnap(page,plantName);await page.waitForFunction(count=>(window.__KICKLAB_CHARACTER_POC__?.events?.filter(event=>event.name==='physics-contact').length||0)>count,counts.contact,{timeout:10000});if(contactName)await stateSnap(page,contactName);await page.waitForFunction(()=>window.__KICKLAB_CHARACTER_POC__?.clip==='follow-through',{timeout:5000});if(followName)await stateSnap(page,followName);if(recoveryName){await page.waitForFunction(()=>window.__KICKLAB_CHARACTER_POC__?.clip==='recover',{timeout:7000});await stateSnap(page,recoveryName);}if(celebrationName){await page.waitForFunction(()=>window.__KICKLAB_CHARACTER_POC__?.clip==='celebration',{timeout:10000});await stateSnap(page,celebrationName);}}
 async function finishRound(page,{celebrationName,requireCelebration=false}={}){
   const celebration=page.locator('#goalCelebrationControls');
@@ -74,22 +108,30 @@ current=await clickMode(page,'full');await stadiumAudit(page);const deterministi
 if(current.maxContactErrorM>.03||current.maxPlantDriftM>.02||current.maxGroundPenetrationM>.01||!current.contactFrameAligned||current.contactFrameDelta>1)throw new Error(`geometry/contact threshold failed: ${JSON.stringify(current)}`);
 checks.push({label:'full-contact',audit:current});await finishRound(page);
 
-await page.locator('#rReplay').click();await page.waitForTimeout(500);await stateSnap(page,'09-desktop-normal-replay');checks.push({label:'normal-replay',speed:1});await page.locator('.rb-sp button[data-sp="0.25"]').click();await page.waitForTimeout(800);const replaySpeed=await page.locator('.rb-sp button[data-sp="0.25"]').getAttribute('aria-pressed');if(replaySpeed!=='true')throw new Error('quarter-speed replay did not activate');await stateSnap(page,'10-desktop-quarter-speed-replay');await showDetail(page,900);checks.push({label:'quarter-speed-replay',speed:.25});await page.locator('#rbExit').click();
+await page.locator('#rReplay').click();await page.locator('.rb-sp button[data-sp="1"]').click();await seekReplayPhysics(page);await stateSnap(page,'09-desktop-normal-replay');checks.push({label:'normal-replay',speed:1});await page.locator('.rb-sp button[data-sp="0.25"]').click();await seekReplayPhysics(page);const replaySpeed=await page.locator('.rb-sp button[data-sp="0.25"]').getAttribute('aria-pressed');if(replaySpeed!=='true')throw new Error('quarter-speed replay did not activate');await stateSnap(page,'10-desktop-quarter-speed-replay');await showDetail(page,900);checks.push({label:'quarter-speed-replay',speed:.25});await page.locator('#rbExit').click();
 if(await page.locator('#results').isVisible())await page.locator('#rNext').click();await page.waitForTimeout(350);
 
 await chooseBoot(page,'light','11-desktop-kit-light');await chooseBoot(page,'heavy','12-desktop-kit-heavy');await chooseBoot(page,'std');
 
 current=await clickMode(page,'reduced');await stateSnap(page,'13-desktop-reduced-ready');await kick(page,{plantName:'14-desktop-reduced-plant',contactName:'15-desktop-reduced-contact'});checks.push({label:'reduced-contact',audit:await audit(page)});await finishRound(page);if(await page.locator('#rNext').isVisible())await page.locator('#rNext').click();await page.waitForTimeout(250);
 
-await clickMode(page,'canvas');await stageSnap(page,'16-desktop-canvas-fallback');checks.push({label:'explicit-canvas-fallback',audit:await audit(page)});
-for(const [label,width,height] of [['tablet',768,1024],['mobile',390,844]]){await page.setViewportSize({width,height});await page.waitForTimeout(350);await clickMode(page,'full');await closeQaOverlays(page);await page.waitForTimeout(2100);await dismissToasts(page);await closeQaOverlays(page);await stateSnap(page,`17-${label}-full`);await page.screenshot({path:join(outputDir,`17-${label}-full-page.png`),fullPage:true});await showDetail(page,700);const responsive=await page.evaluate(()=>({width:innerWidth,height:innerHeight,scrollWidth:document.documentElement.scrollWidth,bodyScrollWidth:document.body.scrollWidth,stagePanel:!!document.querySelector('.stage .character-poc'),outsidePanel:!!document.querySelector('.game-frame>.character-poc')}));if(responsive.scrollWidth>width||responsive.bodyScrollWidth>width||responsive.stagePanel||!responsive.outsidePanel)throw new Error(`${label} responsive/stadium obstruction failed: ${JSON.stringify(responsive)}`);checks.push({label:`${label}-responsive`,responsive});}
+await clickMode(page,'canvas');await assertRenderedStadium(page,'16-desktop-canvas-fallback',{path:join(outputDir,'16-desktop-canvas-fallback.png')});checks.push({label:'explicit-canvas-fallback',audit:await audit(page)});
+for(const [label,width,height] of [['tablet',768,1024],['mobile',390,844]]){
+  await page.setViewportSize({width,height});await page.waitForTimeout(350);await clickMode(page,'full');await closeQaOverlays(page);await page.waitForTimeout(2100);await dismissToasts(page);await closeQaOverlays(page);await stateSnap(page,`17-${label}-full`);await page.screenshot({path:join(outputDir,`17-${label}-full-page.png`),fullPage:true});await showDetail(page,700);
+  const responsive=await page.evaluate(()=>({width:innerWidth,height:innerHeight,scrollWidth:document.documentElement.scrollWidth,bodyScrollWidth:document.body.scrollWidth,stagePanel:!!document.querySelector('.stage .character-poc'),outsidePanel:!!document.querySelector('.game-frame>.character-poc')}));if(responsive.scrollWidth>width||responsive.bodyScrollWidth>width||responsive.stagePanel||!responsive.outsidePanel)throw new Error(`${label} responsive/stadium obstruction failed: ${JSON.stringify(responsive)}`);checks.push({label:`${label}-responsive`,responsive});
+  if(label==='mobile'){
+    await page.evaluate(()=>window.__KICKLAB_CHARACTER_POC_QA__.configureScoringShot());await closeQaOverlays(page);await page.locator('.stage').evaluate(node=>node.scrollIntoView({block:'center'}));
+    await kick(page,{plantName:'18-mobile-full-plant',contactName:'19-mobile-full-contact',followName:'20-mobile-full-follow-through'});await finishRound(page);
+    await page.locator('#rReplay').click();await seekReplayPhysics(page,1);await stateSnap(page,'21-mobile-normal-replay');await page.locator('.rb-sp button[data-sp="0.25"]').click();await seekReplayPhysics(page);await stateSnap(page,'22-mobile-quarter-speed-replay');await page.locator('#rbExit').click();
+  }
+}
 
 const afterLegacy=await page.evaluate(()=>({progress:localStorage.getItem('impactlab.v1'),nickname:localStorage.getItem('impactlab.nick')})),beforeProgress=JSON.parse(baselineLegacy.progress),afterProgress=JSON.parse(afterLegacy.progress),beforeXp=Number(beforeProgress.xp||0),beforeGoals=Number(beforeProgress.goals||0),afterXp=Number(afterProgress.xp||0),afterGoals=Number(afterProgress.goals||0);if(!afterLegacy.progress||!afterLegacy.nickname||afterLegacy.nickname!==baselineLegacy.nickname||afterXp<beforeXp||afterGoals<beforeGoals)throw new Error(`legacy storage continuity failed: ${JSON.stringify({baselineLegacy,afterLegacy})}`);
 const memoryDelta=canvasHeap!=null&&fullHeap!=null?Math.max(0,fullHeap-canvasHeap):null;if(memoryDelta!=null&&memoryDelta>120*1024*1024)throw new Error(`runtime memory delta ${memoryDelta} exceeds 120 MiB`);
 checks.push({label:'storage-and-memory',legacyPreserved:true,baseline:{nickname:baselineLegacy.nickname,xp:beforeXp,goals:beforeGoals},after:{nickname:afterLegacy.nickname,xp:afterXp,goals:afterGoals},canvasHeap,fullHeap,memoryDelta});
 const recorded=page.video();await page.close();await context.close();const rawVideo=await recorded.path();
 
-const reducedContext=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:1,reducedMotion:'reduce'});const reducedPage=await reducedContext.newPage();await setup(reducedPage,'full');const reducedAudit=await audit(reducedPage);if(reducedAudit.effective!=='reduced'||!reducedAudit.systemReduced)throw new Error(`system reduced-motion fallback failed: ${JSON.stringify(reducedAudit)}`);await stateSnap(reducedPage,'18-mobile-system-reduced');checks.push({label:'system-reduced-motion',audit:reducedAudit});await reducedContext.close();
+const reducedContext=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:1,reducedMotion:'reduce'});const reducedPage=await reducedContext.newPage();await setup(reducedPage,'full');const reducedAudit=await audit(reducedPage);if(reducedAudit.effective!=='reduced'||!reducedAudit.systemReduced)throw new Error(`system reduced-motion fallback failed: ${JSON.stringify(reducedAudit)}`);await stateSnap(reducedPage,'23-mobile-system-reduced');checks.push({label:'system-reduced-motion',audit:reducedAudit});await reducedContext.close();
 await browser.close();
 
 if(requests.length)throw new Error(`external requests observed: ${requests.join(', ')}`);

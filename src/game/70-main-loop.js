@@ -12,8 +12,8 @@ function frame(now){const rdt=Math.min(0.05,(now-last)/1000);last=now;
   else if(M===Kick&&Kick.opt.shot!=='dribble')Kick.fallbackSideScene(ctx,k);
   ctx.save();ctx.translate(W/2+shx,H/2+shy);ctx.scale(k.z,k.z);ctx.translate(-k.x,-k.y);
   M.draw(ctx);if(V3.on)V3.render(Kick.opt.shot==='dribble'?Drib:Kick,k,shx,shy,rdt);if(!RP.on)stepParts(PARTS,rdt*E.ts);drawParts(ctx,PARTS);
-  const physicsVision=E.env>0&&physicsVisionVisible();window.__KICKLAB_PHYSICS_VISION__={active:physicsVision,mode:M.key,activity:M===Kick?(Kick.opt.shot==='dribble'?Kick.opt.pso:Kick.opt.shot):M.key,env:E.env,annotations:E.slow?E.slow.annotations!==false:true,persistentMath:typeof stageAdjustmentVisible==='function'&&stageAdjustmentVisible()};
-  if(physicsVision){ctx.save();ctx.globalAlpha=0.72*E.env;ctx.fillStyle='#030814';ctx.fillRect(-2000,-2000,5000,5000);ctx.restore();ctx.save();ctx.globalAlpha=E.env;M.drawXray(ctx);ctx.restore();}
+  const physicsVision=E.env>0&&physicsVisionVisible();window.__KICKLAB_PHYSICS_VISION__={active:physicsVision,mode:M.key,activity:M===Kick?(Kick.opt.shot==='dribble'?Kick.opt.pso:Kick.opt.shot):M.key,env:E.env,annotations:E.slow?E.slow.annotations!==false:true,persistentMath:typeof stageAdjustmentVisible==='function'&&stageAdjustmentVisible(),composition:'transparent-annotation-layer',backdropAlpha:0};
+  if(physicsVision){ctx.save();ctx.globalAlpha=E.env;M.drawXray(ctx);ctx.restore();}
   ctx.restore();
   if(physicsVision)xrayFrame(ctx,E.env);
   M.hud(ctx);drawDialHud(ctx);drawWorld(ctx);drawMatch(ctx);drawLive(ctx);drawPause(ctx);drawReplayBadge(ctx);if(CINE.on)CINE.draw(ctx);COACH.tick(rdt);tickHUD(rdt);

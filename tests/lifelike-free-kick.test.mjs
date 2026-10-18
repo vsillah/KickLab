@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 const root=join(dirname(fileURLToPath(import.meta.url)),'..');
 const source=readFileSync(join(root,'src/game/33-lifelike-free-kick.js'),'utf8');
 const stadiumSource=readFileSync(join(root,'src/game/30-kick-sideview.js'));
+const mainLoopSource=readFileSync(join(root,'src/game/70-main-loop.js'),'utf8');
 const sandbox={URLSearchParams};sandbox.globalThis=sandbox;
 vm.runInNewContext(source,sandbox,{filename:'33-lifelike-free-kick.js'});
 const core=sandbox.KickLabCharacterCore;
@@ -116,6 +117,22 @@ test('keeps the approved PR 20 stadium composition byte-for-byte unchanged and u
   assert.match(source,/document\.querySelector\('\.control-deck'\)\.before\(panel\)/);
   assert.match(source,/audit\.stadiumUnobscured=!document\.querySelector\('\.stage \.character-poc'\)/);
   assert.doesNotMatch(source,/document\.querySelector\('\.stage'\)\.appendChild\(panel\)/);
+});
+
+test('composites Physics Vision as transparent annotations over the live stadium',()=>{
+  assert.match(mainLoopSource,/composition:'transparent-annotation-layer',backdropAlpha:0/);
+  assert.match(mainLoopSource,/if\(physicsVision\)\{ctx\.save\(\);ctx\.globalAlpha=E\.env;M\.drawXray\(ctx\);ctx\.restore\(\);\}/);
+  assert.doesNotMatch(mainLoopSource,/physicsVision\)[^\n]*fillRect/);
+  assert.doesNotMatch(mainLoopSource,/globalAlpha=0\.72\*E\.env/);
+});
+
+test('defines a connected anatomical Physics Vision model with differentiated movement chains',()=>{
+  for(const renderer of ['xrayBone','xrayJoint','xrayTag','drawAnatomicalPhysicsOverlay'])assert.match(source,new RegExp(`function ${renderer}\\(`));
+  for(const part of ['skull','neck','spine','rib-cage','shoulders','elbows','wrists','hands','pelvis','hips','knees','ankles','feet'])assert.match(source,new RegExp(`['"]${part}['"]`));
+  assert.match(source,/jointMarkers:\['socket','hinge','wrist','ankle'\]/);
+  assert.match(source,/plantLeg:'rear-green',strikingLeg:'front-orange'/);
+  assert.match(source,/transparentBackdrop:true/);
+  assert.match(source,/Kick\.drawXray=function\(c\).*drawAnatomicalPhysicsOverlay/);
 });
 
 test('full mode owns differentiated volumetric anatomy and readable foot mechanics',()=>{
