@@ -81,6 +81,15 @@ test('keeps the player-facing switch hidden and fails closed to existing fallbac
   assert.match(generator,/KICKLAB_MAKEHUMAN_CORE_ASSETS/);
 });
 
+test('keeps the controlled-player marker bound to the primary role across activities',()=>{
+  const source=read('src/game/50a-direction-c-athlete.js');
+  assert.match(source,/role:p\.role/);
+  assert.match(source,/const role=p\.role===['"]dynamic['"]&&D\.state===['"]keep['"]\?['"]keeper['"]:p\.role===['"]dynamic['"]\?['"]attacker['"]:p\.role/);
+  assert.match(source,/targetRoot:'KickLabDirectionCAthlete'/);
+  assert.match(source,/opponentMarked:false/);
+  assert.match(source,/this\.updateControlledIndicator\(true\)/);
+});
+
 test('defines a specific athlete, camera, and contact profile for all eight Kick activities',()=>{
   const runtime=read('src/game/50a-direction-c-athlete.js');
   const expected=[

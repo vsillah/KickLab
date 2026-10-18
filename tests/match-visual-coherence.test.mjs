@@ -28,6 +28,21 @@ test('renders the Header Duel competitor through the shared skinned Direction C 
   assert.equal((athlete.match(/assets\/3d\/kicklab-direction-c-athlete\/v2\/kicklab-makehuman-athlete\.glb/g)||[]).length,1);
 });
 
+test('marks only the controlled Direction C athlete with the local responsive KickLab badge',()=>{
+  assert.match(athlete,/shape:'kicklab-orbit-badge'/);
+  assert.match(athlete,/sprite\.name='KickLabControlledPlayerIndicator'/);
+  assert.match(athlete,/owner:'primary',targetRoot:'KickLabDirectionCAthlete',opponentMarked:false/);
+  assert.match(athlete,/const head=indicator\.head\.getWorldPosition/);
+  assert.match(athlete,/innerWidth<=480\?34:innerWidth<=900\?40:46/);
+  assert.match(athlete,/motion:reduce\?'static':'gentle-bob'/);
+  assert.match(athlete,/forced===['"]xray['"]\|\|forced===['"]replay['"]\|\|forced===['"]cinematic['"]\|\|forced===['"]canvas['"]/);
+  assert.match(athlete,/if\(CINE\.on\)return['"]hidden-cinematic['"]/);
+  assert.match(athlete,/if\(RP\.on\)return['"]hidden-replay['"]/);
+  assert.match(athlete,/physicsVisionVisible\(\)\)return['"]hidden-xray['"]/);
+  assert.match(athlete,/visibility:`hidden-\$\{initialFallback\}`/);
+  assert.doesNotMatch(athlete,/fetch\(|XMLHttpRequest|sendBeacon|https?:\/\//);
+});
+
 test('keeps the local stadium crowd procedural, layered, animated, and mobile bounded',()=>{
   assert.match(renderer,/crowdSigns=\[`GO \$\{fanName\}!`,'GO TEAM!','MATH MOVES!','KICKLAB!'\]/);
   assert.match(renderer,/this\.crowdDepth\.push\(\{mesh:tier,material:cm,layer,stand:grp,baseY:tier\.position\.y\}\)/);

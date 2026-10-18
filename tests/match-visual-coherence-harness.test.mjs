@@ -15,9 +15,15 @@ test('qualifies Header Duel ready, X-ray, and recovery at three responsive width
   assert.match(source,/after\.athlete\.phase!==['"]Recovery['"]/);
 });
 
-test('gates orientation, shared opponent, crowd LOD, pacing, fallbacks, and zero egress',()=>{
+test('gates orientation, controlled-player ownership, shared opponent, crowd LOD, pacing, fallbacks, and zero egress',()=>{
   assert.match(source,/primaryFaces!==['"]field-negative-x['"]/);
   assert.match(source,/opponentRenderer!==['"]shared-direction-c['"]/);
+  assert.match(source,/controlledIndicator\.owner!==['"]primary['"]/);
+  assert.match(source,/controlledIndicator\.opponentMarked/);
+  assert.match(source,/controlledIndicator\.sizePx!==expectedIndicatorSize/);
+  assert.match(source,/hidden-xray/);
+  assert.match(source,/\['replay','cinematic'\]/);
+  assert.match(source,/visibility!==`hidden-\$\{indicatorState\}`/);
   assert.match(source,/spectatorDepthLayers<12/);
   assert.match(source,/pacing\.p95Ms>budget/);
   assert.match(source,/ready-reduced-motion/);
