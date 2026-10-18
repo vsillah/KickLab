@@ -56,3 +56,11 @@ test('defines responsive profile layouts for tablet and narrow mobile', () => {
   assert.match(css, /@media\(max-width:800px\)[^]*\.profile-list\{grid-template-columns:repeat\(2/);
   assert.match(css, /@media\(max-width:520px\)[^]*\.profile-list\{grid-template-columns:minmax\(0,1fr\)/);
 });
+
+test('qualification setup is deterministic and cannot bypass normal first-run onboarding', () => {
+  assert.match(profiles, /params\.has\('kicklabPoc'\)&&params\.get\('kicklabQaProfile'\)==='complete'/);
+  assert.match(profiles, /profile\.needsSetup[\s\S]*profileManager\.updateActive\(\{nickname:legacyNickname/);
+  assert.match(profiles, /localStorage\.getItem\('impactlab\.v1'\)[\s\S]*profileManager\.saveActiveProgress\(legacyProgress\)/);
+  assert.match(profiles, /__KICKLAB_PROFILE_QUALIFICATION__\.legacyHydrated\)loadActiveProfile\(\)/);
+  assert.match(profiles, /if\(profile\.needsSetup\)openProfiles\(\$\('#homeProfileButton'\),\{setup:true\}\)/);
+});
