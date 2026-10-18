@@ -6,13 +6,13 @@
   "artifact": {
     "path": "src/assets/3d/kicklab-direction-c-athlete/v2/kicklab-makehuman-athlete.glb",
     "mediaType": "model/gltf-binary",
-    "bytes": 1328424,
-    "sha256": "a847d442e26006859829fd763f54d602d6349f47434a29af520e0575a4f01ffd"
+    "bytes": 1643096,
+    "sha256": "09b4f85b1c95e16dadd2b220a264aae3dcb012793db5df7267564bdfbf233cec"
   },
   "provenance": {
     "creator": "KickLab using MakeHuman Community MPFB",
     "sourceType": "official-core-derived",
-    "sourcePath": "scripts/generate-makehuman-athlete.py plus the local Blender source under src/assets/3d/kicklab-direction-c-athlete/v2; inputs are the individually recorded MPFB 2.0.18 bundled core and MakeHuman system-pack CC0 assets",
+    "sourcePath": "scripts/generate-makehuman-athlete.py and scripts/extend-multi-activity-athlete.py plus the local Blender source under src/assets/3d/kicklab-direction-c-athlete/v2; inputs are the individually recorded MPFB 2.0.18 bundled core and MakeHuman system-pack CC0 assets",
     "sourceCommit": "9c3d7da482d894bf467b77af91057fb64d8835f5",
     "acquiredOn": "2026-10-18",
     "externalInputs": true,
@@ -42,8 +42,8 @@
       {
         "code": "UNUSED_OBJECT",
         "severity": 2,
-        "count": 5,
-        "reason": "Core meshes retain source UV coordinates although the locally authored flat kit, hair, eye, and boot materials do not sample them"
+        "count": 7,
+        "reason": "Core meshes retain source UV coordinates across the locally face-partitioned kit, hair, eye, and boot primitives although their flat materials do not sample them"
       }
     ]
   },
