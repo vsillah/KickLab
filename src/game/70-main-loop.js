@@ -6,7 +6,7 @@ function frame(now){const rdt=Math.min(0.05,(now-last)/1000);last=now;
   if(!PAUSE.on&&!RP.on&&!CINE.on)M.update(window.__KICKLAB_NZINGA_CAPTURE_HOLD__?0:rdt*E.ts,window.__KICKLAB_NZINGA_CAPTURE_HOLD__?0:rdt);
   if(cv.width!==Math.round((cv.clientWidth||W)*dpr))resize();
   ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,cv.width,cv.height);ctx.setTransform(dpr*sc,0,0,dpr*sc,0,0);
-  E.cam=RP.on?RP.cam:camNow();if(!CINE.on)recFrame(rdt);const k=E.cam,sh=RP.on?0:E.shake,shx=sh?(Math.random()-0.5)*sh:0,shy=sh?(Math.random()-0.5)*sh:0;
+  E.cam=RP.on?RP.cam:camNow();if(NZINGA_ENABLED&&!RP.on&&!CINE.on&&M===Kick&&Kick.opt.shot==='free')E.cam={x:Kick.sx(Kick.D*.54),y:Kick.sy(.92),z:1.08};if(!CINE.on)recFrame(rdt);const k=E.cam,sh=RP.on?0:E.shake,shx=sh?(Math.random()-0.5)*sh:0,shy=sh?(Math.random()-0.5)*sh:0;
   V3.on=V3.want();if(V3.on)V3.begin();else V3.hide();if(CINE.on)CINE.step(rdt);CROWD.tick(rdt);
   if(M===Kick&&V3.on){window.__KICKLAB_SIDE_STADIUM__=null;window.__KICKLAB_SIDE_GOAL__=null;}
   else if(M===Kick&&Kick.opt.shot!=='dribble')Kick.fallbackSideScene(ctx,k);
