@@ -9,7 +9,7 @@ import { validateAssetSet } from '../scripts/lib/3d-assets.mjs';
 
 const root=join(dirname(fileURLToPath(import.meta.url)),'..');
 const read=path=>readFileSync(join(root,path),'utf8');
-const assetPath=join(root,'src/assets/3d/kicklab-direction-c-athlete/v1/kicklab-direction-c-athlete.glb');
+const assetPath=join(root,'src/assets/3d/kicklab-direction-c-athlete/v2/kicklab-makehuman-athlete.glb');
 const clips=['Celebrate','FollowThrough','Plant','Ready','Recovery','RunUp','Strike'];
 globalThis.ProgressEvent??=class ProgressEvent{};
 globalThis.self??=globalThis;
@@ -24,23 +24,25 @@ function pose(gltf,mixer,name,time){
   mixer.stopAllAction();const action=mixer.clipAction(THREE.AnimationClip.findByName(gltf.animations,name));action.play();action.paused=true;action.time=time;mixer.update(0);gltf.scene.updateMatrixWorld(true);
 }
 
-test('ships one fail-closed, self-authored production athlete under the payload budget',async()=>{
-  const {assets}=await validateAssetSet(),asset=assets.find(entry=>entry.manifest.assetId==='kicklab-direction-c-athlete');
+test('ships one fail-closed, CC0-derived production athlete under the payload budget',async()=>{
+  const {assets}=await validateAssetSet(),asset=assets.find(entry=>entry.manifest.assetId==='kicklab-direction-c-athlete'&&entry.manifest.version==='2');
   assert.ok(asset);
   assert.equal(asset.manifest.status,'approved-production');
-  assert.equal(asset.manifest.provenance.externalInputs,false);
+  assert.equal(asset.manifest.provenance.sourceType,'official-core-derived');
+  assert.equal(asset.manifest.provenance.externalInputs,true);
   assert.equal(asset.manifest.provenance.likeness,false);
   assert.equal(asset.manifest.provenance.cloudProcessing,false);
   assert.equal(asset.manifest.network.externalUrisAllowed,false);
-  assert.equal(asset.metrics.bytes,782240);
+  assert.equal(asset.manifest.license.basis,'cc0-official-core');
+  assert.equal(asset.metrics.bytes,1328424);
   assert.ok(asset.metrics.bytes<=2_500_000);
   assert.equal(asset.report.issues.numErrors,0);
   assert.equal(asset.report.issues.numWarnings,0);
   assert.equal(asset.report.info.hasTextures,true);
-  assert.equal(asset.report.info.resources.filter(resource=>resource.image).length,3);
-  assert.equal(asset.report.info.materialCount,6);
+  assert.equal(asset.report.info.resources.filter(resource=>resource.image).length,1);
+  assert.equal(asset.report.info.materialCount,4);
   assert.equal(asset.report.info.animationCount,7);
-  assert.equal(asset.report.info.totalTriangleCount,11092);
+  assert.equal(asset.report.info.totalTriangleCount,26502);
 });
 
 test('keeps the seven-clip shared skeleton and contact events within ten millimeters',async()=>{
@@ -48,7 +50,7 @@ test('keeps the seven-clip shared skeleton and contact events within ten millime
   assert.deepEqual(names,clips);
   let bones=0,geometryBytes=0;const arrays=new Set();gltf.scene.traverse(object=>{if(object.isBone)bones++;if(object.isMesh&&object.geometry){for(const attribute of Object.values(object.geometry.attributes)){if(!arrays.has(attribute.array)){arrays.add(attribute.array);geometryBytes+=attribute.array.byteLength;}}if(object.geometry.index&&!arrays.has(object.geometry.index.array)){arrays.add(object.geometry.index.array);geometryBytes+=object.geometry.index.array.byteLength;}}});
   const animationBytes=gltf.animations.reduce((sum,clip)=>sum+clip.tracks.reduce((trackSum,track)=>trackSum+track.times.byteLength+track.values.byteLength,0),0);
-  assert.equal(bones,23);
+  assert.equal(bones,53);
   assert.ok(geometryBytes+animationBytes<=24*1024*1024);
   const marker=gltf.scene.getObjectByName('StrikeContact_R'),target=gltf.scene.getObjectByName('BallContactTarget'),plant=gltf.scene.getObjectByName('PlantContact_L'),world=node=>node.getWorldPosition(new THREE.Vector3());
   pose(gltf,mixer,'Plant',.56);const plantAnchor=world(plant);
@@ -61,15 +63,16 @@ test('keeps the seven-clip shared skeleton and contact events within ten millime
 });
 
 test('keeps the player-facing switch hidden and fails closed to existing fallbacks',()=>{
-  const runtime=read('src/game/50a-direction-c-athlete.js'),html=read('src/index.html'),generator=read('scripts/generate-direction-c-athlete.py');
+  const runtime=read('src/game/50a-direction-c-athlete.js'),html=read('src/index.html'),generator=read('scripts/generate-makehuman-athlete.py');
   assert.match(runtime,/get\('renderer'\)===['"]direction-c['"]/);
   assert.match(runtime,/status:'flag-off'/);
   assert.match(runtime,/best\.gfx===['"]2d['"]\)return['"]canvas['"]/);
   assert.match(runtime,/get\('quality'\)===['"]low['"]\)return['"]reduced-quality['"]/);
-  assert.match(runtime,/assets\/3d\/kicklab-direction-c-athlete\/v1\/kicklab-direction-c-athlete\.glb/);
+  assert.match(runtime,/assets\/3d\/kicklab-direction-c-athlete\/v2\/kicklab-makehuman-athlete\.glb/);
+  assert.match(runtime,/root\.rotation\.y=0/);
   assert.doesNotMatch(runtime,/https?:\/\//);
   assert.doesNotMatch(html,/Direction C|athlete dimensions|renderer chooser/i);
   assert.match(runtime,/if\(!PAUSE\.on&&!\(RP\.on&&!RP\.playing\)\)this\.clock\+=rdt\*\(RP\.on\?RP\.speed:1\)/);
   assert.doesNotMatch(generator,/requests|urllib|https?:\/\//i);
-  assert.match(generator,/primitive_(?:cube|uv_sphere|cone)_add/);
+  assert.match(generator,/KICKLAB_MAKEHUMAN_CORE_ASSETS/);
 });

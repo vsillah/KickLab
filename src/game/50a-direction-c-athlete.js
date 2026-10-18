@@ -1,8 +1,8 @@
 /* ---------- Direction C: default-off local GLB athlete for the side-view free kick ---------- */
 const DIRECTION_C_PARAMS=new URLSearchParams(location.search);
 const DIRECTION_C_FLAG=DIRECTION_C_PARAMS.get('renderer')==='direction-c';
-const DIRECTION_C_ASSET='assets/3d/kicklab-direction-c-athlete/v1/kicklab-direction-c-athlete.glb';
-const DIRECTION_C_ASSET_BYTES=782240;
+const DIRECTION_C_ASSET='assets/3d/kicklab-direction-c-athlete/v2/kicklab-makehuman-athlete.glb';
+const DIRECTION_C_ASSET_BYTES=1328424;
 const DIRECTION_C_CLIPS=Object.freeze(['Ready','RunUp','Plant','Strike','FollowThrough','Celebrate','Recovery']);
 const DIRECTION_C_BUDGETS=Object.freeze({assetBytes:2500000,firstPlayBytes:8000000,contactDriftMm:10,frameDesktopP95Ms:20,frameMobileP95Ms:40,memoryProxyBytes:24*1024*1024,materials:6,overflowPx:0});
 const DIRECTION_C={enabled:DIRECTION_C_FLAG,status:'flag-off',root:null,mixer:null,actions:{},seen:false,clock:0,current:'',assetUrl:DIRECTION_C_ASSET,budgets:DIRECTION_C_BUDGETS,
@@ -15,7 +15,7 @@ const DIRECTION_C={enabled:DIRECTION_C_FLAG,status:'flag-off',root:null,mixer:nu
     new THREE.GLTFLoader().load(this.assetUrl,gltf=>{try{this.install(gltf,performance.now()-started);}catch(error){this.fail(error);}},undefined,error=>this.fail(error));},
   fail(error){this.status='failed';this.audit.status='load-failed';this.audit.error=String(error&&error.message||error).slice(0,120);this.publish();},
   install(gltf,loadMs){const T=THREE,clipNames=gltf.animations.map(clip=>clip.name),missing=DIRECTION_C_CLIPS.filter(name=>!clipNames.includes(name));if(missing.length)throw new Error(`Direction C clips missing: ${missing.join(', ')}`);
-    const palette={Skin:'#9a5638',SkinHighlight:'#c87954',KickLabNavy:'#175da0',KickLabCyan:'#5fe3c1',KickLabBoots:'#ff7434',HairEyesStuds:'#090d18'},root=gltf.scene;root.name='KickLabDirectionCAthlete';root.rotation.y=Math.PI/2;root.traverse(object=>{if(object.isMesh){object.castShadow=true;object.receiveShadow=true;if(object.material){const mats=Array.isArray(object.material)?object.material:[object.material];mats.forEach(mat=>{if(mat.map){mat.color.set(0xffffff);mat.emissive.set(0xffffff);mat.emissiveMap=mat.map;mat.emissiveIntensity=.24;}else if(palette[mat.name]){mat.color.set(palette[mat.name]).convertSRGBToLinear();mat.emissive.copy(mat.color);mat.emissiveIntensity=mat.name==='KickLabCyan'?.42:mat.name==='HairEyesStuds'?.06:.18;}mat.roughness=Math.max(.34,mat.roughness||.6);});}}});V3.S.add(root);this.root=root;
+    const palette={Skin:'#9a5638',SkinHighlight:'#c87954',KickLabNavy:'#175da0',KickLabCyan:'#5fe3c1',KickLabBoots:'#ff7434',HairEyesStuds:'#090d18'},root=gltf.scene;root.name='KickLabDirectionCAthlete';root.rotation.y=0;root.traverse(object=>{if(object.isMesh){object.castShadow=true;object.receiveShadow=true;if(object.material){const mats=Array.isArray(object.material)?object.material:[object.material];mats.forEach(mat=>{if(mat.map){mat.color.set(0xffffff);mat.emissive.set(0xffffff);mat.emissiveMap=mat.map;mat.emissiveIntensity=.24;}else if(palette[mat.name]){mat.color.set(palette[mat.name]).convertSRGBToLinear();mat.emissive.copy(mat.color);mat.emissiveIntensity=mat.name==='KickLabCyan'?.42:mat.name==='HairEyesStuds'?.06:.18;}mat.roughness=Math.max(.34,mat.roughness||.6);});}}});V3.S.add(root);this.root=root;
     /* Stadium light is aimed at the ball flight. These local, shadow-free fills keep the
        near-side athlete readable in ready/contact/follow-through without changing physics. */
     this.keyLight=new T.DirectionalLight(0xe9f5ff,2.1);this.keyLight.position.set(-4,7,8);this.keyLight.target=root;V3.S.add(this.keyLight);
