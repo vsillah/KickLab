@@ -98,7 +98,7 @@ const Kick={
     if(this.netT!=null)this.netT+=dt;if(this.cheerT>0)this.cheerT-=rdt;
     if(this.jumpT>=0)this.jumpT+=dt;
     if(this.state==='swing'){this.phi+=dt*(this.contact?1.5:13);
-      if(!this.slowed&&this.phi>-0.5){this.slowed=true;startSlow(NZINGA_ENABLED?{focus:{x:this.sx(this.D*.46),y:this.sy(.92)},zoom:1.08,dur:2.3,min:0.06}:{focus:{x:this.sx(0.05),y:this.sy(0.45)},zoom:2.4,dur:2.3,min:0.06});}
+      if(!this.slowed&&this.phi>-0.5){this.slowed=true;startSlow(NZINGA_ENABLED?{focus:{x:this.sx(this.D*.54),y:this.sy(.92)},zoom:1.08,dur:2.3,min:0.06}:{focus:{x:this.sx(0.05),y:this.sy(0.45)},zoom:2.4,dur:2.3,min:0.06});}
       if(!this.contact&&this.phi>=0.33){this.contact=true;this.contactT=0;sfx(this.v/32,1.4);burst(PARTS,this.sx(0),this.sy(0.02),16,{dir:-Math.PI/2-0.4,spread:1.4,sp:[60,200],g:600,life:0.8,size:2.2,kind:'drop',col:['#2d7a4f','#3f9a63','#8fd4a3']});}
       if(this.contact){this.contactT+=dt;if(this.contactT>=this.DT_KICK){this.res=this.freeCalc(this.v,this.V.th);this.launch(this.res.vx,this.res.vy);{const r=this.res;logMove('kick',{who:'you',kind:'kick',v:r.v,th:r.th,yw:r.yw,yg:r.yg,ok:r.clear&&r.under,title:`Kick ${fmt(r.v)} m/s at ${r.th}°`,res:`${fmt(r.F,0)} N`,math:`vx = ${fmt(r.vx,2)} · vy = ${fmt(r.vy,2)} · predicts ${fmt(r.yw,2)} m at wall, ${fmt(r.yg,2)} m at line`,tone:r.clear&&r.under?'good':'info'});}}}}
     else if(this.state==='incoming'){this.inT+=dt;const b=this.ball,t=this.inT,cr=this.cr,g=this.g();
