@@ -38,30 +38,107 @@ def reset_scene() -> None:
             blocks.remove(block)
 
 
-def material(name: str, color, metallic=0.0, roughness=0.7):
+MATERIALS = {}
+ATLAS_IMAGES = {}
+ATLAS_COLUMNS = 3
+ATLAS_ROWS = 2
+ATLAS_SIZE = 128
+
+
+def create_surface_atlases() -> None:
+    """Author one compact local color/normal/roughness atlas for all materials."""
+    ASSET_DIR.mkdir(parents=True, exist_ok=True)
+    swatches = [
+        ((0.30, 0.105, 0.045), 0.62, "skin"),
+        ((0.48, 0.20, 0.095), 0.58, "skin"),
+        ((0.018, 0.075, 0.16), 0.48, "fabric"),
+        ((0.02, 0.72, 0.78), 0.38, "fabric"),
+        ((0.95, 0.29, 0.035), 0.30, "boot"),
+        ((0.008, 0.012, 0.022), 0.72, "hair"),
+    ]
+    color_pixels, normal_pixels, roughness_pixels = [], [], []
+    cell_w = ATLAS_SIZE // ATLAS_COLUMNS
+    cell_h = ATLAS_SIZE // ATLAS_ROWS
+    for y in range(ATLAS_SIZE):
+        row = min(ATLAS_ROWS - 1, y // cell_h)
+        for x in range(ATLAS_SIZE):
+            column = min(ATLAS_COLUMNS - 1, x // cell_w)
+            base, roughness, surface = swatches[row * ATLAS_COLUMNS + column]
+            lx, ly = x % cell_w, y % cell_h
+            weave = math.sin(lx * 1.45) * math.sin(ly * 1.45)
+            grain = math.sin(lx * 0.31 + ly * 0.73) * math.sin(lx * 0.87 - ly * 0.19)
+            if surface == "fabric":
+                variation = 0.055 * weave + 0.018 * grain
+                nx, ny = 0.055 * math.sin(ly * 1.45), 0.055 * math.sin(lx * 1.45)
+            elif surface == "skin":
+                variation = 0.022 * grain
+                nx, ny = 0.018 * math.sin(ly * 0.52), 0.018 * math.sin(lx * 0.47)
+            elif surface == "boot":
+                variation = 0.035 * math.sin((lx + ly) * 0.82)
+                nx, ny = 0.035 * math.sin(ly * 0.82), 0.035 * math.sin(lx * 0.82)
+            else:
+                variation = 0.025 * grain
+                nx, ny = 0.02 * math.sin(ly * 0.39), 0.02 * math.sin(lx * 0.43)
+            color_pixels.extend((*[max(0.0, min(1.0, c * (1 + variation))) for c in base], 1.0))
+            normal_pixels.extend((0.5 + nx, 0.5 + ny, 1.0, 1.0))
+            rv = max(0.0, min(1.0, roughness + variation * 0.55))
+            roughness_pixels.extend((rv, rv, rv, 1.0))
+    for name, pixels, non_color in (
+        ("DirectionCColorAtlas", color_pixels, False),
+        ("DirectionCNormalAtlas", normal_pixels, True),
+        ("DirectionCRoughnessAtlas", roughness_pixels, True),
+    ):
+        image = bpy.data.images.new(name, width=ATLAS_SIZE, height=ATLAS_SIZE, alpha=True)
+        image.pixels = pixels
+        image.file_format = "PNG"
+        image.filepath_raw = str(ASSET_DIR / f"{name}.png")
+        if non_color:
+            image.colorspace_settings.name = "Non-Color"
+        image.save()
+        image.pack()
+        ATLAS_IMAGES[name] = image
+
+
+def material(name: str, color, cell: int, metallic=0.0, roughness=0.7):
     value = bpy.data.materials.new(name)
     value.diffuse_color = color
     value.metallic = metallic
     value.roughness = roughness
     value.use_nodes = True
-    shader = value.node_tree.nodes.get("Principled BSDF")
+    nodes = value.node_tree.nodes
+    links = value.node_tree.links
+    shader = nodes.get("Principled BSDF")
     shader.inputs["Base Color"].default_value = color
     shader.inputs["Metallic"].default_value = metallic
     shader.inputs["Roughness"].default_value = roughness
+    color_node = nodes.new("ShaderNodeTexImage")
+    color_node.name = "SelfAuthoredColorAtlas"
+    color_node.image = ATLAS_IMAGES["DirectionCColorAtlas"]
+    links.new(color_node.outputs["Color"], shader.inputs["Base Color"])
+    roughness_node = nodes.new("ShaderNodeTexImage")
+    roughness_node.name = "SelfAuthoredRoughnessAtlas"
+    roughness_node.image = ATLAS_IMAGES["DirectionCRoughnessAtlas"]
+    links.new(roughness_node.outputs["Color"], shader.inputs["Roughness"])
+    normal_texture = nodes.new("ShaderNodeTexImage")
+    normal_texture.name = "SelfAuthoredNormalAtlas"
+    normal_texture.image = ATLAS_IMAGES["DirectionCNormalAtlas"]
+    normal_node = nodes.new("ShaderNodeNormalMap")
+    normal_node.inputs["Strength"].default_value = 0.16
+    links.new(normal_texture.outputs["Color"], normal_node.inputs["Color"])
+    links.new(normal_node.outputs["Normal"], shader.inputs["Normal"])
+    value["atlasCell"] = cell
     return value
 
 
-MATERIALS = {}
-
-
 def build_materials() -> None:
+    create_surface_atlases()
     MATERIALS.update(
-        skin=material("Skin", (0.30, 0.105, 0.045, 1.0), roughness=0.78),
-        skin_hi=material("SkinHighlight", (0.48, 0.20, 0.095, 1.0), roughness=0.72),
-        kit=material("KickLabNavy", (0.018, 0.075, 0.16, 1.0), roughness=0.58),
-        accent=material("KickLabCyan", (0.02, 0.72, 0.78, 1.0), metallic=0.04, roughness=0.42),
-        boots=material("KickLabBoots", (0.95, 0.29, 0.035, 1.0), metallic=0.1, roughness=0.35),
-        dark=material("HairEyesStuds", (0.008, 0.012, 0.022, 1.0), roughness=0.88),
+        skin=material("Skin", (0.30, 0.105, 0.045, 1.0), 0, roughness=0.78),
+        skin_hi=material("SkinHighlight", (0.48, 0.20, 0.095, 1.0), 1, roughness=0.72),
+        kit=material("KickLabNavy", (0.018, 0.075, 0.16, 1.0), 2, roughness=0.58),
+        accent=material("KickLabCyan", (0.02, 0.72, 0.78, 1.0), 3, metallic=0.04, roughness=0.42),
+        boots=material("KickLabBoots", (0.95, 0.29, 0.035, 1.0), 4, metallic=0.1, roughness=0.35),
+        dark=material("HairEyesStuds", (0.008, 0.012, 0.022, 1.0), 5, roughness=0.88),
     )
 
 
@@ -122,6 +199,26 @@ def bind(obj, rig, bone_name: str):
     return obj
 
 
+def atlas_uv(obj, mat) -> None:
+    """Map each part into its material cell with a two-pixel anti-bleed gutter."""
+    if not obj.data.uv_layers:
+        bpy.context.view_layer.objects.active = obj
+        obj.select_set(True)
+        bpy.ops.object.mode_set(mode="EDIT")
+        bpy.ops.mesh.select_all(action="SELECT")
+        bpy.ops.uv.smart_project(angle_limit=math.radians(66), island_margin=0.02)
+        bpy.ops.object.mode_set(mode="OBJECT")
+        obj.select_set(False)
+    cell = int(mat.get("atlasCell", 0))
+    column, row = cell % ATLAS_COLUMNS, cell // ATLAS_COLUMNS
+    cell_w = ATLAS_SIZE / ATLAS_COLUMNS
+    cell_h = ATLAS_SIZE / ATLAS_ROWS
+    pad = 2.0
+    for loop in obj.data.uv_layers.active.data:
+        loop.uv.x = (column * cell_w + pad + loop.uv.x * (cell_w - 2 * pad)) / ATLAS_SIZE
+        loop.uv.y = (row * cell_h + pad + loop.uv.y * (cell_h - 2 * pad)) / ATLAS_SIZE
+
+
 def soften(obj, width=0.02, segments=2):
     bevel = obj.modifiers.new(name="HandAuthoredSoftEdges", type="BEVEL")
     bevel.width = width
@@ -140,6 +237,7 @@ def cube(name, location, scale, mat, rig, bone, bevel=0.02, rotation=(0, 0, 0)):
     if bevel:
         soften(obj, bevel)
     obj.data.materials.append(mat)
+    atlas_uv(obj, mat)
     return bind(obj, rig, bone)
 
 
@@ -150,6 +248,7 @@ def sphere(name, location, scale, mat, rig, bone, segments=16, rings=10):
     obj.scale = scale
     bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
     obj.data.materials.append(mat)
+    atlas_uv(obj, mat)
     return bind(obj, rig, bone)
 
 
@@ -163,6 +262,106 @@ def cylinder(name, start, end, radius_a, radius_b, mat, rig, bone, vertices=12):
     obj.rotation_quaternion = Vector((0, 0, 1)).rotation_difference(delta.normalized())
     bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
     obj.data.materials.append(mat)
+    atlas_uv(obj, mat)
+    return bind(obj, rig, bone)
+
+
+def ellipsoid_between(name, start, end, radii, mat, rig, bone, segments=20, rings=12):
+    a, b = Vector(start), Vector(end)
+    delta = b - a
+    bpy.ops.mesh.primitive_uv_sphere_add(segments=segments, ring_count=rings, location=(a + b) / 2)
+    obj = bpy.context.object
+    obj.name = name
+    obj.scale = (radii[0], radii[1], delta.length / 2)
+    obj.rotation_mode = "QUATERNION"
+    obj.rotation_quaternion = Vector((0, 0, 1)).rotation_difference(delta.normalized())
+    bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
+    obj.data.materials.append(mat)
+    atlas_uv(obj, mat)
+    return bind(obj, rig, bone)
+
+
+def organic_segment(name, start, end, start_radii, end_radii, mat, rig, bone, sides=16, rings=7, bulge=0.12):
+    """Create a tapered anatomical segment whose ends retain volume at joints."""
+    a, b = Vector(start), Vector(end)
+    axis = (b - a).normalized()
+    side = axis.cross(Vector((0, 1, 0)))
+    if side.length < 0.001:
+        side = axis.cross(Vector((1, 0, 0)))
+    side.normalize()
+    depth = axis.cross(side).normalized()
+    vertices = []
+    for ring in range(rings):
+        t = ring / (rings - 1)
+        center = a.lerp(b, t)
+        muscle = 1.0 + bulge * math.sin(math.pi * t)
+        rx = (start_radii[0] * (1 - t) + end_radii[0] * t) * muscle
+        ry = (start_radii[1] * (1 - t) + end_radii[1] * t) * muscle
+        for step in range(sides):
+            angle = math.tau * step / sides
+            vertices.append(center + side * math.cos(angle) * rx + depth * math.sin(angle) * ry)
+    faces = []
+    for ring in range(rings - 1):
+        for step in range(sides):
+            nxt = (step + 1) % sides
+            faces.append((ring * sides + step, ring * sides + nxt, (ring + 1) * sides + nxt, (ring + 1) * sides + step))
+    faces.append(tuple(reversed(tuple(range(sides)))))
+    faces.append(tuple((rings - 1) * sides + step for step in range(sides)))
+    mesh = bpy.data.meshes.new(f"{name}Mesh")
+    mesh.from_pydata(vertices, [], faces)
+    mesh.update()
+    obj = bpy.data.objects.new(name, mesh)
+    bpy.context.collection.objects.link(obj)
+    obj.data.materials.append(mat)
+    atlas_uv(obj, mat)
+    return bind(obj, rig, bone)
+
+
+def wedge(name, location, half_width, heel_y, toe_y, sole_z, top_z, mat, rig, bone):
+    """Create an eight-sided tapered football boot instead of a rectangular block."""
+    hw, toe_hw = half_width, half_width * 0.78
+    vertices = [
+        (-hw, heel_y, sole_z), (hw, heel_y, sole_z), (-toe_hw, toe_y, sole_z + 0.012), (toe_hw, toe_y, sole_z + 0.012),
+        (-hw * 0.92, heel_y, top_z), (hw * 0.92, heel_y, top_z), (-toe_hw * 0.88, toe_y, top_z - 0.035), (toe_hw * 0.88, toe_y, top_z - 0.035),
+    ]
+    faces = [(0, 2, 3, 1), (4, 5, 7, 6), (0, 1, 5, 4), (2, 6, 7, 3), (0, 4, 6, 2), (1, 3, 7, 5)]
+    mesh = bpy.data.meshes.new(f"{name}Mesh")
+    mesh.from_pydata(vertices, [], faces)
+    mesh.update()
+    obj = bpy.data.objects.new(name, mesh)
+    bpy.context.collection.objects.link(obj)
+    obj.location = location
+    soften(obj, 0.018, 3)
+    obj.data.materials.append(mat)
+    atlas_uv(obj, mat)
+    return bind(obj, rig, bone)
+
+
+def football_boot(name, location, mat, rig, bone):
+    """Create a shaped boot with ankle collar, instep, forefoot, and tapered toe."""
+    sections = [
+        (-0.055, 0.074, 0.035, 0.190),
+        (-0.175, 0.090, 0.032, 0.145),
+        (-0.315, 0.098, 0.030, 0.102),
+        (-0.425, 0.072, 0.040, 0.068),
+    ]
+    vertices = []
+    for y, half_width, sole, top in sections:
+        vertices.extend(((-half_width, y, sole), (half_width, y, sole), (-half_width * 0.86, y, top), (half_width * 0.86, y, top)))
+    faces = []
+    for index in range(len(sections) - 1):
+        a, b = index * 4, (index + 1) * 4
+        faces.extend(((a, b, b + 1, a + 1), (a + 2, a + 3, b + 3, b + 2), (a, a + 2, b + 2, b), (a + 1, b + 1, b + 3, a + 3)))
+    faces.extend(((0, 1, 3, 2), (12, 14, 15, 13)))
+    mesh = bpy.data.meshes.new(f"{name}Mesh")
+    mesh.from_pydata(vertices, [], faces)
+    mesh.update()
+    obj = bpy.data.objects.new(name, mesh)
+    bpy.context.collection.objects.link(obj)
+    obj.location = location
+    soften(obj, 0.016, 3)
+    obj.data.materials.append(mat)
+    atlas_uv(obj, mat)
     return bind(obj, rig, bone)
 
 
@@ -173,50 +372,54 @@ def join_parts(parts, name):
     bpy.context.view_layer.objects.active = parts[0]
     bpy.ops.object.join()
     parts[0].name = name
+    triangulate = parts[0].modifiers.new(name="DeterministicTangents", type="TRIANGULATE")
+    bpy.context.view_layer.objects.active = parts[0]
+    bpy.ops.object.modifier_apply(modifier=triangulate.name)
+    for polygon in parts[0].data.polygons:
+        polygon.use_smooth = True
     return parts[0]
 
 
 def build_character(rig):
     m = MATERIALS
     parts = [
-        sphere("Pelvis", (0, 0, 0.98), (0.19, 0.13, 0.15), m["kit"], rig, "Hips"),
-        sphere("Ribcage", (0, 0, 1.34), (0.255, 0.155, 0.30), m["kit"], rig, "Chest", 20, 12),
-        cube("JerseyStripe", (0, -0.156, 1.35), (0.045, 0.009, 0.27), m["accent"], rig, "Chest", 0.008),
-        cube("JerseyCollar", (0, -0.145, 1.535), (0.12, 0.012, 0.025), m["accent"], rig, "Chest", 0.008),
-        cylinder("NeckMesh", (0, 0, 1.52), (0, 0, 1.65), 0.067, 0.062, m["skin"], rig, "Neck"),
-        sphere("HeadMesh", (0, 0, 1.76), (0.14, 0.125, 0.17), m["skin"], rig, "Head", 20, 14),
-        sphere("Cheek.L", (0.067, -0.102, 1.735), (0.052, 0.035, 0.052), m["skin_hi"], rig, "Head", 12, 8),
-        sphere("Cheek.R", (-0.067, -0.102, 1.735), (0.052, 0.035, 0.052), m["skin_hi"], rig, "Head", 12, 8),
-        cube("JawMesh", (0, -0.105, 1.69), (0.073, 0.04, 0.045), m["skin"], rig, "Jaw", 0.026),
-        sphere("HairCap", (0, 0.018, 1.865), (0.145, 0.13, 0.083), m["dark"], rig, "Head", 18, 10),
-        cylinder("Nose", (0, -0.116, 1.775), (0, -0.16, 1.755), 0.026, 0.014, m["skin_hi"], rig, "Head", 10),
+        organic_segment("Pelvis", (0, 0.008, 0.93), (0, 0.006, 1.10), (0.205, 0.145), (0.185, 0.132), m["kit"], rig, "Hips", 20, 7, 0.04),
+        organic_segment("Abdomen", (0, 0.006, 1.04), (0, 0, 1.34), (0.188, 0.132), (0.222, 0.148), m["kit"], rig, "Spine", 20, 8, 0.05),
+        organic_segment("Ribcage", (0, 0, 1.26), (0, 0, 1.53), (0.222, 0.150), (0.265, 0.168), m["kit"], rig, "Chest", 22, 8, 0.06),
+        ellipsoid_between("JerseyStripe", (0, -0.168, 1.12), (0, -0.168, 1.49), (0.034, 0.010), m["accent"], rig, "Chest", 14, 8),
+        ellipsoid_between("JerseyCollar", (-0.105, -0.145, 1.535), (0.105, -0.145, 1.535), (0.020, 0.012), m["accent"], rig, "Chest", 14, 8),
+        ellipsoid_between("NeckMesh", (0, 0, 1.50), (0, 0, 1.66), (0.068, 0.062), m["skin"], rig, "Neck", 20, 12),
+        sphere("HeadMesh", (0, -0.006, 1.765), (0.137, 0.12, 0.173), m["skin"], rig, "Head", 24, 16),
+        sphere("FacePlane", (0, -0.095, 1.75), (0.110, 0.034, 0.128), m["skin_hi"], rig, "Head", 20, 14),
+        sphere("JawMesh", (0, -0.067, 1.69), (0.096, 0.066, 0.078), m["skin"], rig, "Jaw", 20, 12),
+        sphere("Chin", (0, -0.112, 1.67), (0.052, 0.029, 0.034), m["skin_hi"], rig, "Jaw", 16, 10),
+        sphere("HairCap", (0, 0.010, 1.878), (0.144, 0.124, 0.078), m["dark"], rig, "Head", 24, 14),
+        sphere("HairCrown", (0.025, -0.005, 1.927), (0.105, 0.098, 0.052), m["dark"], rig, "Head", 18, 10),
+        ellipsoid_between("Nose", (0, -0.112, 1.785), (0, -0.169, 1.752), (0.026, 0.022), m["skin_hi"], rig, "Head", 14, 8),
         cube("Brow.L", (0.052, -0.121, 1.81), (0.035, 0.008, 0.008), m["dark"], rig, "Head", 0.004, (0, 0.05, -0.1)),
         cube("Brow.R", (-0.052, -0.121, 1.81), (0.035, 0.008, 0.008), m["dark"], rig, "Head", 0.004, (0, -0.05, 0.1)),
-        cube("Mouth", (0, -0.142, 1.705), (0.038, 0.006, 0.008), m["dark"], rig, "Jaw", 0.004),
+        ellipsoid_between("Mouth", (-0.034, -0.145, 1.704), (0.034, -0.145, 1.704), (0.008, 0.006), m["dark"], rig, "Jaw", 12, 6),
     ]
     for side, label in ((1, "L"), (-1, "R")):
         parts += [
-            sphere(f"Eye.{label}", (0.052 * side, -0.121, 1.782), (0.018, 0.011, 0.014), m["dark"], rig, "Head", 10, 6),
-            sphere(f"Ear.{label}", (0.139 * side, -0.005, 1.76), (0.026, 0.018, 0.04), m["skin"], rig, "Head", 10, 6),
-            sphere(f"Sleeve.{label}", (0.275 * side, 0, 1.455), (0.115, 0.115, 0.13), m["accent"], rig, f"UpperArm.{label}"),
-            sphere(f"Hand.{label}", (0.73 * side, -0.01, 1.13), (0.058, 0.045, 0.078), m["skin"], rig, f"Hand.{label}"),
-            cube(f"Boot.{label}", (0.125 * side, -0.245, 0.105), (0.09, 0.20, 0.068), m["boots"], rig, f"Foot.{label}", 0.035),
-            cube(f"Toe.{label}", (0.125 * side, -0.395, 0.072), (0.09, 0.085, 0.045), m["boots"], rig, f"Toe.{label}", 0.025),
+            sphere(f"Eye.{label}", (0.049 * side, -0.132, 1.785), (0.011, 0.007, 0.010), m["dark"], rig, "Head", 12, 8),
+            sphere(f"Ear.{label}", (0.137 * side, -0.002, 1.76), (0.025, 0.016, 0.038), m["skin"], rig, "Head", 14, 8),
+            organic_segment(f"Deltoid.{label}", (0.205 * side, 0, 1.49), (0.315 * side, 0, 1.43), (0.098, 0.092), (0.088, 0.080), m["kit"], rig, f"UpperArm.{label}", 16, 6, 0.05),
+            ellipsoid_between(f"ShoulderSeam.{label}", (0.24 * side, -0.094, 1.49), (0.31 * side, -0.092, 1.42), (0.014, 0.009), m["accent"], rig, f"UpperArm.{label}", 12, 6),
+            organic_segment(f"Bicep.{label}", (0.275 * side, 0, 1.45), (0.495 * side, 0, 1.34), (0.084, 0.075), (0.056, 0.050), m["kit"], rig, f"UpperArm.{label}", 16, 7, 0.13),
+            organic_segment(f"Forearm.{label}", (0.47 * side, 0, 1.36), (0.69 * side, -0.006, 1.15), (0.057, 0.052), (0.040, 0.036), m["skin"], rig, f"LowerArm.{label}", 16, 7, 0.14),
+            organic_segment(f"Palm.{label}", (0.675 * side, -0.010, 1.16), (0.765 * side, -0.026, 1.098), (0.044, 0.034), (0.039, 0.028), m["skin"], rig, f"Hand.{label}", 14, 6, 0.05),
+            organic_segment(f"Fingers.{label}", (0.745 * side, -0.027, 1.112), (0.795 * side, -0.030, 1.076), (0.035, 0.026), (0.022, 0.018), m["skin_hi"], rig, f"Hand.{label}", 12, 5, 0.02),
+            organic_segment(f"Shorts.{label}", (0.125 * side, 0, 0.96), (0.125 * side, 0, 0.75), (0.125, 0.110), (0.112, 0.098), m["kit"], rig, f"UpperLeg.{label}", 18, 7, 0.05),
+            organic_segment(f"Thigh.{label}", (0.125 * side, 0, 0.80), (0.125 * side, -0.006, 0.55), (0.111, 0.098), (0.076, 0.069), m["skin_hi"], rig, f"UpperLeg.{label}", 18, 7, 0.12),
+            organic_segment(f"Calf.{label}", (0.125 * side, -0.006, 0.58), (0.125 * side, 0, 0.20), (0.076, 0.068), (0.049, 0.044), m["dark"], rig, f"LowerLeg.{label}", 18, 8, 0.18),
+            football_boot(f"BootUpper.{label}", (0.125 * side, 0, 0), m["boots"], rig, f"Foot.{label}"),
+            wedge(f"BootSole.{label}", (0.125 * side, 0, 0), 0.101, -0.07, -0.405, 0.016, 0.052, m["dark"], rig, f"Foot.{label}"),
+            ellipsoid_between(f"KineticThigh.{label}", (0.19 * side, -0.097, 0.78), (0.19 * side, -0.082, 0.60), (0.016, 0.010), m["accent"], rig, f"UpperLeg.{label}", 12, 6),
+            ellipsoid_between(f"KineticCalf.{label}", (0.185 * side, -0.072, 0.49), (0.17 * side, -0.062, 0.26), (0.013, 0.009), m["accent"], rig, f"LowerLeg.{label}", 12, 6),
         ]
-        for x in (-0.05, 0.05):
-            parts.append(cylinder(f"Stud.{label}.{x}", (0.125 * side + x, -0.26, 0.04), (0.125 * side + x, -0.26, 0.018), 0.012, 0.009, m["dark"], rig, f"Foot.{label}", 8))
-    limbs = [
-        ("UpperArm.L", (0.23, 0, 1.49), (0.49, 0, 1.35), 0.086, 0.069, m["kit"]),
-        ("LowerArm.L", (0.49, 0, 1.35), (0.68, 0, 1.16), 0.068, 0.052, m["skin"]),
-        ("UpperArm.R", (-0.23, 0, 1.49), (-0.49, 0, 1.35), 0.086, 0.069, m["kit"]),
-        ("LowerArm.R", (-0.49, 0, 1.35), (-0.68, 0, 1.16), 0.068, 0.052, m["skin"]),
-        ("UpperLeg.L", (0.125, 0, 0.93), (0.125, 0, 0.57), 0.125, 0.098, m["kit"]),
-        ("LowerLeg.L", (0.125, 0, 0.55), (0.125, 0, 0.18), 0.086, 0.061, m["skin"]),
-        ("UpperLeg.R", (-0.125, 0, 0.93), (-0.125, 0, 0.57), 0.125, 0.098, m["kit"]),
-        ("LowerLeg.R", (-0.125, 0, 0.55), (-0.125, 0, 0.18), 0.086, 0.061, m["skin"]),
-    ]
-    for bone, start, end, r1, r2, mat in limbs:
-        parts.append(cylinder(f"{bone}Mesh", start, end, r1, r2, mat, rig, bone, 14))
+        for x in (-0.055, 0.0, 0.055):
+            parts.append(cylinder(f"Stud.{label}.{x}", (0.125 * side + x, -0.29, 0.026), (0.125 * side + x, -0.29, 0.008), 0.011, 0.008, m["dark"], rig, f"Foot.{label}", 8))
     athlete = join_parts(parts, "AthleteSurface")
     athlete["role"] = "direction-c-stylized-realistic-athlete"
     athlete["likeness"] = "none-original-design"
@@ -342,7 +545,8 @@ def save_and_export():
         export_morph=False,
         export_cameras=False,
         export_lights=False,
-        export_texcoords=False,
+        export_texcoords=True,
+        export_tangents=True,
         export_vertex_color="NONE",
         export_optimize_animation_size=True,
         export_loglevel=-1,
