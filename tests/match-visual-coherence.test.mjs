@@ -46,8 +46,12 @@ test('marks only the controlled Direction C athlete with the local responsive Ki
 test('keeps the local stadium crowd procedural, layered, animated, and mobile bounded',()=>{
   assert.match(renderer,/crowdSigns=\[`GO \$\{fanName\}!`,'GO TEAM!','MATH MOVES!','KICKLAB!'\]/);
   assert.match(renderer,/this\.crowdDepth\.push\(\{mesh:tier,material:cm,layer,stand:grp,baseY:tier\.position\.y\}\)/);
-  assert.match(renderer,/visibleLayers=mobile\?\(distance<58\?2:1\):distance<58\?3:distance<105\?2:1/);
-  assert.match(renderer,/distanceBased:true,maxLayersPerStand:innerWidth<=480\?2:3/);
-  assert.match(renderer,/!reduce&&entry\.mesh\.visible&&cheer/);
+  assert.match(renderer,/crowdLod\(distance\).*mode==='mobile'.*mode==='tablet'.*actorBudget:base/);
+  assert.match(renderer,/nearDetail:'instanced-supporters'/);
+  assert.match(renderer,/this\.crowdActorLayers\.push\(entry\)/);
+  assert.match(renderer,/this\.crowdInstanceCapacity=this\.crowdActorLayers\.reduce/);
+  assert.match(renderer,/motion=!reduce&&!paused/);
+  assert.match(renderer,/visibleNicknamePlacards/);
+  assert.match(renderer,/crowdGeometryBytes<250000&&layers\.crowdTextureBytes<4000000/);
   assert.doesNotMatch(renderer,/fetch\(|XMLHttpRequest|sendBeacon|https?:\/\//);
 });
