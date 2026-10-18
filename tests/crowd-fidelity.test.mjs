@@ -6,12 +6,13 @@ import { fileURLToPath } from 'node:url';
 
 const root=join(dirname(fileURLToPath(import.meta.url)),'..');
 const renderer=readFileSync(join(root,'src/game/50-renderer-3d.js'),'utf8');
+const athlete=readFileSync(join(root,'src/game/50a-direction-c-athlete.js'),'utf8');
 
 test('builds a local hybrid crowd without external asset egress',()=>{
   for(const primitive of ['CylinderGeometry','SphereGeometry','PlaneGeometry','InstancedMesh'])assert.match(renderer,new RegExp(`T\\.${primitive}`));
   assert.match(renderer,/self-authored hybrid crowd/);
   assert.match(renderer,/crowdActorCapacity:this\.crowdInstanceCapacity/);
-  assert.match(renderer,/nearTier:'dimensional-hero-supporters'.*midTier:'instanced-supporters'.*farTier:'muted-procedural-fill'/);
+  assert.match(renderer,/nearTier:'shared-rig-heroes-plus-dimensional-supporters'.*midTier:'instanced-supporters'.*farTier:'muted-procedural-fill'/);
   assert.doesNotMatch(renderer,/crowd[^\n]{0,180}(fetch\(|https?:\/\/|XMLHttpRequest|sendBeacon)/i);
 });
 
@@ -31,7 +32,7 @@ test('uses viewport and distance LOD with bounded geometry and texture audits',(
   assert.match(renderer,/maxLayersPerStand:mode==='mobile'\?2:3/);
   assert.match(renderer,/crowdActorCapacity>=216/);
   assert.match(renderer,/heroSpectatorCapacity===12/);
-  assert.match(renderer,/nearTier:'dimensional-hero-supporters'/);
+  assert.match(renderer,/nearTier:'shared-rig-heroes-plus-dimensional-supporters'/);
   assert.match(renderer,/midTier:'instanced-supporters'/);
   assert.match(renderer,/farTier:'muted-procedural-fill'/);
   assert.match(renderer,/crowdGeometryBytes<250000/);
@@ -40,11 +41,16 @@ test('uses viewport and distance LOD with bounded geometry and texture audits',(
 
 test('renders a high-definition fictional adult reaction group onto the stadium jumbotron',()=>{
   assert.match(renderer,/new T\.WebGLRenderTarget\(jumboW,jumboH/);
-  assert.match(renderer,/for\(let i=0;i<3;i\+\+\)/);
-  assert.match(renderer,/jumbotronTier:'high-definition-rendered-supporters'/);
+  assert.match(athlete,/installCrowdSupporters\(source,clips\)/);
+  assert.match(athlete,/T\.SkeletonUtils\.clone\(source\)/);
+  assert.match(athlete,/V3\.jumbotron\.fans=palettes\.slice\(0,3\)/);
+  assert.match(athlete,/V3\.crowdRigSupporters\.push\(fan\)/);
+  assert.match(renderer,/jumbotronTier:'shared-direction-c-rig-supporters'/);
   assert.match(renderer,/layers\.jumbotronSpectators===3/);
+  assert.match(renderer,/layers\.jumbotronRigSource==='shared-direction-c-v2'/);
+  assert.match(renderer,/layers\.rigHeroSpectatorCapacity===4/);
   assert.match(renderer,/R\.render\(this\.jumbotron\.scene,this\.jumbotron\.cam\)/);
-  assert.doesNotMatch(renderer,/real.person|child likeness|remote jumbotron/i);
+  assert.doesNotMatch(renderer+athlete,/real.person|child likeness|remote jumbotron/i);
 });
 
 test('personalizes only local reaction signage',()=>{
