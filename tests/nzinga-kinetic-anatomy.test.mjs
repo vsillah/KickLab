@@ -27,10 +27,21 @@ test('selects full, reduced, and Canvas tiers deterministically', () => {
 test('limits kinetic anatomy to contact, coaching, and replay', () => {
   assert.equal(nzinga.phase({ state: 'aim', phi: -1 }), 'quiet');
   assert.equal(nzinga.phase({ state: 'swing', phi: 0.1 }), 'quiet');
-  assert.equal(nzinga.phase({ state: 'swing', phi: 0.28 }), 'contact');
+  assert.equal(nzinga.phase({ state: 'swing', phi: 0.28 }), 'quiet');
+  assert.equal(nzinga.phase({ state: 'swing', phi: 0.33 }), 'contact');
   assert.equal(nzinga.phase({ state: 'swing', contact: true }), 'contact');
+  assert.equal(nzinga.phase({ state: 'swing', contact: true, coaching: true }), 'contact');
   assert.equal(nzinga.phase({ coaching: true }), 'coaching');
   assert.equal(nzinga.phase({ replay: true, coaching: true }), 'replay');
+});
+
+test('requires the canonical striking foot to meet the ball at exact contact', () => {
+  const good = nzinga.contactAudit({ state: 'swing', contact: true, foot: { x: -.1, y: .116 }, ball: { x: 0, y: .11 } });
+  assert.equal(good.exact, true);
+  assert.equal(good.withinThreshold, true);
+  assert.ok(good.driftM <= nzinga.CONTACT_DRIFT_MAX_M);
+  assert.equal(nzinga.contactAudit({ state: 'swing', contact: false, foot: { x: 0, y: 0 }, ball: { x: 0, y: 0 } }).withinThreshold, false);
+  assert.equal(nzinga.contactAudit({ state: 'flight', contact: true, foot: { x: 0, y: 0 }, ball: { x: 0, y: 0 } }).exact, false);
 });
 
 test('uses the shared joint contract for both renderers', () => {
@@ -38,7 +49,11 @@ test('uses the shared joint contract for both renderers', () => {
   const renderer = read('src/game/50-renderer-3d.js');
   assert.match(side, /V3\.side\(this,J,x,opts\)/);
   assert.match(side, /RIG\.kinetic\(c,J/);
-  assert.match(renderer, /NZINGA_CORE\.JOINT_PAIRS/);
+  assert.equal(nzinga.ANATOMY.longBones.length, 8);
+  assert.equal(nzinga.ANATOMY.feet.length, 2);
+  assert.match(renderer, /NZINGA_CORE\.ANATOMY/);
+  assert.match(renderer, /skull:mkA/);
+  assert.match(renderer, /ribs:Array\.from/);
   assert.match(renderer, /nzingaSignature:NZINGA_CORE\.jointSignature\(j\)/);
   assert.match(renderer, /nzingaSameRig:true/);
 });

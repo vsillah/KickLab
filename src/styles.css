@@ -913,6 +913,33 @@ header.top .brand p{display:none}
 @media (min-width:1100px){.game-orientation-tools{top:max(486px,calc(env(safe-area-inset-top) + 486px));width:150px;grid-template-columns:44px 44px 44px;grid-template-rows:44px}.game-orientation-tools .mode-home-button{grid-column:1;grid-row:1}.game-orientation-tools .current-mode{grid-column:2;grid-row:1}.game-orientation-tools .game-player-tools{grid-column:3;grid-row:1;grid-template-columns:44px;justify-content:center}.game-guidance-hud .profile-hud{padding:0;text-align:center}}
 @media (max-width:480px){.profile-hud-summary{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto;padding:3px 2px;text-align:center}.profile-rail-avatar{display:none}.profile-hud-summary small{display:block;font-size:6px}.stage>.profile-dialog.game-profile-overlay .profile-head{top:-10px;margin:-10px -10px 9px;padding:9px 10px}}
 
+/* Direction C prototype: on phones, active play is the page hero and controls float over the pitch. */
+@media (max-width:480px){
+  .nzinga-prototype body:has(#game-cockpit:not([hidden])) .wrap{padding:2px 4px 28px;gap:4px}
+  .nzinga-prototype body:has(#game-cockpit:not([hidden])) header.top.home-hero,
+  .nzinga-prototype body:has(#game-cockpit:not([hidden])) .hudbar{display:none!important}
+  .nzinga-prototype #game-cockpit:not([hidden]) .left{display:block}
+  .nzinga-prototype #game-cockpit:not([hidden]) .game-frame{overflow:visible;border-radius:8px}
+  .nzinga-prototype #game-cockpit:not([hidden]) .game-context-header{min-height:44px;padding:2px 4px}
+  .nzinga-prototype #game-cockpit:not([hidden]) .stage{height:min(65vw,254px);min-height:240px;background:#050a16}
+  .nzinga-prototype #game-cockpit:not([hidden]) .stage>canvas#cv,
+  .nzinga-prototype #game-cockpit:not([hidden]) .stage>#cv3{left:0;width:100%;max-width:none;height:auto}
+  .nzinga-prototype #game-cockpit:not([hidden]) .stage>canvas#cv{position:absolute;top:50%;transform:translateY(-50%)}
+  .nzinga-prototype #game-cockpit:not([hidden]) .stage>#cv3{top:50%;transform:translateY(-50%)}
+  .nzinga-prototype #game-cockpit:not([hidden]) .control-deck{position:absolute;z-index:8;top:calc(44px + min(65vw,254px) - 82px);left:4px;right:calc(var(--game-rail-space,60px) + 5px);display:block;border:0;background:transparent;padding:4px;pointer-events:none}
+  .nzinga-prototype #game-cockpit:not([hidden]) .prototype-control-bar{display:none!important}
+  .nzinga-prototype #game-cockpit:not([hidden]) .control-deck .control-left-slot,
+  .nzinga-prototype #game-cockpit:not([hidden]) .control-deck .wide-manual-controller,
+  .nzinga-prototype #game-cockpit:not([hidden]) .control-deck .rbar{display:none!important}
+  .nzinga-prototype #game-cockpit:not([hidden]) .control-deck .pad{display:flex!important;justify-content:flex-end;min-height:70px;pointer-events:none}
+  .nzinga-prototype #game-cockpit:not([hidden]) .control-deck #padR{display:flex;justify-content:flex-end;width:auto;height:auto;pointer-events:auto}
+  .nzinga-prototype #game-cockpit.has-game-overlay .control-deck #padR,
+  .nzinga-prototype #game-cockpit:not([hidden]):has(.stage.has-game-overlay) .control-deck #padR{pointer-events:none}
+  .nzinga-prototype #game-cockpit:not([hidden]) .control-deck .abtn .cap{width:62px;height:62px}
+  .nzinga-prototype #game-cockpit:not([hidden]) .control-deck .abtn.big .cap{width:70px;height:70px}
+  .nzinga-prototype #game-cockpit:not([hidden]) .math-console{border-top:0}
+}
+
 /* Deterministic between-game pacing and explicit player pause. */
 .game-pacing-overlay{position:absolute;z-index:18;inset:0;display:grid;place-items:center;padding:18px calc(var(--game-rail-space,0px) + 18px) 18px 18px;background:radial-gradient(circle at center,rgba(10,30,55,.28),rgba(1,6,16,.78));pointer-events:auto}
 .game-pacing-overlay[hidden]{display:none}.game-pacing-card{box-sizing:border-box;width:min(430px,92%);display:grid;justify-items:center;gap:8px;padding:18px;border:1px solid rgba(127,220,255,.62);border-radius:18px;background:rgba(5,14,29,.86);box-shadow:0 22px 60px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.08);text-align:center;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}

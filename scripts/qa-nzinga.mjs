@@ -67,8 +67,34 @@ async function openActivity(page, name) {
 
 async function waitForContact(page) {
   await page.keyboard.press('Space');
-  await page.waitForFunction(() => window.__KICKLAB_NZINGA__?.active && window.__KICKLAB_PHYSICS_VISION__?.active && window.__KICKLAB_PHYSICS_VISION__.env > .72, null, { timeout: 7000 });
+  await page.waitForFunction(() => {
+    const audit = window.__KICKLAB_NZINGA__;
+    if (audit?.phase === 'contact' && audit.contact?.exact && audit.contact?.withinThreshold && window.__KICKLAB_PHYSICS_VISION__?.active) {
+      window.__KICKLAB_NZINGA_CAPTURE_HOLD__ = true;
+      return true;
+    }
+    return false;
+  }, null, { timeout: 7000 });
   return page.evaluate(() => ({ nzinga: window.__KICKLAB_NZINGA__, physics: window.__KICKLAB_PHYSICS_VISION__, rig: window.__KICKLAB_RIG_AUDIT__ }));
+}
+
+function assertContact(snapshot, label) {
+  if (snapshot.nzinga.phase !== 'contact') throw new Error(`${label}: expected exact contact, received ${snapshot.nzinga.phase}`);
+  if (!snapshot.nzinga.contact?.exact || !snapshot.nzinga.contact?.withinThreshold) throw new Error(`${label}: invalid contact ${JSON.stringify(snapshot.nzinga.contact)}`);
+  if (snapshot.nzinga.contact.driftM > snapshot.nzinga.contact.thresholdM) throw new Error(`${label}: foot-ball drift exceeded threshold`);
+  if (!snapshot.nzinga.coverage?.allRequiredInFrame) throw new Error(`${label}: athlete, ball, goalkeeper, and goal are not all in frame: ${JSON.stringify(snapshot.nzinga.coverage)}`);
+  const environment = snapshot.nzinga.coverage.environment;
+  if (Array.isArray(environment)) {
+    for (const layer of ['crowd', 'animated-boards', 'perspective-pitch']) if (!environment.includes(layer)) throw new Error(`${label}: missing Canvas environment layer ${layer}`);
+  } else {
+    for (const layer of ['field', 'goalFrame', 'net', 'boards', 'stands', 'crowd', 'lights']) if (!environment?.[layer]) throw new Error(`${label}: missing WebGL environment layer ${layer}`);
+  }
+}
+
+async function releaseContact(page) {
+  await page.evaluate(() => { window.__KICKLAB_NZINGA_CAPTURE_HOLD__ = false; });
+  await page.waitForFunction(() => window.__KICKLAB_NZINGA__?.phase !== 'contact', null, { timeout: 7000 });
+  await page.waitForTimeout(250);
 }
 
 async function responsiveAudit(page, label, viewport) {
@@ -84,7 +110,7 @@ async function responsiveAudit(page, label, viewport) {
     return { innerWidth, innerHeight, scrollWidth: document.documentElement.scrollWidth, stage, controls, stageControlOverlap: !!(stage && controls && controls.top < stage.bottom - 1), buttons, minButton: Math.min(...buttons.map((b) => Math.min(b.width, b.height))) };
   });
   if (layout.scrollWidth > viewport.width + 1) throw new Error(`${label}: horizontal overflow ${layout.scrollWidth} > ${viewport.width}`);
-  if (layout.stageControlOverlap) throw new Error(`${label}: stage and controls overlap`);
+  if (viewport.width <= 480 && !layout.stageControlOverlap) throw new Error(`${label}: mobile action controls are not floating over the stage safe zone`);
   if (layout.buttons.some((b) => b.left < -1 || b.right > viewport.width + 1)) throw new Error(`${label}: control escaped viewport`);
   await page.screenshot({ path: join(outputDir, `${label}.png`), fullPage: true });
   results.push({ label, viewport, layout });
@@ -103,10 +129,14 @@ const fullPage = await fullContext.newPage();
 const fullUrl = query(baseUrl, 'nzinga=1&qa=nzinga-full');
 await prepare(fullPage, fullUrl);
 const storageBefore = await fullPage.evaluate(() => ({ progress: localStorage.getItem('impactlab.v1'), nickname: localStorage.getItem('impactlab.nick'), keys: Object.keys(localStorage).sort() }));
+await fullPage.locator('.stage').screenshot({ path: join(outputDir, '1440x1000-full-ready-stage.png') });
 const fullContact = await waitForContact(fullPage);
 if (fullContact.nzinga.tier !== 'full') throw new Error(`full tier unavailable: ${JSON.stringify(fullContact.nzinga)}`);
 if (!fullContact.rig?.some((rig) => rig.nzingaSameRig && rig.nzingaSignature)) throw new Error('full tier did not expose the shared rig signature');
+assertContact(fullContact, 'full');
 await fullPage.locator('.stage').screenshot({ path: join(outputDir, '1440x1000-full-contact-stage.png') });
+await releaseContact(fullPage);
+await fullPage.locator('.stage').screenshot({ path: join(outputDir, '1440x1000-full-post-stage.png') });
 await responsiveAudit(fullPage, '1440x1000-full', { width: 1440, height: 1000 });
 await responsiveAudit(fullPage, '768x1024-full', { width: 768, height: 1024 });
 await responsiveAudit(fullPage, '390x844-full', { width: 390, height: 844 });
@@ -116,9 +146,13 @@ await fullContext.close();
 const reducedContext = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
 const reducedPage = await reducedContext.newPage();
 await prepare(reducedPage, query(baseUrl, 'nzinga=1&qa=nzinga-reduced'));
+await reducedPage.locator('.stage').screenshot({ path: join(outputDir, '390x844-reduced-ready-stage.png') });
 const reducedContact = await waitForContact(reducedPage);
 if (reducedContact.nzinga.tier !== 'reduced' || !reducedContact.nzinga.reducedMotion) throw new Error(`reduced tier failed: ${JSON.stringify(reducedContact.nzinga)}`);
+assertContact(reducedContact, 'reduced');
 await reducedPage.locator('.stage').screenshot({ path: join(outputDir, '390x844-reduced-contact-stage.png') });
+await releaseContact(reducedPage);
+await reducedPage.locator('.stage').screenshot({ path: join(outputDir, '390x844-reduced-post-stage.png') });
 await reducedContext.close();
 
 const canvasContext = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: 'no-preference' });
@@ -127,9 +161,13 @@ await prepare(canvasPage, query(baseUrl, 'nzinga=1&qa=nzinga-canvas'));
 await openActivity(canvasPage, '1v1 Dribble');
 await setGraphics(canvasPage, true);
 await openActivity(canvasPage, 'Free kick');
+await canvasPage.locator('.stage').screenshot({ path: join(outputDir, '390x844-canvas-ready-stage.png') });
 const canvasContact = await waitForContact(canvasPage);
 if (canvasContact.nzinga.tier !== 'canvas') throw new Error(`Canvas tier failed: ${JSON.stringify(canvasContact.nzinga)}`);
+assertContact(canvasContact, 'canvas');
 await canvasPage.locator('.stage').screenshot({ path: join(outputDir, '390x844-canvas-contact-stage.png') });
+await releaseContact(canvasPage);
+await canvasPage.locator('.stage').screenshot({ path: join(outputDir, '390x844-canvas-post-stage.png') });
 await canvasContext.close();
 
 await browser.close();
