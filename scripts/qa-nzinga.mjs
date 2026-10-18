@@ -134,6 +134,7 @@ const fullContact = await waitForContact(fullPage);
 if (fullContact.nzinga.tier !== 'full') throw new Error(`full tier unavailable: ${JSON.stringify(fullContact.nzinga)}`);
 if (!fullContact.rig?.some((rig) => rig.nzingaSameRig && rig.nzingaSignature)) throw new Error('full tier did not expose the shared rig signature');
 assertContact(fullContact, 'full');
+await fullPage.waitForTimeout(1800);
 await fullPage.locator('.stage').screenshot({ path: join(outputDir, '1440x1000-full-contact-stage.png') });
 await releaseContact(fullPage);
 await fullPage.locator('.stage').screenshot({ path: join(outputDir, '1440x1000-full-post-stage.png') });
