@@ -11,6 +11,9 @@ The three scene plates were created with the built-in OpenAI image-generation to
 | `assets/direction-a-matchday-truth.png` | A · Amanitore | New generated bitmap; prompt requested a fictional adult athlete in a stylized-realistic night stadium | No real-person likeness, child, brand, logo, text, or watermark |
 | `assets/direction-b-sculpted-velocity.png` | B · Imhotep | New generated bitmap; prompt requested a fictional adult athlete in a sculpted geometric stadium | No real-person likeness, child, brand, logo, text, or watermark |
 | `assets/direction-c-kinetic-anatomy.png` | C · Nzinga | New generated bitmap; prompt requested a fictional adult athlete with restrained anatomical hints in a rendered stadium | No real-person likeness, child, brand, logo, gore, text, or watermark |
+| `assets/direction-a-matchday-truth-mobile.png` | A · Amanitore phone | New generated portrait bitmap; prompt required the full athlete, ball, goalkeeper, and goal in one frame | No real-person likeness, child, brand, logo, text, or watermark |
+| `assets/direction-b-sculpted-velocity-mobile.png` | B · Imhotep phone | New generated portrait bitmap; prompt required the full athlete, ball, goalkeeper, and goal in one frame | No real-person likeness, child, brand, logo, text, or watermark |
+| `assets/direction-c-kinetic-anatomy-mobile.png` | C · Nzinga phone | New generated portrait bitmap; prompt required the full athlete, ball, goalkeeper, and goal in one frame | No real-person likeness, child, brand, logo, gore, text, or watermark |
 
 The generated source cache files are preserved outside the repository. The project copies are unmodified outputs.
 
