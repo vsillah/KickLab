@@ -5,10 +5,10 @@ const V3={ready:false,loading:false,failed:false,on:false,cine:null,ents:[],rigs
   load(){if(this.ready||this.loading||this.failed||best.gfx==='2d')return;this.loading=true;
     if(window.THREE){try{this.init();}catch(e){console.warn('3D off',e);this.err=String(e&&e.message||e).slice(0,60);this.failed=true;this.loading=false;}return;}
     this.err='local 3D bundle unavailable';this.failed=true;this.loading=false;},
-  tex(w,h,fn){const c=document.createElement('canvas');c.width=w;c.height=h;fn(c.getContext('2d'),w,h);const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.anisotropy=4;return t;},
+  tex(w,h,fn){const c=document.createElement('canvas');c.width=w;c.height=h;fn(c.getContext('2d'),w,h);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=4;return t;},
   init(){const T=THREE;const cv3=document.createElement('canvas');cv3.id='cv3';cv3.setAttribute('aria-hidden','true');const st=$('.stage');st.insertBefore(cv3,$('#cv'));
     let R;try{R=new T.WebGLRenderer({canvas:cv3,antialias:true,powerPreference:'high-performance'});}catch(e){cv3.remove();throw e;}
-    R.outputEncoding=T.sRGBEncoding;R.toneMapping=T.ACESFilmicToneMapping;R.toneMappingExposure=1.08;R.shadowMap.enabled=true;R.shadowMap.type=T.PCFSoftShadowMap;
+    R.outputColorSpace=T.SRGBColorSpace;R.toneMapping=T.ACESFilmicToneMapping;R.toneMappingExposure=1.08;R.shadowMap.enabled=true;R.shadowMap.type=T.PCFSoftShadowMap;
     const S=new T.Scene(),cam=new T.PerspectiveCamera(50,16/9,0.3,600);this.R=R;this.S=S;this.cam=cam;this.cv3=cv3;
     this.hemi=new T.HemisphereLight(0xcfe0ff,0x1b3322,0.55);S.add(this.hemi);S.add(new T.AmbientLight(0xffffff,0.12));
     const dl=new T.DirectionalLight(0xffffff,1.15);dl.castShadow=true;dl.shadow.mapSize.set(2048,2048);Object.assign(dl.shadow.camera,{left:-28,right:28,top:28,bottom:-28,near:1,far:140});dl.shadow.bias=-0.0004;S.add(dl);S.add(dl.target);this.dl=dl;
