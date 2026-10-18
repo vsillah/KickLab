@@ -6,14 +6,14 @@
   "artifact": {
     "path": "src/assets/3d/kicklab-direction-c-athlete/v1/kicklab-direction-c-athlete.glb",
     "mediaType": "model/gltf-binary",
-    "bytes": 642092,
-    "sha256": "d17a340dff9cfbe6696a20d11adb0dd0a11be6c887bb4fd1cb795486cb9215fa"
+    "bytes": 782240,
+    "sha256": "56e31448316af50ef8c8ee8becbdf86cf8f2093916a67897ad291568252962be"
   },
   "provenance": {
     "creator": "KickLab",
     "sourceType": "self-authored-production",
-    "sourcePath": "scripts/generate-direction-c-athlete.py and src/assets/3d/kicklab-direction-c-athlete/v1/kicklab-direction-c-athlete.blend",
-    "sourceCommit": "46c14f5de0392fadc4f67ff84e35db7eada8c086",
+    "sourcePath": "scripts/generate-direction-c-athlete.py plus the Blender source and three self-authored atlas PNGs under src/assets/3d/kicklab-direction-c-athlete/v1",
+    "sourceCommit": "20354a78d613ee248d7771498650737cec5d555e",
     "acquiredOn": "2026-10-18",
     "externalInputs": false,
     "likeness": false,

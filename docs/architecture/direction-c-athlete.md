@@ -10,24 +10,25 @@ The only runtime asset request is the same-origin repository path `assets/3d/kic
 
 ## Authored contract
 
-- source: repository-owned Blender file plus a primitive-only Blender Python generator;
+- source: repository-owned Blender file, primitive-only Blender Python generator, and three self-authored 128×128 color/normal/roughness atlases;
 - shared skeleton: 23 deform joints;
 - clips: `Ready`, `RunUp`, `Plant`, `Strike`, `FollowThrough`, `Celebrate`, and `Recovery`;
 - contact: `StrikeContact_R` reaches `BallContactTarget` at 0.4 seconds in `Strike`;
 - plant: `PlantContact_L` stays fixed from late `Plant` through `Strike` and the opening `FollowThrough` pose;
-- surface: 5,148 triangles, six local materials, zero textures, zero glTF errors, and zero glTF warnings.
+- surface: 11,092 triangles, six local materials, three embedded textures, zero glTF errors, and zero glTF warnings;
+- visual target: a stylized, adult-proportioned Direction C athlete with tapered anatomy, readable face/hair, shaped boots, fitted kit, and cyan kinetic seams. It is an original local interpretation, not a photoreal copy or real-person likeness.
 
 ## Pass/fail budgets
 
 | Gate | Pass budget | Current deterministic value |
 |---|---:|---:|
-| Athlete GLB | ≤ 2.5 MB; hard stop at 4 MB | 642,092 bytes |
-| Full local first-play payload | ≤ 8 MB | 2,304,902 bytes |
-| Strike contact drift | ≤ 10 mm; hard stop at 20 mm | < 0.001 mm authored |
-| Plant-foot drift | ≤ 10 mm | < 0.001 mm authored |
+| Athlete GLB | ≤ 2.5 MB; hard stop at 4 MB | 782,240 bytes |
+| Full local first-play payload | ≤ 8 MB | 2,446,477 bytes |
+| Strike contact drift | ≤ 10 mm; hard stop at 20 mm | 0 mm runtime |
+| Plant-foot ground offset | ≤ 10 mm | 4.61 mm runtime |
 | Desktop frame pacing | p95 ≤ 20 ms | 16.8 ms |
 | Tablet/mobile frame pacing | p95 ≤ 40 ms | 16.8 ms |
-| Decoded geometry + animation proxy | ≤ 24 MB | 548,976 bytes |
+| Decoded geometry + animation + texture proxy | ≤ 24 MB | 866,712 bytes |
 | Athlete materials | ≤ 6 | 6 |
 | Responsive horizontal overflow | 0 px | 0 px at 390×844, 768×1024, and 1440×1000 |
 

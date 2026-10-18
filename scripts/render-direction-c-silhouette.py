@@ -1,5 +1,6 @@
 """Render a local, privacy-safe Direction C silhouette checkpoint in Blender."""
 
+import os
 from pathlib import Path
 
 import bpy
@@ -7,7 +8,11 @@ from mathutils import Vector
 
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "qa-artifacts" / "direction-c-athlete" / "first-silhouette.png"
+RENDER_NAME = os.environ.get("KICKLAB_RENDER_NAME", "revised-isolated")
+RENDER_CLIP = os.environ.get("KICKLAB_RENDER_CLIP", "Strike")
+RENDER_FRAME = int(os.environ.get("KICKLAB_RENDER_FRAME", "13"))
+RENDER_VIEW = os.environ.get("KICKLAB_RENDER_VIEW", "rear")
+OUTPUT = ROOT / "qa-artifacts" / "direction-c-athlete" / f"{RENDER_NAME}.png"
 
 
 def point_at(obj, point):
@@ -26,8 +31,8 @@ scene.render.film_transparent = False
 scene.world.color = (0.008, 0.014, 0.032)
 
 rig = bpy.data.objects["KickLabSharedSkeleton"]
-rig.animation_data.action = bpy.data.actions["Strike"]
-scene.frame_set(13)
+rig.animation_data.action = bpy.data.actions[RENDER_CLIP]
+scene.frame_set(RENDER_FRAME)
 
 bpy.ops.mesh.primitive_plane_add(size=16, location=(0, 0, 0))
 ground = bpy.context.object
@@ -50,12 +55,13 @@ rim.data.size = 3.0
 point_at(rim, (0, 0, 1.1))
 bpy.ops.object.light_add(type="AREA", location=(0.2, -1.4, 0.7))
 fill = bpy.context.object
-fill.data.energy = 260
-fill.data.color = (1.0, 0.34, 0.08)
+fill.data.energy = 150
+fill.data.color = (1.0, 0.78, 0.62)
 fill.data.size = 2.0
 point_at(fill, (0, 0, 1.0))
 
-bpy.ops.object.camera_add(location=(3.15, -4.9, 1.75))
+camera_location = (4.9, 2.4, 1.65) if RENDER_VIEW == "rear" else (3.15, -4.9, 1.75)
+bpy.ops.object.camera_add(location=camera_location)
 camera = bpy.context.object
 camera.data.lens = 62
 point_at(camera, (0, -0.03, 0.96))

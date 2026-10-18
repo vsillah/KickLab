@@ -50,7 +50,7 @@ test('rejects untracked 3D provenance and validates the exact local GLB',async()
   assert.equal(directionC.manifest.provenance.sourceType,'self-authored-production');
   assert.equal(directionC.manifest.license.permittedUse,'production-game');
   assert.equal(directionC.manifest.network.runtimeRequests,'same-origin-local-only');
-  assert.equal(directionC.metrics.bytes,642092);
+  assert.equal(directionC.metrics.bytes,782240);
   assert.equal(directionC.metrics.gltf.errors,0);
   assert.equal(directionC.metrics.gltf.externalUris,0);
   assert.deepEqual(directionC.metrics.gltf.allowedIssues,[{code:'NODE_EMPTY',severity:2,count:3}]);

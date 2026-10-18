@@ -12,6 +12,8 @@ const read=path=>readFileSync(join(root,path),'utf8');
 const assetPath=join(root,'src/assets/3d/kicklab-direction-c-athlete/v1/kicklab-direction-c-athlete.glb');
 const clips=['Celebrate','FollowThrough','Plant','Ready','Recovery','RunUp','Strike'];
 globalThis.ProgressEvent??=class ProgressEvent{};
+globalThis.self??=globalThis;
+globalThis.createImageBitmap??=async()=>({width:128,height:128,close(){}});
 
 async function loadAsset(){
   const bytes=readFileSync(assetPath),buffer=bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength);
@@ -30,13 +32,15 @@ test('ships one fail-closed, self-authored production athlete under the payload 
   assert.equal(asset.manifest.provenance.likeness,false);
   assert.equal(asset.manifest.provenance.cloudProcessing,false);
   assert.equal(asset.manifest.network.externalUrisAllowed,false);
-  assert.equal(asset.metrics.bytes,642092);
+  assert.equal(asset.metrics.bytes,782240);
   assert.ok(asset.metrics.bytes<=2_500_000);
   assert.equal(asset.report.issues.numErrors,0);
   assert.equal(asset.report.issues.numWarnings,0);
-  assert.equal(asset.report.info.hasTextures,false);
+  assert.equal(asset.report.info.hasTextures,true);
+  assert.equal(asset.report.info.resources.filter(resource=>resource.image).length,3);
   assert.equal(asset.report.info.materialCount,6);
   assert.equal(asset.report.info.animationCount,7);
+  assert.equal(asset.report.info.totalTriangleCount,11092);
 });
 
 test('keeps the seven-clip shared skeleton and contact events within ten millimeters',async()=>{
