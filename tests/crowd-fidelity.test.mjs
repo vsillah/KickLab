@@ -12,7 +12,9 @@ test('builds a local hybrid crowd without external asset egress',()=>{
   for(const primitive of ['CylinderGeometry','SphereGeometry','PlaneGeometry','InstancedMesh'])assert.match(renderer,new RegExp(`T\\.${primitive}`));
   assert.match(renderer,/self-authored hybrid crowd/);
   assert.match(renderer,/crowdActorCapacity:this\.crowdInstanceCapacity/);
-  assert.match(renderer,/nearTier:'shared-rig-heroes-plus-dimensional-supporters'.*midTier:'instanced-supporters'.*farTier:'muted-procedural-fill'/);
+  assert.match(renderer,/nearTier:'seat-grounded-shared-rig-clusters'.*midTier:'row-aligned-dimensional-supporters'.*farTier:'soft-muted-distance-fill'/);
+  assert.match(renderer,/seatSteps:this\.crowdSeatSteps/);
+  assert.match(renderer,/coherentTransition:true,physicalGrounding:true/);
   assert.doesNotMatch(renderer,/crowd[^\n]{0,180}(fetch\(|https?:\/\/|XMLHttpRequest|sendBeacon)/i);
 });
 
@@ -32,9 +34,13 @@ test('uses viewport and distance LOD with bounded geometry and texture audits',(
   assert.match(renderer,/maxLayersPerStand:mode==='mobile'\?2:3/);
   assert.match(renderer,/crowdActorCapacity>=216/);
   assert.match(renderer,/heroSpectatorCapacity===12/);
-  assert.match(renderer,/nearTier:'shared-rig-heroes-plus-dimensional-supporters'/);
-  assert.match(renderer,/midTier:'instanced-supporters'/);
-  assert.match(renderer,/farTier:'muted-procedural-fill'/);
+  assert.match(renderer,/nearTier:'seat-grounded-shared-rig-clusters'/);
+  assert.match(renderer,/midTier:'row-aligned-dimensional-supporters'/);
+  assert.match(renderer,/farTier:'soft-muted-distance-fill'/);
+  assert.match(renderer,/layers\.seatSteps>=36/);
+  assert.match(renderer,/layers\.seatBacks>=36/);
+  assert.match(renderer,/layers\.seatUnitCapacity>=864/);
+  assert.match(renderer,/layers\.seatRails>=12/);
   assert.match(renderer,/crowdGeometryBytes<250000/);
   assert.match(renderer,/crowdTextureBytes<2500000/);
 });
@@ -45,10 +51,15 @@ test('renders a high-definition fictional adult reaction group onto the stadium 
   assert.match(athlete,/T\.SkeletonUtils\.clone\(source\)/);
   assert.match(athlete,/V3\.jumbotron\.fans=palettes\.slice\(0,3\)/);
   assert.match(athlete,/V3\.crowdRigSupporters\.push\(fan\)/);
-  assert.match(renderer,/jumbotronTier:'shared-direction-c-rig-supporters'/);
+  assert.match(renderer,/jumbotronTier:'broadcast-linked-shared-rig-supporters'/);
   assert.match(renderer,/layers\.jumbotronSpectators===3/);
   assert.match(renderer,/layers\.jumbotronRigSource==='shared-direction-c-v2'/);
-  assert.match(renderer,/layers\.rigHeroSpectatorCapacity===4/);
+  assert.match(renderer,/layers\.rigHeroSpectatorCapacity===6/);
+  assert.match(renderer,/layers\.groundedRigHeroSpectators===6/);
+  assert.match(renderer,/layers\.broadcastLinkedSupporters===3/);
+  assert.match(renderer,/layers\.jumbotronLinkedSupporters===3/);
+  assert.match(athlete,/supporterIds=\['sky-rocket','orange-playmaker','green-guardian'\]/);
+  assert.match(athlete,/seatGrounded=true/);
   assert.match(renderer,/window\.__KICKLAB_JUMBOTRON_EVIDENCE__=/);
   assert.match(renderer,/readRenderTargetPixels/);
   assert.match(renderer,/R\.render\(this\.jumbotron\.scene,this\.jumbotron\.cam\)/);
