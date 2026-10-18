@@ -39,14 +39,14 @@ That one command verifies or downloads the two pinned official archives, checks 
 
 The base deterministic source is `scripts/generate-makehuman-athlete.py`. It creates the body and official-core proxies, applies local flat kit/hair/eye/boot materials, downscales the skin texture to 256×256, binds MPFB's `game_engine` rig, authors the original seven Direction C clips and three marker nodes, saves the editable `.blend`, and exports one embedded GLB.
 
-Stage 3 then runs `scripts/extend-multi-activity-athlete.py` against that checked-in Blender source. The extension performs no MPFB import, asset download, or network call. It adds nine KickLab-authored actions—header ready/contact, dribble cycle, pass contact, combo volley, goalkeeper ready/dive, penalty strike, and crossbar strike—on the same 53-bone skeleton, then saves and exports the same v2 artifact. Existing marker and bone nodes supply contact metadata; no new likeness or external source is introduced.
+Stage 3 then runs `scripts/extend-multi-activity-athlete.py` against that checked-in Blender source. The extension performs no MPFB import, asset download, or network call. It adds nine KickLab-authored actions—header ready/contact, dribble cycle, pass contact, combo volley, goalkeeper ready/dive, penalty strike, and crossbar strike—on the same 53-bone skeleton. It also face-assigns the approved core sportsuit into a visually distinct navy jersey, cyan shorts, and white knee-high socks, retaining the existing orange soccer boots. It then saves and exports the same v2 artifact. Existing marker and bone nodes supply contact metadata; no new geometry, likeness, or external source is introduced.
 
 | Output | SHA-256 |
 |---|---|
 | Generator | `52d53511bf06f9d60e58d0428e7dc3cfb3bc4ef28fe661a3cc9824b9f5f5bbd5` |
-| Stage 3 activity extension | `805f898e0fdcd9841f6c798c9d5a0fe95d3b60fa49eb10928dcb67fa61964e06` |
-| Editable Blender source after the Stage 3 extension | `094924a34ab21ac6c6e78fda2db13312f499c624fdac9d3f31f2131fee409048` |
-| Runtime GLB | `27501a66c3707a104466f57d1b90cf95ddff254a563b83e05642598ab6c9cf68` |
+| Stage 3 activity and soccer-kit extension | `4ad659f5cb65b76cec549975f081f1c52b5bff3843c76ae6d6cd8a1b7509a227` |
+| Editable Blender source after the Stage 3 extension | `4d6e7a931a1857a5db8fcab6f567e6926e593addf70676bad83d1d5157b0bc1f` |
+| Runtime GLB | `09b4f85b1c95e16dadd2b220a264aae3dcb012793db5df7267564bdfbf233cec` |
 
 ## Skeleton and animation mapping
 
@@ -76,18 +76,18 @@ MPFB adds finger chains and extra spine detail. None changes KickLab's clip-sele
 
 | Gate | Result |
 |---|---:|
-| GLB payload | 1,632,516 bytes |
+| GLB payload | 1,643,096 bytes |
 | Skeleton | 53 bones |
 | Animations | 16 clips |
-| Surface | 26,502 triangles; 4 materials; 1 embedded 256×256 texture |
+| Surface | 26,502 triangles; 6 materials; 1 embedded 256×256 texture |
 | Strike contact drift | 0.00023 mm |
 | Plant drift during strike | 0.00018 mm |
 | Plant ground offset | 0.0221 mm |
 | Contact height above plant | 109.9782 mm |
 | glTF Validator | 0 errors; 0 warnings |
 
-Validator info-only findings are allowlisted in the asset manifest: three empty marker nodes and five retained UV objects on meshes whose local flat materials do not sample those UVs. Runtime payload, responsive layout, pacing, fallbacks, replay, lifecycle pause, and no-external-request gates are recorded separately by the browser QA report.
+Validator info-only findings are allowlisted in the asset manifest: three empty marker nodes and seven retained UV objects across primitives whose local flat materials do not sample those UVs. Runtime payload, responsive layout, pacing, fallbacks, replay, lifecycle pause, and no-external-request gates are recorded separately by the browser QA report.
 
 The Stage 2 clean-profile browser report recorded a 2,992,652-byte first-play payload, 1,282,948-byte decoded geometry/animation/texture proxy, 16.8 ms maximum p95 frame interval across the tested desktop/tablet/mobile captures, zero horizontal overflow, zero external requests, and zero browser errors.
 
-The Stage 3 exact-build report covered all eight activities at desktop, tablet, and mobile. It recorded a 3,304,823-byte first-play payload, 1,359,248-byte decoded geometry/animation/texture proxy, 9.6 ms maximum p95 frame interval, 0 mm maximum contact drift in the contact fixtures, 0.02 mm maximum required plant offset, zero horizontal overflow, zero external requests, and zero browser errors. All required dimensional stadium layers also passed. The privacy-safe MP4 is H.264, 1280×720, 30 fps, 35 seconds, and contains no audio.
+The Stage 3 final evidence report covers all eight activities at desktop, tablet, and mobile, asserts temporal root/joint motion through normal live controls, and verifies lifecycle pause and reduced-motion freezes. It recorded a 3,315,964-byte first-play payload, 1,367,308-byte decoded geometry/animation/texture proxy, 10 ms maximum p95 frame interval, 0 mm maximum drift across eight isolated contact calibrations, 0.02 mm maximum required plant offset, zero horizontal overflow, zero external requests, and zero browser errors. All dimensional stadium layers passed. The privacy-safe walkthrough is a genuine real-time H.264 browser recording at 1280×720 and 30 fps with no audio; screenshot captures are supplemental rather than synthesized into the video.

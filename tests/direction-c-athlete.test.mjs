@@ -34,13 +34,13 @@ test('ships one fail-closed, CC0-derived production athlete under the payload bu
   assert.equal(asset.manifest.provenance.cloudProcessing,false);
   assert.equal(asset.manifest.network.externalUrisAllowed,false);
   assert.equal(asset.manifest.license.basis,'cc0-official-core');
-  assert.equal(asset.metrics.bytes,1632516);
+  assert.equal(asset.metrics.bytes,1643096);
   assert.ok(asset.metrics.bytes<=2_500_000);
   assert.equal(asset.report.issues.numErrors,0);
   assert.equal(asset.report.issues.numWarnings,0);
   assert.equal(asset.report.info.hasTextures,true);
   assert.equal(asset.report.info.resources.filter(resource=>resource.image).length,1);
-  assert.equal(asset.report.info.materialCount,4);
+  assert.equal(asset.report.info.materialCount,6);
   assert.equal(asset.report.info.animationCount,16);
   assert.equal(asset.report.info.totalTriangleCount,26502);
 });
@@ -110,8 +110,18 @@ test('ships deterministic self-authored activity clips on the existing v2 skelet
   assert.doesNotMatch(source,/HumanService|TargetService|mhclo|download/i);
 });
 
+test('uses the approved local geometry as a recognizable soccer kit',async()=>{
+  const gltf=await loadAsset(),materials=new Set();
+  gltf.scene.traverse(object=>{if(object.isMesh){const entries=Array.isArray(object.material)?object.material:[object.material];entries.filter(Boolean).forEach(material=>materials.add(material.name));}});
+  for(const name of ['KickLabNavy','KickLabCyan','KickLabSockWhite','KickLabBoots'])assert.ok(materials.has(name),name);
+  const source=read('scripts/extend-multi-activity-athlete.py');
+  assert.match(source,/build_soccer_kit/);
+  assert.match(source,/center\.z >= 0\.96/);
+  assert.doesNotMatch(source,/download|https?:\/\//i);
+});
+
 test('keeps the dimensional procedural stadium in the multi-activity regression gate',()=>{
-  const renderer=read('src/game/50-renderer-3d.js'),qa=read('scripts/qa-multi-activity-athlete.mjs');
+  const renderer=read('src/game/50-renderer-3d.js'),qa=read('scripts/qa-multi-activity-athlete.mjs'),legacyQa=read('scripts/qa-direction-c-athlete.mjs');
   assert.match(renderer,/pitchMarkings>=12/);
   assert.match(renderer,/goalNetSurfaces>=4/);
   assert.match(renderer,/stands>=4&&layers\.sideReturns>=2/);
@@ -122,4 +132,11 @@ test('keeps the dimensional procedural stadium in the multi-activity regression 
   assert.match(qa,/activities\.length\*viewports\.length/);
   assert.match(qa,/key===['"]free['"]\|\|key===['"]run['"]/);
   assert.match(qa,/animated boards did not advance/);
+  assert.match(qa,/phaseTimeChanged/);
+  assert.match(qa,/motionSignature/);
+  assert.match(qa,/recordVideo/);
+  assert.match(qa,/real-time Playwright page recordings/);
+  assert.doesNotMatch(qa,/searchParams\.set\(['"]athletePhase/);
+  assert.match(legacyQa,/recordVideo/);
+  assert.doesNotMatch(legacyQa,/'-loop'/);
 });

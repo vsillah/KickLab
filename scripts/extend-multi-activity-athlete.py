@@ -1,8 +1,9 @@
 """Add KickLab-authored multi-activity clips to the approved local v2 athlete.
 
 Run with Blender against the checked-in editable source. This script opens no
-network connection and introduces no external asset; it only adds animation
-actions to the existing MPFB/MakeHuman skeleton before saving and exporting.
+network connection and introduces no external asset; it adds animation actions
+and a face-assigned soccer kit treatment to the existing MPFB/MakeHuman source
+before saving and exporting.
 """
 
 from __future__ import annotations
@@ -10,6 +11,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import bpy
+from mathutils import Vector
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -35,6 +37,43 @@ def rig_object():
     if not rig or rig.type != "ARMATURE":
         raise RuntimeError("Approved Direction C game-engine rig is missing")
     return rig
+
+
+def flat_material(name: str, color: tuple[float, float, float, float], roughness: float):
+    material = bpy.data.materials.get(name) or bpy.data.materials.new(name)
+    material.diffuse_color = color
+    material.use_nodes = True
+    shader = material.node_tree.nodes.get("Principled BSDF")
+    shader.inputs["Base Color"].default_value = color
+    shader.inputs["Roughness"].default_value = roughness
+    shader.inputs["Metallic"].default_value = 0.0
+    return material
+
+
+def build_soccer_kit() -> None:
+    suit = bpy.data.objects.get("KickLabCoreSportsuit")
+    boots = bpy.data.objects.get("KickLabCoreFootballBoots")
+    if not suit or suit.type != "MESH" or not boots or boots.type != "MESH":
+        raise RuntimeError("Approved core sportsuit or football boots are missing")
+    jersey = flat_material("KickLabNavy", (0.015, 0.065, 0.15, 1.0), 0.52)
+    shorts = flat_material("KickLabCyan", (0.015, 0.72, 0.76, 1.0), 0.45)
+    socks = flat_material("KickLabSockWhite", (0.92, 0.95, 0.98, 1.0), 0.62)
+    boot_material = flat_material("KickLabBoots", (0.94, 0.25, 0.025, 1.0), 0.34)
+    suit.data.materials.clear()
+    for material in (jersey, shorts, socks):
+        suit.data.materials.append(material)
+    for polygon in suit.data.polygons:
+        center = sum((suit.data.vertices[index].co for index in polygon.vertices), Vector()) / len(polygon.vertices)
+        if center.z >= 0.96 or abs(center.x) >= 0.19:
+            polygon.material_index = 0
+        elif center.z >= 0.66:
+            polygon.material_index = 1
+        else:
+            polygon.material_index = 2
+    boots.data.materials.clear()
+    boots.data.materials.append(boot_material)
+    for polygon in boots.data.polygons:
+        polygon.material_index = 0
 
 
 def clear_pose(rig) -> None:
@@ -181,6 +220,7 @@ def save_and_export() -> None:
 
 def main() -> None:
     rig = rig_object()
+    build_soccer_kit()
     build_actions(rig)
     save_and_export()
     names = sorted(action.name for action in bpy.data.actions)

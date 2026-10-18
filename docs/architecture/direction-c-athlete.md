@@ -10,7 +10,7 @@ The only runtime asset request is the same-origin repository path `assets/3d/kic
 
 ## Authored contract
 
-- source: repository-owned Blender file and deterministic Blender Python generators, using only MPFB 2.0.18 bundled core plus the official MakeHuman system-pack CC0 sportsuit, shoes, short hair, low-poly eyes, and young African skin assets;
+- source: repository-owned Blender file and deterministic Blender Python generators, using only MPFB 2.0.18 bundled core plus the official MakeHuman system-pack CC0 sportsuit, shoes, short hair, low-poly eyes, and young African skin assets; the existing sportsuit faces are locally partitioned into a navy jersey, cyan shorts, and white knee-high socks, while the existing shoes remain orange soccer boots;
 - shared animation contract: the original seven Direction C clips and three markers remain unchanged on MPFB's 53-bone `game_engine` rig; nine self-authored activity clips reuse that same skeleton and existing bone/marker contacts;
 - clips: `Ready`, `RunUp`, `Plant`, `Strike`, `FollowThrough`, `Celebrate`, and `Recovery`;
 - contact: `StrikeContact_R` reaches `BallContactTarget` at 0.4 seconds in `Strike`;
@@ -22,16 +22,16 @@ The only runtime asset request is the same-origin repository path `assets/3d/kic
 
 | Gate | Pass budget | Current deterministic value |
 |---|---:|---:|
-| Athlete GLB | ≤ 2.5 MB; hard stop at 4 MB | 1,632,516 bytes |
-| Full local first-play payload | ≤ 8 MB | 3,304,823 bytes |
+| Athlete GLB | ≤ 2.5 MB; hard stop at 4 MB | 1,643,096 bytes |
+| Full local first-play payload | ≤ 8 MB | 3,315,964 bytes |
 | Strike contact drift | ≤ 10 mm; hard stop at 20 mm | 0.00023 mm source validation |
 | Plant-foot ground offset | ≤ 10 mm | 0.0221 mm source validation |
-| Desktop frame pacing | p95 ≤ 20 ms | 9.6 ms |
-| Tablet/mobile frame pacing | p95 ≤ 40 ms | 9.6 ms |
-| Decoded geometry + animation + texture proxy | ≤ 24 MB | 1,359,248 bytes |
-| Athlete materials | ≤ 6 | 4 |
+| Desktop frame pacing | p95 ≤ 20 ms | 10 ms |
+| Tablet/mobile frame pacing | p95 ≤ 40 ms | 10 ms |
+| Decoded geometry + animation + texture proxy | ≤ 24 MB | 1,367,308 bytes |
+| Athlete materials | ≤ 6 | 6 |
 | Responsive horizontal overflow | 0 px | 0 px at 390×844, 768×1024, and 1440×1000 |
 
 The procedural stadium is part of the same regression gate. Every activity camera must retain the textured and marked pitch, four dimensional stands including both end returns, four roof panels, twenty roof-truss beams, four animated boards, four crowd layers, a four-surface depth net, and shadow-casting hemisphere/directional lighting. The athlete may not be accepted against a flattened background.
 
-Stage 3 validation is `npm run qa:multi-activity-athlete -- <local URL> <output directory>`. It captures all eight activities at 1440×1000, 768×1024, and 390×844, plus paired wide and athlete-close evidence for representative side and world cameras. These desktop/browser gates do not qualify a physical mobile device, native shell, signing, distribution, deployment, or store submission.
+Stage 3 validation is `npm run qa:multi-activity-athlete -- <local URL> <output directory>`. Its primary Human-QA URL has no forced `athletePhase`; the harness drives normal controls and asserts phase time plus root/joint motion across all eight activities at 1440×1000, 768×1024, and 390×844. It also proves active motion freezes under lifecycle pause and idle looping freezes under reduced motion. The MP4 is a genuine real-time browser recording; paired wide and athlete-close screenshots are supplements. These desktop/browser gates do not qualify a physical mobile device, native shell, signing, distribution, deployment, or store submission.

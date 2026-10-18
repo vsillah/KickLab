@@ -6,8 +6,8 @@
   "artifact": {
     "path": "src/assets/3d/kicklab-direction-c-athlete/v2/kicklab-makehuman-athlete.glb",
     "mediaType": "model/gltf-binary",
-    "bytes": 1632516,
-    "sha256": "27501a66c3707a104466f57d1b90cf95ddff254a563b83e05642598ab6c9cf68"
+    "bytes": 1643096,
+    "sha256": "09b4f85b1c95e16dadd2b220a264aae3dcb012793db5df7267564bdfbf233cec"
   },
   "provenance": {
     "creator": "KickLab using MakeHuman Community MPFB",
@@ -42,8 +42,8 @@
       {
         "code": "UNUSED_OBJECT",
         "severity": 2,
-        "count": 5,
-        "reason": "Core meshes retain source UV coordinates although the locally authored flat kit, hair, eye, and boot materials do not sample them"
+        "count": 7,
+        "reason": "Core meshes retain source UV coordinates across the locally face-partitioned kit, hair, eye, and boot primitives although their flat materials do not sample them"
       }
     ]
   },
