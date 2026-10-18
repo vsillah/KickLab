@@ -20,7 +20,13 @@ for(const file of ['fight.mp4','fight-poster.png','race.mp4','race-poster.png','
   assert.ok(!lstatSync(join(pagesRoot,'media','home-previews',file)).isSymbolicLink(),`${file} must be a regular local asset`);
   assert.equal(readFileSync(join(pagesRoot,'media','home-previews',file)).compare(readFileSync(join(root,'dist','media','home-previews',file))),0,`${file} must match the checked build`);
 }
-for(const file of ['assets/3d/kicklab-placeholder-athlete/v1/kicklab-placeholder-athlete.glb','assets/3d/kicklab-placeholder-athlete/v1/asset-manifest.json','build-metrics.json']){
+for(const file of [
+  'assets/3d/kicklab-placeholder-athlete/v1/kicklab-placeholder-athlete.glb',
+  'assets/3d/kicklab-placeholder-athlete/v1/asset-manifest.json',
+  'assets/3d/kicklab-direction-c-athlete/v1/kicklab-direction-c-athlete.glb',
+  'assets/3d/kicklab-direction-c-athlete/v1/asset-manifest.json',
+  'build-metrics.json',
+]){
   assert.ok(!lstatSync(join(pagesRoot,file)).isSymbolicLink(),`${file} must be a regular local artifact`);
   assert.equal(readFileSync(join(pagesRoot,file)).compare(readFileSync(join(root,'dist',file))),0,`${file} must match the checked build`);
 }

@@ -29,7 +29,12 @@ test('rejects untracked 3D provenance and validates the exact local GLB',async()
   assert.ok(schema.required.includes('license'));
   assert.ok(schema.required.includes('validation'));
   assert.ok(schema.required.includes('network'));
-  const {manifest,metrics}=await validateAssetSet();
+  const {assets}=await validateAssetSet();
+  const placeholder=assets.find(asset=>asset.manifest.assetId==='kicklab-placeholder-athlete');
+  const directionC=assets.find(asset=>asset.manifest.assetId==='kicklab-direction-c-athlete');
+  assert.ok(placeholder);
+  assert.ok(directionC);
+  const {manifest,metrics}=placeholder;
   assert.equal(manifest.status,'evaluation-only');
   assert.equal(manifest.provenance.externalInputs,false);
   assert.equal(manifest.provenance.likeness,false);
@@ -41,6 +46,14 @@ test('rejects untracked 3D provenance and validates the exact local GLB',async()
     {code:'NODE_SKINNED_MESH_NON_ROOT',severity:1,count:2},
     {code:'UNUSED_OBJECT',severity:2,count:10},
   ]);
+  assert.equal(directionC.manifest.status,'approved-production');
+  assert.equal(directionC.manifest.provenance.sourceType,'self-authored-production');
+  assert.equal(directionC.manifest.license.permittedUse,'production-game');
+  assert.equal(directionC.manifest.network.runtimeRequests,'same-origin-local-only');
+  assert.equal(directionC.metrics.bytes,642092);
+  assert.equal(directionC.metrics.gltf.errors,0);
+  assert.equal(directionC.metrics.gltf.externalUris,0);
+  assert.deepEqual(directionC.metrics.gltf.allowedIssues,[{code:'NODE_EMPTY',severity:2,count:3}]);
 });
 
 test('keeps the imported-v42 Canvas source outside the compatibility delta',()=>{

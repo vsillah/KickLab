@@ -47,7 +47,7 @@ const metrics = {
     gameBytes: Buffer.byteLength(game),
     gameFiles: parts.length,
   },
-  assets: [assetMetrics],
+  assets: assetMetrics,
 };
 writeFileSync(join(root, 'dist', 'build-metrics.json'), `${JSON.stringify(metrics, null, 2)}\n`);
-console.log(`built dist/kicklab.html (${(html.length / 1024).toFixed(0)} KB) with Three.js r${metrics.runtime.threeRevision}, GLTFLoader, and ${metrics.assets.length} validated local 3D asset`);
+console.log(`built dist/kicklab.html (${(html.length / 1024).toFixed(0)} KB) with Three.js r${metrics.runtime.threeRevision}, GLTFLoader, and ${metrics.assets.length} validated local 3D assets`);

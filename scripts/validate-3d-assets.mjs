@@ -1,4 +1,4 @@
 import { validateAssetSet } from './lib/3d-assets.mjs';
 
 const { metrics } = await validateAssetSet();
-console.log(`validated ${metrics.assetId} v${metrics.version} (${metrics.bytes} bytes, ${metrics.gltf.errors} errors, ${metrics.gltf.warnings} acknowledged fixture warnings, no external URIs)`);
+for(const asset of metrics)console.log(`validated ${asset.assetId} v${asset.version} (${asset.bytes} bytes, ${asset.gltf.errors} errors, ${asset.gltf.warnings} acknowledged warnings, no external URIs)`);

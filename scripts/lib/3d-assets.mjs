@@ -1,21 +1,30 @@
 import { createHash } from 'node:crypto';
-import { lstatSync, readFileSync } from 'node:fs';
+import { lstatSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import Ajv2020 from 'ajv/dist/2020.js';
 import { validateBytes } from 'gltf-validator';
 
 export const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
-export const manifestPath = join(root, 'src', 'assets', '3d', 'kicklab-placeholder-athlete', 'v1', 'asset-manifest.json');
+export const assetRootPath = join(root, 'src', 'assets', '3d');
+export const manifestPaths = readdirSync(assetRootPath,{withFileTypes:true})
+  .filter(entry=>entry.isDirectory())
+  .flatMap(entry=>readdirSync(join(assetRootPath,entry.name),{withFileTypes:true})
+    .filter(version=>version.isDirectory())
+    .map(version=>join(assetRootPath,entry.name,version.name,'asset-manifest.json')))
+  .filter(path=>{try{return lstatSync(path).isFile();}catch{return false;}})
+  .sort();
 
 const json = (path) => JSON.parse(readFileSync(path, 'utf8'));
 const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
 export async function validateAssetSet() {
   const schema = json(join(root, 'config', 'asset-manifest.schema.json'));
-  const manifest = json(manifestPath);
   const ajv = new Ajv2020({ allErrors: true, strict: true });
   const validateManifest = ajv.compile(schema);
+  const assets=[];
+  for(const manifestPath of manifestPaths){
+  const manifest = json(manifestPath);
   if (!validateManifest(manifest)) {
     throw new Error(`3D asset manifest rejected: ${ajv.errorsText(validateManifest.errors, { separator: '; ' })}`);
   }
@@ -52,7 +61,7 @@ export async function validateAssetSet() {
     throw new Error(`glTF validation failed closed: ${JSON.stringify({ externalUris, issues: report.issues })}`);
   }
 
-  return {
+  assets.push({
     manifest,
     report,
     metrics: {
@@ -72,5 +81,8 @@ export async function validateAssetSet() {
         externalUris: externalUris.length,
       },
     },
-  };
+  });
+  }
+  if(!assets.length)throw new Error('No local 3D asset manifests found');
+  return {assets,manifests:assets.map(asset=>asset.manifest),metrics:assets.map(asset=>asset.metrics)};
 }
