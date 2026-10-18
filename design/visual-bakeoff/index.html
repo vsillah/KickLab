@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Amanitore visual-fidelity bakeoff</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-direction="a" data-state="ready">
+  <a class="skip" href="#review-stage">Skip to concept</a>
+  <header class="masthead">
+    <div>
+      <p class="eyebrow">Amanitore lane · Phase 1 decision gate</p>
+      <h1>One free kick. Three visual systems.</h1>
+      <p class="lede">The athlete, stadium, Physics Vision, and controls were designed together. Select a direction only after checking the same moment at phone, tablet, and desktop sizes.</p>
+    </div>
+    <div class="status-card" aria-label="Review status">
+      <span>Local concept review</span>
+      <strong>Implementation locked</strong>
+      <small>Choose A, B, or C to open Phase 2.</small>
+    </div>
+  </header>
+
+  <main>
+    <nav class="direction-tabs" aria-label="Visual direction">
+      <button type="button" data-direction-button="a" aria-pressed="true"><span>A</span><b>Amanitore</b><small>Matchday Truth</small></button>
+      <button type="button" data-direction-button="b" aria-pressed="false"><span>B</span><b>Imhotep</b><small>Sculpted Velocity</small></button>
+      <button type="button" data-direction-button="c" aria-pressed="false"><span>C</span><b>Nzinga</b><small>Kinetic Anatomy</small></button>
+    </nav>
+
+    <section class="review-shell" aria-labelledby="direction-title">
+      <div class="review-head">
+        <div>
+          <p class="concept-id" id="concept-id">Direction A · Amanitore</p>
+          <h2 id="direction-title">Matchday Truth</h2>
+          <p id="direction-principle">The lesson lives inside a believable televised match. Physics appears with restraint at the moment it matters.</p>
+        </div>
+        <div class="state-tabs" role="group" aria-label="Keyframe">
+          <button type="button" data-state-button="ready" aria-pressed="true">01 Ready</button>
+          <button type="button" data-state-button="contact" aria-pressed="false">02 Contact + Physics</button>
+          <button type="button" data-state-button="play" aria-pressed="false">03 Play + controls</button>
+        </div>
+      </div>
+
+      <div class="stage-wrap" id="review-stage">
+        <section class="stage" aria-label="Side-view free-kick concept">
+          <img class="scene-desktop" id="scene" src="assets/direction-a-matchday-truth.png" alt="A fictional adult footballer preparing a side-view free kick in a deep stadium">
+          <img class="scene-mobile" id="scene-mobile" src="assets/direction-a-matchday-truth-mobile.png" alt="A fictional adult footballer, ball, goalkeeper, and goal together in a portrait free-kick composition">
+          <div class="shade" aria-hidden="true"></div>
+          <div class="hud hud-left"><span>FREE KICK · 21 m</span><b>22.0 <small>m/s</small></b></div>
+          <div class="hud hud-right"><span>ANGLE</span><b>17°</b></div>
+          <div class="phase-chip" id="phase-chip">SET YOUR LINE</div>
+          <div class="trajectory" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+
+          <svg class="physics-rig" viewBox="0 0 1000 560" role="img" aria-label="Physics Vision overlay showing the planted and striking chains, joint types, force, velocity, angle, and contact point">
+            <g class="bones">
+              <path d="M268 145 L332 202 L364 302 L426 392"/>
+              <path d="M332 202 L278 314 L329 426 L405 449"/>
+              <path d="M332 202 L433 314 L516 420 L578 448"/>
+              <path d="M271 148 L218 212 M271 148 L343 126"/>
+              <circle cx="268" cy="145" r="30"/>
+              <circle cx="332" cy="202" r="12"/><circle cx="278" cy="314" r="10"/><circle cx="329" cy="426" r="10"/>
+              <circle cx="433" cy="314" r="10"/><circle cx="516" cy="420" r="10"/><circle cx="578" cy="448" r="10"/>
+            </g>
+            <g class="vectors">
+              <path d="M582 444 C650 406 706 386 780 380"/>
+              <path d="M405 450 L407 522"/>
+              <path d="M329 426 A72 72 0 0 1 388 374"/>
+            </g>
+            <g class="rig-labels">
+              <text x="445" y="305">HIP · BALL JOINT</text>
+              <text x="505" y="406">KNEE · HINGE</text>
+              <text x="621" y="397">v = 22.0 m/s</text>
+              <text x="350" y="520">GROUND REACTION</text>
+              <text x="574" y="478">CONTACT · 9 ms</text>
+              <text x="354" y="372">17°</text>
+            </g>
+          </svg>
+
+          <div class="pause-flag">PLAY PAUSED · PHYSICS VISION</div>
+
+          <div class="control-deck" aria-label="Responsive gameplay controls">
+            <div class="control-cluster movement">
+              <span class="control-label">Movement</span>
+              <div class="thumbstick" aria-hidden="true"><i></i></div>
+              <small>Drag to aim · pull for power</small>
+            </div>
+            <button type="button" class="physics-trigger" aria-expanded="false"><span>Physics</span><b>θ 17°</b><small>Open lens</small></button>
+            <div class="control-cluster action">
+              <span class="control-label">Action</span>
+              <button type="button" class="kick-button">KICK<small>Hold · release</small></button>
+            </div>
+          </div>
+
+          <aside class="physics-sheet" aria-label="Context physics">
+            <div><span>Play paused</span><button type="button" class="physics-close" aria-label="Close Physics Vision">Close</button></div>
+            <h3>What your body is doing</h3>
+            <dl><div><dt>Plant chain</dt><dd>Hip → knee → ankle</dd></div><div><dt>Strike angle</dt><dd>17°</dd></div><div><dt>Contact</dt><dd>9 ms</dd></div></dl>
+          </aside>
+        </section>
+      </div>
+
+      <div class="device-treatments" aria-label="Responsive treatments">
+        <article class="device phone"><div class="device-screen"><div class="mini-hud">22.0 m/s · 17°</div><div class="mini-player"></div><div class="mini-controls"><i></i><b>KICK</b></div></div><h3>Phone · 390×844</h3><p>Thumb movement and one action by default. Physics opens on demand and pauses play.</p></article>
+        <article class="device tablet"><div class="device-screen"><div class="mini-hud">22.0 m/s · 17°</div><div class="mini-player"></div><div class="mini-controls"><i></i><em>θ 17°</em><b>KICK</b></div></div><h3>Tablet · 768×1024</h3><p>Movement, compact physics, and action share the lower safe region.</p></article>
+        <article class="device desktop"><div class="device-screen"><div class="mini-hud">22.0 m/s · 17°</div><div class="mini-player"></div><div class="mini-controls"><i></i><em>PHYSICS · θ 17°</em><b>KICK</b></div></div><h3>Desktop · 1440×1000</h3><p>All three clusters remain below the play line without covering the athlete, ball, goal, HUD, or coach.</p></article>
+      </div>
+
+      <div class="decision-grid">
+        <article><h3>Visual principle</h3><p id="principle-detail">Believability first. The stadium carries the emotion; the teaching layer enters only at contact.</p></article>
+        <article><h3>Runtime estimate</h3><p id="runtime-detail">Medium–high: one shared rig, PBR athlete and field, instanced crowd, restrained post effects.</p></article>
+        <article><h3>Asset need</h3><p id="asset-detail">Local adult rig, kit/boot materials, stadium modular set, net shader, board animation atlas.</p></article>
+        <article><h3>Tradeoff</h3><p id="tradeoff-detail">Most grounded. It needs the strongest modeling and lighting discipline to avoid an uncanny athlete.</p></article>
+        <article><h3>Accessibility</h3><p id="access-detail">Vectors pair color with labels and shape. Reduced motion freezes boards, crowd, camera, and vector pulses.</p></article>
+        <article><h3>Phase 2 test</h3><p id="test-detail">Prove foot-to-ball contact, silhouette readability, 30/60 fps tiers, and Canvas fallback before expanding.</p></article>
+      </div>
+    </section>
+
+    <section class="selection-gate">
+      <p class="eyebrow">Decision required</p>
+      <h2>Which system earns a prototype?</h2>
+      <p>A chooses grounded broadcast realism. B chooses graphic sculpted energy. C makes the shared anatomical rig the center of the learning experience. No winner has been selected in this lane.</p>
+      <div class="selection-cards">
+        <button type="button" data-direction-button="a"><b>A · Amanitore</b><span>Matchday Truth</span></button>
+        <button type="button" data-direction-button="b"><b>B · Imhotep</b><span>Sculpted Velocity</span></button>
+        <button type="button" data-direction-button="c"><b>C · Nzinga</b><span>Kinetic Anatomy</span></button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>Phase 1 concept artifact · local only · no provider activation</span>
+    <a href="provenance.md">Visual provenance</a>
+  </footer>
+  <script src="review.js"></script>
+</body>
+</html>
