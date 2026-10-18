@@ -64,6 +64,14 @@ test('reduced motion uses the same skeleton and deterministic endpoint poses',()
   assert.equal(core.pose(sample,'reduced').t,reduced.t);
 });
 
+test('full mode owns differentiated volumetric anatomy and readable foot mechanics',()=>{
+  for(const renderer of ['drawLifelikeAthlete','drawLifelikeHead','drawLifelikeBoot','drawMechanicsLens'])assert.match(source,new RegExp(`function ${renderer}\\(`));
+  for(const part of ['head','face','neck','shoulders','chest','pelvis','upper-limbs','lower-limbs','ankles','heels','toes','boots'])assert.match(source,new RegExp(`['"]${part}['"]`));
+  assert.match(source,/self-authored-volumetric-procedural/);
+  assert.match(source,/mechanicsLens=true/);
+  assert.doesNotMatch(source,/RIG\.side\(c,J/);
+});
+
 test('keeps source local, asset-free, storage-neutral, and replay-compatible',()=>{
   assert.doesNotMatch(source,/fetch\s*\(|XMLHttpRequest|WebSocket|https?:\/\//);
   assert.doesNotMatch(source,/localStorage|sessionStorage|impactlab\.v1|impactlab\.nick/);
