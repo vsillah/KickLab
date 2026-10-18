@@ -32,4 +32,16 @@ Acceptance requires every target score, both `light` and `heavy` existing boot t
 | Mobile legibility | 2 | 3 | Stronger field silhouette and retained mechanics lens at 390 px without overflow |
 | Stadium consistency | 2 | 4 | Reduced outline weight, shaded connected anatomy, existing palette and local stadium lighting |
 
-The scores describe the reviewed code-authored side-view language, not photorealism or platform qualification. The mechanics lens remains a teaching aid; it does not substitute for the improved primary field athlete.
+The scores describe the reviewed code-authored side-view language, not photorealism or platform qualification. The mechanics detail remains a teaching aid; it does not substitute for the improved primary field athlete.
+
+## Human QA correction gate
+
+Human QA rejected commit `f458b7e1ee0bd948c70e3db3597204615d717d4e` because the elbows crossed below the wrists in the six non-celebration states and the in-stage proof controls plus mechanics lens obscured the approved stadium composition.
+
+The correction gate requires:
+
+- elbow positions remain strictly between shoulder and wrist height in ready, approach, plant, strike, follow-through, recovery, and celebration;
+- front and rear arms retain opposite, deterministic bend directions when the rig is mirrored;
+- the approved PR #20 stadium source stays byte-for-byte identical at SHA-256 `2ff5be0f1664d22d3f4abb8e569a19ed68a582a448b80f20749322d582642477`;
+- the complete atmosphere, roof, upper/lower stands, crowd, side returns, animated boards, perspective pitch, goal frame, side/back net, and perspective grid remain active;
+- character proof controls and the mechanics detail render outside `.stage`, leaving the stadium unobscured at desktop, tablet, and mobile sizes.

@@ -2,11 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root=join(dirname(fileURLToPath(import.meta.url)),'..');
 const source=readFileSync(join(root,'src/game/33-lifelike-free-kick.js'),'utf8');
+const stadiumSource=readFileSync(join(root,'src/game/30-kick-sideview.js'));
 const sandbox={URLSearchParams};sandbox.globalThis=sandbox;
 vm.runInNewContext(source,sandbox,{filename:'33-lifelike-free-kick.js'});
 const core=sandbox.KickLabCharacterCore;
@@ -83,6 +85,37 @@ test('keeps adult shoulder and hip mass wider than the v1 capsule spacing',()=>{
     assert.ok(Math.abs(joints.hipF.x-joints.hipR.x)>=.1,'hip mass collapsed');
     assert.ok(joints.head.y-joints.pelvis.y>.75,'adult vertical proportion collapsed');
   }
+});
+
+test('keeps shoulder elbow wrist order and bend direction anatomical in every clip',()=>{
+  const samples=[
+    kick(),kick({state:'swing',phi:-.8}),kick({state:'swing',phi:-.4}),kick({state:'swing',phi:.33,contact:true}),
+    kick({state:'flight',flightT:.25}),kick({state:'flight',flightT:1}),kick({state:'done',outcome:'goal',cheerT:1})
+  ];
+  const cross=(A,K,B)=>(K.x-A.x)*(B.y-K.y)-(K.y-A.y)*(B.x-K.x);
+  for(const sample of samples){
+    const {clip,joints:J}=core.pose(sample,'full');
+    for(const [side,shoulder,elbow,wrist,expected] of [['front',J.shF,J.elF,J.haF,1],['rear',J.shR,J.elR,J.haR,-1]]){
+      const low=Math.min(shoulder.y,wrist.y),high=Math.max(shoulder.y,wrist.y);
+      assert.ok(elbow.y>low&&elbow.y<high,`${clip} ${side} elbow must stay between shoulder and wrist`);
+      assert.equal(Math.sign(cross(shoulder,elbow,wrist)),expected,`${clip} ${side} forearm bends backward`);
+    }
+  }
+});
+
+test('mirrors anatomical elbow bends without changing their joint order',()=>{
+  const root={x:-.5,y:1.5},target={x:-.9,y:1.2},elbow=core.armElbow(root,target,-1,1),mirror=point=>({x:-point.x,y:point.y});
+  const mirrored=core.armElbow(mirror(root),mirror(target),-1,-1);
+  assert.ok(Math.abs(mirrored.x+elbow.x)<1e-9);
+  assert.ok(Math.abs(mirrored.y-elbow.y)<1e-9);
+  assert.ok(mirrored.y>target.y&&mirrored.y<root.y);
+});
+
+test('keeps the approved PR 20 stadium composition byte-for-byte unchanged and unobscured',()=>{
+  assert.equal(createHash('sha256').update(stadiumSource).digest('hex'),'2ff5be0f1664d22d3f4abb8e569a19ed68a582a448b80f20749322d582642477');
+  assert.match(source,/document\.querySelector\('\.control-deck'\)\.before\(panel\)/);
+  assert.match(source,/audit\.stadiumUnobscured=!document\.querySelector\('\.stage \.character-poc'\)/);
+  assert.doesNotMatch(source,/document\.querySelector\('\.stage'\)\.appendChild\(panel\)/);
 });
 
 test('full mode owns differentiated volumetric anatomy and readable foot mechanics',()=>{
