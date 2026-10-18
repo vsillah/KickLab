@@ -38,13 +38,16 @@ test('maps the four contextual summaries to accessible disclosures',()=>{
   assert.doesNotMatch(html,/id="contextMenuSlot"|id="inspector"|id="ins-tab-|id="ins-pane-/);
 });
 
-test('keeps gameplay controls outside the canvas stage',()=>{
+test('relocates gameplay controls into the stage without duplicating their canonical markup',()=>{
   const stageEnd=html.indexOf('</div>\n        <div class="control-deck"');
   assert.ok(stageEnd>html.indexOf('<div class="stage">'));
   assert.ok(html.indexOf('id="pad"')>stageEnd);
   assert.ok(html.indexOf('id="physicsDetail"')>html.indexOf('id="cv"'));
   assert.ok(html.indexOf('id="physicsDetail"')<stageEnd);
   assert.ok(html.indexOf('id="rbar"')>stageEnd);
+  assert.match(analog,/controlStage\.appendChild\(controlCockpit\);controlCockpit\.classList\.add\('stage-control-cockpit'\)/);
+  assert.match(analog,/window\.__KICKLAB_CONTROL_COCKPIT__=\{state:controlCockpit\.dataset\.cockpitState,parent:'stage',position:getComputedStyle\(controlCockpit\)\.position,reservedHeight:0/);
+  assert.match(analog,/cockpit-hidden/);
 });
 
 test('keeps canonical Math content in the physics disclosure',()=>{
@@ -496,6 +499,19 @@ test('pauses and resumes through canonical settings ownership',()=>{
   assert.match(cockpit,/trigger\.isConnected/);
   assert.match(html,/id="settingsState">Game paused while settings are open/);
   assert.doesNotMatch(cockpit,/INSPECTOR\.pane==='setup'/);
+});
+
+test('uses a bounded, fading, accessible in-stage control cockpit',()=>{
+  assert.match(css,/\.stage>\.stage-control-cockpit\{[^}]+position:absolute!important[^}]+right:calc\(var\(--game-rail-space,82px\)[^}]+bottom:max\(4px,env\(safe-area-inset-bottom\)\)/);
+  assert.match(css,/\.stage>\.stage-control-cockpit\.cockpit-idle\{opacity:\.34;transform:translateY\(58%\)\}/);
+  assert.match(css,/\.stage>\.stage-control-cockpit\.cockpit-motion\{opacity:\.1;transform:translateY\(82%\)\}/);
+  assert.match(css,/\.stage>\.stage-control-cockpit\.cockpit-hidden\{opacity:0!important;transform:translateY\(105%\)!important;pointer-events:none!important\}/);
+  assert.match(css,/@media \(max-width:700px\)[\s\S]*\.compact-physics-detail-toggle\{[^}]+width:44px[^}]+min-width:44px[^}]+height:44px[^}]+min-height:44px/);
+  assert.match(analog,/\['pointerdown','pointermove','touchstart','keydown'\]\.forEach\(type=>controlStage&&controlStage\.addEventListener\(type,controlCockpitWake/);
+  assert.match(analog,/controlCockpit&&controlCockpit\.addEventListener\('focusin',controlCockpitWake\)/);
+  assert.match(analog,/expanded=CONTROLLER\.mode==='manual'\|\|!\$\('#dials'\)\.hidden\|\|!!controlStage\.querySelector/);
+  assert.match(analog,/hidden=!replay&&\(countdown\|\|results\|\|celebration\)/);
+  assert.match(analog,/controlCockpit\.inert=hidden;controlCockpit\.setAttribute\('aria-hidden',String\(hidden\)\)/);
 });
 
 test('puts coach, challenge, and history guidance in the stage without duplicating nodes',()=>{
