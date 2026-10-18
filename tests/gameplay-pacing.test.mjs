@@ -66,6 +66,43 @@ test('cancel invalidates scheduled phases and a restart begins at READY', () => 
   assert.equal(seen.at(-1), 'Race:READY?');
 });
 
+test('lifecycle foreground remains paused until an explicit player resume', () => {
+  const events = [];
+  const lifecycle = PACING.createLifecycleSession({
+    onSuspend: reason => events.push(`suspend:${reason}`),
+    onForeground: reason => events.push(`foreground:${reason}`),
+    onResume: reason => events.push(`resume:${reason}`)
+  });
+  assert.deepEqual({ ...lifecycle.suspend('document-hidden') }, { active: false, awaitingPlayerResume: true, lastReason: 'document-hidden', suspensions: 1 });
+  assert.equal(lifecycle.foreground('document-visible').awaitingPlayerResume, true);
+  assert.equal(lifecycle.resume('player-gesture').awaitingPlayerResume, false);
+  assert.deepEqual(events, ['suspend:document-hidden', 'foreground:document-visible', 'resume:player-gesture']);
+});
+
+test('lifecycle resume is ignored while the app is still inactive', () => {
+  const events = [];
+  const lifecycle = PACING.createLifecycleSession({ onResume: reason => events.push(reason) });
+  lifecycle.suspend('page-hidden');
+  assert.equal(lifecycle.resume('too-early').awaitingPlayerResume, true);
+  assert.deepEqual(events, []);
+});
+
+test('duplicate background signals cancel once and resume once', () => {
+  const events = [];
+  const lifecycle = PACING.createLifecycleSession({
+    onSuspend: reason => events.push(`cancel:${reason}`),
+    onForeground: reason => events.push(`foreground:${reason}`),
+    onResume: reason => events.push(`resume:${reason}`)
+  });
+  lifecycle.suspend('document-hidden');
+  const duplicate = lifecycle.suspend('page-hidden');
+  assert.deepEqual({ ...duplicate }, { active: false, awaitingPlayerResume: true, lastReason: 'page-hidden', suspensions: 1 });
+  assert.equal(lifecycle.foreground('document-visible').awaitingPlayerResume, true);
+  assert.equal(lifecycle.resume('player-resume').awaitingPlayerResume, false);
+  assert.equal(lifecycle.resume('duplicate-resume').awaitingPlayerResume, false);
+  assert.deepEqual(events, ['cancel:document-hidden', 'foreground:document-visible', 'resume:player-resume']);
+});
+
 test('game integrations route initial, continuous, panel, lifecycle and Match transitions through pacing owners', () => {
   const read = file => readFileSync(join(process.cwd(), file), 'utf8');
   const mode = read('src/game/53-weekly-challenge.js');
@@ -87,5 +124,9 @@ test('game integrations route initial, continuous, panel, lifecycle and Match tr
   assert.match(cockpit, /pauseGame\('context-detail'\)/);
   assert.match(cockpit, /releasePauseOwner\('settings',\{restart\}\)/);
   assert.match(lifecycle, /claimPauseOwner\('mobile-lifecycle'\)/);
+  assert.match(lifecycle, /visibilitychange[\s\S]*document\.hidden\?suspendMobileSession\('document-hidden'\):foregroundMobileSession\('document-visible'\)/);
+  assert.match(lifecycle, /releaseMobileHeldInputs[\s\S]*cancelGesture\(reason\)/);
+  assert.match(lifecycle, /suspendMobileAudio[\s\S]*AC\.suspend\(\)/);
+  assert.match(read('src/game/61-gameplay-pacing.js'), /MOBILE_SHELL\.resume\('player-resume'\)/);
   assert.doesNotMatch(read('src/index.html'), /fonts\.googleapis\.com|fonts\.gstatic\.com/);
 });

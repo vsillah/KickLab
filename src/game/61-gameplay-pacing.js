@@ -5,9 +5,9 @@ const pacingOverlay=$('#gamePacingOverlay'),pacingPhase=$('#gamePacingPhase'),pa
 
 function pauseReason(snapshot){if(snapshot.manual)return'manual';return snapshot.owners[0]||'';}
 function renderPausedOverlay(){
-  const snapshot=PAUSE_OWNERS.snapshot(),manual=snapshot.manual&&!PACE_SEQUENCE.state().active;
-  if(!manual){if(!PACE_SEQUENCE.state().active)pacingOverlay.hidden=true;return;}
-  pacingOverlay.hidden=false;pacingOverlay.dataset.state='paused';pacingOverlay.dataset.presentation='card';$('#gamePacingKicker').textContent='Game paused';pacingPhase.textContent='PAUSED';pacingActivity.textContent='Tap the stage or press P to continue';$('#gameControlPreview').innerHTML='';pacingResume.hidden=false;pacingA11y.textContent='Game paused. Activate Resume game, tap the stage, or press P to continue.';
+  const snapshot=PAUSE_OWNERS.snapshot(),manual=snapshot.manual&&!PACE_SEQUENCE.state().active,lifecycle=snapshot.owners.some(owner=>owner==='mobile-lifecycle'||owner==='document-hidden');
+  if(!manual&&!lifecycle){if(!PACE_SEQUENCE.state().active)pacingOverlay.hidden=true;return;}
+  pacingOverlay.hidden=false;pacingOverlay.dataset.state='paused';pacingOverlay.dataset.presentation='card';$('#gamePacingKicker').textContent=lifecycle?'Paused while away':'Game paused';pacingPhase.textContent='PAUSED';pacingActivity.textContent=lifecycle?'Resume when you are ready':'Tap the stage or press P to continue';$('#gameControlPreview').innerHTML='';pacingResume.hidden=false;pacingA11y.textContent=lifecycle?'Gameplay paused while the app was in the background. Activate Resume game, tap the stage, or press P to continue.':'Game paused. Activate Resume game, tap the stage, or press P to continue.';
 }
 function applyPauseSnapshot(snapshot,{notify=true}={}){
   const was=PAUSE.on;PAUSE.on=snapshot.paused;PAUSE.why=pauseReason(snapshot);PAUSE.resumeT=0;
@@ -26,7 +26,7 @@ function resumePlayerPause(){
   let snapshot=PAUSE_OWNERS.snapshot();
   if(snapshot.manual)snapshot=setManualPause(false);
   else if(!document.hidden&&(snapshot.owners.includes('document-hidden')||snapshot.owners.includes('mobile-lifecycle'))){
-    if(snapshot.owners.includes('mobile-lifecycle')&&typeof MOBILE_STATE!=='undefined'&&MOBILE_STATE.active)snapshot=releasePauseOwner('mobile-lifecycle',{restart:false});
+    if(snapshot.owners.includes('mobile-lifecycle')&&typeof MOBILE_SHELL!=='undefined'&&MOBILE_SHELL.state().active){MOBILE_SHELL.resume('player-resume');snapshot=PAUSE_OWNERS.snapshot();}
     if(snapshot.owners.includes('document-hidden'))snapshot=releasePauseOwner('document-hidden',{restart:false});
     maybeRestartGameTransition();
   }
@@ -60,7 +60,5 @@ function cancelGameTransition(reason='cancelled',{retain=false}={}){const active
 function maybeRestartGameTransition(){const snapshot=PAUSE_OWNERS.snapshot();if(!PACE.pending||snapshot.manual||snapshot.owners.length)return false;const pending=PACE.pending;PACE.pending=null;startGameTransition(pending);return true;}
 function stopGamePacing(reason='stopped'){PACE.pending=null;if(PACE_SEQUENCE.state().active)PACE_SEQUENCE.cancel(reason);pacingOverlay.hidden=true;}
 
-pacingOverlay.addEventListener('pointerdown',event=>{event.stopPropagation();if(event.target===pacingOverlay&&PAUSE_OWNERS.snapshot().manual){unlock();resumePlayerPause();}});
+pacingOverlay.addEventListener('pointerdown',event=>{event.stopPropagation();const snapshot=PAUSE_OWNERS.snapshot();if(event.target===pacingOverlay&&(snapshot.manual||snapshot.owners.includes('mobile-lifecycle')||snapshot.owners.includes('document-hidden'))){unlock();resumePlayerPause();}});
 pacingResume.addEventListener('click',event=>{event.stopPropagation();unlock();resumePlayerPause();});
-document.addEventListener('visibilitychange',()=>{if(document.hidden)claimPauseOwner('document-hidden');});
-window.addEventListener('pagehide',()=>claimPauseOwner('document-hidden'));

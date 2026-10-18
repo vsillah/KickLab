@@ -44,5 +44,24 @@
     return Object.freeze({ phases, state, start, cancel });
   }
 
-  root.KickLabGameplayPacing = Object.freeze({ apiVersion: '1.0.0', createPauseOwnership, createTransitionSequence });
+  function createLifecycleSession({ onSuspend = () => {}, onForeground = () => {}, onResume = () => {} } = {}) {
+    let active = true, awaitingPlayerResume = false, lastReason = 'startup', suspensions = 0;
+    const state = () => Object.freeze({ active, awaitingPlayerResume, lastReason, suspensions });
+    function suspend(reason = 'background') {
+      lastReason = String(reason);
+      if (!active && awaitingPlayerResume) return state();
+      active = false; awaitingPlayerResume = true; suspensions += 1;
+      onSuspend(lastReason, state()); return state();
+    }
+    function foreground(reason = 'foreground') {
+      active = true; lastReason = String(reason); onForeground(lastReason, state()); return state();
+    }
+    function resume(reason = 'player-resume') {
+      if (!active || !awaitingPlayerResume) return state();
+      awaitingPlayerResume = false; lastReason = String(reason); onResume(lastReason, state()); return state();
+    }
+    return Object.freeze({ state, suspend, foreground, resume });
+  }
+
+  root.KickLabGameplayPacing = Object.freeze({ apiVersion: '1.1.0', createPauseOwnership, createTransitionSequence, createLifecycleSession });
 })(globalThis);
