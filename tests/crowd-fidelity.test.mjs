@@ -49,6 +49,8 @@ test('renders a high-definition fictional adult reaction group onto the stadium 
   assert.match(renderer,/layers\.jumbotronSpectators===3/);
   assert.match(renderer,/layers\.jumbotronRigSource==='shared-direction-c-v2'/);
   assert.match(renderer,/layers\.rigHeroSpectatorCapacity===4/);
+  assert.match(renderer,/window\.__KICKLAB_JUMBOTRON_EVIDENCE__=/);
+  assert.match(renderer,/readRenderTargetPixels/);
   assert.match(renderer,/R\.render\(this\.jumbotron\.scene,this\.jumbotron\.cam\)/);
   assert.doesNotMatch(renderer+athlete,/real.person|child likeness|remote jumbotron/i);
 });
