@@ -27,11 +27,11 @@
       "required": ["creator", "sourceType", "sourcePath", "sourceCommit", "acquiredOn", "externalInputs", "likeness", "cloudProcessing"],
       "properties": {
         "creator": { "type": "string", "minLength": 1 },
-        "sourceType": { "enum": ["self-authored-placeholder", "self-authored-production"] },
+        "sourceType": { "enum": ["self-authored-placeholder", "self-authored-production", "official-core-derived"] },
         "sourcePath": { "type": "string", "minLength": 1 },
         "sourceCommit": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
         "acquiredOn": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
-        "externalInputs": { "const": false },
+        "externalInputs": { "type": "boolean" },
         "likeness": { "const": false },
         "cloudProcessing": { "const": false }
       }
@@ -42,7 +42,7 @@
       "required": ["owner", "basis", "permittedUse", "thirdPartyRestrictions", "proof"],
       "properties": {
         "owner": { "type": "string", "minLength": 1 },
-        "basis": { "const": "self-authored" },
+        "basis": { "enum": ["self-authored", "cc0-official-core"] },
         "permittedUse": { "enum": ["internal-evaluation", "production-game"] },
         "thirdPartyRestrictions": { "const": "none" },
         "proof": { "type": "string", "minLength": 1 }
