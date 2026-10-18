@@ -10,6 +10,7 @@
     "vendor:three": "node scripts/vendor-three-runtime.mjs",
     "qa:3d-compat": "node scripts/qa-stage1-3d-compat.mjs",
     "qa:direction-c": "node scripts/qa-direction-c-athlete.mjs",
+    "qa:multi-activity-athlete": "node scripts/qa-multi-activity-athlete.mjs",
     "pages:prepare": "node scripts/prepare-pages.mjs",
     "pages:check": "node scripts/check-pages-prepare.mjs",
     "mobile:prepare": "node scripts/build.mjs --emit-game && node scripts/prepare-mobile.mjs",

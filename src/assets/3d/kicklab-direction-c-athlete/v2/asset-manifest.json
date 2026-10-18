@@ -6,13 +6,13 @@
   "artifact": {
     "path": "src/assets/3d/kicklab-direction-c-athlete/v2/kicklab-makehuman-athlete.glb",
     "mediaType": "model/gltf-binary",
-    "bytes": 1328424,
-    "sha256": "a847d442e26006859829fd763f54d602d6349f47434a29af520e0575a4f01ffd"
+    "bytes": 1632516,
+    "sha256": "27501a66c3707a104466f57d1b90cf95ddff254a563b83e05642598ab6c9cf68"
   },
   "provenance": {
     "creator": "KickLab using MakeHuman Community MPFB",
     "sourceType": "official-core-derived",
-    "sourcePath": "scripts/generate-makehuman-athlete.py plus the local Blender source under src/assets/3d/kicklab-direction-c-athlete/v2; inputs are the individually recorded MPFB 2.0.18 bundled core and MakeHuman system-pack CC0 assets",
+    "sourcePath": "scripts/generate-makehuman-athlete.py and scripts/extend-multi-activity-athlete.py plus the local Blender source under src/assets/3d/kicklab-direction-c-athlete/v2; inputs are the individually recorded MPFB 2.0.18 bundled core and MakeHuman system-pack CC0 assets",
     "sourceCommit": "9c3d7da482d894bf467b77af91057fb64d8835f5",
     "acquiredOn": "2026-10-18",
     "externalInputs": true,
