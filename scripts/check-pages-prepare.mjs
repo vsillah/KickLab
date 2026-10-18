@@ -28,6 +28,7 @@ for(const file of ['assets/3d/kicklab-placeholder-athlete/v1/kicklab-placeholder
 assert.match(workflow, /^permissions:\n  contents: read$/m, 'workflow permissions must remain read-only');
 assert.match(workflow, /actions\/upload-pages-artifact@v5/, 'workflow must package a Pages artifact');
 assert.match(workflow, /path: dist\/pages/, 'workflow must upload the prepared Pages root');
+assert.match(workflow, /run: npm ci/, 'workflow must install the exact local validation toolchain');
 assert.match(workflow, /run: npm run check/, 'workflow must preserve the full repository check contract');
 assert.match(workflow, /^  push:\n    branches: \[main\]$/m, 'automatic deployment must be limited to pushes on main');
 assert.match(workflow, /^  pull_request:$/m, 'every pull request must validate and package without deploying');
