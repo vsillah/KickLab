@@ -64,12 +64,42 @@ test('reduced motion uses the same skeleton and deterministic endpoint poses',()
   assert.equal(core.pose(sample,'reduced').t,reduced.t);
 });
 
+test('counter-rotates torso and pelvis through strike and balanced recovery',()=>{
+  const plant=core.pose(kick({state:'swing',phi:-.2}),'full');
+  const strike=core.pose(kick({state:'swing',phi:.33,contact:true}),'full');
+  const follow=core.pose(kick({state:'flight',flightT:.35}),'full');
+  const recover=core.pose(kick({state:'flight',flightT:1}),'full');
+  assert.ok(plant.motion.torso<0&&plant.motion.pelvis>0);
+  assert.ok(strike.motion.torso>0&&strike.motion.pelvis<0);
+  assert.ok(follow.motion.heelLift>0&&follow.motion.balance>strike.motion.balance);
+  assert.ok(Math.abs(recover.motion.torso)<Math.abs(follow.motion.torso));
+  assert.ok(Math.abs(recover.motion.pelvis)<Math.abs(follow.motion.pelvis));
+});
+
+test('keeps adult shoulder and hip mass wider than the v1 capsule spacing',()=>{
+  for(const sample of [kick(),kick({state:'swing',phi:-.2}),kick({state:'flight',flightT:.35})]){
+    const {joints}=core.pose(sample,'full');
+    assert.ok(Math.abs(joints.shF.x-joints.shR.x)>=.14,'shoulder mass collapsed');
+    assert.ok(Math.abs(joints.hipF.x-joints.hipR.x)>=.1,'hip mass collapsed');
+    assert.ok(joints.head.y-joints.pelvis.y>.75,'adult vertical proportion collapsed');
+  }
+});
+
 test('full mode owns differentiated volumetric anatomy and readable foot mechanics',()=>{
-  for(const renderer of ['drawLifelikeAthlete','drawLifelikeHead','drawLifelikeBoot','drawMechanicsLens'])assert.match(source,new RegExp(`function ${renderer}\\(`));
+  for(const renderer of ['drawLifelikeAthlete','drawLifelikeHead','drawLifelikeBoot','drawMechanicsLens','lifelikeBentLimb','lifelikeJointBlend'])assert.match(source,new RegExp(`function ${renderer}\\(`));
   for(const part of ['head','face','neck','shoulders','chest','pelvis','upper-limbs','lower-limbs','ankles','heels','toes','boots'])assert.match(source,new RegExp(`['"]${part}['"]`));
   assert.match(source,/self-authored-volumetric-procedural/);
   assert.match(source,/mechanicsLens=true/);
   assert.doesNotMatch(source,/RIG\.side\(c,J/);
+});
+
+test('differentiates canonical speed and power kit profiles without shadow telemetry',()=>{
+  assert.match(source,/profile==='power'/);
+  assert.match(source,/profile==='speed'/);
+  assert.match(source,/audit\.kitSelection=kit\(\)/);
+  assert.match(source,/audit\.kitTelemetry=kitState\(\)/);
+  assert.match(source,/audit\.kitProfile=equipment\.boot\.profile/);
+  assert.doesNotMatch(source,/shotMultiplier\s*=|skillTimingMultiplier\s*=/);
 });
 
 test('keeps source local, asset-free, storage-neutral, and replay-compatible',()=>{
@@ -77,6 +107,7 @@ test('keeps source local, asset-free, storage-neutral, and replay-compatible',()
   assert.doesNotMatch(source,/localStorage|sessionStorage|impactlab\.v1|impactlab\.nick/);
   assert.match(source,/characterMode=mode/);
   assert.match(source,/originalApplySnap/);
+  assert.match(source,/if\(pocVisible\)window\.__KICKLAB_CHARACTER_POC_QA__/);
   const replay=readFileSync(join(root,'src/index.html'),'utf8');
   assert.match(replay,/data-sp="0\.25"/);
 });
