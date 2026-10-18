@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "1.0.0",
+  "assetId": "kicklab-placeholder-athlete",
+  "version": "1",
+  "status": "evaluation-only",
+  "artifact": {
+    "path": "src/assets/3d/kicklab-placeholder-athlete/v1/kicklab-placeholder-athlete.glb",
+    "mediaType": "model/gltf-binary",
+    "bytes": 301592,
+    "sha256": "67eb958761253e280dadf4ee6a03f3c9a459464503de0115c8fd399f44849daa"
+  },
+  "provenance": {
+    "creator": "KickLab",
+    "sourceType": "self-authored-placeholder",
+    "sourcePath": "PR #24 evaluation/3d-pipeline/assets/kicklab-placeholder-athlete.glb",
+    "sourceCommit": "138cda96a6bb5ef49c24127285e1cf2a9a162c3f",
+    "acquiredOn": "2026-10-18",
+    "externalInputs": false,
+    "likeness": false,
+    "cloudProcessing": false
+  },
+  "license": {
+    "owner": "KickLab",
+    "basis": "self-authored",
+    "permittedUse": "internal-evaluation",
+    "thirdPartyRestrictions": "none",
+    "proof": "PR #24 README and primitive-only Blender generator at source commit"
+  },
+  "runtime": {
+    "threeVersion": "0.186.1",
+    "loader": "GLTFLoader",
+    "requiredExtensions": []
+  },
+  "validation": {
+    "allowedIssues": [
+      {
+        "code": "NODE_SKINNED_MESH_NON_ROOT",
+        "severity": 1,
+        "count": 2,
+        "reason": "Known Blender placeholder hierarchy warning retained from the read-only PR #24 fixture"
+      },
+      {
+        "code": "UNUSED_OBJECT",
+        "severity": 2,
+        "count": 10,
+        "reason": "Known texture coordinates on untextured primitive materials in the read-only PR #24 fixture"
+      }
+    ]
+  },
+  "network": {
+    "runtimeRequests": "none",
+    "externalUrisAllowed": false
+  }
+}

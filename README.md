@@ -10,7 +10,8 @@ The game ships as **one self-contained HTML file**. This repo keeps the source s
 src/
   index.html          page markup with {{STYLES}}, {{VENDOR}}, {{GAME}} placeholders
   styles.css          all CSS
-  vendor/three.min.js three.js r128 (MIT), bundled so 3D works offline
+  vendor/three.min.js Three.js r186 + matching GLTFLoader (MIT), bundled so 3D works offline
+  assets/3d/          manifest-bound local GLB evaluation fixtures
   game/               the game script, split by feature and joined in filename order
     00-core.js              strict-mode wrapper opens here
     01-progress.js          saved bests, XP, levels, badges
@@ -33,7 +34,7 @@ src/
     53-weekly-challenge.js
     60-pause-replay.js
     70-main-loop.js         wrapper closes here
-scripts/build.mjs     joins everything into dist/kicklab.html
+scripts/build.mjs     joins the game, validates local GLBs, and emits build metrics
 capacitor.config.json shared local-first mobile packaging identity and web directory
 config/               machine-readable mobile safety and authority contract
 src/shared/           deterministic, DOM-free game core shared by every platform
@@ -51,6 +52,7 @@ The browser-only build needs Node 18 or newer. Shared mobile preparation needs N
 ```
 npm ci           # required before shared mobile preparation
 npm run build    # writes dist/kicklab.html
+npm run assets:validate # validates manifest provenance, hashes, GLB structure, and local-only resources
 npm test         # runs the DOM-free shared-core tests
 npm run mobile:prepare # writes the offline-hardened dist/mobile/index.html
 npm run mobile:check   # validates the shared native packaging contract

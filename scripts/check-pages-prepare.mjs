@@ -9,7 +9,7 @@ const workflow = readFileSync(workflowPath, 'utf8');
 const pagesRoot = join(root, 'dist', 'pages');
 const pagesEntries = readdirSync(pagesRoot).sort();
 
-assert.deepEqual(pagesEntries, ['index.html', 'media'], 'Pages root must contain the entry point and reviewed local media');
+assert.deepEqual(pagesEntries, ['assets', 'build-metrics.json', 'index.html', 'media'], 'Pages root must contain the entry point, reviewed local assets, and build metrics');
 assert.ok(!lstatSync(join(pagesRoot, 'index.html')).isSymbolicLink(), 'Pages entry point must be a regular file');
 assert.equal(
   readFileSync(join(pagesRoot, 'index.html'), 'utf8'),
@@ -19,6 +19,10 @@ assert.equal(
 for(const file of ['fight.mp4','fight-poster.png','race.mp4','race-poster.png','kick.mp4','kick-poster.png','manifest.json']){
   assert.ok(!lstatSync(join(pagesRoot,'media','home-previews',file)).isSymbolicLink(),`${file} must be a regular local asset`);
   assert.equal(readFileSync(join(pagesRoot,'media','home-previews',file)).compare(readFileSync(join(root,'dist','media','home-previews',file))),0,`${file} must match the checked build`);
+}
+for(const file of ['assets/3d/kicklab-placeholder-athlete/v1/kicklab-placeholder-athlete.glb','assets/3d/kicklab-placeholder-athlete/v1/asset-manifest.json','build-metrics.json']){
+  assert.ok(!lstatSync(join(pagesRoot,file)).isSymbolicLink(),`${file} must be a regular local artifact`);
+  assert.equal(readFileSync(join(pagesRoot,file)).compare(readFileSync(join(root,'dist',file))),0,`${file} must match the checked build`);
 }
 
 assert.match(workflow, /^permissions:\n  contents: read$/m, 'workflow permissions must remain read-only');
