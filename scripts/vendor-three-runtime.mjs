@@ -21,7 +21,7 @@ await build({
   target: ['es2020'],
   minify: true,
   legalComments: 'inline',
-  banner: { js: `/* Three.js r${revision} + version-matched GLTFLoader (MIT), bundled for offline use. */` },
+  banner: { js: `/* Three.js r${revision} + version-matched GLTFLoader/SkeletonUtils (MIT), bundled for offline use. */` },
 });
 
-console.log(`vendored Three.js ${packageJson.version} with local GLTFLoader`);
+console.log(`vendored Three.js ${packageJson.version} with local GLTFLoader and SkeletonUtils`);
