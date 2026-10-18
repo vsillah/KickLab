@@ -3,6 +3,8 @@
 'use strict';
 const GAME_CORE=globalThis.KickLabGameCore;
 const PROFILE_CORE=globalThis.KickLabProfiles;
+const NZINGA_CORE=globalThis.KickLabNzinga;
+const NZINGA_ENABLED=NZINGA_CORE.enabledFromSearch(location.search);
 const $=s=>document.querySelector(s);
 const cv=$('#cv'),ctx=cv.getContext('2d'),ch=$('#chart'),cctx=ch.getContext('2d');
 const W=960,H=540;let G0=9.81;

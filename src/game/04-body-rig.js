@@ -31,6 +31,7 @@ const RIG={
   /* x-ray skeleton: bones plus joint rings, so the hinge points stand out */
   bones(c,pairs,joints,w,col){c.save();c.strokeStyle=col||C.xray;c.lineWidth=w;c.lineCap='round';glow(c,col||C.xray,8);pairs.forEach(([a,b])=>{if(a&&b)line(c,a.x,a.y,b.x,b.y);});c.shadowBlur=0;
     joints.forEach(j=>{if(!j)return;c.fillStyle='#08101f';c.beginPath();c.arc(j.x,j.y,w*2.1,0,Math.PI*2);c.fill();c.lineWidth=w*0.9;c.stroke();});c.restore();},
+  kinetic(c,J,active,reduced){c.save();c.globalCompositeOperation='screen';const focus=[J.shF,J.elF,J.pelvis,J.hipF,J.knF,J.anF].filter(Boolean),pulse=reduced?1:0.84+0.16*Math.sin(performance.now()/105);c.strokeStyle='rgba(127,220,255,.72)';c.fillStyle='rgba(185,162,255,.16)';c.lineWidth=Math.max(1.2,(J.ground-J.head.y)*.012);c.shadowColor='#7fdcff';c.shadowBlur=active&&!reduced?14:6;focus.forEach((q,i)=>{const r=(i===4?7:5)*pulse;c.beginPath();c.arc(q.x,q.y,r,0,Math.PI*2);c.fill();c.stroke();});c.shadowBlur=0;if(active){this.bones(c,this.pairsSide(J),this.jointsSide(J),1.15,'rgba(127,220,255,.82)');}c.restore();},
   /* angle at joint B between BA and BC, drawn as an arc with its value in degrees */
   angle(c,A,B,Cc,r,col,label,font){const a1=Math.atan2(A.y-B.y,A.x-B.x),a2=Math.atan2(Cc.y-B.y,Cc.x-B.x);let d=a2-a1;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;
     c.save();c.strokeStyle=col;c.lineWidth=2;c.beginPath();c.arc(B.x,B.y,r,a1,a1+d,d<0);c.stroke();const m=a1+d/2,deg=Math.round(Math.abs(d)*180/Math.PI);
@@ -114,7 +115,7 @@ function xrayFrame(c,env){
   c.fillStyle='rgba(127,220,255,0.04)';for(let y=0;y<H;y+=4)c.fillRect(0,y,W,1);
   c.strokeStyle=C.xray;c.lineWidth=2.5;const m=14,l=28;
   [[m,m,1,1],[W-m,m,-1,1],[m,H-m,1,-1],[W-m,H-m,-1,-1]].forEach(([x,y,sx,sy])=>{c.beginPath();c.moveTo(x,y+sy*l);c.lineTo(x,y);c.lineTo(x+sx*l,y);c.stroke();});
-  text(c,'PHYSICS VISION  ·  TIME × '+E.ts.toFixed(2),W/2,H-24,'700 12px '+MONO,C.xray,'center');
+  text(c,(NZINGA_ENABLED?'NZINGA · KINETIC ANATOMY':'PHYSICS VISION')+'  ·  TIME × '+E.ts.toFixed(2),W/2,H-24,'700 12px '+MONO,C.xray,'center');
   c.restore();}
 function banner(c,title,sub,col){c.save();c.fillStyle='rgba(6,11,24,0.8)';rr(c,W/2-240,H/2+4,480,104,14);c.fill();c.strokeStyle=col;c.lineWidth=2;c.stroke();
   glow(c,col,14);text(c,title,W/2,H/2+56,'32px '+DISP,col,'center');c.shadowBlur=0;text(c,sub,W/2,H/2+88,'500 14px '+BODY,C.ink,'center');c.restore();}
