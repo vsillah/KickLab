@@ -84,7 +84,8 @@ test('keeps the player-facing switch hidden and fails closed to existing fallbac
 test('keeps the controlled-player marker bound to the primary role across activities',()=>{
   const source=read('src/game/50a-direction-c-athlete.js');
   assert.match(source,/role:p\.role/);
-  assert.match(source,/const role=p\.role===['"]dynamic['"]&&D\.state===['"]keep['"]\?['"]keeper['"]:p\.role===['"]dynamic['"]\?['"]attacker['"]:p\.role/);
+  assert.match(source,/primaryWorldRole\(D,p,o\)/);
+  assert.match(source,/const dynamic=p\.role===['"]dynamic['"]&&D\.state===['"]keep['"]\?['"]keeper['"]:p\.role===['"]dynamic['"]\?['"]attacker['"]:p\.role/);
   assert.match(source,/targetRoot:'KickLabDirectionCAthlete'/);
   assert.match(source,/opponentMarked:false/);
   assert.match(source,/this\.updateControlledIndicator\(true\)/);
@@ -107,7 +108,19 @@ test('defines a specific athlete, camera, and contact profile for all eight Kick
   }
   assert.doesNotMatch(runtime,/generic|gray disabled/i);
   assert.match(runtime,/profiles:Object\.keys\(this\.profiles\)/);
-  assert.match(runtime,/root\.scale\.setScalar\(target\.space===['"]world['"]\?\.92:1\)/);
+  assert.match(runtime,/root\.scale\.set\(scale\*identity\.build,scale\*identity\.height,scale\*identity\.build\)/);
+});
+
+test('reuses the approved athlete asset for a role-aware competitor pool',()=>{
+  const runtime=read('src/game/50a-direction-c-athlete.js');
+  assert.match(runtime,/DIRECTION_C_IDENTITIES=Object\.freeze\(\[/);
+  for(const role of ['keeper','wall','defender','marker','striker','teammate'])assert.match(runtime,new RegExp(`${role}:`));
+  assert.match(runtime,/T\.SkeletonUtils\.clone\(this\.sourceRoot\)/);
+  assert.match(runtime,/shared-direction-c-pool/);
+  assert.match(runtime,/competitorCount:0,competitors:\[\]/);
+  assert.match(runtime,/marked:false/);
+  assert.match(runtime,/phaseForCompetitor\(D,p,target,actor\)/);
+  assert.doesNotMatch(runtime,/fetch\(|XMLHttpRequest|sendBeacon|https?:\/\//);
 });
 
 test('ships deterministic self-authored activity clips on the existing v2 skeleton',async()=>{

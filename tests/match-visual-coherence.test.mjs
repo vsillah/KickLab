@@ -15,16 +15,18 @@ test('defines camera-relative primary and opponent orientation for every Kick ac
   assert.match(athlete,/attackRight:Object\.freeze\(\{primaryYaw:Math\.PI\/2,opponentYaw:-Math\.PI\/2,primaryFaces:'field-positive-x',opponentFaces:'field-negative-x'\}\)/);
   assert.match(athlete,/meetCrossLeft:Object\.freeze\(\{primaryYaw:-Math\.PI\/2,opponentYaw:-Math\.PI\/2,primaryFaces:'field-negative-x',opponentFaces:'field-negative-x'\}\)/);
   assert.match(athlete,/defendLeft:Object\.freeze\(\{primaryYaw:-Math\.PI\/2,opponentYaw:Math\.PI\/2,primaryFaces:'field-negative-x',opponentFaces:'field-positive-x'\}\)/);
-  assert.match(athlete,/root\.rotation\.set\(0,side===['"]opponent['"]\?p\.orientation\.opponentYaw:p\.orientation\.primaryYaw,0\)/);
+  assert.match(athlete,/root\.rotation\.set\(0,target\.side===['"]ally['"]\|\|side===['"]primary['"]\?p\.orientation\.primaryYaw:p\.orientation\.opponentYaw,0\)/);
 });
 
-test('renders the Header Duel competitor through the shared skinned Direction C asset',()=>{
+test('renders visible competitors through a shared skinned Direction C pool',()=>{
   assert.match(vendorEntry,/SkeletonUtils/);
   assert.match(athlete,/T\.SkeletonUtils\?\.clone/);
-  assert.match(athlete,/KickLabDirectionCOpponent/);
-  assert.match(athlete,/o\.headX!==undefined&&!o\.rec&&!o\.kicker/);
-  assert.match(athlete,/K\.opt\.duel===['"]duel['"]&&!this\.opponent\.target/);
-  assert.match(athlete,/opponentRenderer=opponentActive\?['"]shared-direction-c['"]:['"]procedural-fallback['"]/);
+  assert.match(athlete,/KickLabDirectionCCompetitor/);
+  assert.match(athlete,/const role=o\.wall\?['"]wall['"]:o\.keeper\?['"]keeper['"]:o\.headX!==undefined\?['"]marker['"]:['"]defender['"]/);
+  assert.match(athlete,/worldRole\(D,p,o\)/);
+  assert.match(athlete,/opponentRenderer=activeActors\.length\?['"]shared-direction-c-pool['"]:['"]procedural-fallback['"]/);
+  assert.match(athlete,/identity:actor\.target\.identity\.id/);
+  assert.match(athlete,/marked:false/);
   assert.equal((athlete.match(/assets\/3d\/kicklab-direction-c-athlete\/v2\/kicklab-makehuman-athlete\.glb/g)||[]).length,1);
 });
 
