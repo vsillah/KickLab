@@ -137,8 +137,9 @@ test('keeps the dimensional procedural stadium in the multi-activity regression 
   assert.match(renderer,/stands>=4&&layers\.sideReturns>=2/);
   assert.match(renderer,/roofPanels>=4&&layers\.roofTrusses>=20/);
   assert.match(renderer,/animatedBoards>=4/);
-  assert.match(renderer,/crowdLayers>=8/);
-  assert.match(renderer,/spectatorDepthLayers>=8/);
+  assert.match(renderer,/visibleLegacyAudienceRenderers===0/);
+  assert.match(renderer,/oldCrowdTextureLayers===0/);
+  assert.match(renderer,/coherentAudienceInstances===64/);
   assert.match(renderer,/passes:\{pitch:.+nearStand:/);
   assert.match(renderer,/shadowMap&&layers\.shadowCaster&&layers\.hemisphereLight&&layers\.directionalLight/);
   assert.match(qa,/activities\.length\*viewports\.length/);

@@ -24,8 +24,9 @@ test('gates orientation, controlled-player ownership, shared opponent, crowd LOD
   assert.match(source,/hidden-xray/);
   assert.match(source,/\['replay','cinematic'\]/);
   assert.match(source,/visibility!==`hidden-\$\{indicatorState\}`/);
-  assert.match(source,/spectatorDepthLayers<8/);
-  assert.match(source,/nearBillboards!==0/);
+  assert.match(source,/visibleLegacyAudienceRenderers!==0/);
+  assert.match(source,/oldCrowdTextureLayers!==0/);
+  assert.match(source,/audience\?\.instances!==64/);
   assert.match(source,/nearStand\.contactsPass/);
   assert.match(source,/pacing\.p95Ms>budget/);
   assert.match(source,/ready-reduced-motion/);

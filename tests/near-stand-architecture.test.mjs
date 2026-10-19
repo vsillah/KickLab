@@ -17,17 +17,20 @@ test('builds continuous stepped seating with complete chair modules',()=>{
   assert.match(renderer,/chairModules>=120/);
 });
 
-test('keeps near spectators skinned, bounded, grounded, and separate from distant cards',()=>{
+test('keeps near spectators skinned and mid-far spectators coherent without legacy cards',()=>{
   assert.match(renderer,/new T\.SkinnedMesh\(this\.nearFanGeometry,this\.nearFanMaterials\[/);
   assert.match(renderer,/state===['"]seated['"]/);
   assert.match(renderer,/'half-risen'/);
   assert.match(renderer,/'standing'/);
-  assert.match(renderer,/nearBillboards:0/);
-  assert.match(renderer,/for\(let layer=1;layer<3;layer\+\+\)/);
+  assert.match(renderer,/new T\.InstancedMesh\(this\.farFanGeometries\[state\]/);
+  assert.match(renderer,/visibleLegacyAudienceRenderers:0/);
+  assert.match(renderer,/oldCrowdTextureLayers:0/);
+  assert.match(renderer,/coherentAudienceInstances===64/);
   assert.match(renderer,/contactsPass=seatedContacts\.length>0/);
   assert.match(renderer,/memoryBudgetBytes:262144/);
   assert.match(renderer,/anatomy:\['head-neck','shoulders-torso','upper-lower-arms','hands','thighs-calves','feet'\]/);
   assert.match(renderer,/paletteVariants:this\.nearFanMaterials/);
+  assert.doesNotMatch(renderer,/crowdTex|crowdTextures|crowdDepth|distantBillboardLayers/);
   assert.doesNotMatch(renderer,/fetch\(|XMLHttpRequest|sendBeacon|https?:\/\//);
 });
 
