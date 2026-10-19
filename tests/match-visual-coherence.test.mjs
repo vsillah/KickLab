@@ -48,6 +48,8 @@ test('keeps the local stadium crowd procedural, layered, animated, and mobile bo
   assert.match(renderer,/this\.crowdDepth\.push\(\{mesh:tier,material:cm,layer,stand:grp,baseY:tier\.position\.y,tier:layer===2\?'soft-far-distance':'seat-depth'\}\)/);
   assert.match(renderer,/crowdLod\(distance\).*mode==='mobile'.*mode==='tablet'.*heroBudget/);
   assert.match(renderer,/nearTier:'seat-grounded-shared-rig-clusters'/);
+  assert.match(renderer,/midTier:'direction-c-rig-impostor-supporters'/);
+  assert.match(renderer,/impostorAtlasSource==='direction-c-v2-local-rig'/);
   assert.match(renderer,/this\.crowdActorLayers\.push\(entry\)/);
   assert.match(renderer,/this\.crowdInstanceCapacity=this\.crowdActorLayers\.reduce/);
   assert.match(renderer,/motion=!reduce&&!paused/);

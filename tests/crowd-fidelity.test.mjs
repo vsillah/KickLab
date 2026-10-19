@@ -12,7 +12,7 @@ test('builds a local hybrid crowd without external asset egress',()=>{
   for(const primitive of ['CylinderGeometry','SphereGeometry','PlaneGeometry','InstancedMesh'])assert.match(renderer,new RegExp(`T\\.${primitive}`));
   assert.match(renderer,/self-authored hybrid crowd/);
   assert.match(renderer,/crowdActorCapacity:this\.crowdInstanceCapacity/);
-  assert.match(renderer,/nearTier:'seat-grounded-shared-rig-clusters'.*midTier:'row-aligned-dimensional-supporters'.*farTier:'soft-muted-distance-fill'/);
+  assert.match(renderer,/nearTier:'seat-grounded-shared-rig-clusters'.*midTier:'direction-c-rig-impostor-supporters'.*farTier:'palette-linked-soft-distance-fill'/);
   assert.match(renderer,/seatSteps:this\.crowdSeatSteps/);
   assert.match(renderer,/coherentTransition:true,physicalGrounding:true/);
   assert.doesNotMatch(renderer,/crowd[^\n]{0,180}(fetch\(|https?:\/\/|XMLHttpRequest|sendBeacon)/i);
@@ -30,16 +30,32 @@ test('keeps crowd motion independent, reaction-aware, pausable, and reduced-moti
 
 test('uses viewport and distance LOD with bounded geometry and texture audits',()=>{
   assert.match(renderer,/mode=innerWidth<=480\?'mobile':innerWidth<=900\?'tablet':'desktop'/);
-  assert.match(renderer,/mode==='mobile'\?\[8,6,4\]:mode==='tablet'\?\[14,10,7\]:\[18,14,10\]/);
+  assert.match(renderer,/mode==='mobile'\?\[18,14,10\]:mode==='tablet'\?\[28,22,16\]:\[36,30,24\]/);
   assert.match(renderer,/maxLayersPerStand:mode==='mobile'\?2:3/);
-  assert.match(renderer,/crowdActorCapacity>=216/);
+  assert.match(renderer,/crowdActorCapacity>=432/);
+  assert.match(renderer,/const capacity=36/);
+  assert.match(renderer,/actorBudget=mode==='mobile'\?\[18,14,10\]:mode==='tablet'\?\[28,22,16\]:\[36,30,24\]/);
   assert.match(renderer,/heroSpectatorCapacity===12/);
   assert.match(renderer,/nearTier:'seat-grounded-shared-rig-clusters'/);
-  assert.match(renderer,/midTier:'row-aligned-dimensional-supporters'/);
-  assert.match(renderer,/farTier:'soft-muted-distance-fill'/);
+  assert.match(renderer,/midTier:'direction-c-rig-impostor-supporters'/);
+  assert.match(renderer,/farTier:'palette-linked-soft-distance-fill'/);
   assert.match(renderer,/layers\.seatSteps>=36/);
   assert.match(renderer,/layers\.seatBacks>=36/);
   assert.match(renderer,/layers\.seatUnitCapacity>=864/);
+  assert.match(renderer,/layers\.aisleSteps>=72/);
+  assert.match(renderer,/layers\.railPosts>=36/);
+  assert.match(renderer,/layers\.impostorTierLayers===12/);
+  assert.match(renderer,/layers\.visibleImpostorSpectators>=36/);
+  assert.match(renderer,/layers\.impostorAtlasSource==='direction-c-v2-local-rig'/);
+  assert.match(renderer,/layers\.impostorAtlasLocalOnly/);
+  assert.match(renderer,/layers\.impostorAtlasWidth===128/);
+  assert.match(renderer,/layers\.impostorAtlasHeight===192/);
+  assert.match(renderer,/layers\.impostorAtlasFrames===6/);
+  assert.match(renderer,/layers\.impostorAtlasBytes===589824/);
+  assert.match(renderer,/layers\.impostorAtlasMinPixelWidth>=35/);
+  assert.match(renderer,/layers\.impostorAtlasMinPixelHeight>=131/);
+  assert.match(renderer,/entry\.actorGroup\.visible=visible&&!impostors/);
+  assert.match(renderer,/entry\.impostorGroup\.visible=visible/);
   assert.match(renderer,/layers\.seatRails>=12/);
   assert.match(renderer,/crowdGeometryBytes<250000/);
   assert.match(renderer,/crowdTextureBytes<2500000/);
@@ -60,6 +76,10 @@ test('renders a high-definition fictional adult reaction group onto the stadium 
   assert.match(renderer,/layers\.jumbotronLinkedSupporters===3/);
   assert.match(athlete,/supporterIds=\['sky-rocket','orange-playmaker','green-guardian'\]/);
   assert.match(athlete,/seatGrounded=true/);
+  assert.match(athlete,/installCrowdImpostorAtlas\(source,clips,palettes\)/);
+  assert.match(athlete,/source:'direction-c-v2-local-rig'/);
+  assert.match(athlete,/new T\.WebGLRenderTarget\(width,height/);
+  assert.match(athlete,/R\.readRenderTargetPixels\(target/);
   assert.match(renderer,/window\.__KICKLAB_JUMBOTRON_EVIDENCE__=/);
   assert.match(renderer,/readRenderTargetPixels/);
   assert.match(renderer,/R\.render\(this\.jumbotron\.scene,this\.jumbotron\.cam\)/);
