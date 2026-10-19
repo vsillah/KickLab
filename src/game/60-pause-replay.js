@@ -12,7 +12,7 @@ $('#dialsClose').addEventListener('click',closeDials);
 $('#dialTop').addEventListener('pointerdown',e=>{e.stopPropagation();});
 $('#dialTop').addEventListener('click',e=>{e.stopPropagation();unlock();$('#dials').hidden?openDials():closeDials();});
 function drawPause(c){if(!PAUSE.on)return;c.save();c.fillStyle='rgba(4,8,18,0.6)';c.fillRect(0,0,W,H);
-  if(PAUSE.why==='manual'||PAUSE.why==='transition'){c.restore();return;}
+  if(PAUSE.why==='manual'||PAUSE.why==='transition'||(typeof coachTomiRecommendationOwnsStage==='function'&&coachTomiRecommendationOwnsStage())){c.restore();return;}
   const cx=PAUSE.why==='dials'&&cv.clientWidth>700?W*0.3:W/2;glow(c,C.xray,18);text(c,'TIME-OUT',cx,H/2-30,'54px '+DISP,C.ink,'center','middle');c.shadowBlur=0;
   const note=PAUSE.why==='dials'?'Work your dials, then tap Back in':PAUSE.why==='manual-physics'?'Manual Physics owns this pause. Close it to return.':PAUSE.why==='settings'?'Game paused while settings are open. Close settings to return.':PAUSE.why==='context-detail'?'Game paused while details are open. Close them to return.':'Return to the stage to resume.';
   text(c,note,cx,H/2+20,'600 16px '+BODY,C.xray,'center','middle');c.restore();}
@@ -46,7 +46,7 @@ $('#rReplay').addEventListener('click',e=>{e.stopPropagation();startReplay(0);})
 function recFrame(rdt){const r=RECS[M.key];if(!r||!r.on||PAUSE.on||RP.on||!M.snap)return;r.frames.push({t:r.t,s:M.snap(),env:E.env,ts:E.ts,cam:{x:E.cam.x,y:E.cam.y,z:E.cam.z}});r.t+=rdt;if(r.frames.length>9000)stopRec(M.key);}
 const RP={on:false,t:0,playing:true,speed:0.5,mode:null,backup:null,opt:null,cam:{x:W/2,y:H/2,z:1}};
 function recEnd(r){return r.frames.length?r.frames[r.frames.length-1].t:0;}
-function startReplay(t){const r=RECS[M.key];if(!r||!r.frames.length||!M.applySnap)return;if(r.on)stopRec(M.key);if(CONTEXT_DETAILS.open)closeContextDetail({restore:false});if(!$('#dials').hidden)closeDials();hideResults();$('#rvBack').hidden=true;
+function startReplay(t){const r=RECS[M.key];if(!r||!r.frames.length||!M.applySnap)return;hideCoachMathNudge({reason:'replay'});if(r.on)stopRec(M.key);if(CONTEXT_DETAILS.open)closeContextDetail({restore:false});if(!$('#dials').hidden)closeDials();hideResults();$('#rvBack').hidden=true;
   if(!RP.on){RP.backup=Object.assign({},M);RP.opt=Object.assign({},M.opt);RP.on=true;RP.mode=M.key;PARTS.length=0;E.title=null;E.slow=null;ENGINE.off();$('#lvlup').hidden=true;$('#toasts').innerHTML='';$('#rbar').hidden=false;$('#pad').hidden=true;$('#dialTop').hidden=true;syncDialsAvailability();}
   RP.t=clamp(t||0,0,recEnd(r));RP.playing=true;feedSig='';syncRbar();}
 function exitReplay(){if(!RP.on)return;Object.assign(M,RP.backup);Object.assign(M.opt,RP.opt);RP.on=false;E.env=0;E.ts=1;E.slow=null;$('#rbar').hidden=true;$('#pad').hidden=false;$('#dialTop').hidden=false;syncDialsAvailability();resetFeed();document.querySelectorAll('#mlList .cur').forEach(x=>x.classList.remove('cur'));setLabel();if(HUD.lvlPending){const n=HUD.lvlPending;HUD.lvlPending=0;showLevelUp(n);}}

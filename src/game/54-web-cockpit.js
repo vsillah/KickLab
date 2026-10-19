@@ -8,11 +8,67 @@ const wideManualController=$('#wideManualController'),wideManualRows=$('#wideMan
 const prototypePhysics=$('#prototypePhysics'),prototypePhysicsRows=$('#prototypePhysicsRows');
 const settingsDrawer=$('#settingsDrawer'),settingsToggle=$('#settingsToggle');
 const gameOverlayBackdrop=$('#gameOverlayBackdrop'),gameStage=$('.stage'),gamePlayShell=$('.play'),profileDialog=$('#profileDialog');
+const coachMathNudge=$('#coachMathNudge'),coachMathNudgeAction=$('#coachMathNudgeAction'),coachMathNudgeClose=$('#coachMathNudgeClose');
+const COACH_MATH_NUDGE={sequence:0,current:null,seen:new Set(),lastShownAt:0,timer:null,cooldown:18000};
+const COACH_TOMI_SESSIONS=new Map();
+const COACH_TOMI_ACTIONS={pregame:null,nudge:null,result:null,current:null,timer:null,ownsPause:false};
+const coachTomiControlRecommendation=$('#coachTomiControlRecommendation'),coachTomiMathRecommendation=$('#coachTomiMathRecommendation');
+
+function coachTomiProfileKey(){return profileManager.active().id;}
+function coachTomiSession(mode){const key=`${coachTomiProfileKey()}:${mode}`;if(!COACH_TOMI_SESSIONS.has(key))COACH_TOMI_SESSIONS.set(key,{recent:[],pending:null});return COACH_TOMI_SESSIONS.get(key);}
+function coachTomiHistory(mode){const session=coachTomiSession(mode);return{plays:best.stats.plays[mode]||0,wins:best.stats.wins[mode]||0,cleared:best.ch[mode]||0,recent:session.recent.slice()};}
+function coachTomiVariables(context={}){
+  if(M===Fight)return{dt:Fight.V.dt};
+  if(M===Race)return{limit:Math.sqrt(Race.V.mu*G0*Race.V.R)*3.6};
+  return{speed:Kick.V.v,angle:Kick.V.th,reaction:Kick.V.gkr||.35,passSpeed:Kick.V.pv||18,grip:Kick.V.grip||.8,jump:Kick.V.jv||6,context};
+}
+function coachTomiTarget(def,suggestion,direction){
+  const current=cockpitValue(def,M.V[def.id]),has=suggestion&&suggestion.lo!=null&&suggestion.hi!=null,span=Math.max(def.max-def.min,def.step),lo=has?clamp(suggestion.lo,def.min,def.max):M.V[def.id],hi=has?clamp(suggestion.hi,def.min,def.max):M.V[def.id],left=has?(lo-def.min)/span*100:direction==='lower'?0:direction==='higher'?65:35,width=has?Math.max((hi-lo)/span*100,4):35,target=has?(Math.abs(hi-lo)<def.step/2?`Target ${cockpitValue(def,lo)}`:`Target ${cockpitValue(def,lo)}–${cockpitValue(def,hi)}`):direction==='lower'?`Target below ${current}`:direction==='higher'?`Target above ${current}`:`Compare the coach band`;
+  return{current:`Current ${current}`,target,left:clamp(left,0,96),width:clamp(width,4,100-left)};
+}
+function resolveCoachTomiRoute(note={}){
+  const rec=note.recommendation||{kind:'math',label:'See the math'},defs=activeVariableProfile(),candidates=Array.isArray(rec.variables)?rec.variables:[],preferred=candidates.map(id=>defs.find(def=>def.id===id)).find(Boolean),def=candidates.map(id=>defs.find(item=>item.id===id&&!isLocked(M.key,id))).find(Boolean),locked=preferred&&isLocked(M.key,preferred.id)?prototypeLockReason(preferred):'';
+  if(rec.kind==='control'&&def){const suggestion=(M.suggest?M.suggest():{})[def.id]||null;return{kind:'control',label:'Try this',def,target:coachTomiTarget(def,suggestion,rec.direction),locked,copy:locked?`${locked} Coach Tomi moved this tip to ${quickMathName(def)}.`:note.cue};}
+  const subject=preferred?quickMathName(preferred):rec.topic==='corner-limit'?'corner limit':rec.topic==='steering'?'steering':rec.topic==='header-timing'?'header timing':'timing';return{kind:'math',label:'See the math',def:preferred||null,locked,copy:locked||`${note.cue||'Open the explanation.'} Review ${subject} without changing a value.`};
+}
+function setCoachTomiAction(source,note){
+  const button=source==='pregame'?$('#coachTomiPregameAction'):source==='result'?$('#coachTomiResultAction'):coachMathNudgeAction,route=resolveCoachTomiRoute(note);COACH_TOMI_ACTIONS[source]=note;button.hidden=!note;button.textContent=route.label;button.setAttribute('aria-label',route.kind==='control'?`Try Coach Tomi's ${quickMathName(route.def)} recommendation in Manual Physics`:`Open Math for Coach Tomi's ${route.def?quickMathName(route.def):'physics'} explanation`);
+}
+function coachTomiRecommendationOwnsStage(){return!!COACH_TOMI_ACTIONS.current;}
+function renderCoachTomiPregame(meta={}){
+  const context=pacingContext(meta),plan=KickLabCoachTomi.beginning({mode:M.key,activity:pacingActivityName(meta),history:coachTomiHistory(M.key),variables:coachTomiVariables(context),context});
+  $('#coachTomiPregameLevel').textContent=plan.tier==='novice'?'First look':plan.tier==='experienced'?'Next detail':'Build the skill';$('#coachTomiPregameObservation').textContent=plan.observation;$('#coachTomiPregameCue').textContent=plan.cue;$('#coachTomiPregameVariable').textContent=plan.variable;$('#coachTomiPregameFormula').textContent=plan.formula;$('#coachTomiPregameMeter').style.width=`${Math.round(Math.max(.08,plan.level||0)*100)}%`;$('#coachTomiPregame').dataset.tier=plan.tier;setCoachTomiAction('pregame',plan);return plan;
+}
+function captureCoachTomiOutcome(mode,success,meta={}){
+  const session=coachTomiSession(mode),history=coachTomiHistory(mode),input={mode,success,title:meta.title,sub:meta.sub,grade:meta.grade,history,recent:session.recent,context:pacingContext(meta)};
+  const code=KickLabCoachTomi.outcomeCode(input),need=KickLabCoachTomi.need(Object.assign({},input,{recent:code?[...session.recent,code]:session.recent})),result=KickLabCoachTomi.result(input);
+  session.recent.push(code||'success');if(session.recent.length>4)session.recent.shift();if(need)session.pending=Object.assign({id:`${coachTomiProfileKey()}:${mode}:${++COACH_MATH_NUDGE.sequence}`},need);else if(success)session.pending=null;return result;
+}
+function renderCoachTomiResult(mode,meta={}){
+  const note=meta.coachTomi||KickLabCoachTomi.result({mode,title:meta.title,sub:meta.sub,grade:meta.grade,history:coachTomiHistory(mode),context:pacingContext(meta)});$('#coachTomiResultLevel').textContent=note.tier==='novice'?'First look':note.tier==='experienced'?'Next detail':'Build the skill';$('#coachTomiResultObservation').textContent=note.observation;$('#coachTomiResultCue').textContent=note.cue;$('#coachTomiResult').dataset.tier=note.tier;setCoachTomiAction('result',note);return note;
+}
+function hideCoachMathNudge({restore=false,reason='dismissed'}={}){
+  if(coachMathNudge.hidden)return;
+  clearTimeout(COACH_MATH_NUDGE.timer);COACH_MATH_NUDGE.timer=null;coachMathNudge.hidden=true;coachMathNudge.dataset.state=reason;
+  if(window.__KICKLAB_COACH_MATH_NUDGE__)Object.assign(window.__KICKLAB_COACH_MATH_NUDGE__,{visible:false,lastReason:reason,dismissed:window.__KICKLAB_COACH_MATH_NUDGE__.dismissed+(reason==='dismissed'?1:0)});
+  if(restore&&coachMathNudge.contains(document.activeElement))$('#physicsDetailsHud').focus();
+}
+function maybeShowCoachMathNudge(meta={}){
+  const need=meta.need;if(!need)return false;const key=meta.coachMathEvent||need.id||`${M.key}:${++COACH_MATH_NUDGE.sequence}`,now=Date.now();
+  if(COACH_MATH_NUDGE.seen.has(key)||now-COACH_MATH_NUDGE.lastShownAt<COACH_MATH_NUDGE.cooldown||RP.on||CINE.on||resOpen())return false;
+  COACH_MATH_NUDGE.seen.add(key);COACH_MATH_NUDGE.current=key;COACH_MATH_NUDGE.lastShownAt=now;$('#coachMathNudgeMessage').textContent=`${need.observation} ${need.cue}`;setCoachTomiAction('nudge',need);coachMathNudge.hidden=false;coachMathNudge.dataset.event=key;coachMathNudge.dataset.state='visible';coachMathNudge.dataset.rule=need.code||'context';
+  clearTimeout(COACH_MATH_NUDGE.timer);COACH_MATH_NUDGE.timer=setTimeout(()=>hideCoachMathNudge({reason:'expired'}),9000);
+  Object.assign(window.__KICKLAB_COACH_MATH_NUDGE__,{visible:true,event:key,shown:window.__KICKLAB_COACH_MATH_NUDGE__.shown+1,lastReason:'shown',pause:PAUSE.on});return true;
+}
+function showPendingCoachMathNudge(){const session=coachTomiSession(M.key),pending=session.pending;if(!pending)return false;const shown=maybeShowCoachMathNudge({coachMathEvent:pending.id,need:pending});if(shown)session.pending=null;return shown;}
+window.__KICKLAB_COACH_MATH_NUDGE__={visible:false,shown:0,dismissed:0,openedMath:0,lastReason:'ready',pause:false,show:meta=>maybeShowCoachMathNudge(meta),showPending:()=>showPendingCoachMathNudge(),capture:(mode,success,meta)=>captureCoachTomiOutcome(mode,success,meta),begin:meta=>renderCoachTomiPregame(meta),renderResult:(mode,meta)=>renderCoachTomiResult(mode,meta),route:note=>resolveCoachTomiRoute(note),open:source=>openCoachTomiRecommendation(source),hide:()=>hideCoachMathNudge(),snapshot:()=>({paused:PAUSE.on,owners:PAUSE_OWNERS.snapshot(),context:CONTEXT_DETAILS.open,profile:coachTomiProfileKey(),session:coachTomiSession(M.key),stageMessageOwner:coachTomiRecommendationOwnsStage()?'coach-recommendation':null,transientTitle:E.title&&E.title.text||null,transitionActive:PACE_SEQUENCE.state().active,recommendation:COACH_TOMI_ACTIONS.current&&{kind:COACH_TOMI_ACTIONS.current.kind,variable:COACH_TOMI_ACTIONS.current.def&&COACH_TOMI_ACTIONS.current.def.id,current:COACH_TOMI_ACTIONS.current.target&&COACH_TOMI_ACTIONS.current.target.current,target:COACH_TOMI_ACTIONS.current.target&&COACH_TOMI_ACTIONS.current.target.target,locked:COACH_TOMI_ACTIONS.current.locked}})};
+coachMathNudgeClose.addEventListener('click',()=>hideCoachMathNudge({restore:true}));
+coachMathNudgeAction.addEventListener('click',()=>{const route=resolveCoachTomiRoute(COACH_TOMI_ACTIONS.nudge||{});if(route.kind==='math')window.__KICKLAB_COACH_MATH_NUDGE__.openedMath++;openCoachTomiRecommendation('nudge');});
 
 function contextPanel(name){return $(`#${name==='math'?'physics':name}Detail`);}
 function contextTriggers(name){return name==='math'?[$('#physicsDetailsHud'),$('#physicsDetailsCompact'),$('#physicsDetailsWide')]:[$(`#${name}DetailToggle`)];}
 function syncContextTrigger(button,expanded){const action=expanded?'Close':'Open',label=button.dataset.detailLabel||'details',name=`${action} ${label}`;button.setAttribute('aria-expanded',String(expanded));button.setAttribute('aria-label',name);button.title=name;}
-function releaseGameplayForOverlay(){if(typeof releaseMobileHeldInputs==='function')releaseMobileHeldInputs('Game overlay opened');ENGINE.off();document.querySelectorAll('#pad .on').forEach(button=>button.classList.remove('on'));}
+function releaseGameplayForOverlay(){hideCoachMathNudge({reason:'overlay-opened'});if(typeof releaseMobileHeldInputs==='function')releaseMobileHeldInputs('Game overlay opened');ENGINE.off();document.querySelectorAll('#pad .on').forEach(button=>button.classList.remove('on'));}
 function syncGameOverlayBackdrop(){const profileOpen=!profileDialog.hidden&&profileDialog.classList.contains('game-profile-overlay'),open=!!CONTEXT_DETAILS.open||!settingsDrawer.hidden||profileOpen;gameOverlayBackdrop.hidden=!open;gameStage.classList.toggle('has-game-overlay',open);gamePlayShell.classList.toggle('has-game-overlay',open);}
 function overlayFocusables(panel){return[...panel.querySelectorAll('button:not(:disabled),[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex]:not([tabindex="-1"])')].filter(node=>!node.hidden&&node.getAttribute('aria-hidden')!=='true'&&node.getClientRects().length>0);}
 function trapOverlayFocus(panel,e){if(e.key!=='Tab')return;const items=overlayFocusables(panel);if(!items.length)return;e.stopPropagation();const first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}
@@ -42,6 +98,29 @@ function setContextDetail(name,{trigger=null,focus=false,open=true}={}){
   if(focus)requestAnimationFrame(()=>panel.querySelector('[data-close-detail]')?.focus());
   syncGameOverlayBackdrop();requestAnimationFrame(resize);
 }
+
+function clearCoachTomiRecommendation(){
+  const ownsPause=COACH_TOMI_ACTIONS.ownsPause;clearTimeout(COACH_TOMI_ACTIONS.timer);COACH_TOMI_ACTIONS.timer=null;COACH_TOMI_ACTIONS.current=null;COACH_TOMI_ACTIONS.ownsPause=false;coachTomiControlRecommendation.hidden=true;coachTomiMathRecommendation.hidden=true;document.querySelectorAll('.coach-recommended').forEach(node=>node.classList.remove('coach-recommended'));if(ownsPause)releasePauseOwner('coach-recommendation');
+}
+function coachTomiRecommendationTimer(){clearTimeout(COACH_TOMI_ACTIONS.timer);COACH_TOMI_ACTIONS.timer=setTimeout(clearCoachTomiRecommendation,9000);}
+function showCoachTomiControlRoute(route,{source}={}){
+  clearCoachTomiRecommendation();COACH_TOMI_ACTIONS.current=route;const note=coachTomiControlRecommendation,target=note.querySelector('.coach-tomi-target');note.querySelector('p').textContent=route.locked?`${route.locked} Use ${quickMathName(route.def)} instead.`:route.copy;target.querySelector('small').textContent=route.target.current;target.querySelector('output').textContent=route.target.target;target.querySelector('em').style.left=`${route.target.left}%`;target.querySelector('em').style.width=`${route.target.width}%`;note.hidden=false;
+  const finish=(row,focus)=>{if(!row)return false;row.classList.add('coach-recommended');row.scrollIntoView({behavior:reduce?'auto':'smooth',block:'nearest'});requestAnimationFrame(()=>focus?.focus());coachTomiRecommendationTimer();return true;};
+  const holdPregame=()=>{if(source==='pregame'){claimPauseOwner('coach-recommendation');COACH_TOMI_ACTIONS.ownsPause=true;}};
+  if(typeof ANALOG_CONTROL!=='undefined'&&ANALOG_CONTROL.enabled){prototypePhysics.open=true;renderPrototypeManual();const row=prototypePhysicsRows.querySelector(`[data-var="${route.def.id}"]`),focus=row&&row.querySelector('.prototype-slot[aria-checked="true"]');holdPregame();if(finish(row,focus))return;}
+  if(WIDE_MANUAL.active){renderWideManual();const row=wideManualRows.querySelector(`[data-var="${route.def.id}"]`);holdPregame();if(finish(row,row&&row.querySelector('input')))return;}
+  const defs=manualMathDefs(),index=defs.findIndex(def=>def.id===route.def.id);if(index>=0){CONTROLLER.sel=index;setControllerMode('manual',{restore:false});renderControllerMode();finish(manualController,$('#manualVariableSlider'));}
+}
+function showCoachTomiMathRoute(route){
+  clearCoachTomiRecommendation();COACH_TOMI_ACTIONS.current=route;coachTomiMathRecommendation.querySelector('p').textContent=route.copy;coachTomiMathRecommendation.hidden=false;setContextDetail('math',{trigger:$('#physicsDetailsHud'),focus:false});const row=route.def&&varEls.find(item=>item.def.id===route.def.id)?.el,target=row||$('#liveEq');target?.classList.add('coach-recommended');target?.scrollIntoView({behavior:reduce?'auto':'smooth',block:'nearest'});requestAnimationFrame(()=>coachTomiMathRecommendation.focus());coachTomiRecommendationTimer();
+}
+function openCoachTomiRecommendation(source){
+  const note=COACH_TOMI_ACTIONS[source];if(!note)return false;const route=resolveCoachTomiRoute(note),session=coachTomiSession(M.key);session.pending=null;if(source==='pregame'&&PACE_SEQUENCE.state().active)cancelGameTransition('coach-recommendation',{retain:true});if(source==='result'&&resOpen())ackResults();E.title=null;hideCoachMathNudge({reason:'recommendation-opened'});if(route.kind==='control')showCoachTomiControlRoute(route,{source});else showCoachTomiMathRoute(route);return true;
+}
+$('#coachTomiPregameAction').addEventListener('click',event=>{event.stopPropagation();openCoachTomiRecommendation('pregame');});
+$('#coachTomiResultAction').addEventListener('click',event=>{event.stopPropagation();openCoachTomiRecommendation('result');});
+coachTomiControlRecommendation.querySelector('button').addEventListener('click',clearCoachTomiRecommendation);
+coachTomiMathRecommendation.querySelector('button').addEventListener('click',clearCoachTomiRecommendation);
 
 function setSettingsPause(on){
   if(on)pauseGame('settings');
