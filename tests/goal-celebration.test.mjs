@@ -13,6 +13,7 @@ const spatial=read('src/game/32-soccer-3d-modes.js');
 const loop=read('src/game/70-main-loop.js');
 const html=read('src/index.html');
 const css=read('src/styles.css');
+const qa=read('scripts/qa-goal-celebration.mjs');
 
 test('starts the celebration only for successful Kick awards',()=>{
   assert.match(progress,/if\(success&&mode==='kick'&&!meta\.auto&&!CINE\.on\)/);
@@ -50,4 +51,11 @@ test('respects mute, reduced motion, and lifecycle pause ownership',()=>{
   assert.match(renderer,/phase=reduce&&this\.celebrate\?'crowd':'replay'/);
   assert.match(renderer,/step\(rdt\)\{if\(PAUSE\.on\)return/);
   assert.match(renderer,/muted:!!best\.mute/);
+});
+
+test('drives successful celebration scenarios with an explicit scoring shot',()=>{
+  assert.match(qa,/async function setShot\(page,speed=23,angle=17\)/);
+  assert.match(qa,/setup\(lifecyclePage[^;]+;await setShot\(lifecyclePage\);await kick/);
+  assert.match(qa,/setup\(mutePage[^;]+;await setShot\(mutePage\)/);
+  assert.match(qa,/Celebration did not become visible:[^`]+diagnostic/);
 });

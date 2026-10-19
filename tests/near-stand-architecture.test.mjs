@@ -48,8 +48,20 @@ test('builds bounded dimensional roofs, floodlight arrays, and supported jumbotr
   assert.doesNotMatch(renderer,/const strip=/);
 });
 
+test('grounds the canopy into structural stand bases',()=>{
+  assert.match(renderer,/audit\.layers\.roofAisleSupports=\(this\.roofAisleSupports\|\|\[\]\)\.length/);
+  assert.match(renderer,/roofAisleSupports===8/);
+  assert.match(renderer,/bases\.length===20/);
+  assert.match(renderer,/braces\.length===20/);
+  assert.match(renderer,/groundedSupports===20/);
+  assert.match(renderer,/connectedBraces===20/);
+  assert.match(renderer,/supportBaseY<=\.5/);
+  assert.match(renderer,/audit\.passes\.roofGrounding/);
+});
+
 test('requires screenshot evidence for bodies, chairs, LOD, jumbotron, pause, reduced motion, and Canvas',()=>{
-  for(const token of ['contact-oblique','wide-reaction','near-to-far-lod','roof-lights-jumbotron','jumbotron-context','desktop','tablet','mobile','reduced-motion','paused','canvas-fallback'])assert.match(qa,new RegExp(token));
+  for(const token of ['complaint-camera','contact-oblique','wide-reaction','near-to-far-lod','roof-lights-jumbotron','jumbotron-context','desktop','tablet','mobile','reduced-motion','paused','canvas-fallback'])assert.match(qa,new RegExp(token));
+  assert.match(qa,/Complaint-camera canopy grounding failed/);
   assert.match(qa,/analyzeContactScreenshot/);
   assert.match(qa,/connected shirt silhouettes/);
   assert.match(qa,/flat or fragmented/);
