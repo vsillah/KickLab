@@ -18,7 +18,7 @@ test('builds continuous stepped seating with complete chair modules',()=>{
 });
 
 test('keeps near spectators skinned, bounded, grounded, and separate from distant cards',()=>{
-  assert.match(renderer,/new T\.SkinnedMesh\(this\.nearFanGeometry,this\.nearFanMaterial\)/);
+  assert.match(renderer,/new T\.SkinnedMesh\(this\.nearFanGeometry,this\.nearFanMaterials\[/);
   assert.match(renderer,/state===['"]seated['"]/);
   assert.match(renderer,/'half-risen'/);
   assert.match(renderer,/'standing'/);
@@ -26,6 +26,8 @@ test('keeps near spectators skinned, bounded, grounded, and separate from distan
   assert.match(renderer,/for\(let layer=1;layer<3;layer\+\+\)/);
   assert.match(renderer,/contactsPass=seatedContacts\.length>0/);
   assert.match(renderer,/memoryBudgetBytes:262144/);
+  assert.match(renderer,/anatomy:\['head-neck','shoulders-torso','upper-lower-arms','hands','thighs-calves','feet'\]/);
+  assert.match(renderer,/paletteVariants:this\.nearFanMaterials/);
   assert.doesNotMatch(renderer,/fetch\(|XMLHttpRequest|sendBeacon|https?:\/\//);
 });
 
