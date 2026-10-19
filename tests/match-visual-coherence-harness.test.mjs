@@ -17,7 +17,7 @@ test('qualifies Header Duel ready, X-ray, and recovery at three responsive width
 
 test('gates orientation, controlled-player ownership, shared opponent, crowd LOD, pacing, fallbacks, and zero egress',()=>{
   assert.match(source,/primaryFaces!==['"]field-negative-x['"]/);
-  assert.match(source,/opponentRenderer!==['"]shared-direction-c['"]/);
+  assert.match(source,/opponentRenderer!==['"]shared-direction-c-pool['"]/);
   assert.match(source,/controlledIndicator\.owner!==['"]primary['"]/);
   assert.match(source,/controlledIndicator\.opponentMarked/);
   assert.match(source,/controlledIndicator\.sizePx!==expectedIndicatorSize/);

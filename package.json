@@ -11,6 +11,8 @@
     "qa:3d-compat": "node scripts/qa-stage1-3d-compat.mjs",
     "qa:direction-c": "node scripts/qa-direction-c-athlete.mjs",
     "qa:multi-activity-athlete": "node scripts/qa-multi-activity-athlete.mjs",
+    "qa:competitor-identity-diversity": "node scripts/qa-competitor-identity-diversity.mjs",
+    "qa:competitor-renderer-scope": "node scripts/qa-competitor-renderer-scope.mjs",
     "qa:match-visual-coherence": "node scripts/qa-match-visual-coherence.mjs",
     "qa:near-stand": "node scripts/qa-near-stand.mjs",
     "pages:prepare": "node scripts/prepare-pages.mjs",
