@@ -43,11 +43,13 @@ test('marks only the controlled Direction C athlete with the local responsive Ki
   assert.doesNotMatch(athlete,/fetch\(|XMLHttpRequest|sendBeacon|https?:\/\//);
 });
 
-test('keeps the local stadium crowd procedural, layered, animated, and mobile bounded',()=>{
-  assert.match(renderer,/crowdSigns=\[`GO \$\{fanName\}!`,'GO TEAM!','MATH MOVES!','KICKLAB!'\]/);
-  assert.match(renderer,/this\.crowdDepth\.push\(\{mesh:tier,material:cm,layer,stand:grp,baseY:tier\.position\.y\}\)/);
-  assert.match(renderer,/visibleLayers=mobile\?\(distance<58\?2:1\):distance<58\?3:distance<105\?2:1/);
+test('keeps one procedural spectator language across near and distant views',()=>{
+  assert.match(renderer,/audienceLanguage='procedural-low-poly-anatomical'/);
+  assert.match(renderer,/midFarRenderer:'instanced-procedural-low-poly'/);
+  assert.match(renderer,/visibleGroups=mobile\?\(distance<58\?2:distance<105\?1:0\):\(distance<58\?3:distance<135\?2:0\)/);
   assert.match(renderer,/distanceBased:true,maxLayersPerStand:innerWidth<=480\?2:3/);
-  assert.match(renderer,/!reduce&&entry\.mesh\.visible&&cheer/);
+  assert.match(renderer,/motionAllowed=!reduce&&!PAUSE\.on/);
+  assert.match(renderer,/fanRenderer:'local-low-poly-skinned-mesh'/);
+  assert.doesNotMatch(renderer,/crowdTex|crowdTextures|crowdDepth|crowdMats/);
   assert.doesNotMatch(renderer,/fetch\(|XMLHttpRequest|sendBeacon|https?:\/\//);
 });
