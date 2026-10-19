@@ -138,12 +138,12 @@ const V3={ready:false,loading:false,failed:false,on:false,cine:null,ents:[],rigs
   frameCam(D,k,shx,shy){const cam=this.cam,F=DR.F,n=0.3,far=600;
     if(D===Kick&&!this.cine){const S=Kick.S,Dz=38,f=S*Dz,camX=(W/2-Kick.OX)/S,camH=8,cy=Kick.OY-camH*S;cam.position.set(camX,camH,Dz);cam.up.set(0,1,0);cam.lookAt(camX,camH,0);
       const pL=(-W/2-shx)/k.z+k.x,pR=(W/2-shx)/k.z+k.x,pT=(-H/2-shy)/k.z+k.y,pB=(H/2-shy)/k.z+k.y;cam.projectionMatrix.makePerspective((pL-W/2)/f*n,(pR-W/2)/f*n,(cy-pT)/f*n,(cy-pB)/f*n,n,far);cam.projectionMatrixInverse.copy(cam.projectionMatrix).invert();return;}
-    if(this.cine){const c=this.cine;if(c.stand)c.stand.updateWorldMatrix(true,false);const pos=c.stand?c.stand.localToWorld(c.posLocal.clone()):c.pos,look=c.stand?c.stand.localToWorld(c.lookLocal.clone()):c.look;c.worldLook=look;cam.position.copy(pos);cam.up.set(0,1,0);cam.lookAt(look);const top=n*Math.tan(c.fov/2*Math.PI/180),rt=top*16/9;cam.projectionMatrix.makePerspective(-rt,rt,top,-top,n,far);cam.projectionMatrixInverse.copy(cam.projectionMatrix).invert();return;}
+    if(this.cine){const c=this.cine;if(c.stand)c.stand.updateWorldMatrix(true,false);const pos=c.stand?c.stand.localToWorld(c.posLocal.clone()):c.pos,look=c.stand?c.stand.localToWorld(c.lookLocal.clone()):c.look;c.worldLook=look;cam.position.copy(pos);cam.up.set(0,1,0);cam.lookAt(look);const baseTop=n*Math.tan(c.fov/2*Math.PI/180),rt=baseTop*16/9,top=rt/(W/H);cam.projectionMatrix.makePerspective(-rt,rt,top,-top,n,far);cam.projectionMatrixInverse.copy(cam.projectionMatrix).invert();return;}
     const fl=!!D.flipCam,cx=fl?(D.camX||46):D.att.x-(D.camBack||DR.BACK),h=D.camH||DR.CH;cam.position.set(cx,h,D.camY);cam.up.set(0,1,0);cam.lookAt(cx+(fl?-1:1),h,D.camY);
     const pL=(-W/2-shx)/k.z+k.x,pR=(W/2-shx)/k.z+k.x,pT=(-H/2-shy)/k.z+k.y,pB=(H/2-shy)/k.z+k.y;
     cam.projectionMatrix.makePerspective((pL-W/2)/F*n,(pR-W/2)/F*n,(DR.CY-pT)/F*n,(DR.CY-pB)/F*n,n,far);cam.projectionMatrixInverse.copy(cam.projectionMatrix).invert();},
   render(D,k,shx,shy,rdt){if(!this.ready)return;const T=THREE,R=this.R,cv3=this.cv3;cv3.style.display='block';
-    const w=$('#cv').clientWidth||W,h=Math.round(w*9/16);if(this._w!==w){this._w=w;R.setPixelRatio(Math.min(2,window.devicePixelRatio||1));R.setSize(w,h,false);}
+    const w=$('#cv').clientWidth||W,h=$('#cv').clientHeight||Math.round(w*9/16);if(this._w!==w||this._h!==h){this._w=w;this._h=h;R.setPixelRatio(Math.min(2,window.devicePixelRatio||1));R.setSize(w,h,false);}
     this.setSky();
     const side=D===Kick;this.world.position.x=side?Kick.D-40:0;this.nearSide.forEach(o=>o.visible=!side);
     if(side){this.sents.forEach((e,i)=>this.placeJ(this.rig(i),e));for(let i=this.sents.length;i<this.rigs.length;i++)this.rigs[i].g.visible=false;}

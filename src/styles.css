@@ -1032,4 +1032,7 @@ header.top.home-hero::after{content:'';position:absolute;z-index:-1;inset:0;back
 }
 @media (max-width:800px){.game-frame .stage>.control-deck{width:calc(100% - var(--game-rail-space) - 16px)}.game-frame .stage>.control-deck .floating-control-head{width:min(380px,100%)}}
 @media (min-width:481px) and (max-width:980px){.game-frame .stage>.control-deck .dpad{grid-template-columns:repeat(3,44px);grid-template-rows:repeat(3,44px)}.game-frame .stage>.control-deck .dpad .arm{min-width:44px;min-height:44px}.game-frame .stage>.control-deck .compact-physics-detail-toggle{display:none}}
-@media (max-width:480px){.game-frame .stage>canvas#cv,.game-frame .stage>#cv3{height:auto;aspect-ratio:4/5}.game-frame .stage>.control-deck{width:calc(100% - var(--game-rail-space) - 10px);padding:0}.game-frame .stage>.control-deck .floating-control-head{width:100%;padding:2px 3px;border-radius:12px}.control-deck.controller-collapsed{width:min(286px,calc(100% - var(--game-rail-space) - 10px))}}
+@media (min-width:1200px){.game-frame .stage>canvas#cv,.game-frame .stage>#cv3{height:auto;aspect-ratio:8/5}}
+@media (min-width:801px) and (max-width:1199px){.game-frame .stage>canvas#cv,.game-frame .stage>#cv3{height:auto;aspect-ratio:7/5}}
+@media (min-width:481px) and (max-width:800px){.game-frame .stage>canvas#cv,.game-frame .stage>#cv3{height:auto;aspect-ratio:6/7}}
+@media (max-width:480px){.game-frame .stage>canvas#cv,.game-frame .stage>#cv3{height:auto;aspect-ratio:9/20}.game-frame .stage>.control-deck{width:calc(100% - var(--game-rail-space) - 10px);padding:0}.game-frame .stage>.control-deck .floating-control-head{width:100%;padding:2px 3px;border-radius:12px}.control-deck.controller-collapsed{width:min(286px,calc(100% - var(--game-rail-space) - 10px))}}

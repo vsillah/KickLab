@@ -501,6 +501,24 @@ test('keeps one bounded collapsible controller surface and a clear central Class
   assert.match(css,/@media \(max-width:480px\)[^\n]+\.control-deck\.controller-collapsed\{width:min\(286px/);
 });
 
+test('expands the gameplay viewport without stretching its backing buffers',()=>{
+  const core=readFileSync(join(root,'src','game','00-core.js'),'utf8');
+  const renderer=readFileSync(join(root,'src','game','50-renderer-3d.js'),'utf8');
+  const loop=readFileSync(join(root,'src','game','70-main-loop.js'),'utf8');
+  assert.match(core,/const W=960;let H=540,G0=9\.81/);
+  assert.match(core,/const w=cv\.clientWidth\|\|W,h=cv\.clientHeight\|\|w\*9\/16/);
+  assert.match(core,/H=h\/sc;cv\.width=Math\.round\(w\*dpr\);cv\.height=Math\.round\(h\*dpr\)/);
+  assert.match(core,/window\.__KICKLAB_VIEWPORT__=\{width:W,height:H,cssWidth:w,cssHeight:h,scale:sc,aspect:w\/h\}/);
+  assert.match(renderer,/h=\$\('#cv'\)\.clientHeight\|\|Math\.round\(w\*9\/16\)/);
+  assert.match(renderer,/this\._w!==w\|\|this\._h!==h/);
+  assert.match(renderer,/rt=baseTop\*16\/9,top=rt\/\(W\/H\)/);
+  assert.match(loop,/cv\.height!==Math\.round\(\(cv\.clientHeight\|\|H\*sc\)\*dpr\)/);
+  assert.match(css,/@media \(min-width:1200px\)[^\n]+aspect-ratio:8\/5/);
+  assert.match(css,/@media \(min-width:801px\) and \(max-width:1199px\)[^\n]+aspect-ratio:7\/5/);
+  assert.match(css,/@media \(min-width:481px\) and \(max-width:800px\)[^\n]+aspect-ratio:6\/7/);
+  assert.match(css,/@media \(max-width:480px\)[^\n]+aspect-ratio:9\/20/);
+});
+
 test('keeps settings and contextual details mutually exclusive',()=>{
   assert.match(cockpit,/function openSettings\(category=null,trigger=settingsToggle\)\{\s*if\(!profileDialog\.hidden\)closeProfiles\(\{restore:false,restart:false\}\);if\(CONTEXT_DETAILS\.open\)closeContextDetail\(\{restore:false,restart:false\}\)/);
   assert.match(cockpit,/function setContextDetail\(name,[\s\S]*if\(!settingsDrawer\.hidden\)closeSettings\(\{restore:false,restart:false\}\);\s*if\(!profileDialog\.hidden\)closeProfiles\(\{restore:false,restart:false\}\)/);

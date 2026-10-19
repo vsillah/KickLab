@@ -4,7 +4,7 @@ function frame(now){const rdt=Math.min(0.05,(now-last)/1000);last=now;
   if(RP.on){replayStep(rdt);}else if(E.slow&&!PAUSE.on){const s=E.slow;s.t+=rdt;const e=Math.min(1,s.t/0.15,Math.max(0,(s.dur-s.t)/0.35));E.env=e*e*(3-2*e);E.ts=1-E.env*(1-s.min);if(s.t>=s.dur){E.slow=null;E.slowEnd=performance.now();E.env=0;E.ts=1;}}else{E.env=0;E.ts=1;}
   E.shake=Math.max(0,E.shake-rdt*30);
   if(!PAUSE.on&&!RP.on&&!CINE.on)M.update(rdt*E.ts,rdt);
-  if(cv.width!==Math.round((cv.clientWidth||W)*dpr))resize();
+  if(cv.width!==Math.round((cv.clientWidth||W)*dpr)||cv.height!==Math.round((cv.clientHeight||H*sc)*dpr))resize();
   ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,cv.width,cv.height);ctx.setTransform(dpr*sc,0,0,dpr*sc,0,0);
   E.cam=RP.on?RP.cam:camNow();if(!CINE.on)recFrame(rdt);const k=E.cam,sh=RP.on?0:E.shake,shx=sh?(Math.random()-0.5)*sh:0,shy=sh?(Math.random()-0.5)*sh:0;
   V3.on=V3.want();if(V3.on)V3.begin();else V3.hide();if(CINE.on)CINE.step(rdt);CROWD.tick(rdt);
