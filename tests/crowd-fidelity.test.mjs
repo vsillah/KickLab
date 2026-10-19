@@ -56,6 +56,16 @@ test('uses viewport and distance LOD with bounded geometry and texture audits',(
   assert.match(renderer,/layers\.impostorAtlasMinPixelHeight>=142/);
   assert.match(athlete,/targetWidth=stance==='seated'\?88:stance==='half-risen'\?82:78/);
   assert.match(athlete,/g\.drawImage\(rawCanvas,sourceBounds\.x,sourceBounds\.y/);
+  assert.match(athlete,/layoutSeed=\[\.\.\.seedText\]\.reduce/);
+  assert.match(athlete,/frameIndex=\(fan\.col\*5\+fan\.row\*7\+entry\.standIndex\*3\+entry\.layer\*4\+layoutSeed\)%frames\.length/);
+  assert.match(athlete,/mirror=\(\(fan\.col\+fan\.row\+entry\.standIndex\*3\+entry\.layer\+layoutSeed\)&1\)===1/);
+  assert.match(renderer,/occupied=hash\(seed,7\)>\(\.1\+\(\(standIndex\+layer\+row\)%3\)\*\.035\)/);
+  assert.match(renderer,/layers\.impostorIdentityVariants>=12/);
+  assert.match(renderer,/layers\.impostorPoseVariants>=5/);
+  assert.match(renderer,/layers\.impostorAdjacentDuplicateRate<=\.05/);
+  assert.match(renderer,/layers\.impostorRowSignatures===36/);
+  assert.match(renderer,/layers\.impostorUniqueRowSignatures>=30/);
+  assert.match(renderer,/layers\.impostorSeatGrounded/);
   assert.match(renderer,/entry\.actorGroup\.visible=visible&&!impostors/);
   assert.match(renderer,/entry\.impostorGroup\.visible=visible/);
   assert.match(renderer,/layers\.seatRails>=12/);
