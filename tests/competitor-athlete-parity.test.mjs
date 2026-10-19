@@ -36,6 +36,10 @@ test('changes visible face, complexion, build, and hairstyle geometry instead of
   assert.match(athlete,/object\.geometry=object\.geometry\.clone\(\)/);
   assert.match(athlete,/KickLabIdentity-\$\{identity\.id\}-\$\{identity\.face\}-\$\{identity\.hairStyle\}/);
   assert.match(athlete,/'KickLabMakeHumanAthlete\.body':identity\.bodyTint/);
+  assert.match(athlete,/feature=this\.identityMaterial\(identity\.highlight/);
+  assert.match(athlete,/browWidth=\.036\*identity\.faceWidth/);
+  assert.match(athlete,/mat\.name===['"]KickLabMakeHumanAthlete\.body['"]\?null:mat\.map/);
+  assert.match(athlete,/featureProfile:actor\.identityVisual\.featureProfile/);
   assert.match(athlete,/visualSignature:actor\.identityVisual\.signature/);
   assert.match(athlete,/complexion:actor\.target\.identity\.bodyTint/);
 });
@@ -55,6 +59,7 @@ test('qualifies competitor counts, responsive pacing, fallbacks, and renderer sc
   assert.match(identityQa,/roles:\['keeper','teammate','defender'\]/);
   assert.match(identityQa,/values\('visualSignature'\)\.size<scenario\.distinct/);
   assert.match(identityQa,/values\('complexion'\)\.size<scenario\.distinct/);
+  assert.match(identityQa,/values\('featureProfile'\)\.size<scenario\.distinct/);
   assert.match(identityQa,/__KICKLAB_DIRECTION_C_TEAM_FOCUS__/);
 });
 
