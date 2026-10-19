@@ -89,8 +89,9 @@ test('uses a compact active-play HUD and one translucent field overlay',()=>{
   assert.match(css,/\.game-guidance-hud\{position:absolute;z-index:26/);
   assert.match(css,/\.game-shell-nav\{[^}]+background:linear-gradient\(180deg,rgba\(3,8,20,\.08\),rgba\(3,8,20,\.02\),transparent\)/);
   assert.match(css,/\.game-shell-nav \.mode-home-button,\.game-shell-nav \.current-mode,\.game-shell-nav \.experience-selector,\.game-player-tools>button\{background:rgba\(7,15,30,\.1\)/);
-  assert.match(css,/\.game-guidance-hud\{[^}]+background:linear-gradient\(145deg,rgba\(5,14,29,\.04\),rgba\(5,14,29,\.01\)\)/);
-  assert.match(css,/\.game-frame \.stage>canvas#cv\{[^}]+width:calc\(100% - var\(--game-rail-space\)\)/);
+  assert.match(css,/\.game-guidance-hud\{[^}]+border-left:1px solid rgba\(151,187,231,\.42\)[^}]+background:none[^}]+backdrop-filter:none/);
+  assert.match(css,/\.game-frame \.stage>canvas#cv\{[^}]+width:100%/);
+  assert.match(css,/\.game-frame \.stage>#cv3\{width:100%\}/);
   assert.match(css,/\.stage \.context-detail,\.stage \.settings-drawer\{[^}]+right:calc\(var\(--game-rail-space\)/);
   assert.match(css,/\.stage \.context-detail,\.stage \.settings-drawer\{[^}]+background:rgba\(5,14,29,\.2\)/);
   assert.match(css,/\.stage \.context-detail-head\{top:-10px;background:rgba\(9,24,46,\.14\)\}/);
@@ -118,7 +119,7 @@ test('keeps six compact summaries inside one divided right-side tray',()=>{
   assert.doesNotMatch(html,/class="game-player-tools"[\s\S]{0,500}id="profileBtn"/);
   assert.match(css,/\.game-guidance-hud\{position:absolute[^}]+width:68px[^}]+grid-auto-flow:row/);
   assert.match(css,/\.game-guidance-hud>\.contextual-summary\{[^}]+border:0[^}]+background:transparent[^}]+box-shadow:none/);
-  assert.match(css,/\.game-guidance-hud>\.contextual-summary\+ \.contextual-summary\{border-top:/);
+  assert.match(css,/\.game-guidance-hud>\.contextual-summary\+ \.contextual-summary::before\{content:"";[^}]+width:26px/);
   assert.match(css,/@media \(hover:hover\)\{\.game-guidance-hud>\.contextual-summary:hover\{background:rgba\(32,91,128,\.18\)\}\}/);
   assert.match(css,/\.game-guidance-hud>\.contextual-summary:focus-within\{background:rgba\(39,112,155,\.24\)/);
   assert.match(css,/\.game-guidance-hud>\.contextual-summary:has\(\.context-disclosure\[aria-expanded="true"\]\)/);
@@ -133,8 +134,8 @@ test('keeps six compact summaries inside one divided right-side tray',()=>{
 });
 
 test('uses readable translucent contrast plates without making the field shell opaque',()=>{
-  assert.match(css,/\.game-guidance-hud\{background:linear-gradient\(145deg,rgba\(3,10,24,\.07\),rgba\(3,10,24,\.025\)\)/);
-  assert.match(css,/#gameGuidanceHud :is\([^}]+background:rgba\(2,7,17,\.5\)/);
+  assert.match(css,/\.game-guidance-hud\{background:none;-webkit-backdrop-filter:none;backdrop-filter:none\}/);
+  assert.match(css,/#gameGuidanceHud :is\([^}]+background:rgba\(2,7,17,\.38\)[^}]+-webkit-text-stroke:\.35px/);
   assert.match(css,/\.stage \.context-detail,\.stage \.settings-drawer\{background:rgba\(3,10,24,\.36\)/);
   assert.match(css,/\.stage :is\([^}]+background-color:rgba\(2,7,17,\.66\)/);
   assert.match(css,/button:disabled,\[aria-disabled="true"\]\)\{opacity:\.86\}/);
