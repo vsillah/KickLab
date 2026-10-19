@@ -45,9 +45,9 @@ test('marks only the controlled Direction C athlete with the local responsive Ki
 
 test('keeps the local stadium crowd procedural, layered, animated, and mobile bounded',()=>{
   assert.match(renderer,/crowdSigns=\[`GO \$\{fanName\}!`,'GO TEAM!','MATH MOVES!','KICKLAB!'\]/);
-  assert.match(renderer,/this\.crowdDepth\.push\(\{mesh:tier,material:cm,layer,stand:grp,baseY:tier\.position\.y,tier:layer===2\?'soft-far-distance':'seat-depth'\}\)/);
+  assert.match(renderer,/this\.crowdDepth\.push\(\{mesh:tier,material:cm,layer,stand:grp,baseY:tier\.position\.y,tier:'structural-distance-tier'\}\)/);
   assert.match(renderer,/crowdLod\(distance\).*mode==='mobile'.*mode==='tablet'.*heroBudget/);
-  assert.match(renderer,/nearTier:'seat-grounded-shared-rig-clusters'/);
+  assert.match(renderer,/direction-c-chair-bound-seated-supporters/);
   assert.match(renderer,/midTier:'direction-c-rig-impostor-supporters'/);
   assert.match(renderer,/impostorAtlasSource==='direction-c-v2-local-rig'/);
   assert.match(renderer,/this\.crowdActorLayers\.push\(entry\)/);
@@ -59,6 +59,9 @@ test('keeps the local stadium crowd procedural, layered, animated, and mobile bo
   assert.match(renderer,/jumbotronSpectators===3/);
   assert.match(athlete,/KickLabJumbotronSupporter/);
   assert.match(athlete,/KickLabRigHeroSupporter/);
-  assert.match(renderer,/crowdGeometryBytes<250000&&layers\.crowdTextureBytes<2500000/);
+  assert.match(renderer,/layers\.seatPanCapacity===864/);
+  assert.match(renderer,/layers\.visibleLegacySupporterRenderers===0/);
+  assert.match(renderer,/layers\.directionCOnlyVisibleSupporters/);
+  assert.match(renderer,/layers\.crowdGeometryBytes<250000&&layers\.crowdTextureBytes<2500000/);
   assert.doesNotMatch(renderer,/fetch\(|XMLHttpRequest|sendBeacon|https?:\/\//);
 });

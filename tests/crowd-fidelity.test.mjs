@@ -12,7 +12,7 @@ test('builds a local hybrid crowd without external asset egress',()=>{
   for(const primitive of ['CylinderGeometry','SphereGeometry','PlaneGeometry','InstancedMesh'])assert.match(renderer,new RegExp(`T\\.${primitive}`));
   assert.match(renderer,/self-authored hybrid crowd/);
   assert.match(renderer,/crowdActorCapacity:this\.crowdInstanceCapacity/);
-  assert.match(renderer,/nearTier:'seat-grounded-shared-rig-clusters'.*midTier:'direction-c-rig-impostor-supporters'.*farTier:'palette-linked-soft-distance-fill'/);
+  assert.match(renderer,/audit\.lod\.nearTier='direction-c-chair-bound-seated-supporters'.*audit\.lod\.midTier='direction-c-rig-impostor-supporters'.*audit\.lod\.farTier='direction-c-scaled-impostor-supporters'/);
   assert.match(renderer,/seatSteps:this\.crowdSeatSteps/);
   assert.match(renderer,/coherentTransition:true,physicalGrounding:true/);
   assert.doesNotMatch(renderer,/crowd[^\n]{0,180}(fetch\(|https?:\/\/|XMLHttpRequest|sendBeacon)/i);
@@ -36,12 +36,18 @@ test('uses viewport and distance LOD with bounded geometry and texture audits',(
   assert.match(renderer,/const capacity=60/);
   assert.match(renderer,/actorBudget=mode==='mobile'\?\[24,18,12\]:mode==='tablet'\?\[40,32,24\]:\[50,42,34\]/);
   assert.match(renderer,/heroSpectatorCapacity===12/);
-  assert.match(renderer,/nearTier:'seat-grounded-shared-rig-clusters'/);
+  assert.match(renderer,/direction-c-chair-bound-seated-supporters/);
   assert.match(renderer,/midTier:'direction-c-rig-impostor-supporters'/);
-  assert.match(renderer,/farTier:'palette-linked-soft-distance-fill'/);
+  assert.match(renderer,/direction-c-scaled-impostor-supporters/);
   assert.match(renderer,/layers\.seatSteps>=36/);
   assert.match(renderer,/layers\.seatBacks>=36/);
   assert.match(renderer,/layers\.seatUnitCapacity>=864/);
+  assert.match(renderer,/layers\.seatPanCapacity===864/);
+  assert.match(renderer,/layers\.seatBackUnitCapacity===864/);
+  assert.match(renderer,/layers\.risers===12/);
+  assert.match(renderer,/layers\.rowEdges===36/);
+  assert.match(renderer,/layers\.sectionDividers===24/);
+  assert.match(renderer,/layers\.seatMaterialVariants===12/);
   assert.match(renderer,/layers\.aisleSteps>=72/);
   assert.match(renderer,/layers\.railPosts>=36/);
   assert.match(renderer,/layers\.impostorTierLayers===12/);
@@ -66,11 +72,23 @@ test('uses viewport and distance LOD with bounded geometry and texture audits',(
   assert.match(renderer,/layers\.impostorRowSignatures===36/);
   assert.match(renderer,/layers\.impostorUniqueRowSignatures>=30/);
   assert.match(renderer,/layers\.impostorSeatGrounded/);
+  assert.match(renderer,/layers\.seatedVariants>=3/);
+  assert.match(renderer,/layers\.halfRisenVariants>=2/);
+  assert.match(renderer,/layers\.standingVariants>=5/);
+  assert.match(renderer,/layers\.seatedPoseMetadataValid/);
+  assert.match(renderer,/layers\.seatedChairOccupancy/);
+  assert.match(renderer,/layers\.visibleLegacySupporterRenderers===0/);
+  assert.match(renderer,/layers\.legacySupporterTextureLayers===0/);
+  assert.match(renderer,/layers\.directionCOnlyVisibleSupporters/);
+  assert.match(athlete,/hipFlexion=seated\?-1\.25/);
+  assert.match(athlete,/kneeFlexion=seated\?1\.45/);
+  assert.match(athlete,/chairBound:seated\|\|halfRisen/);
   assert.match(renderer,/entry\.actorGroup\.visible=visible&&!impostors/);
   assert.match(renderer,/entry\.impostorGroup\.visible=visible/);
   assert.match(renderer,/layers\.seatRails>=12/);
   assert.match(renderer,/crowdGeometryBytes<250000/);
   assert.match(renderer,/crowdTextureBytes<2500000/);
+  assert.doesNotMatch(renderer,/const crowdTex=/);
 });
 
 test('renders a high-definition fictional adult reaction group onto the stadium jumbotron',()=>{
