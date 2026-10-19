@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 const root=join(dirname(fileURLToPath(import.meta.url)),'..');
 const renderer=readFileSync(join(root,'src/game/50-renderer-3d.js'),'utf8');
 const athlete=readFileSync(join(root,'src/game/50a-direction-c-athlete.js'),'utf8');
+const qa=readFileSync(join(root,'scripts/qa-crowd-fidelity.mjs'),'utf8');
 
 test('builds a local hybrid crowd without external asset egress',()=>{
   for(const primitive of ['CylinderGeometry','SphereGeometry','PlaneGeometry','InstancedMesh'])assert.match(renderer,new RegExp(`T\\.${primitive}`));
@@ -48,6 +49,12 @@ test('uses viewport and distance LOD with bounded geometry and texture audits',(
   assert.match(renderer,/layers\.rowEdges===36/);
   assert.match(renderer,/layers\.sectionDividers===24/);
   assert.match(renderer,/layers\.seatMaterialVariants===12/);
+  assert.match(renderer,/layers\.seatSupportCapacity===1728/);
+  assert.match(renderer,/layers\.seatSideProfileCapacity===1728/);
+  assert.match(renderer,/layers\.riserFaces===36/);
+  assert.match(renderer,/layers\.minimumVisibleSupporterScale>=1\.24/);
+  assert.match(renderer,/layers\.chairBackPanContrast/);
+  assert.match(renderer,/layers\.chairDepthSupports/);
   assert.match(renderer,/layers\.aisleSteps>=72/);
   assert.match(renderer,/layers\.railPosts>=36/);
   assert.match(renderer,/layers\.impostorTierLayers===12/);
@@ -85,10 +92,15 @@ test('uses viewport and distance LOD with bounded geometry and texture audits',(
   assert.match(athlete,/chairBound:seated\|\|halfRisen/);
   assert.match(renderer,/entry\.actorGroup\.visible=visible&&!impostors/);
   assert.match(renderer,/entry\.impostorGroup\.visible=visible/);
+  assert.match(renderer,/detailScale=\[1\.52,1\.38,1\.24\]\[entry\.layer\]/);
+  assert.match(renderer,/coherentSlot=.*%2===0/);
   assert.match(renderer,/layers\.seatRails>=12/);
   assert.match(renderer,/crowdGeometryBytes<250000/);
   assert.match(renderer,/crowdTextureBytes<2500000/);
   assert.doesNotMatch(renderer,/const crowdTex=/);
+  assert.match(qa,/function chairPixelAudit\(path\)/);
+  assert.match(qa,/backPixels>=50&&audit\.panPixels>=25&&audit\.supportPixels>=12&&audit\.verticalSupportRuns>=4/);
+  assert.match(qa,/desktop-chair-depth-seated-occlusion/);
 });
 
 test('renders a high-definition fictional adult reaction group onto the stadium jumbotron',()=>{

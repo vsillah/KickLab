@@ -60,6 +60,8 @@ test('keeps the local stadium crowd procedural, layered, animated, and mobile bo
   assert.match(athlete,/KickLabJumbotronSupporter/);
   assert.match(athlete,/KickLabRigHeroSupporter/);
   assert.match(renderer,/layers\.seatPanCapacity===864/);
+  assert.match(renderer,/layers\.seatSupportCapacity===1728/);
+  assert.match(renderer,/layers\.riserFaces===36/);
   assert.match(renderer,/layers\.visibleLegacySupporterRenderers===0/);
   assert.match(renderer,/layers\.directionCOnlyVisibleSupporters/);
   assert.match(renderer,/layers\.crowdGeometryBytes<250000&&layers\.crowdTextureBytes<2500000/);
