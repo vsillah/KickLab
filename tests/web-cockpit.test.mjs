@@ -133,8 +133,8 @@ test('keeps six compact summaries inside one divided right-side tray',()=>{
 });
 
 test('uses readable translucent contrast plates without making the field shell opaque',()=>{
-  assert.match(css,/\.game-guidance-hud\{background:linear-gradient\(145deg,rgba\(3,10,24,\.18\),rgba\(3,10,24,\.08\)\)/);
-  assert.match(css,/#gameGuidanceHud :is\([^}]+background:rgba\(2,7,17,\.72\)/);
+  assert.match(css,/\.game-guidance-hud\{background:linear-gradient\(145deg,rgba\(3,10,24,\.07\),rgba\(3,10,24,\.025\)\)/);
+  assert.match(css,/#gameGuidanceHud :is\([^}]+background:rgba\(2,7,17,\.5\)/);
   assert.match(css,/\.stage \.context-detail,\.stage \.settings-drawer\{background:rgba\(3,10,24,\.36\)/);
   assert.match(css,/\.stage :is\([^}]+background-color:rgba\(2,7,17,\.66\)/);
   assert.match(css,/button:disabled,\[aria-disabled="true"\]\)\{opacity:\.86\}/);
