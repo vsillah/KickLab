@@ -34,8 +34,22 @@ test('keeps near spectators skinned and mid-far spectators coherent without lega
   assert.doesNotMatch(renderer,/fetch\(|XMLHttpRequest|sendBeacon|https?:\/\//);
 });
 
+test('builds bounded dimensional roofs, floodlight arrays, and supported jumbotrons',()=>{
+  assert.match(renderer,/architecture:'panel-fascia-support-truss'/);
+  assert.match(renderer,/lighting:'bounded-instanced-housings-and-lamps'/);
+  assert.match(renderer,/roofPanels===12/);
+  assert.match(renderer,/roofFascias===4/);
+  assert.match(renderer,/roofSupports===12/);
+  assert.match(renderer,/roofTrusses===20/);
+  assert.match(renderer,/fixtureAssemblies===16/);
+  assert.match(renderer,/lampElements===64/);
+  assert.match(renderer,/jumbotronSupports===8/);
+  assert.match(renderer,/jumbotrons===4/);
+  assert.doesNotMatch(renderer,/const strip=/);
+});
+
 test('requires screenshot evidence for bodies, chairs, LOD, jumbotron, pause, reduced motion, and Canvas',()=>{
-  for(const token of ['contact-oblique','wide-reaction','near-to-far-lod','jumbotron-context','desktop','tablet','mobile','reduced-motion','paused','canvas-fallback'])assert.match(qa,new RegExp(token));
+  for(const token of ['contact-oblique','wide-reaction','near-to-far-lod','roof-lights-jumbotron','jumbotron-context','desktop','tablet','mobile','reduced-motion','paused','canvas-fallback'])assert.match(qa,new RegExp(token));
   assert.match(qa,/analyzeContactScreenshot/);
   assert.match(qa,/connected shirt silhouettes/);
   assert.match(qa,/flat or fragmented/);

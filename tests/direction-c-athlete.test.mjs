@@ -135,7 +135,8 @@ test('keeps the dimensional procedural stadium in the multi-activity regression 
   assert.match(renderer,/pitchMarkings>=12/);
   assert.match(renderer,/goalNetSurfaces>=4/);
   assert.match(renderer,/stands>=4&&layers\.sideReturns>=2/);
-  assert.match(renderer,/roofPanels>=4&&layers\.roofTrusses>=20/);
+  assert.match(renderer,/roofPanels===12&&layers\.roofFascias===4&&layers\.roofSupports===12&&layers\.roofTrusses===20/);
+  assert.match(renderer,/fixtureAssemblies===16&&layers\.lampElements===64&&layers\.jumbotronSupports===8/);
   assert.match(renderer,/animatedBoards>=4/);
   assert.match(renderer,/visibleLegacyAudienceRenderers===0/);
   assert.match(renderer,/oldCrowdTextureLayers===0/);
