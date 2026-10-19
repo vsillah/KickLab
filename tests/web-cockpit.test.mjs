@@ -38,13 +38,14 @@ test('maps the four contextual summaries to accessible disclosures',()=>{
   assert.doesNotMatch(html,/id="contextMenuSlot"|id="inspector"|id="ins-tab-|id="ins-pane-/);
 });
 
-test('keeps gameplay controls outside the canvas stage',()=>{
-  const stageEnd=html.indexOf('</div>\n        <div class="control-deck"');
-  assert.ok(stageEnd>html.indexOf('<div class="stage">'));
-  assert.ok(html.indexOf('id="pad"')>stageEnd);
+test('floats gameplay controls inside the canvas stage',()=>{
+  const stage=html.indexOf('<div class="stage">'),deck=html.indexOf('<div class="control-deck"'),stageEnd=html.indexOf('</div>\n        <div class="dials"');
+  assert.ok(stage>=0&&stage<deck&&deck<stageEnd);
+  assert.ok(html.indexOf('id="pad"')>deck);
   assert.ok(html.indexOf('id="physicsDetail"')>html.indexOf('id="cv"'));
-  assert.ok(html.indexOf('id="physicsDetail"')<stageEnd);
-  assert.ok(html.indexOf('id="rbar"')>stageEnd);
+  assert.ok(html.indexOf('id="physicsDetail"')<deck);
+  assert.ok(html.indexOf('id="rbar"')>deck&&html.indexOf('id="rbar"')<stageEnd);
+  assert.match(css,/\.game-frame \.stage>\.control-deck\{position:absolute;z-index:14/);
 });
 
 test('keeps canonical Math content in the physics disclosure',()=>{
@@ -413,7 +414,8 @@ test('projects every canonical manual variable into the wide control gap',()=>{
 
 test('keeps six-slot mechanics controls between analog and gesture controls',()=>{
   assert.match(html,/id="analogStick"[^]*id="prototypePhysics"[^]*id="gestureAction"/);
-  assert.match(html,/id="prototypePhysics" open/);
+  assert.match(html,/id="prototypePhysics">/);
+  assert.doesNotMatch(html,/id="prototypePhysics" open/);
   assert.match(html,/id="prototypePhysicsStatus" role="status" aria-live="polite"/);
   assert.match(cockpit,/function renderPrototypeManual\(\)/);
   assert.match(cockpit,/const defs=wideManualDefs\(\),profile=activeVariableProfileKey\(\)/);
@@ -480,6 +482,23 @@ test('uses a compact accessible Classic and Analog control-style selector',()=>{
   assert.match(css,/\.prototype-control-bar\{[^}]+width:170px[^}]+min-height:48px[^}]+grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
   assert.match(css,/\.prototype-control-bar button\{[^}]+min-height:44px/);
   assert.match(css,/\.prototype-control-bar button\[aria-pressed="true"\]\{[^}]*border-color:#7fdcff[^}]*background:#17304d/);
+});
+
+test('keeps one bounded collapsible controller surface and a clear central Classic lane',()=>{
+  assert.match(html,/class="floating-control-title"[^]*id="floatingControllerState">Classic · Play/);
+  assert.match(html,/id="controllerCollapseButton" aria-expanded="true" aria-controls="pad" aria-label="Collapse game controls"/);
+  assert.match(analog,/const FLOATING_CONTROLLER=\{collapsed:matchMedia\('\(max-width:480px\)'\)\.matches\}/);
+  assert.match(analog,/function setFloatingControllerCollapsed\(collapsed,\{focus=false\}=\{\}\)/);
+  assert.match(analog,/cancelAnalog\('Controls collapsed'\);cancelGesture\('Controls collapsed'\)/);
+  assert.match(analog,/floatingControlDeck\.addEventListener\('pointerdown',event=>event\.stopPropagation\(\)\)/);
+  assert.match(cockpit,/classList\.toggle\('manual-active',manual\)/);
+  assert.doesNotMatch(cockpit,/if\(active&&CONTROLLER\.mode==='manual'\)setControllerMode\('play'/);
+  assert.match(css,/\.control-deck\.controller-collapsed \.pad,\.control-deck\.controller-collapsed \.rbar\{display:none!important\}/);
+  assert.match(css,/\.game-frame \.stage>\.control-deck\{width:min\(900px,[^}]+background:transparent[^}]+backdrop-filter:none/);
+  assert.match(css,/\.game-frame \.stage>\.control-deck \.control-left-slot\{grid-column:1/);
+  assert.match(css,/\.game-frame \.stage>\.control-deck #padR\{grid-column:3/);
+  assert.match(css,/\.game-frame \.stage>\.control-deck\.manual-active \.wide-manual-controller\{display:grid\}/);
+  assert.match(css,/@media \(max-width:480px\)[^\n]+\.control-deck\.controller-collapsed\{width:min\(286px/);
 });
 
 test('keeps settings and contextual details mutually exclusive',()=>{
