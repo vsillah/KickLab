@@ -30,11 +30,11 @@ test('keeps crowd motion independent, reaction-aware, pausable, and reduced-moti
 
 test('uses viewport and distance LOD with bounded geometry and texture audits',()=>{
   assert.match(renderer,/mode=innerWidth<=480\?'mobile':innerWidth<=900\?'tablet':'desktop'/);
-  assert.match(renderer,/mode==='mobile'\?\[18,14,10\]:mode==='tablet'\?\[28,22,16\]:\[36,30,24\]/);
+  assert.match(renderer,/mode==='mobile'\?\[24,18,12\]:mode==='tablet'\?\[40,32,24\]:\[50,42,34\]/);
   assert.match(renderer,/maxLayersPerStand:mode==='mobile'\?2:3/);
-  assert.match(renderer,/crowdActorCapacity>=432/);
-  assert.match(renderer,/const capacity=36/);
-  assert.match(renderer,/actorBudget=mode==='mobile'\?\[18,14,10\]:mode==='tablet'\?\[28,22,16\]:\[36,30,24\]/);
+  assert.match(renderer,/crowdActorCapacity>=720/);
+  assert.match(renderer,/const capacity=60/);
+  assert.match(renderer,/actorBudget=mode==='mobile'\?\[24,18,12\]:mode==='tablet'\?\[40,32,24\]:\[50,42,34\]/);
   assert.match(renderer,/heroSpectatorCapacity===12/);
   assert.match(renderer,/nearTier:'seat-grounded-shared-rig-clusters'/);
   assert.match(renderer,/midTier:'direction-c-rig-impostor-supporters'/);
@@ -45,15 +45,17 @@ test('uses viewport and distance LOD with bounded geometry and texture audits',(
   assert.match(renderer,/layers\.aisleSteps>=72/);
   assert.match(renderer,/layers\.railPosts>=36/);
   assert.match(renderer,/layers\.impostorTierLayers===12/);
-  assert.match(renderer,/layers\.visibleImpostorSpectators>=36/);
+  assert.match(renderer,/layers\.visibleImpostorSpectators>=60/);
   assert.match(renderer,/layers\.impostorAtlasSource==='direction-c-v2-local-rig'/);
   assert.match(renderer,/layers\.impostorAtlasLocalOnly/);
-  assert.match(renderer,/layers\.impostorAtlasWidth===128/);
-  assert.match(renderer,/layers\.impostorAtlasHeight===192/);
-  assert.match(renderer,/layers\.impostorAtlasFrames===6/);
-  assert.match(renderer,/layers\.impostorAtlasBytes===589824/);
-  assert.match(renderer,/layers\.impostorAtlasMinPixelWidth>=35/);
-  assert.match(renderer,/layers\.impostorAtlasMinPixelHeight>=131/);
+  assert.match(renderer,/layers\.impostorAtlasWidth===112/);
+  assert.match(renderer,/layers\.impostorAtlasHeight===176/);
+  assert.match(renderer,/layers\.impostorAtlasFrames===12/);
+  assert.match(renderer,/layers\.impostorAtlasBytes===946176/);
+  assert.match(renderer,/layers\.impostorAtlasMinPixelWidth>=78/);
+  assert.match(renderer,/layers\.impostorAtlasMinPixelHeight>=142/);
+  assert.match(athlete,/targetWidth=stance==='seated'\?88:stance==='half-risen'\?82:78/);
+  assert.match(athlete,/g\.drawImage\(rawCanvas,sourceBounds\.x,sourceBounds\.y/);
   assert.match(renderer,/entry\.actorGroup\.visible=visible&&!impostors/);
   assert.match(renderer,/entry\.impostorGroup\.visible=visible/);
   assert.match(renderer,/layers\.seatRails>=12/);
