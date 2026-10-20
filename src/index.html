@@ -179,9 +179,12 @@
             <div class="vars" id="vars"></div>
             <figure class="chart"><canvas id="chart" aria-label="Relationship chart"></canvas><figcaption id="chartCap"></figcaption></figure>
           </section>
-        </div>
         <div class="control-deck" aria-label="Game controls">
-          <div class="prototype-control-bar" role="group" aria-label="Control style" aria-describedby="controlStyleDescription"><span class="sr-only" id="controlStyleDescription">Choose classic buttons or the experimental analog and gesture controller. Classic controls stay available.</span><button type="button" id="classicControlsButton" aria-pressed="true" aria-controls="pad">Classic</button><button type="button" id="analogControlsButton" aria-pressed="false" aria-controls="touchController">Analog</button></div>
+          <div class="floating-control-head">
+            <div class="floating-control-title"><span>On-stage controls</span><b id="floatingControllerState">Classic · Play</b></div>
+            <div class="prototype-control-bar" role="group" aria-label="Control style" aria-describedby="controlStyleDescription"><span class="sr-only" id="controlStyleDescription">Choose classic buttons or the experimental analog and gesture controller. Classic controls stay available.</span><button type="button" id="classicControlsButton" aria-pressed="true" aria-controls="pad">Classic</button><button type="button" id="analogControlsButton" aria-pressed="false" aria-controls="touchController">Analog</button></div>
+            <button type="button" class="controller-collapse" id="controllerCollapseButton" aria-expanded="true" aria-controls="pad" aria-label="Collapse game controls"><span aria-hidden="true">⌄</span></button>
+          </div>
           <div class="pad" id="pad">
             <section class="touch-controller" id="touchController" hidden aria-label="Analog and gesture controller" aria-describedby="touchControllerInstructions">
               <p class="sr-only" id="touchControllerInstructions">Left thumbstick: drag in any direction, with distance controlling intensity. Keyboard users can hold arrow keys. Right action surface: hold and slide, then release to act. Release inside the target band for the best result. Escape cancels either control.</p>
@@ -193,7 +196,7 @@
                 </div>
                 <output class="analog-readout" id="analogReadout" aria-live="polite">Centered · 0%</output>
               </div>
-              <details class="prototype-physics" id="prototypePhysics" open>
+              <details class="prototype-physics" id="prototypePhysics">
                 <summary><span><b>Manual physics</b><small>Six quick values · live mechanics</small></span><i aria-hidden="true">⌄</i></summary>
                 <p class="prototype-physics-status" id="prototypePhysicsStatus" role="status" aria-live="polite">Loading active controls…</p>
                 <div class="prototype-physics-rows" id="prototypePhysicsRows"></div>
@@ -226,6 +229,7 @@
             <div class="grp r" id="padR"></div>
           </div>
           <div class="rbar" id="rbar" hidden><span class="rb-tag">REPLAY</span><button type="button" id="rbBack" aria-label="Back 3 seconds">Back 3s</button><button type="button" id="rbPlay" aria-label="Play or pause">Pause</button><div class="rb-sp"><button type="button" data-sp="0.25">¼×</button><button type="button" data-sp="0.5" aria-pressed="true">½×</button><button type="button" data-sp="1">1×</button></div><input type="range" id="rbScrub" min="0" max="1000" value="0" aria-label="Scrub replay"><span class="rb-t" id="rbTime">0:00.0</span><button type="button" id="rbReview">Review</button><button type="button" id="rbExit">Exit replay</button></div>
+        </div>
         </div>
         <div class="dials" id="dials" hidden role="dialog" aria-modal="true" aria-label="Dials, game paused"><div class="dh"><b>TIME-OUT · YOUR CORNER</b><button type="button" id="dialsClose">Back in <span aria-hidden="true">▶</span></button></div><div class="db" id="dialsBody"></div></div>
       </div>

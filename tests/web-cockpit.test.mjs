@@ -23,6 +23,8 @@ const kit=readFileSync(join(root,'src','game','52-leaderboard.js'),'utf8');
 const css=readFileSync(join(root,'src','styles.css'),'utf8');
 const rig=readFileSync(join(root,'src','game','04-body-rig.js'),'utf8');
 const analog=readFileSync(join(root,'src','game','55-analog-gesture-controls.js'),'utf8');
+const fight=readFileSync(join(root,'src','game','10-fight.js'),'utf8');
+const modeFlow=readFileSync(join(root,'src','game','53-weekly-challenge.js'),'utf8');
 
 test('keeps relocated feature roots canonical and singular',()=>{
   for(const id of ['quickSettings','settingsDrawer','settingsCategories','settingsChoices','kitroom','liveEq','vars','chart','ticker','mlList','chal','missions','eqs','steps','idea','quiz']){
@@ -38,13 +40,14 @@ test('maps the four contextual summaries to accessible disclosures',()=>{
   assert.doesNotMatch(html,/id="contextMenuSlot"|id="inspector"|id="ins-tab-|id="ins-pane-/);
 });
 
-test('keeps gameplay controls outside the canvas stage',()=>{
-  const stageEnd=html.indexOf('</div>\n        <div class="control-deck"');
-  assert.ok(stageEnd>html.indexOf('<div class="stage">'));
-  assert.ok(html.indexOf('id="pad"')>stageEnd);
+test('floats gameplay controls inside the canvas stage',()=>{
+  const stage=html.indexOf('<div class="stage">'),deck=html.indexOf('<div class="control-deck"'),stageEnd=html.indexOf('</div>\n        <div class="dials"');
+  assert.ok(stage>=0&&stage<deck&&deck<stageEnd);
+  assert.ok(html.indexOf('id="pad"')>deck);
   assert.ok(html.indexOf('id="physicsDetail"')>html.indexOf('id="cv"'));
-  assert.ok(html.indexOf('id="physicsDetail"')<stageEnd);
-  assert.ok(html.indexOf('id="rbar"')>stageEnd);
+  assert.ok(html.indexOf('id="physicsDetail"')<deck);
+  assert.ok(html.indexOf('id="rbar"')>deck&&html.indexOf('id="rbar"')<stageEnd);
+  assert.match(css,/\.game-frame \.stage>\.control-deck\{position:absolute;z-index:14/);
 });
 
 test('keeps canonical Math content in the physics disclosure',()=>{
@@ -413,7 +416,8 @@ test('projects every canonical manual variable into the wide control gap',()=>{
 
 test('keeps six-slot mechanics controls between analog and gesture controls',()=>{
   assert.match(html,/id="analogStick"[^]*id="prototypePhysics"[^]*id="gestureAction"/);
-  assert.match(html,/id="prototypePhysics" open/);
+  assert.match(html,/id="prototypePhysics">/);
+  assert.doesNotMatch(html,/id="prototypePhysics" open/);
   assert.match(html,/id="prototypePhysicsStatus" role="status" aria-live="polite"/);
   assert.match(cockpit,/function renderPrototypeManual\(\)/);
   assert.match(cockpit,/const defs=wideManualDefs\(\),profile=activeVariableProfileKey\(\)/);
@@ -480,6 +484,50 @@ test('uses a compact accessible Classic and Analog control-style selector',()=>{
   assert.match(css,/\.prototype-control-bar\{[^}]+width:170px[^}]+min-height:48px[^}]+grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
   assert.match(css,/\.prototype-control-bar button\{[^}]+min-height:44px/);
   assert.match(css,/\.prototype-control-bar button\[aria-pressed="true"\]\{[^}]*border-color:#7fdcff[^}]*background:#17304d/);
+});
+
+test('keeps one bounded collapsible controller surface and a clear central Classic lane',()=>{
+  assert.match(html,/class="floating-control-title"[^]*id="floatingControllerState">Classic · Play/);
+  assert.match(html,/id="controllerCollapseButton" aria-expanded="true" aria-controls="pad" aria-label="Collapse game controls"/);
+  assert.match(analog,/const FLOATING_CONTROLLER=\{collapsed:matchMedia\('\(max-width:480px\)'\)\.matches\}/);
+  assert.match(analog,/function setFloatingControllerCollapsed\(collapsed,\{focus=false\}=\{\}\)/);
+  assert.match(analog,/cancelAnalog\('Controls collapsed'\);cancelGesture\('Controls collapsed'\)/);
+  assert.match(analog,/floatingControlDeck\.addEventListener\('pointerdown',event=>event\.stopPropagation\(\)\)/);
+  assert.match(cockpit,/classList\.toggle\('manual-active',manual\)/);
+  assert.doesNotMatch(cockpit,/if\(active&&CONTROLLER\.mode==='manual'\)setControllerMode\('play'/);
+  assert.match(css,/\.control-deck\.controller-collapsed \.pad,\.control-deck\.controller-collapsed \.rbar\{display:none!important\}/);
+  assert.match(css,/\.game-frame \.stage>\.control-deck\{width:min\(900px,[^}]+background:transparent[^}]+backdrop-filter:none/);
+  assert.match(css,/\.game-frame \.stage>\.control-deck \.control-left-slot\{grid-column:1/);
+  assert.match(css,/\.game-frame \.stage>\.control-deck #padR\{grid-column:3/);
+  assert.match(css,/\.game-frame \.stage>\.control-deck\.manual-active \.wide-manual-controller\{display:grid\}/);
+  assert.match(css,/@media \(max-width:480px\)[^\n]+\.control-deck\.controller-collapsed\{width:min\(286px/);
+});
+
+test('expands the gameplay viewport without stretching its backing buffers',()=>{
+  const core=readFileSync(join(root,'src','game','00-core.js'),'utf8');
+  const renderer=readFileSync(join(root,'src','game','50-renderer-3d.js'),'utf8');
+  const loop=readFileSync(join(root,'src','game','70-main-loop.js'),'utf8');
+  assert.match(core,/const W=960;let H=540,G0=9\.81/);
+  assert.match(core,/const w=cv\.clientWidth\|\|W,h=cv\.clientHeight\|\|w\*9\/16/);
+  assert.match(core,/H=h\/sc;cv\.width=Math\.round\(w\*dpr\);cv\.height=Math\.round\(h\*dpr\)/);
+  assert.match(core,/window\.__KICKLAB_VIEWPORT__=\{width:W,height:H,cssWidth:w,cssHeight:h,scale:sc,aspect:w\/h\}/);
+  assert.match(renderer,/h=\$\('#cv'\)\.clientHeight\|\|Math\.round\(w\*9\/16\)/);
+  assert.match(renderer,/this\._w!==w\|\|this\._h!==h/);
+  assert.match(renderer,/rt=baseTop\*16\/9,top=rt\/\(W\/H\)/);
+  assert.match(loop,/cv\.height!==Math\.round\(\(cv\.clientHeight\|\|H\*sc\)\*dpr\)/);
+  assert.match(css,/@media \(min-width:1200px\)[^\n]+aspect-ratio:8\/5/);
+  assert.match(css,/@media \(min-width:801px\) and \(max-width:1199px\)[^\n]+aspect-ratio:7\/5/);
+  assert.match(css,/@media \(min-width:481px\) and \(max-width:800px\)[^\n]+aspect-ratio:6\/7/);
+  assert.match(css,/@media \(max-width:480px\)[^\n]+aspect-ratio:9\/20/);
+});
+
+test('uses the reclaimed portrait Fight stage without changing gameplay coordinates',()=>{
+  assert.match(fight,/worldOffsetY\(\)\{return innerWidth<=800\?Math\.max\(0,H\*\.5-455\):0;\}/);
+  assert.match(fight,/window\.__KICKLAB_FIGHT_COMPOSITION__=\{worldOffsetY:vy,sceneFloorLogical:floor,sceneFloorCss:floor\*sc,stageHeightCss:H\*sc,coverage:floor\/H\}/);
+  assert.match(fight,/focus:\{x:T0\.x-24,y:T0\.y\+4\+this\.worldOffsetY\(\)\}/);
+  assert.match(loop,/const worldOffsetY=typeof M\.worldOffsetY==='function'\?M\.worldOffsetY\(\):0;ctx\.translate\(0,worldOffsetY\)/);
+  assert.match(modeFlow,/document\.documentElement\.dataset\.kicklabMode=k/);
+  assert.match(css,/html\[data-kicklab-mode="fight"\] \.game-frame \.stage>\.control-deck\{top:55%;bottom:auto;max-height:calc\(45% - 7px\)/);
 });
 
 test('keeps settings and contextual details mutually exclusive',()=>{
