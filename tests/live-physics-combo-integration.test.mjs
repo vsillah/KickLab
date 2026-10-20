@@ -26,6 +26,23 @@ test('runtime reuses canonical variable, suggestion, and six-slot models',()=>{
   assert.match(styles,/grid-template-columns:repeat\(6,minmax\(44px,1fr\)\)/);
 });
 
+test('joint plans and live cached values stay coupled to the existing outcomes',()=>{
+  assert.match(runtime,/for\(const v of liveComboValues\(byId\.v\)\)for\(const th of liveComboValues\(byId\.th\)\)/);
+  assert.match(runtime,/clearMargin<\.08\|\|barMargin<\.05/);
+  assert.match(runtime,/Fight\.dodged=!winding&&!stunned/);
+  assert.match(runtime,/Kick\.v=bounded;const prediction=Kick\.freeCalc\(Kick\.v,Kick\.V\.th\)/);
+  assert.match(runtime,/min:\.01/);
+});
+
+test('rendered QA rejects overlay-only success and proves existing outcomes',()=>{
+  const qa=read('scripts/qa-live-physics-combo.mjs');
+  assert.match(qa,/fightSuccess\.force>fightFailure\.force\*2/);
+  assert.match(qa,/raceSuccess\.entry<=raceSuccess\.limit\*1\.02/);
+  assert.match(qa,/kickSuccess\.outcome==='goal'/);
+  assert.match(qa,/videoSources\.map\(item=>item\.label\)/);
+  assert.match(qa,/External requests observed/);
+});
+
 test('Fight, Race, and Kick sequences bind to existing active variables',()=>{
   assert.match(runtime,/fight:Object\.freeze\(\{activity:'Punch exchange',ids:Object\.freeze\(\['m','dt'\]\)/);
   assert.match(runtime,/race:Object\.freeze\(\{activity:'Corner',ids:Object\.freeze\(\['mu','R'\]\)/);

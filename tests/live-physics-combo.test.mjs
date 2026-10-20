@@ -58,3 +58,13 @@ test('cancellation is idempotent and prevents later input or timers from resolvi
   assert.deepEqual(events, ['settings']);
   assert.equal(engine.state().result.reason, 'settings');
 });
+
+test('the canonical kick pair clears both outcome gates with collision margin', () => {
+  const gravity = 9.81, speed = 22, angle = 18 * Math.PI / 180;
+  const vx = speed * Math.cos(angle), vy = speed * Math.sin(angle);
+  const heightAt = distance => 0.11 + vy * (distance / vx) - 0.5 * gravity * (distance / vx) ** 2;
+  assert.ok(heightAt(9.15) - (1.85 + 0.11) >= 0.08);
+  assert.ok(heightAt(21) < 2.44 - 0.11);
+  assert.ok(heightAt(21) > 0.11);
+  assert.ok(heightAt(9.0) > 1.85 + 0.11, 'the pre-wall collision plane also clears');
+});
