@@ -17,6 +17,17 @@ test('feature flag is default off and accepts explicit enabled values only', () 
   assert.equal(COMBO.flagEnabled('livePhysicsCombo=true'), true);
 });
 
+test('maps selected values and objective semantics into deterministic progressive detail', () => {
+  const variable = { id: 'v', name: 'Speed', unit: 'm/s', decimals: 1 };
+  const helps = COMBO.progressiveDetailModel({ variable, value: 22, previousValue: 20, impact: { kind: 'helps', label: 'Clears wall', prediction: 'Goal window stays open.' }, coach: 'Use the green choice.', graphicLabel: 'Trajectory clears the wall.' });
+  const tradeoff = COMBO.progressiveDetailModel({ variable, value: 24, previousValue: 22, impact: { kind: 'tradeoff', label: 'More wall room · Less bar room', prediction: 'The shot rises closer to the bar.' } });
+  const warning = COMBO.progressiveDetailModel({ variable, value: 16, previousValue: 22, impact: { kind: 'hurts', label: 'Hits wall', prediction: 'The ball stops at the wall.' } });
+  assert.deepEqual({ selected: helps.selected, changed: helps.changed, unit: helps.unit, tone: helps.tone, label: helps.toneLabel }, { selected: '22.0 m/s', changed: '20.0 m/s → 22.0 m/s', unit: 'm/s', tone: 'helps', label: 'Helps' });
+  assert.deepEqual([tradeoff.tone, tradeoff.toneLabel, warning.tone, warning.toneLabel], ['tradeoff', 'Trade-off', 'warn', 'Warning']);
+  assert.equal(helps.graphicLabel, 'Trajectory clears the wall.');
+  assert.equal(Object.isFrozen(helps), true);
+});
+
 test('Fight timing and physics choices are mutually exclusive across every phase', () => {
   const time = COMBO.fightInteractionPhase({ actionReady: true });
   const tuneOne = COMBO.fightInteractionPhase({ actionReady: false, comboStatus: 'active', comboMode: 'fight', comboIndex: 0, comboLength: 2 });

@@ -21,6 +21,37 @@
     return freeze({ correct, value: numeric, target: target ? { lo: Number(target.lo), hi: Number(target.hi) } : null });
   }
 
+  function progressiveDetailModel({ variable, value, previousValue, impact, coach = '', graphicLabel = '' } = {}) {
+    if (!variable || !variable.id || !variable.name) throw new Error('progressive detail requires a variable');
+    const selectedValue = Number(value), priorValue = Number(previousValue);
+    if (!Number.isFinite(selectedValue) || !Number.isFinite(priorValue)) throw new Error('progressive detail requires numeric values');
+    const sourceImpact = impact && typeof impact === 'object' ? impact : {};
+    const sourceKind = String(sourceImpact.kind || 'neutral');
+    const tone = sourceKind === 'hurts' ? 'warn' : ['helps', 'tradeoff'].includes(sourceKind) ? sourceKind : 'neutral';
+    const toneLabel = { helps: 'Helps', tradeoff: 'Trade-off', warn: 'Warning', neutral: 'Explore' }[tone];
+    const decimals = Math.max(0, Number.isFinite(Number(variable.decimals)) ? Number(variable.decimals) : 1);
+    const unit = String(variable.unit || '');
+    const format = number => `${Number(number).toFixed(decimals)}${unit ? unit === '°' ? '°' : ` ${unit}` : ''}`;
+    const selected = format(selectedValue), previous = format(priorValue);
+    const changed = Math.abs(selectedValue - priorValue) < 1e-9 ? `Selected ${selected}` : `${previous} → ${selected}`;
+    return freeze({
+      variableId: String(variable.id),
+      variableName: String(variable.name),
+      value: selectedValue,
+      previousValue: priorValue,
+      unit,
+      selected,
+      previous,
+      changed,
+      tone,
+      toneLabel,
+      label: String(sourceImpact.label || toneLabel),
+      prediction: String(sourceImpact.prediction || ''),
+      coach: String(coach || ''),
+      graphicLabel: String(graphicLabel || '')
+    });
+  }
+
   function fightInteractionPhase({ actionReady = true, comboStatus = 'idle', comboMode = null, comboIndex = -1, comboLength = 0, showResult = false } = {}) {
     const physicsInteractive = comboMode === 'fight' && comboStatus === 'active';
     const phase = physicsInteractive ? 'tune' : showResult || !actionReady ? 'see' : 'time';
@@ -90,5 +121,5 @@
     return freeze({ start, choose, tick, cancel, reset, state: snapshot });
   }
 
-  root.KickLabLivePhysicsCombo = freeze({ apiVersion: '1.1.0', flagEnabled, evaluateChoice, fightInteractionPhase, createEngine });
+  root.KickLabLivePhysicsCombo = freeze({ apiVersion: '1.2.0', flagEnabled, evaluateChoice, progressiveDetailModel, fightInteractionPhase, createEngine });
 })(globalThis);
