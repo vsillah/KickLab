@@ -61,6 +61,24 @@ test('joint plans and live cached values stay coupled to the existing outcomes',
   assert.match(runtime,/min:\.01/);
 });
 
+test('Kick choices open one in-controller Coach detail before the canonical lock',()=>{
+  assert.match(html,/id="livePhysicsComboDetail" role="region" aria-live="polite" aria-labelledby="livePhysicsDetailTitle" hidden/);
+  assert.match(runtime,/function liveComboKickPrediction\(variable,value\)/);
+  assert.match(runtime,/Kick\.freeCalc\(v,th,Kick\.V\.spin,Kick\.V\.g\)/);
+  assert.match(runtime,/KickLabLivePhysicsCombo\.progressiveDetailModel/);
+  assert.match(runtime,/aria-controls="livePhysicsComboDetail"/);
+  assert.match(runtime,/function openLiveComboDetail\(variable,value,button,input\)/);
+  assert.match(runtime,/applyLiveComboValue\(variable,value\)/);
+  assert.match(runtime,/function commitLiveComboDetail\(\).*LIVE_COMBO_ENGINE\.choose\(value,input\)/);
+  assert.match(runtime,/function collapseLiveComboDetail\(\{restoreFocus=true,announce=true\}=\{\}\)/);
+  assert.match(runtime,/requestAnimationFrame\(\(\)=>selected\.focus\(\)\)/);
+  assert.match(runtime,/LIVE_COMBO\.mode==='kick'.*openLiveComboDetail/);
+  assert.match(runtime,/if\(LIVE_COMBO\.detail\)\{liveComboAudit\(\{detailOpen:true/);
+  assert.match(styles,/\.live-physics-detail button\{[^}]*min-width:44px;min-height:44px/);
+  assert.match(styles,/\.control-deck\.live-detail-open \.control-left-slot,[^}]+display:none/);
+  assert.match(styles,/@media \(prefers-reduced-motion:reduce\)\{\.live-physics-detail/);
+});
+
 test('rendered QA rejects overlay-only success and proves existing outcomes',()=>{
   const qa=read('scripts/qa-live-physics-combo.mjs');
   assert.match(qa,/fightSuccess\.force>fightFailure\.force\*2/);
@@ -90,6 +108,7 @@ test('pause, replay, results, mode changes, and lifecycle cancel deterministical
   assert.match(runtime,/cancelLivePhysicsCombo\('mode-changed'\)/);
   assert.match(pause,/cancelLivePhysicsCombo\(`pause:\$\{owner\}`\)/);
   assert.match(loop,/tickLivePhysicsCombo\(rdt\)/);
+  assert.match(runtime,/clearLiveComboVisual.*collapseLiveComboDetail\(\{restoreFocus:false,announce:false\}\)/);
 });
 
 test('Classic, keyboard, analog, gesture, touch, and pointer inputs share gameInput',()=>{
@@ -101,7 +120,7 @@ test('Classic, keyboard, analog, gesture, touch, and pointer inputs share gameIn
   assert.match(keyboard,/gameInput\(id,true,'keyboard'/);
   assert.match(analog,/gameInput\(id,true,'analog'\)/);
   assert.match(analog,/gameInput\(action\.id,true,'gesture'\)/);
-  assert.match(runtime,/chooseLiveCombo\(event\.target\.closest\('\.live-physics-choice'\),'pointer'\)/);
+  assert.match(runtime,/chooseLiveCombo\(event\.target\.closest\('\.live-physics-choice'\),LIVE_COMBO\.pointerInput\|\|'pointer'\)/);
   assert.match(runtime,/chooseLiveCombo\(button,'keyboard'\)/);
 });
 
