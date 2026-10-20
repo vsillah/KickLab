@@ -1,5 +1,7 @@
 # Race Lab contemporary visual source decision
 
+**2026-10-20 Phase 1 update:** FS-8 failed its pre-download rear-chase suitability gate. The creator's own viewer annotation says the rear and interior are unfinished. The bounded acquisition/evaluation stopped before account login or download; see [the FS-8 stop record](race-lab-fs8-pre-download-stop.md). The ranking below is the prior research snapshot, not a current recommendation to acquire FS-8. No fallback candidate is authorized.
+
 Research date: 2026-10-20. This is a documentation-only shortlist for the existing Race track. The prior Vintage Racing Car and Race Track Assets Pack archives remain quarantined, unchanged. No new archive was downloaded, no game or asset file was edited, and no candidate has passed a KickLab camera or mobile test. Public listing counts and creator statements below are **listing evidence**, not measurements of a downloaded file or proof of ownership.
 
 ## Decision
