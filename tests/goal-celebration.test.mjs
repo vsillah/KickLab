@@ -11,6 +11,8 @@ const renderer=read('src/game/50-renderer-3d.js');
 const side=read('src/game/30-kick-sideview.js');
 const spatial=read('src/game/32-soccer-3d-modes.js');
 const loop=read('src/game/70-main-loop.js');
+const effects=read('src/game/03-audio-fx-engine.js');
+const directionC=read('src/game/50a-direction-c-athlete.js');
 const html=read('src/index.html');
 const css=read('src/styles.css');
 const qa=read('scripts/qa-goal-celebration.mjs');
@@ -46,11 +48,22 @@ test('sanitizes a transient local nickname and bounds supporter signs',()=>{
 });
 
 test('respects mute, reduced motion, and lifecycle pause ownership',()=>{
-  assert.match(side,/if\(!reduce\)confetti\(150\);SND\.goal\(\)/);
-  assert.match(spatial,/SND\.goal\(\);if\(!reduce\)setTimeout\(\(\)=>confetti\(120\),200\)/);
+  assert.match(side,/energizeControlledPlayer\('goal',1700\);SND\.goal\(\)/);
+  assert.match(spatial,/SND\.goal\(\);setTimeout\(\(\)=>energizeControlledPlayer\('goal',1600\),200\)/);
+  assert.match(effects,/const rings=reduce\?1:3/);
   assert.match(renderer,/phase=reduce&&this\.celebrate\?'crowd':'replay'/);
   assert.match(renderer,/step\(rdt\)\{if\(PAUSE\.on\)return/);
   assert.match(renderer,/muted:!!best\.mute/);
+});
+
+test('uses controlled-body energy instead of detached celebration confetti',()=>{
+  for(const source of [progress,side,spatial,read('src/game/20-race.js'),read('src/game/42-match.js'),read('src/game/51-live-match.js')])assert.doesNotMatch(source,/\bconfetti\(/);
+  assert.match(effects,/attachment:'controlled-body-contour'/);
+  assert.match(effects,/markerClear:true,detachedParticles:0/);
+  assert.match(loop,/M\.draw\(ctx\);drawControlledPlayerEnergy\(ctx\);/);
+  assert.match(directionC,/attachment:'rig-bones-and-body-materials'/);
+  assert.match(directionC,/const names=\['spine_03','upperarm_l','upperarm_r','calf_l','calf_r','hand_r'\]/);
+  assert.match(directionC,/applyControlledEnergy\(true\);this\.updateControlledIndicator\(true\)/);
 });
 
 test('drives successful celebration scenarios with an explicit scoring shot',()=>{

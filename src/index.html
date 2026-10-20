@@ -80,21 +80,6 @@
             </div>
           </section>
           <p class="sr-only" id="gamePacingA11y" role="status" aria-live="polite" aria-atomic="true"></p>
-          <section class="live-physics-combo" id="livePhysicsCombo" hidden aria-labelledby="livePhysicsComboVariable" aria-describedby="livePhysicsComboEquation livePhysicsComboCoach">
-            <header class="live-physics-combo-head">
-              <span class="live-physics-combo-coach" aria-hidden="true"><i>TO</i><b>Coach Tomi</b></span>
-              <span class="live-physics-combo-progress" id="livePhysicsComboProgress">1 / 2</span>
-              <span class="live-physics-combo-timer" aria-label="Response time remaining"><i></i><b id="livePhysicsComboTime">2.6 s</b></span>
-            </header>
-            <div class="live-physics-combo-copy">
-              <span>Lock the physics</span>
-              <h2 id="livePhysicsComboVariable">Launch speed</h2>
-              <p id="livePhysicsComboEquation">Choose the value that satisfies the equation.</p>
-              <p class="live-physics-combo-coach-copy" id="livePhysicsComboCoach">Coach recommendation</p>
-            </div>
-            <div class="live-physics-combo-band" id="livePhysicsComboBand" role="radiogroup" aria-label="Physics values"></div>
-            <p class="sr-only" id="livePhysicsComboStatus" role="status" aria-live="assertive" aria-atomic="true"></p>
-          </section>
           <div class="goal-celebration-controls" id="goalCelebrationControls" hidden>
             <span id="goalCelebrationStatus" role="status" aria-live="polite">Goal replay</span>
             <button type="button" id="goalCelebrationSkip">Skip replay</button>
@@ -237,10 +222,26 @@
                 <div class="manual-variable-steps"><button type="button" id="manualLess">Less</button><button type="button" id="manualMore">More</button></div>
               </section>
             </div>
-            <section class="wide-manual-controller" id="wideManualController" aria-label="Desktop manual physics controls">
-              <div class="wide-manual-head"><b>Manual physics</b><span id="wideManualStatus">Changes apply immediately.</span><button type="button" class="context-disclosure physics-detail-toggle" id="physicsDetailsWide" data-detail-label="physics details" aria-label="Open physics details" title="Open physics details" aria-expanded="false" aria-controls="physicsDetail"><span aria-hidden="true">⌄</span></button></div>
-              <div class="wide-manual-rows" id="wideManualRows"></div>
-            </section>
+            <div class="control-center-slot">
+              <section class="live-physics-combo" id="livePhysicsCombo" data-state="passive" hidden aria-labelledby="livePhysicsComboVariable" aria-describedby="livePhysicsComboEquation livePhysicsComboCoach">
+                <header class="live-physics-combo-head">
+                  <span class="live-physics-combo-coach" aria-label="Coach Tomi"><i aria-hidden="true">TO</i></span>
+                  <span class="live-physics-combo-progress" id="livePhysicsComboProgress">READY</span>
+                  <span class="live-physics-combo-timer" aria-label="Response time remaining"><i></i><b id="livePhysicsComboTime">—</b></span>
+                </header>
+                <div class="live-physics-combo-copy">
+                  <h2 id="livePhysicsComboVariable">Physics ready</h2>
+                </div>
+                <div class="live-physics-combo-band prototype-slot-group" id="livePhysicsComboBand" role="radiogroup" aria-label="Physics values"></div>
+                <p class="sr-only" id="livePhysicsComboEquation">Choose one of six live physics values.</p>
+                <p class="sr-only" id="livePhysicsComboCoach">Coach Tomi cue.</p>
+                <p class="sr-only" id="livePhysicsComboStatus" role="status" aria-live="assertive" aria-atomic="true"></p>
+              </section>
+              <section class="wide-manual-controller" id="wideManualController" aria-label="Desktop manual physics controls">
+                <div class="wide-manual-head"><b>Manual physics</b><span id="wideManualStatus">Changes apply immediately.</span><button type="button" class="context-disclosure physics-detail-toggle" id="physicsDetailsWide" data-detail-label="physics details" aria-label="Open physics details" title="Open physics details" aria-expanded="false" aria-controls="physicsDetail"><span aria-hidden="true">⌄</span></button></div>
+                <div class="wide-manual-rows" id="wideManualRows"></div>
+              </section>
+            </div>
             <div class="grp r" id="padR"></div>
           </div>
           <div class="rbar" id="rbar" hidden><span class="rb-tag">REPLAY</span><button type="button" id="rbBack" aria-label="Back 3 seconds">Back 3s</button><button type="button" id="rbPlay" aria-label="Play or pause">Pause</button><div class="rb-sp"><button type="button" data-sp="0.25">¼×</button><button type="button" data-sp="0.5" aria-pressed="true">½×</button><button type="button" data-sp="1">1×</button></div><input type="range" id="rbScrub" min="0" max="1000" value="0" aria-label="Scrub replay"><span class="rb-t" id="rbTime">0:00.0</span><button type="button" id="rbReview">Review</button><button type="button" id="rbExit">Exit replay</button></div>

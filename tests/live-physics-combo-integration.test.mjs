@@ -23,7 +23,19 @@ test('runtime reuses canonical variable, suggestion, and six-slot models',()=>{
   assert.match(runtime,/function liveComboChoices\(def,target,model\)/);
   assert.match(runtime,/Math\.ceil\(\(Math\.min\(target\.lo,target\.hi\)-def\.min-1e-9\)\/def\.step\)/);
   assert.match(html,/id="livePhysicsComboBand" role="radiogroup"/);
+  assert.match(html,/class="control-center-slot">[^]*id="livePhysicsCombo"[^]*id="wideManualController"/);
+  assert.match(runtime,/class="live-physics-choice prototype-slot"/);
   assert.match(styles,/grid-template-columns:repeat\(6,minmax\(44px,1fr\)\)/);
+});
+
+test('paginates selections and timeouts before restoring the passive controller module',()=>{
+  const engine=read('src/shared/live-physics-combo.js');
+  assert.match(engine,/function advance\(lock\)/);
+  assert.match(engine,/timedOut: true, input: 'timeout'/);
+  assert.match(runtime,/floatingControlDeck\.classList\.add\('live-combo-active'\)/);
+  assert.match(runtime,/renderLiveComboPassive\(\)/);
+  assert.match(runtime,/E\.ts=1/);
+  assert.doesNotMatch(html,/live-physics-combo-coach[^>]*>[^<]*<i>TO<\/i><b>Coach Tomi<\/b>/);
 });
 
 test('joint plans and live cached values stay coupled to the existing outcomes',()=>{

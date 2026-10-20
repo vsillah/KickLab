@@ -90,7 +90,7 @@ const Race={
     if(r.ok){const items=[['finish',300],['time bonus',Math.max(0,Math.round((25-r.t)*30))]];if(clean)items.push(['clean line',150]);if(angleOK)items.push(['math steering',150]);if(this.pb)items.push(['NEW BEST',200]);
       const gr=clean&&angleOK&&r.v>=r.vmax*0.95?'S':clean&&r.v>=r.vmax*0.88?'A':(clean||r.v>=r.vmax*0.9)?'B':'C';
       if(this.chPass)items.push([`CHALLENGE ${ci+1} CLEARED`,chXP(ci)]);
-      award('race',items,true,{grade:this.chPass&&gr!=='S'?(gr==='C'?'B':'A'):gr,title:this.pb?'NEW BEST RUN':'FINISHED',sub:`${fmt(r.t,2)} s · corner entry ${fmt(r.v*3.6,0)} of ${fmt(vk,0)} km/h`,hint:'Tap GAS to race again',delay:400});confetti(90);SND.cheer();badge('r_finish');if(clean)badge('r_clean');if(angleOK)badge('r_angle');if(P.mu<=0.6)badge('r_wet');if(r.t<15)badge('r_fast');
+      award('race',items,true,{grade:this.chPass&&gr!=='S'?(gr==='C'?'B':'A'):gr,title:this.pb?'NEW BEST RUN':'FINISHED',sub:`${fmt(r.t,2)} s · corner entry ${fmt(r.v*3.6,0)} of ${fmt(vk,0)} km/h`,hint:'Tap GAS to race again',delay:400});energizeControlledPlayer('race-finish',1500);SND.cheer();badge('r_finish');if(clean)badge('r_clean');if(angleOK)badge('r_angle');if(P.mu<=0.6)badge('r_wet');if(r.t<15)badge('r_fast');
       let tip;if(r.v<r.vmax*0.85)tip=`You braked more than you needed. This corner allows ${fmt(vk,0)} km/h and you entered at ${fmt(r.v*3.6,0)}. Brake later.`;
       else if(!clean)tip=`Fast, but you slid for ${fmt(r.slideT,1)} s. Keep v² ÷ R_turn under μ·g = ${fmt(P.mu*G0)} for the Clean Line bonus.`;
       else if(!you)tip='Autopilot did the steering. Switch to You steer and match the yellow notch for the Math Steering bonus.';

@@ -29,24 +29,32 @@ test('correct values lock in order and resolve success after the final variable'
   assert.equal(engine.state().locks.map(lock => lock.input).join(','), 'pointer,keyboard');
 });
 
-test('an incorrect choice resolves deterministically without advancing', () => {
+test('an incorrect choice advances and resolves only after the final variable', () => {
   const engine = COMBO.createEngine();
   engine.start([step('grip', { lo: 4, hi: 6 }), step('radius', { lo: 2, hi: 3 })]);
-  const state = engine.choose(1, 'touch');
+  const first = engine.choose(1, 'touch');
+  assert.equal(first.status, 'active');
+  assert.equal(first.index, 1);
+  const state = engine.choose(2, 'pointer');
   assert.equal(state.status, 'resolved');
   assert.equal(state.result.kind, 'incorrect');
-  assert.equal(state.result.variableId, 'grip');
-  assert.equal(state.index, 0);
+  assert.equal(state.result.completed, true);
+  assert.equal(state.locks.length, 2);
 });
 
-test('real-time ticking times out at the visible response deadline', () => {
+test('real-time ticking advances at the visible deadline and completes the sequence', () => {
   const engine = COMBO.createEngine();
-  engine.start([step('angle', { lo: 2, hi: 4 }, 900)]);
+  engine.start([{ ...step('angle', { lo: 2, hi: 4 }, 900), timeoutValue: 1 }, step('speed', { lo: 3, hi: 5 }, 700)]);
   assert.equal(engine.tick(899).status, 'active');
-  const state = engine.tick(1);
+  const advanced = engine.tick(1);
+  assert.equal(advanced.status, 'active');
+  assert.equal(advanced.index, 1);
+  assert.equal(advanced.locks[0].timedOut, true);
+  const state = engine.tick(700);
   assert.equal(state.status, 'resolved');
   assert.equal(state.result.kind, 'timeout');
   assert.equal(state.remainingMs, 0);
+  assert.equal(state.locks.length, 2);
 });
 
 test('cancellation is idempotent and prevents later input or timers from resolving', () => {

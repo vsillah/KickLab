@@ -38,28 +38,34 @@
       const normalized = sequence.map((item, index) => {
         if (!item || !item.id || !Array.isArray(item.choices) || !item.choices.length) throw new Error(`invalid live physics combo variable at ${index}`);
         const durationMs = Math.max(250, Number(item.durationMs) || 2400);
-        return freeze({ ...item, choices: item.choices.map(Number), durationMs, target: item.target ? { lo: Number(item.target.lo), hi: Number(item.target.hi) } : null });
+        const choices = item.choices.map(Number), timeoutValue = Number.isFinite(Number(item.timeoutValue)) ? Number(item.timeoutValue) : choices[0];
+        return freeze({ ...item, choices, timeoutValue, durationMs, target: item.target ? { lo: Number(item.target.lo), hi: Number(item.target.hi) } : null });
       });
       state = { status: 'active', run, sequence: normalized, index: 0, remainingMs: normalized[0].durationMs, locks: [], result: null, meta: { ...meta } };
       return emit();
     }
-    function choose(value, input = 'unknown') {
-      if (state.status !== 'active') return snapshot();
-      const variable = state.sequence[state.index], evaluation = evaluateChoice(variable, value), lock = { id: variable.id, value: evaluation.value, correct: evaluation.correct, input, index: state.index };
+    function advance(lock) {
       state = { ...state, locks: [...state.locks, lock] };
-      if (!evaluation.correct) return resolve('incorrect', { variableId: variable.id, value: evaluation.value, input });
       onLock(freeze({ ...lock }), snapshot());
-      if (state.index >= state.sequence.length - 1) return resolve('success', { variableId: variable.id, value: evaluation.value, input });
+      if (state.index >= state.sequence.length - 1) {
+        const locks = state.locks, kind = locks.some(item => item.timedOut) ? 'timeout' : locks.some(item => !item.correct) ? 'incorrect' : 'success';
+        return resolve(kind, { variableId: lock.id, value: lock.value, input: lock.input, completed: true });
+      }
       const index = state.index + 1;
       state = { ...state, index, remainingMs: state.sequence[index].durationMs };
       return emit();
+    }
+    function choose(value, input = 'unknown') {
+      if (state.status !== 'active') return snapshot();
+      const variable = state.sequence[state.index], evaluation = evaluateChoice(variable, value), lock = { id: variable.id, value: evaluation.value, correct: evaluation.correct, timedOut: false, input, index: state.index };
+      return advance(lock);
     }
     function tick(elapsedMs) {
       if (state.status !== 'active') return snapshot();
       const remainingMs = state.remainingMs - Math.max(0, Number(elapsedMs) || 0);
       if (remainingMs <= 0) {
-        const variable = state.sequence[state.index];
-        return resolve('timeout', { variableId: variable.id });
+        const variable = state.sequence[state.index], evaluation = evaluateChoice(variable, variable.timeoutValue), lock = { id: variable.id, value: variable.timeoutValue, correct: evaluation.correct, timedOut: true, input: 'timeout', index: state.index };
+        return advance(lock);
       }
       state = { ...state, remainingMs };
       return emit();

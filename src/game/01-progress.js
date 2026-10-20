@@ -56,12 +56,12 @@ function showResults(m){hideResults();const el=$('#results'),rc=$('#rc');const r
   if(m.auto){$('#racts').hidden=true;resultsTimer=setTimeout(()=>{$('#results').hidden=true;$('#results').classList.remove('mini');},2100);}}
 
 let LVL_STASH=0;
-function lvlRibbon(n){const u=unlocksAt(n),r=$('#rLvl');r.innerHTML=`LEVEL UP <b>${n}</b> ${LEVEL_T[Math.min(n-1,LEVEL_T.length-1)]}`+(u.length?` <small>· unlocked ${u.join(', ')}</small>`:'');r.hidden=false;SND.fanfare();confetti(180);
+function lvlRibbon(n){const u=unlocksAt(n),r=$('#rLvl');r.innerHTML=`LEVEL UP <b>${n}</b> ${LEVEL_T[Math.min(n-1,LEVEL_T.length-1)]}`+(u.length?` <small>· unlocked ${u.join(', ')}</small>`:'');r.hidden=false;SND.fanfare();energizeControlledPlayer('level-up',1800);
   COACH.say(`LEVEL ${n}! You're a ${LEVEL_T[Math.min(n-1,LEVEL_T.length-1)]} now.`+(u.length?` You unlocked ${u.join(' and ')}. Pick it under Style.`:' Keep stacking combos.'),'hype',10);if(M)renderOpts();}
 function showLevelUp(n){if(typeof RP!=='undefined'&&RP.on){HUD.lvlPending=n;return;}if(typeof CINE!=='undefined'&&CINE.on){LVL_STASH=n;return;}
   if(resOpen()){lvlRibbon(n);return;}if(resultsDelay){LVL_STASH=n;return;}
   const el=$('#lvlup');el.classList.add('compact');$('#luNum').textContent=String(n);$('#luTitle').textContent=LEVEL_T[Math.min(n-1,LEVEL_T.length-1)];const u=unlocksAt(n);$('#luUnlock').textContent=u.length?'Unlocked: '+u.join(', '):'';
-  el.hidden=true;void el.offsetWidth;el.hidden=false;SND.fanfare();confetti(180);clearTimeout(showLevelUp.t);showLevelUp.t=setTimeout(()=>{el.hidden=true;},2700);
+  el.hidden=true;void el.offsetWidth;el.hidden=false;SND.fanfare();energizeControlledPlayer('level-up',1800);clearTimeout(showLevelUp.t);showLevelUp.t=setTimeout(()=>{el.hidden=true;},2700);
   COACH.say(`LEVEL ${n}! You're a ${LEVEL_T[Math.min(n-1,LEVEL_T.length-1)]} now.`+(u.length?` You unlocked ${u.join(' and ')}. Pick it under Style.`:' Keep stacking combos.'),'hype',10);if(M)renderOpts();}
 $('#lvlup').addEventListener('click',()=>{$('#lvlup').hidden=true;});
 function toast(title,msg,opts={}){if(typeof RP!=='undefined'&&RP.on)return null;const t=document.createElement('div');t.className='toast';t.setAttribute('role',opts.action?'region':'status');t.setAttribute('aria-live','polite');t.setAttribute('aria-label',title);t.innerHTML=`<div class="ic" aria-hidden="true">★</div><div class="toast-copy"><b>${title}</b><span>${msg}</span>${opts.action?`<button type="button" class="toast-action">${opts.action}</button>`:''}</div><button type="button" class="toast-close" aria-label="Dismiss ${title}">×</button>`;$('#toasts').appendChild(t);
