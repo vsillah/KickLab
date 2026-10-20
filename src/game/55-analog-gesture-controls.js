@@ -17,18 +17,19 @@ function powerLabel(state){return{early:'Early',target:'Target band',perfect:'Pe
 function renderAnalogControls(){
   if(!analogControlsButton)return;
   const map=analogMapping(),primary=primaryAction();touchController.style.setProperty('--control-accent',map.color);
+  const raceAssist=$('#raceAnalogActions');if(raceAssist)raceAssist.hidden=!(RACE_SYSTEMS.enabled()&&M===Race);
   $('#touchMapTitle').textContent=map.title;$('#touchMapAxes').textContent=`${map.x.join(' ↔ ')} · ${map.y.join(' ↔ ')}`;
   $('#analogLeftLabel').textContent=map.x[0];$('#analogRightLabel').textContent=map.x[1];$('#analogDownLabel').textContent=map.y[0];$('#analogUpLabel').textContent=map.y[1];
   const variableAxes=M===Kick&&Kick.opt.shot!=='dribble';[['analogLeftLabel','left'],['analogRightLabel','right'],['analogDownLabel','down'],['analogUpLabel','up']].forEach(([id,direction])=>{$(`#${id}`).classList.toggle('disabled',!variableAxes&&!actionForDirection(direction));});
   $('#touchHapticStatus').textContent=haptic.label;$('#gestureActionVerb').textContent=primary?(primary.label||map.action[0]):map.action[0];
   $('#gestureActionIcon').innerHTML=ICONS[(primary&&primary.icon)||map.icon]||ICONS.run;
-  $('#gestureInstructions').textContent=map.action[1]+' · hold, curve, release';gestureAction.disabled=!primary||!!primary.disabled;
+  $('#gestureInstructions').textContent=RACE_SYSTEMS.enabled()&&M===Race?'Hold to accelerate. Drift and Nitro are separate hold actions.':map.action[1]+' · hold, curve, release';gestureAction.disabled=!primary||!!primary.disabled;
   gestureAction.setAttribute('aria-label',`${primary?(primary.label||map.action[0]):map.action[0]}. Hold to charge, slide to add spin, and release to act. ${haptic.label}.`);
 }
 
 function setFloatingControllerCollapsed(collapsed,{focus=false}={}){
   FLOATING_CONTROLLER.collapsed=!!collapsed;floatingControlDeck.classList.toggle('controller-collapsed',FLOATING_CONTROLLER.collapsed);controllerCollapseButton.setAttribute('aria-expanded',String(!FLOATING_CONTROLLER.collapsed));controllerCollapseButton.setAttribute('aria-label',FLOATING_CONTROLLER.collapsed?'Expand game controls':'Collapse game controls');
-  if(FLOATING_CONTROLLER.collapsed){cancelAnalog('Controls collapsed');cancelGesture('Controls collapsed');}
+  if(FLOATING_CONTROLLER.collapsed){cancelAnalog('Controls collapsed');cancelGesture('Controls collapsed');if(RACE_SYSTEMS.enabled()&&M===Race&&typeof releaseMobileHeldInputs==='function')releaseMobileHeldInputs('Controls collapsed');}
   if(focus)controllerCollapseButton.focus();requestAnimationFrame(resize);
 }
 
@@ -116,7 +117,9 @@ analogControlsButton.addEventListener('click',()=>setPrototypeControls(true));
 controllerCollapseButton.addEventListener('click',()=>setFloatingControllerCollapsed(!FLOATING_CONTROLLER.collapsed));
 controlStyleGroup.addEventListener('keydown',e=>{const keys=['ArrowLeft','ArrowRight','Home','End'];if(!keys.includes(e.key))return;e.preventDefault();e.stopPropagation();const analog=e.key==='ArrowRight'||e.key==='End';setPrototypeControls(analog);requestAnimationFrame(()=>(analog?analogControlsButton:classicControlsButton).focus());});
 window.addEventListener('blur',()=>{cancelAnalog('Focus lost');cancelGesture('Focus lost');});
-document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnalog('Page hidden');cancelGesture('Page hidden');}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnalog('Page hidden');cancelGesture('Page hidden');if(RACE_SYSTEMS.enabled()&&M===Race&&typeof releaseMobileHeldInputs==='function')releaseMobileHeldInputs('Page hidden');}});
+window.addEventListener('blur',()=>{if(RACE_SYSTEMS.enabled()&&M===Race&&typeof releaseMobileHeldInputs==='function')releaseMobileHeldInputs('Focus lost');});
+document.querySelectorAll('#raceAnalogActions [data-race-assist]').forEach(button=>{const id=button.dataset.raceAssist,down=event=>{if(!RACE_SYSTEMS.enabled()||M!==Race||button.dataset.held==='true')return;event.preventDefault();event.stopPropagation();unlock();button.dataset.held='true';button.classList.add('on');if(event.pointerId!=null)try{button.setPointerCapture(event.pointerId);}catch(_){}gameInput(id,true,'analog-assist');},up=event=>{if(button.dataset.held!=='true')return;event?.preventDefault();button.dataset.held='false';button.classList.remove('on');gameInput(id,false,'analog-assist');};button.addEventListener('pointerdown',down);['pointerup','pointercancel','lostpointercapture'].forEach(type=>button.addEventListener(type,up));button.addEventListener('keydown',event=>{if((event.key===' '||event.key==='Enter')&&!event.repeat)down(event);});button.addEventListener('keyup',event=>{if(event.key===' '||event.key==='Enter')up(event);});button.addEventListener('blur',up);});
 ['resize','orientationchange'].forEach(type=>window.addEventListener(type,()=>{cancelAnalog('Layout changed');cancelGesture('Layout changed');}));
 floatingControlDeck.addEventListener('pointerdown',event=>event.stopPropagation());
 floatingControlDeck.addEventListener('keydown',event=>{if(event.key==='Escape'&&event.target===controllerCollapseButton&&!FLOATING_CONTROLLER.collapsed){event.preventDefault();setFloatingControllerCollapsed(true,{focus:true});}});

@@ -5,11 +5,13 @@ function reflectMobileState(){document.documentElement.dataset.kicklabMobileLife
 
 function releaseMobileHeldInputs(reason='App interrupted'){
   document.querySelectorAll('#pad button.on').forEach(button=>button.dispatchEvent(new Event('pointercancel')));
+  document.querySelectorAll('#raceAnalogActions [data-held="true"]').forEach(button=>{button.dispatchEvent(new Event('pointercancel'));button.dataset.held='false';button.classList.remove('on');});
   Object.entries(held).forEach(([code,id])=>{if(id){M.press(id,false);held[code]=false;padEls(id).forEach(button=>button.classList.remove('on'));}});
   if(canvasHeld){canvasHeld=false;M.press(primary(),false);}drag=null;
   if(typeof ANALOG_CONTROL!=='undefined')ANALOG_CONTROL.keys.clear();
   if(typeof releaseAnalog==='function')releaseAnalog(reason);else if(typeof cancelAnalog==='function')cancelAnalog(reason);
   if(typeof cancelGesture==='function')cancelGesture(reason);
+  if(typeof RACE_SYSTEMS!=='undefined'&&RACE_SYSTEMS.enabled()&&M===Race){RACE_SYSTEMS.cancelInput(Race.inp);Race.gas=false;Race.brake=false;}
 }
 function suspendMobileAudio(){ENGINE.off();if(AC&&AC.state==='running'){try{const pending=AC.suspend();if(pending&&typeof pending.catch==='function')pending.catch(()=>{});}catch(_){}}}
 function suspendMobileSession(reason='background'){
