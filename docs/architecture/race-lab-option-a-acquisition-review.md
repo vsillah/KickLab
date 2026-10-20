@@ -15,11 +15,11 @@ The exact browser downloads are copied without modification into the ignored `qa
 
 The downloaded track pack has material names `fanatec_banner`, `pirreli_banner`, and `rolex_banner`, with corresponding named concrete-barrier meshes. Those names indicate third-party branded content. The creator's CC BY listing alone does not establish rights to use those marks. Under the explicit branded-element stop condition, the track pack is **quarantined**. No branded geometry or texture was copied into a derived or shipped asset.
 
-The vehicle has no similarly named mesh or material, but its embedded textures and visual quality have not yet passed review. Its 20.9 MB source size is above the proposed 2 MB shipped-car budget; the complete 33.2 MB prop pack is above the proposed 2 MB selected-props budget. These are raw source sizes, not optimized measurements.
+The vehicle has no similarly named mesh or material. Its separate local review is recorded in [the car-only visual checkpoint](race-lab-car-only-evaluation.md), which failed the same-camera visual gate. Its 20.9 MB source size is above the proposed 2 MB shipped-car budget; the complete 33.2 MB prop pack is above the proposed 2 MB selected-props budget. These are raw source sizes, not optimized measurements.
 
 ## State and continuation
 
 - No derived GLB was produced. `qa-artifacts/race-sketchfab/derived/` is empty.
 - The live Race asset URL, scene code, controls, physics, scoring, and deployment are unchanged. The rollback checkpoint remains `1d02f5465e0dec7ad1c9a722e2e12721043e6aa6`.
-- Same-camera desktop and phone renders, offline/runtime egress, payload, draw-call, and frame pacing checks were not run; visual acceptance remains **pending**.
+- Car-only same-camera desktop and phone renders were run later; visual acceptance **failed**. Offline/runtime egress, Canvas fallback, and frame pacing remain unqualified. The track pack was never rendered or derived.
 - Next decision: reject this prop pack and select a rights-cleared unbranded prop source, or explicitly authorize removal of all branded meshes/materials/textures for a new local-only evaluation. The car can be evaluated independently after that scope is clarified. No product integration follows automatically.
