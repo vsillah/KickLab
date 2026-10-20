@@ -6,8 +6,8 @@
   "artifact": {
     "path": "src/assets/3d/kicklab-race-vehicle/v1/kicklab-race-vehicle.glb",
     "mediaType": "model/gltf-binary",
-    "bytes": 313960,
-    "sha256": "a3ed5cf845836356ae601025529294116308230357f67fbf752bd4362efac1e9"
+    "bytes": 376468,
+    "sha256": "3b4884672d3499e7a03e2dcee1b305895b3e68bda4b8f720a79e6c2dda94c041"
   },
   "provenance": {
     "creator": "KickLab local vehicle authoring",
