@@ -1,8 +1,8 @@
 /* ---------- reversible analog + gesture controller prototype ---------- */
 const ANALOG_CONTROL={enabled:false,pointer:null,center:null,value:{x:0,y:0,magnitude:0},pressed:new Set(),keys:new Set(),lastStep:0};
 const GESTURE_CONTROL={pointer:null,start:0,origin:null,points:[],power:0,state:'early',targetBuzzed:false,overBuzzed:false,frame:0,continuousId:null};
-const controlStyleGroup=$('.prototype-control-bar'),classicControlsButton=$('#classicControlsButton'),analogControlsButton=$('#analogControlsButton'),touchController=$('#touchController'),analogStick=$('#analogStick'),analogKnob=$('#analogKnob'),gestureAction=$('#gestureAction');
-const floatingControlDeck=$('.control-deck'),controllerCollapseButton=$('#controllerCollapseButton'),floatingControllerState=$('#floatingControllerState');
+const controlStyleGroup=$('#controlStyleOptions'),classicControlsButton=$('#classicControlsButton'),analogControlsButton=$('#analogControlsButton'),touchController=$('#touchController'),analogStick=$('#analogStick'),analogKnob=$('#analogKnob'),gestureAction=$('#gestureAction');
+const floatingControlDeck=$('.control-deck'),controllerCollapseButton=$('#controllerCollapseButton');
 const FLOATING_CONTROLLER={collapsed:matchMedia('(max-width:480px)').matches};
 const nativeHapticPlugin=globalThis.Capacitor&&globalThis.Capacitor.Plugins&&globalThis.Capacitor.Plugins.Haptics;
 const haptic=GAME_CORE.hapticCapability(nativeHapticPlugin?{vibrate(){}}:navigator);
@@ -26,9 +26,6 @@ function renderAnalogControls(){
   gestureAction.setAttribute('aria-label',`${primary?(primary.label||map.action[0]):map.action[0]}. Hold to charge, slide to add spin, and release to act. ${haptic.label}.`);
 }
 
-function renderFloatingControllerState(){
-  if(!floatingControllerState)return;const style=ANALOG_CONTROL.enabled?'Analog':'Classic',mode=typeof CONTROLLER!=='undefined'&&CONTROLLER.mode==='manual'?'Manual':'Play';floatingControllerState.textContent=`${style} · ${mode}`;
-}
 function setFloatingControllerCollapsed(collapsed,{focus=false}={}){
   FLOATING_CONTROLLER.collapsed=!!collapsed;floatingControlDeck.classList.toggle('controller-collapsed',FLOATING_CONTROLLER.collapsed);controllerCollapseButton.setAttribute('aria-expanded',String(!FLOATING_CONTROLLER.collapsed));controllerCollapseButton.setAttribute('aria-label',FLOATING_CONTROLLER.collapsed?'Expand game controls':'Collapse game controls');
   if(FLOATING_CONTROLLER.collapsed){cancelAnalog('Controls collapsed');cancelGesture('Controls collapsed');}
@@ -40,15 +37,14 @@ function setPrototypeControls(on){
   touchController.hidden=!ANALOG_CONTROL.enabled;$('.control-deck').classList.toggle('prototype-active',ANALOG_CONTROL.enabled);
   if(!ANALOG_CONTROL.enabled){cancelAnalog('Classic controls restored');cancelGesture('Classic controls restored');}
   else{$('#gesturePowerStatus').textContent='Ready · release timing sets power';renderAnalogControls();}
-  renderFloatingControllerState();
   requestAnimationFrame(resize);
 }
 
 function analogDirections(value){const t=0.16,out=[];if(value.x<-t)out.push('left');if(value.x>t)out.push('right');if(value.y<-t)out.push('up');if(value.y>t)out.push('down');return out;}
 function syncDirectionalActions(value){
   const desired=new Map();analogDirections(value).forEach(direction=>{const action=actionForDirection(direction);if(action)desired.set(action.id,action);});
-  ANALOG_CONTROL.pressed.forEach(id=>{if(!desired.has(id)){M.press(id,false);ANALOG_CONTROL.pressed.delete(id);}});
-  desired.forEach((action,id)=>{if(!ANALOG_CONTROL.pressed.has(id)){M.press(id,true);ANALOG_CONTROL.pressed.add(id);}});
+  ANALOG_CONTROL.pressed.forEach(id=>{if(!desired.has(id)){gameInput(id,false,'analog');ANALOG_CONTROL.pressed.delete(id);}});
+  desired.forEach((action,id)=>{if(!ANALOG_CONTROL.pressed.has(id)){gameInput(id,true,'analog');ANALOG_CONTROL.pressed.add(id);}});
 }
 function applyAnalogVariables(value,now){
   if(M!==Kick||Kick.opt.shot==='dribble'||now-ANALOG_CONTROL.lastStep<85)return;
@@ -65,7 +61,7 @@ function updateAnalog(clientX,clientY,now=performance.now()){
   if(!ANALOG_CONTROL.center)return;const dx=clientX-ANALOG_CONTROL.center.x,dy=clientY-ANALOG_CONTROL.center.y,value=GAME_CORE.normalizeAnalogStick(dx,dy,ANALOG_CONTROL.center.radius,{deadZone:.16,curve:1.45});ANALOG_CONTROL.value=value;M.analogControl={...value,active:true};paintAnalog(value);syncDirectionalActions(value);applyAnalogVariables(value,now);
 }
 function releaseAnalog(reason='Centered'){
-  ANALOG_CONTROL.pressed.forEach(id=>M.press(id,false));ANALOG_CONTROL.pressed.clear();ANALOG_CONTROL.pointer=null;ANALOG_CONTROL.center=null;ANALOG_CONTROL.value={x:0,y:0,magnitude:0};M.analogControl={x:0,y:0,magnitude:0,active:false};analogStick.classList.remove('engaged');paintAnalog(ANALOG_CONTROL.value);$('#analogReadout').textContent=`${reason} · 0%`;
+  ANALOG_CONTROL.pressed.forEach(id=>gameInput(id,false,'analog'));ANALOG_CONTROL.pressed.clear();ANALOG_CONTROL.pointer=null;ANALOG_CONTROL.center=null;ANALOG_CONTROL.value={x:0,y:0,magnitude:0};M.analogControl={x:0,y:0,magnitude:0,active:false};analogStick.classList.remove('engaged');paintAnalog(ANALOG_CONTROL.value);$('#analogReadout').textContent=`${reason} · 0%`;
 }
 function cancelAnalog(reason='Input cancelled'){if(ANALOG_CONTROL.pointer!=null||ANALOG_CONTROL.pressed.size)releaseAnalog(reason);}
 
@@ -98,11 +94,11 @@ function applyGesturePhysics(power,spin){
 }
 function startGesture(pointerId,point){
   const action=primaryAction();if(!action||action.disabled)return false;GESTURE_CONTROL.pointer=pointerId;GESTURE_CONTROL.start=performance.now();GESTURE_CONTROL.origin=point;GESTURE_CONTROL.points=[point];GESTURE_CONTROL.power=0;GESTURE_CONTROL.state='early';GESTURE_CONTROL.targetBuzzed=false;GESTURE_CONTROL.overBuzzed=false;gestureAction.classList.add('engaged');
-  if(analogMapping().continuous){M.press(action.id,true);GESTURE_CONTROL.continuousId=action.id;}tickGesture();return true;
+  if(analogMapping().continuous){gameInput(action.id,true,'gesture');GESTURE_CONTROL.continuousId=action.id;}tickGesture();return true;
 }
 function finishGesture({execute=true,reason='Ready'}={}){
   if(GESTURE_CONTROL.pointer==null)return;cancelAnimationFrame(GESTURE_CONTROL.frame);const action=primaryAction(),spin=GAME_CORE.gestureToSpin(GESTURE_CONTROL.points),state=GESTURE_CONTROL.state,power=GESTURE_CONTROL.power;
-  if(GESTURE_CONTROL.continuousId){M.press(GESTURE_CONTROL.continuousId,false);GESTURE_CONTROL.continuousId=null;}else if(execute&&action&&!action.disabled){applyGesturePhysics(power,spin);M.press(action.id,true);M.press(action.id,false);if(state==='perfect')vibrateFor('perfect');}
+  if(GESTURE_CONTROL.continuousId){gameInput(GESTURE_CONTROL.continuousId,false,'gesture');GESTURE_CONTROL.continuousId=null;}else if(execute&&action&&!action.disabled){applyGesturePhysics(power,spin);gameInput(action.id,true,'gesture');gameInput(action.id,false,'gesture');if(state==='perfect')vibrateFor('perfect');}
   GESTURE_CONTROL.pointer=null;GESTURE_CONTROL.points=[];gestureAction.classList.remove('engaged');$('#gesturePowerStatus').textContent=execute?`${powerLabel(state)} release · ${Math.round(power*100)}% · ${spin.direction} spin`:`${reason} · no action`;setTimeout(()=>{if(GESTURE_CONTROL.pointer==null){GESTURE_CONTROL.power=0;GESTURE_CONTROL.state='early';paintGesture();}},700);
 }
 function cancelGesture(reason='Input cancelled'){finishGesture({execute:false,reason});}
@@ -118,10 +114,10 @@ gestureAction.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefau
 classicControlsButton.addEventListener('click',()=>setPrototypeControls(false));
 analogControlsButton.addEventListener('click',()=>setPrototypeControls(true));
 controllerCollapseButton.addEventListener('click',()=>setFloatingControllerCollapsed(!FLOATING_CONTROLLER.collapsed));
-controlStyleGroup.addEventListener('keydown',e=>{const keys=['ArrowLeft','ArrowRight','Home','End'];if(!keys.includes(e.key))return;e.preventDefault();e.stopPropagation();const analog=e.key==='ArrowRight'||e.key==='End';setPrototypeControls(analog);(analog?analogControlsButton:classicControlsButton).focus();});
+controlStyleGroup.addEventListener('keydown',e=>{const keys=['ArrowLeft','ArrowRight','Home','End'];if(!keys.includes(e.key))return;e.preventDefault();e.stopPropagation();const analog=e.key==='ArrowRight'||e.key==='End';setPrototypeControls(analog);requestAnimationFrame(()=>(analog?analogControlsButton:classicControlsButton).focus());});
 window.addEventListener('blur',()=>{cancelAnalog('Focus lost');cancelGesture('Focus lost');});
 document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnalog('Page hidden');cancelGesture('Page hidden');}});
 ['resize','orientationchange'].forEach(type=>window.addEventListener(type,()=>{cancelAnalog('Layout changed');cancelGesture('Layout changed');}));
 floatingControlDeck.addEventListener('pointerdown',event=>event.stopPropagation());
 floatingControlDeck.addEventListener('keydown',event=>{if(event.key==='Escape'&&event.target===controllerCollapseButton&&!FLOATING_CONTROLLER.collapsed){event.preventDefault();setFloatingControllerCollapsed(true,{focus:true});}});
-setFloatingControllerCollapsed(FLOATING_CONTROLLER.collapsed);renderAnalogControls();renderFloatingControllerState();paintGesture();
+setFloatingControllerCollapsed(FLOATING_CONTROLLER.collapsed);renderAnalogControls();paintGesture();

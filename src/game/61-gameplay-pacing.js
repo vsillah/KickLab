@@ -17,6 +17,7 @@ function applyPauseSnapshot(snapshot,{notify=true}={}){
 }
 function resetPauseOwnership(){PAUSE_OWNERS.reset();return applyPauseSnapshot(PAUSE_OWNERS.snapshot());}
 function claimPauseOwner(owner){
+  if(owner!=='transition'&&typeof cancelLivePhysicsCombo==='function')cancelLivePhysicsCombo(`pause:${owner}`);
   if(owner!=='transition'&&PACE_SEQUENCE.state().active)cancelGameTransition(`pause:${owner}`,{retain:true});
   return applyPauseSnapshot(PAUSE_OWNERS.claim(owner));
 }

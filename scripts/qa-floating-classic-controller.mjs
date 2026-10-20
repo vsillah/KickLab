@@ -44,6 +44,18 @@ async function returnHome(page){
   await page.locator('#modeHome').waitFor({state:'visible'});
 }
 
+async function chooseStyle(page,label){
+  const disclosure=page.locator('#controlStyleDisclosure');
+  if((await disclosure.getAttribute('aria-expanded'))!=='true')await disclosure.click();
+  await page.getByRole('button',{name:label,exact:true}).click();
+}
+
+async function chooseControllerMode(page,label){
+  const disclosure=page.locator('#controllerModeDisclosure');
+  if((await disclosure.getAttribute('aria-expanded'))!=='true')await disclosure.click();
+  await page.getByRole('button',{name:new RegExp(`${label}$`),exact:false}).click();
+}
+
 async function deckState(page,label){
   const state=await page.evaluate(label=>{
     const deck=document.querySelector('.control-deck'),stage=document.querySelector('.stage'),rail=document.querySelector('#gameGuidanceHud'),head=document.querySelector('.floating-control-head'),left=document.querySelector('.control-left-slot'),right=document.querySelector('#padR'),pad=document.querySelector('#pad'),touch=document.querySelector('#touchController'),collapse=document.querySelector('#controllerCollapseButton');
@@ -52,7 +64,7 @@ async function deckState(page,label){
     const style=getComputedStyle(deck),headStyle=getComputedStyle(head),visibleButtons=[...deck.querySelectorAll('button')].filter(visible).map(node=>({id:node.id,label:node.getAttribute('aria-label')||node.textContent.trim(),segmented:node.classList.contains('prototype-slot'),box:rect(node)}));
     return{label,viewport:{width:innerWidth,height:innerHeight},collapsed:deck.classList.contains('controller-collapsed'),prototype:deck.classList.contains('prototype-active'),manual:deck.classList.contains('manual-active'),expanded:collapse.getAttribute('aria-expanded'),stateText:document.querySelector('#floatingControllerState').textContent.trim(),boxes,styles:{background:style.backgroundColor,image:style.backgroundImage,filter:style.backdropFilter||style.webkitBackdropFilter,headImage:headStyle.backgroundImage,headFilter:headStyle.backdropFilter||headStyle.webkitBackdropFilter},geometry:{insideStage:boxes.deck.left>=boxes.stage.left-1&&boxes.deck.right<=boxes.stage.right+1&&boxes.deck.top>=boxes.stage.top-1&&boxes.deck.bottom<=boxes.stage.bottom+1,railOverlap:overlap(boxes.deck,boxes.rail),podOverlap:boxes.left&&boxes.right?overlap(boxes.left,boxes.right):false,centerGap:boxes.left&&boxes.right?boxes.right.left-boxes.left.right:null,overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth},visibleButtons};
   },label);
-  if(!state.geometry.insideStage||state.geometry.railOverlap||state.geometry.podOverlap||state.geometry.overflow>1)throw new Error(`${label}: floating geometry failed (${JSON.stringify(state.geometry)})`);
+  if(!state.geometry.insideStage||state.geometry.railOverlap||state.geometry.podOverlap||state.geometry.overflow>1)throw new Error(`${label}: floating geometry failed (${JSON.stringify({geometry:state.geometry,boxes:state.boxes})})`);
   if(state.styles.background!=='rgba(0, 0, 0, 0)'||state.styles.image!=='none'||state.styles.filter!=='none'||state.styles.headImage==='none'||state.styles.headFilter==='none')throw new Error(`${label}: controller material contract failed (${JSON.stringify(state.styles)})`);
   const tooSmall=state.visibleButtons.filter(button=>button.box.height<43.5||button.box.width<(button.segmented?40:43.5));
   if(tooSmall.length)throw new Error(`${label}: visible targets below 44 px (${JSON.stringify(tooSmall)})`);
@@ -79,13 +91,13 @@ async function exerciseClassic(page,label){
   await page.mouse.move(actionBox.x+actionBox.width/2,actionBox.y+actionBox.height/2);await page.mouse.down();await page.waitForTimeout(80);await page.mouse.up();
   const quick=page.locator('#padL .quick-layer');let quickTune=null;if(await quick.count()){const before=await quick.innerText();await quick.click();const after=await quick.innerText();if(before===after)throw new Error(`${label}: quick-tune layer did not change.`);quickTune={before,after};}
   await page.locator('#physicsDetailsHud').click();if(!(await page.locator('#physicsDetail').isVisible()))throw new Error(`${label}: physics details did not open.`);await page.locator('#gameOverlayBackdrop').click({position:{x:3,y:3}});
-  await page.locator('#controllerModeManual').click();if((await page.locator('#controllerModeManual').getAttribute('aria-pressed'))!=='true'||!/Manual/.test(await page.locator('#floatingControllerState').innerText()))throw new Error(`${label}: Manual did not activate.`);
-  await page.locator('#controllerModePlay').click();if((await page.locator('#controllerModePlay').getAttribute('aria-pressed'))!=='true')throw new Error(`${label}: Play did not restore.`);
+  await chooseControllerMode(page,'Manual');if((await page.locator('#controllerModeManual').getAttribute('aria-pressed'))!=='true'||!/Manual/.test(await page.locator('#controllerModeSelected').innerText()))throw new Error(`${label}: Manual did not activate.`);
+  await chooseControllerMode(page,'Play');if((await page.locator('#controllerModePlay').getAttribute('aria-pressed'))!=='true')throw new Error(`${label}: Play did not restore.`);
   checks.push({kind:'classic-interactions',label,directions:directionCount,action:true,quickTune,details:true,manual:true});
 }
 
 async function exerciseAnalog(page,label){
-  await page.getByRole('button',{name:'Analog',exact:true}).click();await page.waitForTimeout(150);
+  await chooseStyle(page,'Analog');await page.waitForTimeout(150);
   if(!(await page.locator('#touchController').isVisible())||(await page.locator('#analogControlsButton').getAttribute('aria-pressed'))!=='true')throw new Error(`${label}: Analog did not activate.`);
   const physics=page.locator('#prototypePhysics');if(await physics.getAttribute('open')!==null)throw new Error(`${label}: physics should begin collapsed.`);await physics.locator('summary').click();if(await physics.getAttribute('open')===null)throw new Error(`${label}: physics expansion failed.`);await physics.locator('summary').click();
   const stick=await page.locator('#analogStick').boundingBox(),x=stick.x+stick.width/2,y=stick.y+stick.height/2;await page.mouse.move(x,y);await page.mouse.down();await page.mouse.move(x+stick.width*.3,y-stick.height*.25,{steps:6});const reading=await page.locator('#analogReadout').innerText();await page.mouse.up();if(!/\d+%/.test(reading))throw new Error(`${label}: analog readout did not change (${reading}).`);
@@ -99,7 +111,7 @@ async function exerciseRailAndPause(page,label){
   await page.locator('#orientationDetailToggle').click();if(!(await page.locator('#orientationDetail').isVisible()))throw new Error(`${label}: Labs panel did not open.`);
   await page.locator('#settingsToggle').click();if(!(await page.locator('#settingsDrawer').isVisible())||await page.locator('#orientationDetail').isVisible())throw new Error(`${label}: settings exclusivity failed.`);
   await page.locator('#gameOverlayBackdrop').click({position:{x:3,y:3}});if(await page.locator('#settingsDrawer').isVisible())throw new Error(`${label}: settings click-off failed.`);
-  await resumeIfVisible();await page.getByRole('button',{name:'Classic',exact:true}).click();await page.waitForTimeout(1300);await page.locator('#cv').click({position:{x:Math.min(260,page.viewportSize().width*.35),y:Math.min(220,page.viewportSize().height*.3)},force:true});
+  await resumeIfVisible();await chooseStyle(page,'Classic');await page.waitForTimeout(1300);await page.locator('#cv').click({position:{x:Math.min(260,page.viewportSize().width*.35),y:Math.min(220,page.viewportSize().height*.3)},force:true});
   if(await resume.isVisible({timeout:1200}).catch(()=>false))await resume.click();
   checks.push({kind:'rail-and-pause',label,settings:true,clickOff:true,pauseResume:true});
 }
@@ -110,13 +122,13 @@ async function exerciseViewport(label,width,height){
   await deckState(page,`${label}-classic`);await exerciseClassic(page,label);await page.screenshot({path:join(outputDir,`${label}-classic-expanded.png`)});
   await exerciseAnalog(page,label);await deckState(page,`${label}-analog`);await page.screenshot({path:join(outputDir,`${label}-analog-expanded.png`)});
   await exerciseRailAndPause(page,label);
-  for(const mode of ['Race','Kick']){await returnHome(page);await enter(page,mode);if(width<=480&&(await page.locator('#controllerCollapseButton').getAttribute('aria-expanded'))==='false')await page.locator('#controllerCollapseButton').click();await page.getByRole('button',{name:'Classic',exact:true}).click();let quickTune=null;if(mode==='Kick'){const quick=page.locator('#padL .quick-layer'),before=await quick.innerText();await quick.click();const after=await quick.innerText();if(before===after)throw new Error(`${label}-${mode}: quick-tune layer did not change.`);quickTune={before,after};}const mapping=await page.locator('#pad').getAttribute('aria-label');checks.push({kind:'mode-mapping',label,mode,mapping,quickTune,actions:await page.locator('#padR button:not(:disabled)').allTextContents()});}
+  for(const mode of ['Race','Kick']){await returnHome(page);await enter(page,mode);if(width<=480&&(await page.locator('#controllerCollapseButton').getAttribute('aria-expanded'))==='false')await page.locator('#controllerCollapseButton').click();await chooseStyle(page,'Classic');let quickTune=null;if(mode==='Kick'){const quick=page.locator('#padL .quick-layer'),before=await quick.innerText();await quick.click();const after=await quick.innerText();if(before===after)throw new Error(`${label}-${mode}: quick-tune layer did not change.`);quickTune={before,after};}const mapping=await page.locator('#pad').getAttribute('aria-label');checks.push({kind:'mode-mapping',label,mode,mapping,quickTune,actions:await page.locator('#padR button:not(:disabled)').allTextContents()});}
   await context.close();
 }
 
 async function record(label,width,height){
   const dir=join(videoDir,label);mkdirSync(dir,{recursive:true});const context=await browser.newContext({viewport:{width,height},deviceScaleFactor:1,recordVideo:{dir,size:{width,height}}}),page=await context.newPage();listen(page);await seed(page);await page.goto(urlFor(`${label}-walkthrough`),{waitUntil:'networkidle'});await enter(page,'Kick');
-  if(width<=480){await page.waitForTimeout(500);await page.locator('#controllerCollapseButton').click();}await page.waitForTimeout(700);await page.locator('#controllerModeManual').click();await page.waitForTimeout(700);await page.locator('#controllerModePlay').click();await page.waitForTimeout(500);await page.getByRole('button',{name:'Analog',exact:true}).click();await page.waitForTimeout(800);await page.locator('#prototypePhysics summary').click();await page.waitForTimeout(700);await page.locator('#prototypePhysics summary').click();await page.waitForTimeout(500);await page.getByRole('button',{name:'Classic',exact:true}).click();await page.waitForTimeout(600);await page.locator('#controllerCollapseButton').click();await page.waitForTimeout(600);
+  if(width<=480){await page.waitForTimeout(500);await page.locator('#controllerCollapseButton').click();}await page.waitForTimeout(700);await chooseControllerMode(page,'Manual');await page.waitForTimeout(700);await chooseControllerMode(page,'Play');await page.waitForTimeout(500);await chooseStyle(page,'Analog');await page.waitForTimeout(800);await page.locator('#prototypePhysics summary').click();await page.waitForTimeout(700);await page.locator('#prototypePhysics summary').click();await page.waitForTimeout(500);await chooseStyle(page,'Classic');await page.waitForTimeout(600);await page.locator('#controllerCollapseButton').click();await page.waitForTimeout(600);
   const video=page.video();await page.close();await context.close();return video.path();
 }
 

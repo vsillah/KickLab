@@ -13,7 +13,7 @@ const MATCH={on:false,i:0,you:0,them:0,evs:[],tr:null,lock:false,saves:0,
       if(ev==='counter'){Drib.so={you:[],them:[],saves:0,over:false,single:true};Drib.soKickThem();E.title={t:0,text:'SAVE IT!',sub:'counter-attack · dive ◀ or ▶'};}
       else if(ev==='combo')Drib.comboBegin();else{const D=Drib.D();Drib.state='run';startRec('kick',`Run vs ${D.name}`);logMove('kick',{who:'sys',kind:'start',title:`Run at ${D.name}`,math:`react ${D.tr} s · slide a = ${D.a} m/s² · reach ${D.reach} m`,tone:'info'});}
       renderActions();setLabel();}},
-  end(){const w=this.you>this.them,dr=this.you===this.them;this.on=false;this.tr={t:0,text:'FULL TIME',sub:`${this.you} – ${this.them}`,score:''};SND.cheer();if(w){confetti(160);badge('k_match');best.mWins=(best.mWins||0)+1;saveBest();}
+  end(){const w=this.you>this.them,dr=this.you===this.them;this.on=false;this.tr={t:0,text:'FULL TIME',sub:`${this.you} – ${this.them}`,score:''};SND.cheer();if(w){energizeControlledPlayer('match-win',1700);badge('k_match');best.mWins=(best.mWins||0)+1;saveBest();}
     Kick.opt.pso='match';Drib.reset();Drib.state='done';renderActions();renderGameBar();
     award('kick',[[`goals ×${this.you}`,this.you*100],[`saves ×${this.saves}`,this.saves*80],[w?'MATCH WON':dr?'draw':'played',w?300:dr?100:30]],w,{grade:w?(this.them===0?'S':'A'):dr?'B':'C',title:`FULL TIME ${this.you}–${this.them}`,sub:w?'You win!':dr?'Honors even':'They edged it',hint:'Next round starts a new match',delay:1200});
     COACH.say(`Full time, ${this.you}–${this.them}. ${w?'Big win.':''} Every goal was a race against reaction times: theirs when you attacked, yours in goal.`,'hype',12);}};

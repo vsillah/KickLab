@@ -121,8 +121,8 @@ function renderActions(){$('#padL').innerHTML='';$('#padR').innerHTML='';const a
     if(a.id==='dials'){$('#dials').hidden?openDials():closeDials();return;}
     if(PAUSE.on){if($('#dials').hidden)resumeGame();return;}
     if(resOpen()){if(a.primary)ackResults();else{b.classList.remove('on');$('#rNext').animate([{transform:'scale(1)'},{transform:'scale(1.12)'},{transform:'scale(1)'}],{duration:260});}return;}
-    hideStageAdjustment();M.press(a.id,true);});
-  const up=()=>{clearTimeout(rep);if(b.classList.contains('on')){b.classList.remove('on');if(!a.step&&a.id!=='dials')M.press(a.id,false);}};
+    hideStageAdjustment();gameInput(a.id,true,'classic-pointer');});
+  const up=()=>{clearTimeout(rep);if(b.classList.contains('on')){b.classList.remove('on');if(!a.step&&a.id!=='dials')gameInput(a.id,false,'classic-pointer');}};
   ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>b.addEventListener(ev,up));
-  b.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.repeat){e.preventDefault();e.stopPropagation();if(resOpen()){ackResults();return;}hideStageAdjustment();M.press(a.id,true);}});b.addEventListener('keyup',e=>{if(e.key==='Enter')M.press(a.id,false);});
+  b.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.repeat){e.preventDefault();e.stopPropagation();if(resOpen()){ackResults();return;}hideStageAdjustment();gameInput(a.id,true,'classic-keyboard');}});b.addEventListener('keyup',e=>{if(e.key==='Enter')gameInput(a.id,false,'classic-keyboard');});
   (a.dir?dp:arc).appendChild(b);});if(typeof renderAnalogControls==='function')renderAnalogControls();}

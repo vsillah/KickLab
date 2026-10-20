@@ -181,8 +181,10 @@
           </section>
         <div class="control-deck" aria-label="Game controls">
           <div class="floating-control-head">
-            <div class="floating-control-title"><span>On-stage controls</span><b id="floatingControllerState">Classic · Play</b></div>
-            <div class="prototype-control-bar" role="group" aria-label="Control style" aria-describedby="controlStyleDescription"><span class="sr-only" id="controlStyleDescription">Choose classic buttons or the experimental analog and gesture controller. Classic controls stay available.</span><button type="button" id="classicControlsButton" aria-pressed="true" aria-controls="pad">Classic</button><button type="button" id="analogControlsButton" aria-pressed="false" aria-controls="touchController">Analog</button></div>
+            <div class="control-style-switch" id="controlStyleOptions" role="group" aria-label="Controller style">
+              <button type="button" class="control-style-button" id="classicControlsButton" aria-pressed="true" aria-label="Classic controls" title="Classic controls" data-tooltip="Classic controls" aria-controls="pad"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z"/></svg><span class="control-style-tooltip" aria-hidden="true">Classic controls</span></button>
+              <button type="button" class="control-style-button" id="analogControlsButton" aria-pressed="false" aria-label="Analog controls" title="Analog controls" data-tooltip="Analog controls" aria-controls="touchController"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="6"/><circle cx="8" cy="12" r="2.5"/><circle cx="16.5" cy="10" r="1"/><circle cx="18.5" cy="13" r="1"/></svg><span class="control-style-tooltip" aria-hidden="true">Analog controls</span></button>
+            </div>
             <button type="button" class="controller-collapse" id="controllerCollapseButton" aria-expanded="true" aria-controls="pad" aria-label="Collapse game controls"><span aria-hidden="true">⌄</span></button>
           </div>
           <div class="pad" id="pad">
@@ -196,11 +198,6 @@
                 </div>
                 <output class="analog-readout" id="analogReadout" aria-live="polite">Centered · 0%</output>
               </div>
-              <details class="prototype-physics" id="prototypePhysics">
-                <summary><span><b>Manual physics</b><small>Six quick values · live mechanics</small></span><i aria-hidden="true">⌄</i></summary>
-                <p class="prototype-physics-status" id="prototypePhysicsStatus" role="status" aria-live="polite">Loading active controls…</p>
-                <div class="prototype-physics-rows" id="prototypePhysicsRows"></div>
-              </details>
               <div class="gesture-zone">
                 <button type="button" class="gesture-action" id="gestureAction" aria-describedby="gestureInstructions gesturePowerStatus">
                   <span class="gesture-ring" aria-hidden="true"><i class="ring-progress"></i><i class="ring-target"></i><i class="ring-perfect"></i></span>
@@ -212,20 +209,33 @@
               </div>
             </section>
             <div class="control-left-slot" id="controlLeftSlot">
-              <div class="controller-mode-toggle" role="group" aria-label="Controller mode" aria-describedby="controllerModeStatus"><button type="button" id="controllerModePlay" aria-pressed="true"><span aria-hidden="true">✥</span> Play</button><button type="button" id="controllerModeManual" aria-pressed="false"><span aria-hidden="true">⌁</span> Manual</button></div>
-              <span class="controller-mode-status" id="controllerModeStatus" role="status" aria-live="polite">D-pad controls active.</span>
-              <button type="button" class="context-disclosure physics-detail-toggle compact-physics-detail-toggle" id="physicsDetailsCompact" data-detail-label="physics details" aria-label="Open physics details" title="Open physics details" aria-expanded="false" aria-controls="physicsDetail"><span aria-hidden="true">⌄</span></button>
               <div class="grp l" id="padL"></div>
-              <section class="manual-controller" id="manualController" hidden aria-label="Manual physics controller">
-                <div class="manual-variable-head"><button type="button" id="manualPrev" aria-label="Previous physics variable">‹</button><span><b id="manualVariableName">Variable</b><output id="manualVariableValue"></output></span><button type="button" id="manualNext" aria-label="Next physics variable">›</button></div>
-                <input type="range" id="manualVariableSlider" aria-label="Manual physics variable">
-                <div class="manual-variable-steps"><button type="button" id="manualLess">Less</button><button type="button" id="manualMore">More</button></div>
+            </div>
+            <div class="control-center-slot">
+              <section class="live-physics-combo" id="livePhysicsCombo" data-state="passive" hidden aria-labelledby="livePhysicsComboVariable" aria-describedby="livePhysicsComboEquation livePhysicsComboCoach">
+                <header class="live-physics-combo-head">
+                  <span class="live-physics-combo-coach" aria-label="Coach Tomi"><i aria-hidden="true">TO</i></span>
+                  <span class="live-physics-combo-progress" id="livePhysicsComboProgress">READY</span>
+                  <span class="live-physics-combo-timer" aria-label="Response time remaining"><i></i><b id="livePhysicsComboTime">—</b></span>
+                </header>
+                <div class="live-physics-combo-copy">
+                  <h2 id="livePhysicsComboVariable">Physics ready</h2>
+                </div>
+                <div class="fight-performance-readout" id="fightPerformanceReadout" aria-hidden="true">
+                  <div class="fight-performance-timing">
+                    <span><b id="fightTimingLabel">Timing live</b><output id="fightTimingValue">— m/s</output></span>
+                    <i class="fight-timing-track"><b id="fightTimingMarker"></b></i>
+                  </div>
+                  <div class="fight-performance-force">
+                    <span id="fightForceLabel">Force after choices</span><output id="fightForceValue">— N</output><small id="fightForceChain">Lock one value at a time</small>
+                  </div>
+                </div>
+                <div class="live-physics-combo-band prototype-slot-group" id="livePhysicsComboBand" role="radiogroup" aria-label="Physics values"></div>
+                <p class="sr-only" id="livePhysicsComboEquation">Choose one of six live physics values.</p>
+                <p class="sr-only" id="livePhysicsComboCoach">Coach Tomi cue.</p>
+                <p class="sr-only" id="livePhysicsComboStatus" role="status" aria-live="assertive" aria-atomic="true"></p>
               </section>
             </div>
-            <section class="wide-manual-controller" id="wideManualController" aria-label="Desktop manual physics controls">
-              <div class="wide-manual-head"><b>Manual physics</b><span id="wideManualStatus">Changes apply immediately.</span><button type="button" class="context-disclosure physics-detail-toggle" id="physicsDetailsWide" data-detail-label="physics details" aria-label="Open physics details" title="Open physics details" aria-expanded="false" aria-controls="physicsDetail"><span aria-hidden="true">⌄</span></button></div>
-              <div class="wide-manual-rows" id="wideManualRows"></div>
-            </section>
             <div class="grp r" id="padR"></div>
           </div>
           <div class="rbar" id="rbar" hidden><span class="rb-tag">REPLAY</span><button type="button" id="rbBack" aria-label="Back 3 seconds">Back 3s</button><button type="button" id="rbPlay" aria-label="Play or pause">Pause</button><div class="rb-sp"><button type="button" data-sp="0.25">¼×</button><button type="button" data-sp="0.5" aria-pressed="true">½×</button><button type="button" data-sp="1">1×</button></div><input type="range" id="rbScrub" min="0" max="1000" value="0" aria-label="Scrub replay"><span class="rb-t" id="rbTime">0:00.0</span><button type="button" id="rbReview">Review</button><button type="button" id="rbExit">Exit replay</button></div>

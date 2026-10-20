@@ -24,6 +24,7 @@ const css=readFileSync(join(root,'src','styles.css'),'utf8');
 const rig=readFileSync(join(root,'src','game','04-body-rig.js'),'utf8');
 const analog=readFileSync(join(root,'src','game','55-analog-gesture-controls.js'),'utf8');
 const fight=readFileSync(join(root,'src','game','10-fight.js'),'utf8');
+const liveCombo=readFileSync(join(root,'src','game','62-live-physics-combo.js'),'utf8');
 const modeFlow=readFileSync(join(root,'src','game','53-weekly-challenge.js'),'utf8');
 
 test('keeps relocated feature roots canonical and singular',()=>{
@@ -33,7 +34,7 @@ test('keeps relocated feature roots canonical and singular',()=>{
 });
 
 test('maps the four contextual summaries to accessible disclosures',()=>{
-  for(const [trigger,panel,label] of [['physicsDetailsHud','physicsDetail','physics details'],['physicsDetailsCompact','physicsDetail','physics details'],['physicsDetailsWide','physicsDetail','physics details'],['reviewDetailToggle','reviewDetail','move history'],['goalsDetailToggle','goalsDetail','goal details'],['learnDetailToggle','learnDetail','coach notebook']]){
+  for(const [trigger,panel,label] of [['physicsDetailsHud','physicsDetail','physics details'],['reviewDetailToggle','reviewDetail','move history'],['goalsDetailToggle','goalsDetail','goal details'],['learnDetailToggle','learnDetail','coach notebook']]){
     assert.match(html,new RegExp(`id="${trigger}"[^>]+data-detail-label="${label}"[^>]+aria-label="Open ${label}"[^>]+title="Open ${label}"[^>]+aria-expanded="false"[^>]+aria-controls="${panel}"[^>]*><span aria-hidden="true">⌄</span></button>`));
   }
   for(const id of ['physicsDetail','reviewDetail','goalsDetail','learnDetail'])assert.equal((html.match(new RegExp(`id="${id}"`,'g'))||[]).length,1);
@@ -56,7 +57,7 @@ test('keeps canonical Math content in the physics disclosure',()=>{
   for(const id of ['mathHudTitle','mathConsoleValues','mathConsoleStatus','mathConsoleHeading','mathConsoleControls','dialTop','dialTopStatus'])assert.equal((html.match(new RegExp(`id="${id}"`,'g'))||[]).length,1);
   assert.doesNotMatch(html,/id="mathConsole"|id="mathConsolePull"|id="utilitySlot"|id="mathHud"|id="mathHudEquation"|id="mathHudValues"/);
   assert.match(cockpit,/function quickMathDefs\(\).*activeVariableProfile\(\)/);
-  assert.match(cockpit,/adjustVar\(def\.id,def\.step\*\+b\.dataset\.step,manual\)/);
+  assert.match(cockpit,/adjustVar\(def\.id,def\.step\*\+b\.dataset\.step,false\)/);
   assert.doesNotMatch(cockpit,/mathConsoleControls[^\n]+appendChild\(\$\('#(?:liveEq|vars)'\)\)/);
 });
 
@@ -324,7 +325,7 @@ test('shows adjustment math temporarily while keeping environment context persis
   assert.match(ui,/function showStageAdjustment\(id\)/);
   assert.match(ui,/function stageAdjustmentVisible\(\)/);
   assert.match(ui,/if\(!stageAdjustmentVisible\(\)\|\|PAUSE\.on\|\|RP\.on\|\|CINE\.on\|\|resOpen\(\)\)return/);
-  assert.match(ui,/hideStageAdjustment\(\);M\.press\(a\.id,true\)/);
+  assert.match(ui,/hideStageAdjustment\(\);gameInput\(a\.id,true,'classic-pointer'\)/);
   assert.match(ui,/const set=x=>\{[^}]*showStageAdjustment\(v\.id\)/);
   assert.ok(games.includes('parts=[`${S.n} · g ${fmt(S.g,2)} m/s²`]'));
   assert.match(html,/class="game-context-header"[^>]+aria-label="Current game context"[\s\S]*id="gameBar"[\s\S]*id="environmentContext"[^>]+role="status"[^>]+aria-label="Environment for the selected Kick experience"[^>]+aria-live="polite"[^>]+hidden/);
@@ -351,156 +352,73 @@ test('keeps Kick action X-ray transient while suppressing persistent stage math'
   assert.match(loop,/if\(physicsVision\).*M\.drawXray\(ctx\)/);
   assert.match(loop,/if\(physicsVision\)xrayFrame\(ctx,E\.env\)/);
   assert.match(loop,/if\(physicsVision&&E\.env>0\.5&&M\.callouts\)/);
-  assert.match(ui,/hideStageAdjustment\(\);M\.press\(a\.id,true\)/);
+  assert.match(ui,/hideStageAdjustment\(\);gameInput\(a\.id,true,'classic-pointer'\)/);
   assert.match(replay,/if\(!RP\.on&&mode!=='kick'\)pushFeed\(m\);else if\(!RP\.on&&mode==='kick'\)\$\('#feed'\)\.innerHTML=''/);
   assert.match(kickSide,/if\(stageAdjustmentVisible\(\)\)text\(c,'bar 2\.44 m'/);
   assert.match(kickSide,/if\(this\.state==='flight'&&!this\.outcome&&stageAdjustmentVisible\(\)\)/);
   assert.match(kick3d,/if\(stageAdjustmentVisible\(\)\)text\(c,'wall 1\.85 m \(\+jump\)'/);
 });
 
-test('swaps the D-pad footprint into guarded Manual Physics',()=>{
-  assert.match(html,/class="controller-mode-toggle" role="group" aria-label="Controller mode"/);
-  assert.match(html,/id="controllerModePlay" aria-pressed="true"/);
-  assert.match(html,/id="controllerModeManual" aria-pressed="false"/);
-  assert.match(html,/id="controllerModeStatus" role="status" aria-live="polite"/);
-  assert.match(html,/id="padL"[^]*id="manualController" hidden/);
-  assert.match(cockpit,/function manualMathDefs\(\)\{return activeVariableProfile\(\)/);
-  assert.match(cockpit,/function selectedManualDef\(\)/);
-  assert.match(cockpit,/slider\.min=def\.min;slider\.max=def\.max;slider\.step=def\.step/);
-  assert.match(cockpit,/CONTROLLER\.sel\+=delta/);
-  assert.match(cockpit,/canCycle=defs\.length>1/);
-  assert.match(cockpit,/\$\('#manualPrev'\)\.disabled=!canCycle;\$\('#manualNext'\)\.disabled=!canCycle/);
-  assert.match(cockpit,/pauseGame\('manual-physics'\)/);
-  assert.match(cockpit,/PAUSE\.why==='manual-physics'/);
-  assert.match(cockpit,/function manualUnavailableReason\(\)/);
-  assert.match(cockpit,/if\(resOpen\(\)\)return'Manual Physics is unavailable while results are open/);
-  assert.match(cockpit,/setControllerMode\('play',\{restore:false,reason\}\)/);
-  assert.match(cockpit,/e\.key==='Escape'.*setControllerMode\('play'\)/);
-  assert.match(ui,/function adjustVar\(id,delta,allowManualPause=false\)/);
-  assert.match(css,/\.control-left-slot\{width:158px;height:178px;[^}]*pointer-events:auto/);
-  assert.match(css,/\.manual-controller\{box-sizing:border-box;grid-row:3;width:158px;height:126px/);
-  assert.match(css,/\.manual-controller button\{[^}]*min-height:44px/);
-  assert.doesNotMatch(cockpit,/math-console-var\$\{manual/);
+test('keeps the controller permanently in Play and moves detailed math outside it',()=>{
+  for(const id of ['controllerModeDisclosure','controllerModeOptions','controllerModePlay','controllerModeManual','controllerModeStatus','manualController','wideManualController','prototypePhysics','physicsDetailsCompact','physicsDetailsWide'])assert.doesNotMatch(html,new RegExp(`id="${id}"`));
+  assert.match(html,/id="physicsDetailsHud"[^>]+aria-controls="physicsDetail"/);
+  assert.match(html,/id="physicsDetail"[^]*id="mathConsoleControls"[^]*id="liveEq"[^]*id="vars"/);
+  assert.match(html,/id="padL"[^]*class="control-center-slot"[^]*id="padR"/);
+  assert.match(cockpit,/function contextTriggers\(name\)\{return\(name==='math'\?\[\$\('#physicsDetailsHud'\)\]/);
+  assert.match(cockpit,/function quickMathDefs\(\).*activeVariableProfile\(\)/);
+  assert.match(cockpit,/const defs=quickMathDefs\(\),sig=`play\|/);
+  assert.match(cockpit,/adjustVar\(def\.id,def\.step\*\+b\.dataset\.step,false\)/);
+  assert.doesNotMatch(cockpit,/CONTROLLER|WIDE_MANUAL|PROTOTYPE_MANUAL|manual-active|setControllerMode|manualUnavailableReason|renderWideManual|renderPrototypeManual|manual-physics/);
+  assert.doesNotMatch(html,/Manual Physics|>Manual<|>Play</);
 });
 
-test('projects every canonical manual variable into the wide control gap',()=>{
-  assert.match(html,/id="wideManualController" aria-label="Desktop manual physics controls"/);
-  assert.match(html,/id="wideManualStatus">Changes apply immediately/);
-  assert.match(html,/id="wideManualRows"/);
-  assert.match(cockpit,/const WIDE_MANUAL=\{active:false,sig:''\}/);
-  assert.match(cockpit,/function wideManualDefs\(\)\{return activeVariableProfile\(\);\}/);
-  assert.match(cockpit,/class="wide-manual-row" data-var="\$\{def\.id\}"/);
-  assert.match(cockpit,/input type="range"[^>]+aria-label="\$\{quickMathName\(def\)\}"/);
-  assert.match(cockpit,/input\.setAttribute\('aria-valuetext',cockpitValue\(def,M\.V\[def\.id\]\)\)/);
-  assert.match(cockpit,/wideManualRows\.addEventListener\('input'/);
-  assert.match(cockpit,/adjustVar\(def\.id,\+input\.value-M\.V\[def\.id\],false\)/);
-  assert.match(cockpit,/manualUnavailableReason\(\).*isLocked\(M\.key,def\.id\)/s);
-  assert.match(cockpit,/row\.classList\.toggle\('locked',locked\);row\.classList\.toggle\('temporarily-locked',temporary\)/);
-  assert.match(cockpit,/new ResizeObserver\(entries=>\{const active=entries\[0\]\.contentRect\.width>=980/);
-  assert.match(css,/\.wide-manual-controller\{display:none/);
-  assert.match(css,/\.wide-manual-controller\{display:none;[^}]*pointer-events:auto/);
-  assert.match(css,/\.manual-controller input\[type="range"\],\.wide-manual-row input\[type="range"\]\{pointer-events:auto;touch-action:none;cursor:pointer\}/);
-  assert.match(css,/\.manual-controller input\[type="range"\]:disabled,\.wide-manual-row input\[type="range"\]:disabled\{pointer-events:none;cursor:not-allowed\}/);
-  assert.match(css,/\.wide-manual-row\.temporarily-locked\{opacity:1\}/);
-  assert.match(css,/@container \(min-width:980px\)\{\.control-deck \.pad\{display:grid;grid-template-columns:minmax\(220px,1fr\) minmax\(380px,520px\) minmax\(220px,1fr\)/);
-  assert.match(css,/\.control-deck #padR\{width:100%;height:190px;align-items:center;justify-content:center\}/);
-  assert.match(css,/\.control-deck \.dpad\{grid-template-columns:repeat\(3,54px\);grid-template-rows:repeat\(3,54px\)\}/);
-  assert.match(css,/\.control-deck \.abtn \.cap\{width:76px;height:76px\}/);
-  assert.match(css,/\.control-deck \.abtn\.big \.cap\{width:96px;height:96px\}/);
-  assert.match(css,/\.control-left-slot,\.wide-manual-controller,\.control-deck #padR\{box-sizing:border-box;border:1px solid rgba\(87,126,176,\.34\);border-radius:16px/);
-  assert.match(css,/\.control-deck \.dpad \.arm\{box-sizing:border-box;display:grid;grid-template-columns:1fr;grid-template-rows:minmax\(0,1fr\) 10px/);
-  assert.match(css,/\.control-deck \.dpad \.arm \.tag,\.control-deck \.dpad \.arm \.dir-label\{position:static!important;inset:auto!important/);
-  assert.match(css,/\.control-deck \.abtn \.cap::before\{content:"";position:absolute;inset:var\(--cap-inset\);border-radius:50%/);
-  assert.match(css,/\.wide-manual-row\{display:grid;grid-template-columns:82px 76px minmax\(120px,1fr\)/);
-});
-
-test('keeps six-slot mechanics controls between analog and gesture controls',()=>{
-  assert.match(html,/id="analogStick"[^]*id="prototypePhysics"[^]*id="gestureAction"/);
-  assert.match(html,/id="prototypePhysics">/);
-  assert.doesNotMatch(html,/id="prototypePhysics" open/);
-  assert.match(html,/id="prototypePhysicsStatus" role="status" aria-live="polite"/);
-  assert.match(cockpit,/function renderPrototypeManual\(\)/);
-  assert.match(cockpit,/const defs=wideManualDefs\(\),profile=activeVariableProfileKey\(\)/);
-  assert.match(cockpit,/suggestions=M\.suggest\?M\.suggest\(\):\{\}/);
-  assert.match(cockpit,/GAME_CORE\.sliderSlotsModel\(\{min:def\.min,max:def\.max,step:def\.step,value:M\.V\[def\.id\],suggestion,locked,lockReason,name:quickMathName\(def\),unit:def\.unit\}\)/);
-  assert.match(cockpit,/function prototypeLockReason\(def\)\{const challenge=curCh\(M\.key\)/);
-  assert.match(cockpit,/challenge\.name} fixes \$\{quickMathName\(def\)\} at/);
-  assert.match(cockpit,/Array\.from\(\{length:6\}/);
-  assert.match(cockpit,/class="prototype-slot" data-index="\$\{index\}" role="radio"/);
-  assert.match(cockpit,/button\.setAttribute\('aria-label',slot\.label\)/);
-  assert.match(cockpit,/button\.setAttribute\('aria-checked',String\(slot\.selected\)\)/);
-  assert.match(cockpit,/button\.setAttribute\('aria-expanded',String\(expanded&&slot\.selected\)\)/);
-  assert.match(cockpit,/class="prototype-slot-detail"[^>]+aria-label="Selected \$\{quickMathName\(def\)\} details" hidden/);
-  assert.match(cockpit,/function prototypeGraphicTitle\(def\)/);
-  assert.match(cockpit,/function prototypeImpact\(def,value,slotState\)/);
-  assert.match(cockpit,/function prototypeEffect\(def,model,suggestion\)/);
-  assert.match(cockpit,/if\(def\.id==='dt'\).*cracks&&safe.*cracks.*safe.*'Safer',cost:'Weaker hit'/s);
-  assert.match(cockpit,/accuracy=1-Math\.abs\(Fight\.needle\(\)-\.5\)\*2/);
-  assert.match(cockpit,/if\(def\.id==='R'\)return R<=32\?.*'Shorter path',cost:'Lower corner limit'.*'Higher corner limit',cost:'Longer path'/s);
-  assert.match(cockpit,/if\(def\.id==='m'\)return a>=gripCap\?.*'Grip-limited launch'.*'Slower launch'/s);
-  assert.match(cockpit,/if\(def\.id==='F'\)return a>=gripCap\?.*'Tire-limited · no extra acceleration'.*'Below grip-limited acceleration'/s);
-  assert.match(cockpit,/M===Kick&&Kick\.opt\.shot==='free'&&\['v','th','g','spin'\]\.includes\(def\.id\).*Kick\.freeCalc\(v,th,spin,g\).*'Clears wall · under bar'.*'Hits wall'.*'Over the bar'/s);
-  assert.match(cockpit,/if\(def\.id==='gkr'\)return value<=\.3\?.*if\(def\.id==='gka'\)return value>=22\?.*if\(def\.id==='grip'\)return value>=\.8\?/s);
-  assert.match(cockpit,/scores=\{helps:\.92,tradeoff:\.58,neutral:\.5,hurts:\.2\}/);
-  assert.match(cockpit,/data-tone="\$\{effect\.impact\.kind\}"/);
-  assert.match(cockpit,/\$\{effect\.impact\.label\}.*Predicted:.*\$\{effect\.impact\.prediction\}/s);
-  assert.match(cockpit,/role="img" aria-label="\$\{summary\}"/);
-  assert.match(cockpit,/PROTOTYPE_MANUAL\.expanded=def\.id;PROTOTYPE_MANUAL\.change=\{id:def\.id,from,to:value\}/);
-  assert.match(cockpit,/data-collapse-slots/);
-  assert.match(cockpit,/PROTOTYPE_MANUAL\.expanded=null;renderPrototypeManual\(\)/);
-  assert.match(cockpit,/prototypePhysicsRows\.addEventListener\('click'/);
-  assert.match(cockpit,/prototypePhysicsRows\.addEventListener\('pointercancel'/);
-  assert.match(cockpit,/\['ArrowLeft','ArrowRight','Home','End'\]/);
-  assert.match(cockpit,/adjustVar\(def\.id,value-from,false\)/);
-  assert.doesNotMatch(cockpit,/prototype-slots[^\n]+type="range"/);
-  assert.match(css,/@media \(min-width:981px\)\{\.touch-controller\{grid-template-columns:minmax\(205px,1fr\) minmax\(330px,1\.45fr\) minmax\(205px,1fr\)/);
-  assert.match(css,/\.prototype-physics\{grid-column:2;grid-row:2/);
-  assert.match(css,/\.prototype-slot-group\{position:relative;grid-template-columns:repeat\(6,minmax\(0,1fr\)\);gap:0/);
-  assert.match(css,/\.prototype-slot\{[^}]*min-height:44px/);
-  assert.match(css,/\.prototype-slot\+ \.prototype-slot::before\{content:"";[^}]*height:16px/);
-  assert.match(css,/\.prototype-slot\[aria-checked="true"\]::after\{[^}]*left:50%;[^}]*height:24px/);
-  assert.match(cockpit,/Choose one of six snap sections on the continuous band/);
-  assert.match(css,/\.prototype-slot:focus-visible\{outline:3px solid var\(--hot\)/);
-  assert.match(css,/\.prototype-slot-detail\{[^}]*max-height:190px;overflow:auto/);
-  assert.match(css,/\.prototype-detail-grid\{display:grid;grid-template-columns:minmax\(0,1\.45fr\) minmax\(115px,\.75fr\)/);
-  assert.match(css,/\.prototype-slot-detail figure\{[^}]*min-width:0/);
-  assert.match(css,/strong\[data-tone="tradeoff"\]/);
-  assert.match(css,/\.prototype-physics-row>\.prototype-range-description\{position:absolute!important;width:1px!important;height:1px!important/);
-  for(const impact of ['helps','tradeoff','neutral','hurts'])assert.match(css,new RegExp(`prototype-slot-detail svg circle\\.${impact}`));
-  assert.match(css,/@media \(min-width:620px\) and \(max-width:980px\)\{\.prototype-physics-rows\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
-  assert.match(css,/@media \(max-width:480px\)[^\n]+\.prototype-detail-grid\{grid-template-columns:minmax\(0,1fr\)\}/);
-  for(const state of ['low','target','perfect','high'])assert.match(css,new RegExp(`prototype-slot\\[data-state="${state}"\\]`));
-  assert.match(css,/\.prototype-physics-row\.locked \.prototype-slot/);
-});
-
-test('uses a compact accessible Classic and Analog control-style selector',()=>{
-  assert.match(html,/class="prototype-control-bar" role="group" aria-label="Control style" aria-describedby="controlStyleDescription"/);
-  assert.match(html,/id="classicControlsButton" aria-pressed="true"[^>]*>Classic<\/button>/);
-  assert.match(html,/id="analogControlsButton" aria-pressed="false"[^>]*>Analog<\/button>/);
+test('uses compact accessible icon buttons for Classic and Analog control styles',()=>{
+  assert.match(html,/class="control-style-switch" id="controlStyleOptions" role="group" aria-label="Controller style"/);
+  assert.match(html,/id="classicControlsButton" aria-pressed="true" aria-label="Classic controls" title="Classic controls" data-tooltip="Classic controls"[^>]*><svg/);
+  assert.match(html,/id="analogControlsButton" aria-pressed="false" aria-label="Analog controls" title="Analog controls" data-tooltip="Analog controls"[^>]*><svg/);
+  assert.doesNotMatch(html,/id="(?:classicControlsButton|analogControlsButton)"[^>]*>(?:Classic|Analog)<\/button>/);
   assert.doesNotMatch(html,/Prototype · classic stays available|Try analog controls|Use classic controls/);
   assert.match(analog,/classicControlsButton\.setAttribute\('aria-pressed',String\(!ANALOG_CONTROL\.enabled\)\)/);
   assert.match(analog,/analogControlsButton\.setAttribute\('aria-pressed',String\(ANALOG_CONTROL\.enabled\)\)/);
-  assert.match(analog,/\['ArrowLeft','ArrowRight','Home','End'\]/);
-  assert.match(css,/\.prototype-control-bar\{[^}]+width:170px[^}]+min-height:48px[^}]+grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
-  assert.match(css,/\.prototype-control-bar button\{[^}]+min-height:44px/);
-  assert.match(css,/\.prototype-control-bar button\[aria-pressed="true"\]\{[^}]*border-color:#7fdcff[^}]*background:#17304d/);
+  assert.match(analog,/controlStyleGroup\.addEventListener\('keydown',e=>\{const keys=\['ArrowLeft','ArrowRight','Home','End'\];if\(!keys\.includes\(e\.key\)\)return/);
+  assert.match(analog,/setPrototypeControls\(analog\);requestAnimationFrame\(\(\)=>\(analog\?analogControlsButton:classicControlsButton\)\.focus\(\)\)/);
+  assert.match(css,/\.control-style-button\{[^}]*width:44px;height:44px/);
+  assert.match(css,/\.control-style-button\[aria-pressed="true"\]/);
+  assert.match(css,/\.control-style-button:focus-visible\{outline:3px solid var\(--hot\)/);
+  assert.equal((html.match(/class="control-style-tooltip"/g)||[]).length,2);
+  assert.match(css,/\.control-style-tooltip\{position:absolute;right:calc\(100% \+ 57px\);top:50%/);
+  assert.match(css,/\.control-style-button:is\(:hover,:focus-visible\) \.control-style-tooltip\{visibility:visible;opacity:1\}/);
+  assert.match(css,/\.control-style-switch:has\(\.control-style-button:focus-visible\) \.control-style-button:hover:not\(:focus-visible\) \.control-style-tooltip\{visibility:hidden;opacity:0\}/);
 });
 
 test('keeps one bounded collapsible controller surface and a clear central Classic lane',()=>{
-  assert.match(html,/class="floating-control-title"[^]*id="floatingControllerState">Classic · Play/);
+  assert.match(html,/id="controlStyleOptions"[^]*id="controllerCollapseButton"/);
   assert.match(html,/id="controllerCollapseButton" aria-expanded="true" aria-controls="pad" aria-label="Collapse game controls"/);
   assert.match(analog,/const FLOATING_CONTROLLER=\{collapsed:matchMedia\('\(max-width:480px\)'\)\.matches\}/);
   assert.match(analog,/function setFloatingControllerCollapsed\(collapsed,\{focus=false\}=\{\}\)/);
   assert.match(analog,/cancelAnalog\('Controls collapsed'\);cancelGesture\('Controls collapsed'\)/);
   assert.match(analog,/floatingControlDeck\.addEventListener\('pointerdown',event=>event\.stopPropagation\(\)\)/);
-  assert.match(cockpit,/classList\.toggle\('manual-active',manual\)/);
-  assert.doesNotMatch(cockpit,/if\(active&&CONTROLLER\.mode==='manual'\)setControllerMode\('play'/);
+  assert.doesNotMatch(cockpit,/manual-active|setControllerMode|CONTROLLER\.mode/);
   assert.match(css,/\.control-deck\.controller-collapsed \.pad,\.control-deck\.controller-collapsed \.rbar\{display:none!important\}/);
   assert.match(css,/\.game-frame \.stage>\.control-deck\{width:min\(900px,[^}]+background:transparent[^}]+backdrop-filter:none/);
   assert.match(css,/\.game-frame \.stage>\.control-deck \.control-left-slot\{grid-column:1/);
   assert.match(css,/\.game-frame \.stage>\.control-deck #padR\{grid-column:3/);
-  assert.match(css,/\.game-frame \.stage>\.control-deck\.manual-active \.wide-manual-controller\{display:grid\}/);
+  assert.match(css,/\.floating-control-head\{grid-template-columns:minmax\(0,1fr\) 93px 44px/);
+  assert.match(css,/\.controller-collapse\{grid-column:3;justify-self:end\}/);
+  assert.match(css,/\.control-style-switch\{position:relative;grid-column:2;justify-self:end/);
+  assert.match(css,/\.game-frame \.stage>\.control-deck \.control-left-slot\{grid-template-rows:minmax\(0,1fr\)!important\}/);
   assert.match(css,/@media \(max-width:480px\)[^\n]+\.control-deck\.controller-collapsed\{width:min\(286px/);
+});
+
+test('keeps Classic action faces concentric and clears the center-right divider',()=>{
+  assert.match(css,/\.game-frame \.stage>\.control-deck \.abtn \.cap\{--cap-groove:5px;position:relative;isolation:isolate;box-shadow:none\}/);
+  assert.match(css,/\.game-frame \.stage>\.control-deck \.abtn \.cap::before\{content:"";position:absolute;z-index:0;inset:calc\(var\(--cap-groove\) \* -1\);border-radius:50%;background:radial-gradient\(circle,transparent calc\(100% - var\(--cap-groove\)\),#0b1120 0\)/);
+  assert.match(css,/\.game-frame \.stage>\.control-deck \.abtn\.on \.cap\{transform:scale\(\.96\);box-shadow:0 0 22px/);
+  assert.match(css,/\.game-frame \.stage>\.control-deck \.abtn:focus-visible\{outline:none\}/);
+  assert.match(css,/\.game-frame \.stage>\.control-deck \.abtn:focus-visible \.cap\{outline-offset:calc\(var\(--cap-groove\) \+ 3px\)\}/);
+  assert.match(css,/\.game-frame \.stage>\.control-deck #padR\{position:relative;align-self:stretch;align-items:center;padding-inline:14px;border-left:0!important\}/);
+  assert.match(css,/\.game-frame \.stage>\.control-deck #padR::before\{content:"";position:absolute;left:0;top:0;bottom:0;width:1px/);
+  assert.match(css,/@media \(max-width:480px\)\{\.game-frame \.stage>\.control-deck \.abtn \.cap\{--cap-groove:2px\}\.game-frame \.stage>\.control-deck #padR\{padding-inline:10px\}\}/);
 });
 
 test('expands the gameplay viewport without stretching its backing buffers',()=>{
@@ -524,10 +442,15 @@ test('expands the gameplay viewport without stretching its backing buffers',()=>
 test('uses the reclaimed portrait Fight stage without changing gameplay coordinates',()=>{
   assert.match(fight,/worldOffsetY\(\)\{return innerWidth<=800\?Math\.max\(0,H\*\.5-455\):0;\}/);
   assert.match(fight,/window\.__KICKLAB_FIGHT_COMPOSITION__=\{worldOffsetY:vy,sceneFloorLogical:floor,sceneFloorCss:floor\*sc,stageHeightCss:H\*sc,coverage:floor\/H\}/);
+  assert.doesNotMatch(fight,/drawPerformanceHud|__KICKLAB_FIGHT_POWER_BAND__|FIGHT PERFORMANCE/);
+  assert.match(html,/id="fightPerformanceReadout"/);
+  assert.match(liveCombo,/globalThis\.__KICKLAB_FIGHT_PERFORMANCE__=Object\.freeze/);
+  assert.match(liveCombo,/surface:'controller',overhead:false/);
+  assert.doesNotMatch(fight,/const x=W\/2-170,y=H-46/);
   assert.match(fight,/focus:\{x:T0\.x-24,y:T0\.y\+4\+this\.worldOffsetY\(\)\}/);
   assert.match(loop,/const worldOffsetY=typeof M\.worldOffsetY==='function'\?M\.worldOffsetY\(\):0;ctx\.translate\(0,worldOffsetY\)/);
   assert.match(modeFlow,/document\.documentElement\.dataset\.kicklabMode=k/);
-  assert.match(css,/html\[data-kicklab-mode="fight"\] \.game-frame \.stage>\.control-deck\{top:55%;bottom:auto;max-height:calc\(45% - 7px\)/);
+  assert.match(css,/@media \(max-width:800px\)[^{]*\{[^}]*html\[data-kicklab-mode="fight"\] \.game-frame \.stage>\.control-deck\{top:auto;bottom:/);
 });
 
 test('keeps settings and contextual details mutually exclusive',()=>{
