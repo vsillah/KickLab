@@ -385,12 +385,14 @@ test('uses compact accessible icon buttons for Classic and Analog control styles
   assert.match(css,/\.control-style-button\{[^}]*width:44px;height:44px/);
   assert.match(css,/\.control-style-button\[aria-pressed="true"\]/);
   assert.match(css,/\.control-style-button:focus-visible\{outline:3px solid var\(--hot\)/);
-  assert.match(css,/\.control-style-switch:has\(#classicControlsButton:is\(:hover,:focus-visible\)\)::after\{content:"Classic controls";opacity:1\}/);
-  assert.match(css,/\.control-style-switch:has\(#analogControlsButton:is\(:hover,:focus-visible\)\)::after\{content:"Analog controls";opacity:1\}/);
+  assert.equal((html.match(/class="control-style-tooltip"/g)||[]).length,2);
+  assert.match(css,/\.control-style-tooltip\{position:absolute;right:calc\(100% \+ 57px\);top:50%/);
+  assert.match(css,/\.control-style-button:is\(:hover,:focus-visible\) \.control-style-tooltip\{visibility:visible;opacity:1\}/);
+  assert.match(css,/\.control-style-switch:has\(\.control-style-button:focus-visible\) \.control-style-button:hover:not\(:focus-visible\) \.control-style-tooltip\{visibility:hidden;opacity:0\}/);
 });
 
 test('keeps one bounded collapsible controller surface and a clear central Classic lane',()=>{
-  assert.match(html,/id="controlStyleOptions"[^]*id="controllerCollapseButton"/);
+  assert.match(html,/id="controllerCollapseButton"[^]*id="controlStyleOptions"/);
   assert.match(html,/id="controllerCollapseButton" aria-expanded="true" aria-controls="pad" aria-label="Collapse game controls"/);
   assert.match(analog,/const FLOATING_CONTROLLER=\{collapsed:matchMedia\('\(max-width:480px\)'\)\.matches\}/);
   assert.match(analog,/function setFloatingControllerCollapsed\(collapsed,\{focus=false\}=\{\}\)/);
@@ -401,6 +403,9 @@ test('keeps one bounded collapsible controller surface and a clear central Class
   assert.match(css,/\.game-frame \.stage>\.control-deck\{width:min\(900px,[^}]+background:transparent[^}]+backdrop-filter:none/);
   assert.match(css,/\.game-frame \.stage>\.control-deck \.control-left-slot\{grid-column:1/);
   assert.match(css,/\.game-frame \.stage>\.control-deck #padR\{grid-column:3/);
+  assert.match(css,/\.floating-control-head\{grid-template-columns:minmax\(0,1fr\) 44px 93px/);
+  assert.match(css,/\.controller-collapse\{grid-column:2;justify-self:end\}/);
+  assert.match(css,/\.control-style-switch\{position:relative;grid-column:3;justify-self:end/);
   assert.match(css,/\.game-frame \.stage>\.control-deck \.control-left-slot\{grid-template-rows:minmax\(0,1fr\)!important\}/);
   assert.match(css,/@media \(max-width:480px\)[^\n]+\.control-deck\.controller-collapsed\{width:min\(286px/);
 });
