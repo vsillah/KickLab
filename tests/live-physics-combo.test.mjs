@@ -17,6 +17,18 @@ test('feature flag is default off and accepts explicit enabled values only', () 
   assert.equal(COMBO.flagEnabled('livePhysicsCombo=true'), true);
 });
 
+test('Fight timing and physics choices are mutually exclusive across every phase', () => {
+  const time = COMBO.fightInteractionPhase({ actionReady: true });
+  const tuneOne = COMBO.fightInteractionPhase({ actionReady: false, comboStatus: 'active', comboMode: 'fight', comboIndex: 0, comboLength: 2 });
+  const tuneTwo = COMBO.fightInteractionPhase({ actionReady: false, comboStatus: 'active', comboMode: 'fight', comboIndex: 1, comboLength: 2 });
+  const see = COMBO.fightInteractionPhase({ actionReady: false, comboStatus: 'resolved', comboMode: 'fight', showResult: true });
+  assert.deepEqual({ phase: time.phase, timing: time.timingInteractive, physics: time.physicsInteractive }, { phase: 'time', timing: true, physics: false });
+  assert.deepEqual([tuneOne.phase, tuneOne.timingLocked, tuneOne.currentStep, tuneTwo.currentStep], ['tune', true, 1, 2]);
+  assert.equal(tuneOne.physicsInteractive, true);
+  assert.deepEqual({ phase: see.phase, timing: see.timingInteractive, physics: see.physicsInteractive }, { phase: 'see', timing: false, physics: false });
+  for (const state of [time, tuneOne, tuneTwo, see]) assert.equal(state.timingInteractive && state.physicsInteractive, false);
+});
+
 test('correct values lock in order and resolve success after the final variable', () => {
   const locked = [], resolved = [];
   const engine = COMBO.createEngine({ onLock: lock => locked.push(lock.id), onResolve: result => resolved.push(result.kind) });

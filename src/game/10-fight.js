@@ -30,7 +30,7 @@ const Fight={
       {id:'cross',label:over?'Next bout':'Cross',aria:over?'Next bout (K)':'Cross (K or Space)',icon:'cross',color:'#ff4d4d',key:'K',big:true,primary:true,sel:t==='cross',pulse:over},
       {id:'upper',label:'Upper',aria:'Uppercut (L)',icon:'upper',color:'#ffbf1f',key:'L',sel:t==='upper'}];
     return[{id:'block',dir:'left',tag:'BLOCK',aria:'Block: hold back',hold:true,disabled:!bout},{id:'duck',dir:'down',tag:'DUCK',aria:'Duck: hold down',hold:true,disabled:!bout},...P];},
-  reset(){if(RECS.fight&&RECS.fight.on)stopRec('fight');this.perf=this.perf||0;this.state='ready';this.p=0;this.meterT=Math.random()*2;this.head={x:0,v:0,r:0,rv:0};this.rings=[];this.hit=false;this.slowed=false;this.res=null;this.boardV=this.boardV||0;this.boardT=this.boardT||0;this.u=0.5;this.pb=false;this.since=99;
+  reset(){if(RECS.fight&&RECS.fight.on)stopRec('fight');this.perf=this.perf||0;this.state='ready';this.p=0;this.meterT=Math.random()*2;this.head={x:0,v:0,r:0,rv:0};this.rings=[];this.hit=false;this.slowed=false;this.res=null;this.boardV=this.boardV||0;this.boardT=this.boardT||0;this.u=0.5;this.pb=false;this.since=99;this.performancePhase='time';this.performanceUntil=0;this.performanceLocks=[];
     this.floats=[];this.meX=0;this.meV=0;this.blocking=false;this.ducking=false;this.duckT=0;this.duckA=0;this.slipT=0;this.rduckA=0;this.rduck=null;this.duckDodge=false;this.queued=null;this.dodge=0;this.dodged=false;this.ko=null;this.bob=0;this.warned={};
     this.bout=null;if(this.isBout()){const i=Math.min(best.ch.fight,REX.length-1),T=REX[i];this.bout={i,T,opp:T.hp,oppMax:T.hp,me:100,stun:0,stunMax:1,chain:[],bestCombo:0,namedN:0,namedXP:0,perf:0,blocks:0,counters:0,taken:0,landed:0,over:false,win:false,intro:1.3,atk:{ph:'idle',t:0},next:T.every*1.1};E.title={t:0,text:T.name.toUpperCase(),sub:'FIGHT!'};startRec('fight',`Bout vs ${T.name}`);RECS.fight.meta={react:T.react,armor:T.armor,vo:T.vo,name:T.name};}
     if(typeof setLabel==='function')setLabel();},
@@ -104,7 +104,7 @@ const Fight={
     this.blocking=false;this.fromDuck=this.duckA>0.5||this.slipT>0;this.ducking=false;
     if(b&&b.over){if(this.ko&&this.ko.t>1.2){hideResults();this.reset();renderActions();COACH.say(this.introLine(),'tip',12);}return;}
     if(b&&b.intro>0)return;
-    if(this.state==='ready'){const u=this.needle(),s=this.speedFor(u);this.u=u;this.acc=s.acc;this.v=s.v;this.rate=2.4+0.22*s.v;this.state='swing';hideResults();SND.whoosh();this.p=0;this.hit=false;this.slowed=false;
+    if(this.state==='ready'){const u=this.needle(),s=this.speedFor(u);this.u=u;this.acc=s.acc;this.v=s.v;this.rate=2.4+0.22*s.v;this.state='swing';this.performancePhase='see';this.performanceUntil=performance.now()+2400;this.performanceLocks=[];hideResults();SND.whoosh();this.p=0;this.hit=false;this.slowed=false;
       this.dodged=false;this.wantSlow=true;
       this.duckDodge=false;
       if(b){const winding=b.atk.ph==='tele',st=this.stunned()&&!(b.immune>0);this.dodged=!winding&&!st&&!(this.rduck&&this.rduck.pro)&&REACH/s.v>this.reactNow();
@@ -163,7 +163,7 @@ const Fight={
     else{this.float(612,200,'DODGED',C.muted,true);tone(240,0.18,'triangle',0.05,160);}
     const vNeed=REACH/b.T.react;COACH.say(`Dodged! Your fist needed t = 0.6 ÷ ${fmt(this.v)} = ${fmt(t,3)} s, but Rex reacts in ${fmt(this.reactNow(),3)} s. You need v > ${fmt(REACH/this.reactNow())} m/s: hit the green`+(this.opt.type!=='jab'?', or throw a jab (lighter = faster).':(this.V.m>2.2?', or drop m (v ∝ 1/√m).':'.'))+' He can’t dodge while he winds up, so counter when he flashes red.','warn',10);},
   calc(v){const V=this.V,m=this.mEff(),dt=V.dt/1000,A=V.A/10000,p=m*v,F=p/dt;return{v,m,dt,A,p,F,P:F/A/1000,KE:0.5*m*v*v,a:F/this.HEADM};},
-  impact(){this.hit=true;const r=this.calc(this.v);r.acc=this.acc;r.type=this.TYPES[this.opt.type];r.Fglove=r.p/0.015;r.Fbare=r.p/0.006;this.res=r;
+  impact(){this.hit=true;const r=this.calc(this.v);r.acc=this.acc;r.type=this.TYPES[this.opt.type];r.Fglove=r.p/0.015;r.Fbare=r.p/0.006;this.res=r;this.performancePhase='see';this.performanceUntil=performance.now()+2400;
     const T0=this.target();this.rings.push({x:T0.x,y:T0.y,t:0},{x:T0.x,y:T0.y,t:-0.05});
     const dirA=this.opt.type==='upper'?-1.0:0.08;burst(PARTS,T0.x,T0.y,14+Math.min(26,Math.round(r.F/250)),{dir:dirA,spread:2.2,sp:[180,520],g:420,life:0.45,size:2.4,kind:'spark',col:[C.hot,'#fff4d6',C.yellow]});
     burst(PARTS,T0.x+10,T0.y-6,8,{dir:dirA-0.3,spread:1.6,sp:[80,220],g:500,life:0.7,size:2.2,kind:'drop',col:'rgba(200,235,255,0.9)'});E.flash=reduce?0:Math.min(1,0.35+r.F/8000);E.flashCol=null;
@@ -228,19 +228,22 @@ const Fight={
     const g=c.createLinearGradient(0,-vy,0,455);g.addColorStop(0,'#0c1630');g.addColorStop(1,'#16244a');c.fillStyle=g;c.fillRect(-500,-500-vy,W+1000,H+1000);
     c.strokeStyle='rgba(147,164,195,0.07)';c.lineWidth=1;for(let x=0;x<=W;x+=60)line(c,x,-40,x,455);for(let y=35;y<455;y+=60)line(c,-40,y,W+40,y);
     const sp=c.createRadialGradient(540,40,10,540,160,420);sp.addColorStop(0,'rgba(255,230,170,0.16)');sp.addColorStop(1,'rgba(255,230,170,0)');c.fillStyle=sp;c.fillRect(-500,-500,W+1000,955);
-    if(!this.bout)this.drawBoard(c);
     [[300,'#7a2d3a'],[342,'#e8eef9'],[384,'#2f4a86']].forEach(([y,col])=>{c.fillStyle='rgba(0,0,0,0.25)';c.fillRect(-500,y+3,W+1000,5);c.fillStyle=col;c.globalAlpha=0.55;c.fillRect(-500,y,W+1000,5);c.globalAlpha=1;});
     c.fillStyle='#223050';c.fillRect(250,280,14,176);c.fillRect(800,280,14,176);
     c.fillStyle='#1a2849';c.fillRect(-500,455,W+1000,H+500);c.fillStyle='#2a3d6a';c.fillRect(-500,455,W+1000,4);
     this.drawDummy(c);this.drawFighter(c);
     this.rings.forEach(r=>{if(r.t<0)return;c.save();c.globalAlpha=clamp(1-r.t*5,0,1);c.strokeStyle=C.hot;c.lineWidth=3;c.beginPath();c.arc(r.x,r.y,10+r.t*900,0,Math.PI*2);c.stroke();c.restore();});
     this.floats.forEach(f=>{c.save();c.globalAlpha=f.t<0.1?f.t/0.1:Math.max(0,1-(f.t-0.8)/0.6);const y=f.y-f.t*40;c.font=(f.big?'22px ':'16px ')+DISP;c.lineWidth=5;c.strokeStyle='rgba(6,11,24,0.9)';c.textAlign='center';c.strokeText(f.text,f.x,y);c.fillStyle=f.col;c.fillText(f.text,f.x,y);c.restore();});},
-  drawBoard(c){const x=708,y=30,w=222,h=118;c.save();c.fillStyle='#08101f';rr(c,x,y,w,h,10);c.fill();c.strokeStyle=C.line;c.lineWidth=2;c.stroke();
-    text(c,'FORCE-O-METER',x+14,y+22,'700 11px '+MONO,C.muted);
-    text(c,this.boardV>1?fmt(this.boardV,0)+' N':'— N',x+14,y+60,'26px '+DISP,C.hot);
-    const bw=w-28,fr=clamp(this.boardV/8000,0,1);c.fillStyle='#16223a';c.fillRect(x+14,y+76,bw,12);
-    const gg=c.createLinearGradient(x+14,0,x+14+bw,0);gg.addColorStop(0,C.good);gg.addColorStop(0.55,C.hot);gg.addColorStop(1,C.bad);c.fillStyle=gg;c.fillRect(x+14,y+76,bw*fr,12);
-    ['0','4k','8k N'].forEach((s,i)=>text(c,s,x+14+bw*i/2,y+104,'500 10px '+MONO,C.muted,i===0?'left':i===2?'right':'center'));c.restore();},
+  performanceState(){const combo=globalThis.__KICKLAB_LIVE_PHYSICS_COMBO_AUDIT__,active=!!(combo&&combo.active&&combo.mode==='fight'),showResult=this.performancePhase==='see'&&performance.now()<this.performanceUntil;
+    return KickLabLivePhysicsCombo.fightInteractionPhase({actionReady:this.state==='ready',comboStatus:active?'active':showResult?'resolved':'idle',comboMode:active||showResult?'fight':null,comboIndex:active?combo.index:-1,comboLength:active?2:0,showResult});},
+  drawPerformanceHud(c){const phase=this.performanceState(),combo=globalThis.__KICKLAB_LIVE_PHYSICS_COMBO_AUDIT__,locks=combo&&combo.mode==='fight'?combo.locks:[],u=phase.timingInteractive?this.needle():this.u,sv=phase.timingInteractive?this.speedFor(u).v:this.v||this.speedFor(u).v,preview=locks.length?this.calc(this.v).F:0,force=this.res&&phase.phase==='see'?this.res.F:preview;
+    const x=W/2-230,y=clamp(H*.18,124,268),w=460,h=112,stageW=w/3;c.save();c.fillStyle='rgba(6,11,24,.88)';rr(c,x,y,w,h,12);c.fill();c.strokeStyle='rgba(151,187,231,.46)';c.lineWidth=1.5;c.stroke();
+    text(c,'FIGHT PERFORMANCE',x+14,y+17,'700 9px '+MONO,C.muted);['TIME IT','TUNE IT','SEE IT'].forEach((label,index)=>{const key=['time','tune','see'][index],activeStage=phase.phase===key,cx=x+stageW*index+stageW/2;text(c,label,cx,y+35,'700 10px '+MONO,activeStage?(key==='time'?C.good:key==='tune'?C.xray:C.hot):'rgba(159,176,204,.42)','center');if(activeStage){c.fillStyle=key==='time'?C.good:key==='tune'?C.xray:C.hot;c.fillRect(x+stageW*index+18,y+42,stageW-36,2);}});
+    const tx=x+16,ty=y+63,tw=210,hh=12;c.globalAlpha=phase.phase==='time'?1:.62;text(c,phase.timingLocked?`TIMING LOCKED · ${Math.round(this.acc*100)}%`:'PUNCH ON GREEN',tx,ty-6,'700 9px '+MONO,phase.timingLocked?C.xray:C.good);c.fillStyle='#1b2744';c.fillRect(tx,ty,tw,hh);c.fillStyle='rgba(255,176,74,.45)';c.fillRect(tx+tw*.3,ty,tw*.4,hh);c.fillStyle=C.good;c.fillRect(tx+tw*.46,ty,tw*.08,hh);c.fillStyle=C.ink;c.fillRect(tx+tw*u-2,ty-4,4,hh+8);text(c,`${fmt(sv)} m/s`,tx+tw,y+97,'700 10px '+MONO,C.good,'right');c.globalAlpha=1;
+    const fx=x+250;c.globalAlpha=phase.phase==='see'?1:phase.phase==='tune'&&locks.length?.7:.32;const forceLabel=phase.phase==='tune'&&locks.length?'FORCE PREVIEW':phase.phase==='see'?'FORCE RESULT':'FORCE AFTER CHOICES';text(c,forceLabel,fx,y+57,'700 9px '+MONO,C.muted);text(c,force>1?`${fmt(force,0)} N`:'— N',fx,y+83,phase.phase==='see'?'24px '+DISP:'18px '+DISP,phase.phase==='see'?C.hot:C.xray);c.globalAlpha=1;
+    const lockText=locks.length?locks.map(lock=>{const def=this.vars().find(item=>item.id===lock.id);return`${def?.sym||lock.id} ${fmt(lock.value,def?.d??1)}${def?.unit||''}`;}).join('  →  '):phase.phase==='tune'?`STEP ${phase.currentStep} OF ${phase.totalSteps}`:'LOCK ONE VALUE AT A TIME';text(c,lockText,fx,y+101,'700 9px '+MONO,phase.phase==='tune'?C.xray:C.muted);
+    c.restore();globalThis.__KICKLAB_FIGHT_PERFORMANCE__=Object.freeze({phase:phase.phase,timingInteractive:phase.timingInteractive,physicsInteractive:phase.physicsInteractive,timingLocked:phase.timingLocked,currentStep:phase.currentStep,totalSteps:phase.totalSteps,timing:u,accuracy:this.acc,speed:sv,force,forceKind:this.res&&phase.phase==='see'?'result':locks.length?'preview':'empty',locks:locks.map(lock=>({...lock})),box:{x,y,width:w,height:h,css:{x:x*sc,y:y*sc,width:w*sc,height:h*sc}}});
+    window.__KICKLAB_FIGHT_POWER_BAND__={x:tx,y:ty-20,width:tw,height:45,css:{x:tx*sc,y:(ty-20)*sc,width:tw*sc,height:45*sc},state:this.state,bout:!!this.bout};},
   rexHand(){const b=this.bout,idle={x:600+Math.sin(this.bob*3)*3,y:302+this.rDrop()};if(!b)return idle;const a=b.atk,tgt=a.low?{x:476+this.meX,y:300}:{x:466+this.meX,y:204},wy=a.low?338:270;
     if(a.ph==='tele')return{x:646+Math.sin(this.bob*40)*2,y:wy};if(a.ph==='strike')return{x:lerp(646,tgt.x,Math.min(1,a.t/0.1)),y:lerp(wy,tgt.y,Math.min(1,a.t/0.1))};
     if(a.ph==='recover')return{x:lerp(tgt.x,idle.x,Math.min(1,a.t/0.35)),y:lerp(tgt.y,idle.y,Math.min(1,a.t/0.35))};return idle;},
@@ -353,12 +356,7 @@ const Fight={
       text(c,this.blocking?'GUARD UP':this.duckA>0.1?`DUCKING ${fmt(this.duckA*DUCK_H,2)} m`:'◀ block  ·  ▼ duck',24,76,'600 11px '+MONO,this.blocking||this.duckA>0.1?C.xray:C.muted);
       if(this.state==='ready'&&!b.over&&b.intro<=0)text(c,b.atk.ph==='tele'?(b.atk.low?'BODY SHOT COMING: BLOCK ◀':'HIGH PUNCH: DUCK ▼ or BLOCK ◀'):'',W/2,100,'16px '+DISP,b.atk.ph==='tele'&&b.atk.low?C.violet:C.bad,'center');}
     else{text(c,'FIGHT LAB · FREE PLAY',24,34,'15px '+DISP,C.xray);text(c,this.state==='ready'?'Tap PUNCH (or the stage) when the needle is in the green.':'',24,54,'500 13px '+BODY,C.muted);}
-    const x=W/2-170,y=clamp(H*.18,150,290),w=340,hh=14,u=this.state==='ready'?this.needle():this.u;window.__KICKLAB_FIGHT_POWER_BAND__={x,y:y-30,width:w,height:58,css:{x:x*sc,y:(y-30)*sc,width:w*sc,height:58*sc},state:this.state,bout:!!b};
-    c.save();c.fillStyle='rgba(6,11,24,0.8)';rr(c,x-14,y-30,w+28,58,10);c.fill();
-    text(c,'TIMING → FIST SPEED v',x,y-12,'700 10px '+MONO,C.muted);
-    const sv=this.speedFor(u).v;text(c,`v ≈ ${fmt(sv)} m/s`+(b?(REACH/sv>b.T.react?'  too slow':'  fast enough'):''),x+w,y-12,'700 11px '+MONO,b&&REACH/sv>b.T.react?C.bad:C.good,'right');
-    c.fillStyle='#1b2744';c.fillRect(x,y,w,hh);c.fillStyle='rgba(255,176,74,0.45)';c.fillRect(x+w*0.3,y,w*0.4,hh);c.fillStyle=C.good;c.fillRect(x+w*0.46,y,w*0.08,hh);
-    c.fillStyle=C.ink;c.fillRect(x+w*u-2,y-5,4,hh+10);c.restore();},
+    this.drawPerformanceHud(c);},
   eqs(){const M=this,r=this.calc(this.curV()),live=!(this.res&&(this.state!=='ready'||this.since<3)),b=this.bout;
     const base=[
       eqLine(`Momentum (${this.TYPES[this.opt.type].name.toLowerCase()})`,`p = ${T(M,'m')} · ${T(M,'v')}`,`= ${N(M,'m',fmt(r.m,2))} kg × ${N(M,'v',fmt(r.v))} m/s = <b>${fmt(r.p)} kg·m/s</b>`),

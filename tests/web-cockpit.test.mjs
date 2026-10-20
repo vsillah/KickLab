@@ -540,8 +540,9 @@ test('expands the gameplay viewport without stretching its backing buffers',()=>
 test('uses the reclaimed portrait Fight stage without changing gameplay coordinates',()=>{
   assert.match(fight,/worldOffsetY\(\)\{return innerWidth<=800\?Math\.max\(0,H\*\.5-455\):0;\}/);
   assert.match(fight,/window\.__KICKLAB_FIGHT_COMPOSITION__=\{worldOffsetY:vy,sceneFloorLogical:floor,sceneFloorCss:floor\*sc,stageHeightCss:H\*sc,coverage:floor\/H\}/);
-  assert.match(fight,/const x=W\/2-170,y=clamp\(H\*\.18,150,290\),w=340,hh=14/);
-  assert.match(fight,/window\.__KICKLAB_FIGHT_POWER_BAND__=\{x,y:y-30,width:w,height:58,css:/);
+  assert.match(fight,/const x=W\/2-230,y=clamp\(H\*\.18,124,268\),w=460,h=112/);
+  assert.match(fight,/globalThis\.__KICKLAB_FIGHT_PERFORMANCE__=Object\.freeze/);
+  assert.match(fight,/window\.__KICKLAB_FIGHT_POWER_BAND__=\{x:tx,y:ty-20,width:tw,height:45,css:/);
   assert.doesNotMatch(fight,/const x=W\/2-170,y=H-46/);
   assert.match(fight,/focus:\{x:T0\.x-24,y:T0\.y\+4\+this\.worldOffsetY\(\)\}/);
   assert.match(loop,/const worldOffsetY=typeof M\.worldOffsetY==='function'\?M\.worldOffsetY\(\):0;ctx\.translate\(0,worldOffsetY\)/);

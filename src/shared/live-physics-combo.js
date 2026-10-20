@@ -21,6 +21,13 @@
     return freeze({ correct, value: numeric, target: target ? { lo: Number(target.lo), hi: Number(target.hi) } : null });
   }
 
+  function fightInteractionPhase({ actionReady = true, comboStatus = 'idle', comboMode = null, comboIndex = -1, comboLength = 0, showResult = false } = {}) {
+    const physicsInteractive = comboMode === 'fight' && comboStatus === 'active';
+    const phase = physicsInteractive ? 'tune' : showResult || !actionReady ? 'see' : 'time';
+    const timingInteractive = phase === 'time' && actionReady;
+    return freeze({ phase, timingInteractive, physicsInteractive, timingLocked: !timingInteractive, currentStep: physicsInteractive ? comboIndex + 1 : 0, totalSteps: physicsInteractive ? comboLength : 0 });
+  }
+
   function createEngine({ onChange = () => {}, onLock = () => {}, onResolve = () => {}, onCancel = () => {} } = {}) {
     let run = 0;
     let state = { status: 'idle', run, sequence: [], index: -1, remainingMs: 0, locks: [], result: null, meta: null };
@@ -83,5 +90,5 @@
     return freeze({ start, choose, tick, cancel, reset, state: snapshot });
   }
 
-  root.KickLabLivePhysicsCombo = freeze({ apiVersion: '1.0.0', flagEnabled, evaluateChoice, createEngine });
+  root.KickLabLivePhysicsCombo = freeze({ apiVersion: '1.1.0', flagEnabled, evaluateChoice, fightInteractionPhase, createEngine });
 })(globalThis);

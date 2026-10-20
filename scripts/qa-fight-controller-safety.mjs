@@ -86,22 +86,38 @@ async function startCombo(page){
   await page.waitForTimeout(120);
 }
 
+async function performanceState(page,label,phase){
+  const value=await page.evaluate(({label,phase})=>{const performance=window.__KICKLAB_FIGHT_PERFORMANCE__,combo=document.querySelector('#livePhysicsCombo'),buttons=[...document.querySelectorAll('#livePhysicsComboBand .live-physics-choice')],audit=window.__KICKLAB_LIVE_PHYSICS_COMBO_AUDIT__;return{label,phase,performance,comboPhase:combo?.dataset.phase,comboState:combo?.dataset.state,progress:document.querySelector('#livePhysicsComboProgress')?.textContent.trim(),variable:document.querySelector('#livePhysicsComboVariable')?.textContent.trim(),buttonCount:buttons.length,recommended:buttons.filter(button=>button.dataset.recommended==='true').length,selected:buttons.filter(button=>button.getAttribute('aria-checked')==='true').length,timeScale:audit?.timeScale,reducedMotion:audit?.reducedMotion};},{label,phase});
+  if(!value.performance||value.performance.phase!==phase||value.comboPhase!==phase)throw new Error(`${label}/${phase}: performance phase mismatch ${JSON.stringify(value)}`);
+  if(value.performance.timingInteractive&&value.performance.physicsInteractive)throw new Error(`${label}/${phase}: timing and physics were concurrently interactive ${JSON.stringify(value)}`);
+  if(phase==='time'&&(value.buttonCount!==0||!value.performance.timingInteractive||value.performance.physicsInteractive))throw new Error(`${label}: TIME IT exposed physics choices ${JSON.stringify(value)}`);
+  if(phase==='tune'&&(value.buttonCount!==6||value.recommended<1||value.selected!==1||value.performance.timingInteractive||!value.performance.physicsInteractive||(!value.reducedMotion&&value.timeScale===1)))throw new Error(`${label}: TUNE IT hierarchy failed ${JSON.stringify(value)}`);
+  if(phase==='see'&&(value.buttonCount!==0||value.performance.timingInteractive||value.performance.physicsInteractive||value.timeScale!==1||value.performance.force<=0))throw new Error(`${label}: SEE IT hierarchy failed ${JSON.stringify(value)}`);
+  checks.push({kind:'fight-performance-phase',...value});return value;
+}
+
 async function forceMiniResult(page){
   await page.locator('#results').waitFor({state:'visible',timeout:8000});
 }
 
 async function exerciseViewport(label,width,height){
   const record=label==='desktop-1440x1000'||label==='phone-390x844',context=await browser.newContext({viewport:{width,height},deviceScaleFactor:1,hasTouch:width<=480,...(record?{recordVideo:{dir:videoDir,size:{width,height}}}:{})});await seed(context);const page=await context.newPage();await enterFight(page,label);
-  const passive=await bandState(page,label,'passive-ready');await page.screenshot({path:join(outputDir,`${label}-passive-ready.png`)});
+  const passive=await bandState(page,label,'passive-ready');await performanceState(page,label,'time');await page.screenshot({path:join(outputDir,`${label}-time-it.png`)});
   await exerciseSelectors(page,label,true);
-  await startCombo(page);const active=await bandState(page,label,'active-combo');await page.screenshot({path:join(outputDir,`${label}-active-combo.png`)});
-  await page.keyboard.press('Escape');await page.waitForFunction(()=>document.querySelector('#livePhysicsCombo')?.dataset.state==='passive',null,{timeout:2500});
-  await forceMiniResult(page);const result=await bandState(page,label,'mini-result');await page.screenshot({path:join(outputDir,`${label}-mini-result.png`)});
+  await startCombo(page);const active=await bandState(page,label,'active-combo');await performanceState(page,label,'tune');await page.screenshot({path:join(outputDir,`${label}-tune-it-1.png`)});
+  await page.locator('#livePhysicsComboBand .live-physics-choice[data-recommended="true"]').first().click();await page.waitForFunction(()=>document.querySelector('#livePhysicsComboProgress')?.textContent.includes('2 / 2'));await performanceState(page,label,'tune');await page.screenshot({path:join(outputDir,`${label}-tune-it-2.png`)});
+  await page.locator('#livePhysicsComboBand .live-physics-choice[data-recommended="true"]').first().click();await page.waitForFunction(()=>document.querySelector('#livePhysicsCombo')?.dataset.phase==='see');await page.waitForTimeout(100);await performanceState(page,label,'see');await page.screenshot({path:join(outputDir,`${label}-see-it.png`)});
+  await forceMiniResult(page);const result=await bandState(page,label,'mini-result');await page.screenshot({path:join(outputDir,`${label}-result.png`)});
   if(overlap(result.band,result.results))throw new Error(`${label}: mini result visually covers the Fight timing band ${JSON.stringify({band:result.band,results:result.results})}`);
+  const replayStart=await page.evaluate(()=>window.__KICKLAB_LIVE_PHYSICS_COMBO_QA_REPLAY__());await page.locator('#rbar').waitFor({state:'visible',timeout:2500});const replay=await page.evaluate(()=>({combo:document.querySelector('#livePhysicsCombo')?.dataset.state,physicsInteractive:window.__KICKLAB_FIGHT_PERFORMANCE__?.physicsInteractive}));if(!replayStart.replay||replayStart.comboActive||replay.physicsInteractive)throw new Error(`${label}: replay did not suppress physics input ${JSON.stringify({replayStart,replay})}`);if(record)await page.screenshot({path:join(outputDir,`${label}-replay.png`)});await page.locator('#rbExit').click();checks.push({kind:'replay',label,...replayStart,...replay});
   const video=record?page.video():null;await page.close();await context.close();if(video)videoSources.push({label,width,height,path:await video.path()});checks.push({kind:'viewport-complete',label,width,height,passive:passive.band,active:active.band,result:result.band});
 }
 
 for(const spec of specs)await exerciseViewport(...spec);
+
+{
+  const label='analog-reduced-motion',context=await browser.newContext({viewport:{width:1113,height:988},deviceScaleFactor:1,reducedMotion:'reduce'});await seed(context);const page=await context.newPage();await enterFight(page,label);await page.locator('#controlStyleDisclosure').click();await page.locator('#analogControlsButton').click();await page.waitForFunction(()=>Math.abs(window.__KICKLAB_LIVE_PHYSICS_COMBO_QA_READ__().fight.needle-.5)<.04,null,{timeout:7000});await page.locator('#gestureAction').press('Enter',{delay:420});await page.waitForFunction(()=>window.__KICKLAB_FIGHT_PERFORMANCE__?.phase==='tune',null,{timeout:2500});const tune=await performanceState(page,label,'tune');for(let step=0;step<2;step+=1){await page.locator('#livePhysicsComboBand .live-physics-choice[data-recommended="true"]').first().click();if(step===0)await page.waitForFunction(()=>document.querySelector('#livePhysicsComboProgress')?.textContent.includes('2 / 2'));}await page.waitForFunction(()=>window.__KICKLAB_FIGHT_PERFORMANCE__?.phase==='see');const see=await performanceState(page,label,'see'),style=(await page.locator('#floatingControllerState').textContent()).trim();if(style!=='Analog')throw new Error(`${label}: Analog control style did not remain active.`);checks.push({kind:'analog-reduced-motion',label,style,tune,see});await page.close();await context.close();
+}
 
 const mp4=join(outputDir,'fight-controller-safety-walkthrough.mp4');
 const args=['-y'];for(const source of videoSources)args.push('-i',source.path);const filters=videoSources.map((source,index)=>`[${index}:v]fps=30,scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2:black,setsar=1[v${index}]`).join(';')+`;${videoSources.map((_,index)=>`[v${index}]`).join('')}concat=n=${videoSources.length}:v=1:a=0[out]`;args.push('-filter_complex',filters,'-map','[out]','-c:v','libx264','-pix_fmt','yuv420p','-movflags','+faststart','-an',mp4);const transcode=spawnSync('ffmpeg',args,{encoding:'utf8'});if(transcode.status!==0)throw new Error(`ffmpeg failed: ${transcode.stderr}`);

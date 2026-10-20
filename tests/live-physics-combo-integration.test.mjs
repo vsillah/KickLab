@@ -38,6 +38,18 @@ test('paginates selections and timeouts before restoring the passive controller 
   assert.doesNotMatch(html,/live-physics-combo-coach[^>]*>[^<]*<i>TO<\/i><b>Coach Tomi<\/b>/);
 });
 
+test('Fight presents one progressive performance HUD without concurrent timing and choice controls',()=>{
+  const fight=read('src/game/10-fight.js');
+  assert.match(fight,/drawPerformanceHud\(c\)/);
+  assert.match(fight,/\['TIME IT','TUNE IT','SEE IT'\]/);
+  assert.doesNotMatch(fight,/this\.drawBoard\(c\)/);
+  assert.match(runtime,/dataset\.phase=fight\?'time':'ready'/);
+  assert.match(runtime,/dataset\.phase=fight\?'tune':'choose'/);
+  assert.match(runtime,/liveComboEl\.dataset\.phase='see'/);
+  assert.match(runtime,/fight\?'Choose one value\. Timing is locked\.':liveComboEquation/);
+  assert.match(runtime,/Fight\.performanceLocks=state\.locks/);
+});
+
 test('joint plans and live cached values stay coupled to the existing outcomes',()=>{
   assert.match(runtime,/for\(const v of liveComboValues\(byId\.v\)\)for\(const th of liveComboValues\(byId\.th\)\)/);
   assert.match(runtime,/clearMargin<\.08\|\|barMargin<\.05/);
