@@ -1105,3 +1105,18 @@ header.top.home-hero::after{content:'';position:absolute;z-index:-1;inset:0;back
 @media (min-width:981px){.touch-controller{grid-template-columns:minmax(230px,1fr) minmax(230px,1fr)}.touch-control-map{grid-column:1/-1}.analog-zone{grid-column:1}.gesture-zone{grid-column:2}}
 @media (max-width:480px){.game-frame .stage>.control-deck .control-left-slot{height:132px}.control-style-tooltip{max-width:106px;font-size:7px;padding:4px 6px}}
 @media (prefers-reduced-motion:reduce){.control-style-tooltip{transition:none}}
+
+/* Keep each action face concentric with its groove at the controller's real (max 900px) width. */
+.game-frame .stage>.control-deck .abtn .cap{--cap-groove:5px;position:relative;isolation:isolate;box-shadow:none}
+.game-frame .stage>.control-deck .abtn .cap::before{content:"";position:absolute;z-index:0;inset:calc(var(--cap-groove) * -1);border-radius:50%;background:radial-gradient(circle,transparent calc(100% - var(--cap-groove)),#0b1120 0);box-shadow:inset 0 1px 0 rgba(224,235,255,.2),0 0 0 1px rgba(151,187,231,.2),0 0 14px rgba(0,0,0,.42);pointer-events:none}
+.game-frame .stage>.control-deck .abtn .cap svg{position:relative;z-index:1}
+.game-frame .stage>.control-deck .abtn.on .cap{transform:scale(.96);box-shadow:0 0 22px color-mix(in srgb,var(--bc) 52%,transparent)}
+.game-frame .stage>.control-deck .abtn:is(:hover,:focus-visible) .cap{box-shadow:0 0 20px color-mix(in srgb,var(--bc) 42%,transparent)}
+.game-frame .stage>.control-deck .abtn:focus-visible{outline:none}
+.game-frame .stage>.control-deck .abtn:focus-visible .cap{outline-offset:calc(var(--cap-groove) + 3px)}
+
+/* Derive the center/right divider from padR's grid edge and reserve its visual clearance. */
+.game-frame .stage>.control-deck .control-left-slot{border-right:0!important}
+.game-frame .stage>.control-deck #padR{position:relative;align-self:stretch;align-items:center;padding-inline:14px;border-left:0!important}
+.game-frame .stage>.control-deck #padR::before{content:"";position:absolute;left:0;top:0;bottom:0;width:1px;background:rgba(151,187,231,.16);pointer-events:none}
+@media (max-width:480px){.game-frame .stage>.control-deck .abtn .cap{--cap-groove:2px}.game-frame .stage>.control-deck #padR{padding-inline:10px}}

@@ -410,6 +410,17 @@ test('keeps one bounded collapsible controller surface and a clear central Class
   assert.match(css,/@media \(max-width:480px\)[^\n]+\.control-deck\.controller-collapsed\{width:min\(286px/);
 });
 
+test('keeps Classic action faces concentric and clears the center-right divider',()=>{
+  assert.match(css,/\.game-frame \.stage>\.control-deck \.abtn \.cap\{--cap-groove:5px;position:relative;isolation:isolate;box-shadow:none\}/);
+  assert.match(css,/\.game-frame \.stage>\.control-deck \.abtn \.cap::before\{content:"";position:absolute;z-index:0;inset:calc\(var\(--cap-groove\) \* -1\);border-radius:50%;background:radial-gradient\(circle,transparent calc\(100% - var\(--cap-groove\)\),#0b1120 0\)/);
+  assert.match(css,/\.game-frame \.stage>\.control-deck \.abtn\.on \.cap\{transform:scale\(\.96\);box-shadow:0 0 22px/);
+  assert.match(css,/\.game-frame \.stage>\.control-deck \.abtn:focus-visible\{outline:none\}/);
+  assert.match(css,/\.game-frame \.stage>\.control-deck \.abtn:focus-visible \.cap\{outline-offset:calc\(var\(--cap-groove\) \+ 3px\)\}/);
+  assert.match(css,/\.game-frame \.stage>\.control-deck #padR\{position:relative;align-self:stretch;align-items:center;padding-inline:14px;border-left:0!important\}/);
+  assert.match(css,/\.game-frame \.stage>\.control-deck #padR::before\{content:"";position:absolute;left:0;top:0;bottom:0;width:1px/);
+  assert.match(css,/@media \(max-width:480px\)\{\.game-frame \.stage>\.control-deck \.abtn \.cap\{--cap-groove:2px\}\.game-frame \.stage>\.control-deck #padR\{padding-inline:10px\}\}/);
+});
+
 test('expands the gameplay viewport without stretching its backing buffers',()=>{
   const core=readFileSync(join(root,'src','game','00-core.js'),'utf8');
   const renderer=readFileSync(join(root,'src','game','50-renderer-3d.js'),'utf8');
