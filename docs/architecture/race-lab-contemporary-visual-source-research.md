@@ -2,6 +2,8 @@
 
 **2026-10-20 Phase 1 update:** FS-8 failed its pre-download rear-chase suitability gate. The creator's own viewer annotation says the rear and interior are unfinished. The bounded acquisition/evaluation stopped before account login or download; see [the FS-8 stop record](race-lab-fs8-pre-download-stop.md). The ranking below is the prior research snapshot, not a current recommendation to acquire FS-8. No fallback candidate is authorized.
 
+**2026-10-20 Phase 1 update, second candidate:** Kralzfiller also failed its pre-download gate: the public viewer shows MICHELIN tire lettering, and the uploader's profile describes reusing/repainting others' models without identifying this model's base rights. See [the Kralzfiller stop record](race-lab-kralzfiller-pre-download-stop.md). Both ranked candidates are now closed for acquisition under the unbranded, clear-provenance requirement. The environment routes below remain research options; Phase 2 has not begun.
+
 Research date: 2026-10-20. This is a documentation-only shortlist for the existing Race track. The prior Vintage Racing Car and Race Track Assets Pack archives remain quarantined, unchanged. No new archive was downloaded, no game or asset file was edited, and no candidate has passed a KickLab camera or mobile test. Public listing counts and creator statements below are **listing evidence**, not measurements of a downloaded file or proof of ownership.
 
 ## Decision
