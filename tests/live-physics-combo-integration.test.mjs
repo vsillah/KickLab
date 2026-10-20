@@ -38,11 +38,13 @@ test('paginates selections and timeouts before restoring the passive controller 
   assert.doesNotMatch(html,/live-physics-combo-coach[^>]*>[^<]*<i>TO<\/i><b>Coach Tomi<\/b>/);
 });
 
-test('Fight presents one progressive performance HUD without concurrent timing and choice controls',()=>{
+test('Fight presents one progressive controller sequence without an overhead performance panel',()=>{
   const fight=read('src/game/10-fight.js');
-  assert.match(fight,/drawPerformanceHud\(c\)/);
-  assert.match(fight,/\['TIME IT','TUNE IT','SEE IT'\]/);
+  assert.doesNotMatch(fight,/drawPerformanceHud|__KICKLAB_FIGHT_POWER_BAND__|FIGHT PERFORMANCE/);
   assert.doesNotMatch(fight,/this\.drawBoard\(c\)/);
+  assert.match(html,/id="fightPerformanceReadout"/);
+  assert.match(runtime,/function syncFightPerformanceController\(\)/);
+  assert.match(runtime,/surface:'controller',overhead:false/);
   assert.match(runtime,/dataset\.phase=fight\?'time':'ready'/);
   assert.match(runtime,/dataset\.phase=fight\?'tune':'choose'/);
   assert.match(runtime,/liveComboEl\.dataset\.phase='see'/);

@@ -24,6 +24,7 @@ const css=readFileSync(join(root,'src','styles.css'),'utf8');
 const rig=readFileSync(join(root,'src','game','04-body-rig.js'),'utf8');
 const analog=readFileSync(join(root,'src','game','55-analog-gesture-controls.js'),'utf8');
 const fight=readFileSync(join(root,'src','game','10-fight.js'),'utf8');
+const liveCombo=readFileSync(join(root,'src','game','62-live-physics-combo.js'),'utf8');
 const modeFlow=readFileSync(join(root,'src','game','53-weekly-challenge.js'),'utf8');
 
 test('keeps relocated feature roots canonical and singular',()=>{
@@ -540,14 +541,15 @@ test('expands the gameplay viewport without stretching its backing buffers',()=>
 test('uses the reclaimed portrait Fight stage without changing gameplay coordinates',()=>{
   assert.match(fight,/worldOffsetY\(\)\{return innerWidth<=800\?Math\.max\(0,H\*\.5-455\):0;\}/);
   assert.match(fight,/window\.__KICKLAB_FIGHT_COMPOSITION__=\{worldOffsetY:vy,sceneFloorLogical:floor,sceneFloorCss:floor\*sc,stageHeightCss:H\*sc,coverage:floor\/H\}/);
-  assert.match(fight,/const x=W\/2-230,y=clamp\(H\*\.18,124,268\),w=460,h=112/);
-  assert.match(fight,/globalThis\.__KICKLAB_FIGHT_PERFORMANCE__=Object\.freeze/);
-  assert.match(fight,/window\.__KICKLAB_FIGHT_POWER_BAND__=\{x:tx,y:ty-20,width:tw,height:45,css:/);
+  assert.doesNotMatch(fight,/drawPerformanceHud|__KICKLAB_FIGHT_POWER_BAND__|FIGHT PERFORMANCE/);
+  assert.match(html,/id="fightPerformanceReadout"/);
+  assert.match(liveCombo,/globalThis\.__KICKLAB_FIGHT_PERFORMANCE__=Object\.freeze/);
+  assert.match(liveCombo,/surface:'controller',overhead:false/);
   assert.doesNotMatch(fight,/const x=W\/2-170,y=H-46/);
   assert.match(fight,/focus:\{x:T0\.x-24,y:T0\.y\+4\+this\.worldOffsetY\(\)\}/);
   assert.match(loop,/const worldOffsetY=typeof M\.worldOffsetY==='function'\?M\.worldOffsetY\(\):0;ctx\.translate\(0,worldOffsetY\)/);
   assert.match(modeFlow,/document\.documentElement\.dataset\.kicklabMode=k/);
-  assert.match(css,/html\[data-kicklab-mode="fight"\] \.game-frame \.stage>\.control-deck\{top:55%;bottom:auto;max-height:calc\(45% - 7px\)/);
+  assert.match(css,/@media \(max-width:800px\)[^{]*\{[^}]*html\[data-kicklab-mode="fight"\] \.game-frame \.stage>\.control-deck\{top:auto;bottom:/);
 });
 
 test('keeps settings and contextual details mutually exclusive',()=>{

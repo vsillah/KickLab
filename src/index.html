@@ -236,6 +236,15 @@
                 <div class="live-physics-combo-copy">
                   <h2 id="livePhysicsComboVariable">Physics ready</h2>
                 </div>
+                <div class="fight-performance-readout" id="fightPerformanceReadout" aria-hidden="true">
+                  <div class="fight-performance-timing">
+                    <span><b id="fightTimingLabel">Timing live</b><output id="fightTimingValue">— m/s</output></span>
+                    <i class="fight-timing-track"><b id="fightTimingMarker"></b></i>
+                  </div>
+                  <div class="fight-performance-force">
+                    <span id="fightForceLabel">Force after choices</span><output id="fightForceValue">— N</output><small id="fightForceChain">Lock one value at a time</small>
+                  </div>
+                </div>
                 <div class="live-physics-combo-band prototype-slot-group" id="livePhysicsComboBand" role="radiogroup" aria-label="Physics values"></div>
                 <p class="sr-only" id="livePhysicsComboEquation">Choose one of six live physics values.</p>
                 <p class="sr-only" id="livePhysicsComboCoach">Coach Tomi cue.</p>
