@@ -23,7 +23,8 @@ test('runtime reuses canonical variable, suggestion, and six-slot models',()=>{
   assert.match(runtime,/function liveComboChoices\(def,target,model\)/);
   assert.match(runtime,/Math\.ceil\(\(Math\.min\(target\.lo,target\.hi\)-def\.min-1e-9\)\/def\.step\)/);
   assert.match(html,/id="livePhysicsComboBand" role="radiogroup"/);
-  assert.match(html,/class="control-center-slot">[^]*id="livePhysicsCombo"[^]*id="wideManualController"/);
+  assert.match(html,/class="control-center-slot">[^]*id="livePhysicsCombo"/);
+  assert.doesNotMatch(html,/id="(?:controllerModeDisclosure|manualController|wideManualController|prototypePhysics)"/);
   assert.match(runtime,/class="live-physics-choice prototype-slot"/);
   assert.match(styles,/grid-template-columns:repeat\(6,minmax\(44px,1fr\)\)/);
 });
