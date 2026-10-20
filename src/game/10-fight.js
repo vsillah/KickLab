@@ -353,7 +353,7 @@ const Fight={
       text(c,this.blocking?'GUARD UP':this.duckA>0.1?`DUCKING ${fmt(this.duckA*DUCK_H,2)} m`:'◀ block  ·  ▼ duck',24,76,'600 11px '+MONO,this.blocking||this.duckA>0.1?C.xray:C.muted);
       if(this.state==='ready'&&!b.over&&b.intro<=0)text(c,b.atk.ph==='tele'?(b.atk.low?'BODY SHOT COMING: BLOCK ◀':'HIGH PUNCH: DUCK ▼ or BLOCK ◀'):'',W/2,100,'16px '+DISP,b.atk.ph==='tele'&&b.atk.low?C.violet:C.bad,'center');}
     else{text(c,'FIGHT LAB · FREE PLAY',24,34,'15px '+DISP,C.xray);text(c,this.state==='ready'?'Tap PUNCH (or the stage) when the needle is in the green.':'',24,54,'500 13px '+BODY,C.muted);}
-    const x=W/2-170,y=H-46,w=340,hh=14,u=this.state==='ready'?this.needle():this.u;
+    const x=W/2-170,y=clamp(H*.18,150,290),w=340,hh=14,u=this.state==='ready'?this.needle():this.u;window.__KICKLAB_FIGHT_POWER_BAND__={x,y:y-30,width:w,height:58,css:{x:x*sc,y:(y-30)*sc,width:w*sc,height:58*sc},state:this.state,bout:!!b};
     c.save();c.fillStyle='rgba(6,11,24,0.8)';rr(c,x-14,y-30,w+28,58,10);c.fill();
     text(c,'TIMING → FIST SPEED v',x,y-12,'700 10px '+MONO,C.muted);
     const sv=this.speedFor(u).v;text(c,`v ≈ ${fmt(sv)} m/s`+(b?(REACH/sv>b.T.react?'  too slow':'  fast enough'):''),x+w,y-12,'700 11px '+MONO,b&&REACH/sv>b.T.react?C.bad:C.good,'right');

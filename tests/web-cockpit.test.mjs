@@ -359,7 +359,9 @@ test('keeps Kick action X-ray transient while suppressing persistent stage math'
 });
 
 test('swaps the D-pad footprint into guarded Manual Physics',()=>{
-  assert.match(html,/class="controller-mode-toggle" role="group" aria-label="Controller mode"/);
+  assert.match(html,/class="compact-selector controller-mode-selector" data-expanded="false"/);
+  assert.match(html,/id="controllerModeDisclosure" aria-expanded="false" aria-controls="controllerModeOptions" aria-haspopup="true"/);
+  assert.match(html,/id="controllerModeOptions" role="group" aria-label="Controller mode" aria-describedby="controllerModeStatus" hidden/);
   assert.match(html,/id="controllerModePlay" aria-pressed="true"/);
   assert.match(html,/id="controllerModeManual" aria-pressed="false"/);
   assert.match(html,/id="controllerModeStatus" role="status" aria-live="polite"/);
@@ -375,11 +377,17 @@ test('swaps the D-pad footprint into guarded Manual Physics',()=>{
   assert.match(cockpit,/function manualUnavailableReason\(\)/);
   assert.match(cockpit,/if\(resOpen\(\)\)return'Manual Physics is unavailable while results are open/);
   assert.match(cockpit,/setControllerMode\('play',\{restore:false,reason\}\)/);
+  assert.match(cockpit,/function setControllerModeExpanded\(expanded,\{focus=false\}=\{\}\)/);
+  assert.match(cockpit,/controllerModeDisclosure\.setAttribute\('aria-expanded',String\(open\)\)/);
+  assert.match(cockpit,/controllerModeOptions\.hidden=!open/);
+  assert.match(cockpit,/controllerModeDisclosure\.addEventListener\('click'/);
+  assert.match(cockpit,/controllerModeOptions\.addEventListener\('keydown'.*e\.key==='Escape'.*setControllerModeExpanded\(false,\{focus:true\}\)/);
   assert.match(cockpit,/e\.key==='Escape'.*setControllerMode\('play'\)/);
   assert.match(ui,/function adjustVar\(id,delta,allowManualPause=false\)/);
   assert.match(css,/\.control-left-slot\{width:158px;height:178px;[^}]*pointer-events:auto/);
   assert.match(css,/\.manual-controller\{box-sizing:border-box;grid-row:3;width:158px;height:126px/);
   assert.match(css,/\.manual-controller button\{[^}]*min-height:44px/);
+  assert.match(css,/\.controller-mode-status\{position:absolute;width:1px;height:1px;overflow:hidden/);
   assert.doesNotMatch(cockpit,/math-console-var\$\{manual/);
 });
 
@@ -474,20 +482,28 @@ test('keeps six-slot mechanics controls between analog and gesture controls',()=
 });
 
 test('uses a compact accessible Classic and Analog control-style selector',()=>{
-  assert.match(html,/class="prototype-control-bar" role="group" aria-label="Control style" aria-describedby="controlStyleDescription"/);
+  assert.match(html,/class="compact-selector control-style-selector" data-expanded="false"/);
+  assert.match(html,/id="controlStyleDisclosure" aria-expanded="false" aria-controls="controlStyleOptions" aria-haspopup="true"/);
+  assert.match(html,/id="controlStyleOptions" role="group" aria-label="Control style" aria-describedby="controlStyleDescription" hidden/);
   assert.match(html,/id="classicControlsButton" aria-pressed="true"[^>]*>Classic<\/button>/);
   assert.match(html,/id="analogControlsButton" aria-pressed="false"[^>]*>Analog<\/button>/);
   assert.doesNotMatch(html,/Prototype · classic stays available|Try analog controls|Use classic controls/);
   assert.match(analog,/classicControlsButton\.setAttribute\('aria-pressed',String\(!ANALOG_CONTROL\.enabled\)\)/);
   assert.match(analog,/analogControlsButton\.setAttribute\('aria-pressed',String\(ANALOG_CONTROL\.enabled\)\)/);
-  assert.match(analog,/\['ArrowLeft','ArrowRight','Home','End'\]/);
-  assert.match(css,/\.prototype-control-bar\{[^}]+width:170px[^}]+min-height:48px[^}]+grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
-  assert.match(css,/\.prototype-control-bar button\{[^}]+min-height:44px/);
+  assert.match(analog,/function setControlStyleExpanded\(expanded,\{focus=false\}=\{\}\)/);
+  assert.match(analog,/controlStyleDisclosure\.setAttribute\('aria-expanded',String\(open\)\)/);
+  assert.match(analog,/controlStyleGroup\.hidden=!open/);
+  assert.match(analog,/controlStyleDisclosure\.addEventListener\('click'/);
+  assert.match(analog,/controlStyleGroup\.addEventListener\('keydown'.*e\.key==='Escape'.*setControlStyleExpanded\(false,\{focus:true\}\).*\['ArrowLeft','ArrowRight','Home','End'\]/);
+  assert.match(css,/\.compact-selector-summary\{[^}]+min-height:44px/);
+  assert.match(css,/\.prototype-control-bar\.compact-selector-options\{width:132px;min-height:44px;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+  assert.match(css,/\.prototype-control-bar\.compact-selector-options button\{min-height:44px/);
   assert.match(css,/\.prototype-control-bar button\[aria-pressed="true"\]\{[^}]*border-color:#7fdcff[^}]*background:#17304d/);
 });
 
 test('keeps one bounded collapsible controller surface and a clear central Classic lane',()=>{
-  assert.match(html,/class="floating-control-title"[^]*id="floatingControllerState">Classic · Play/);
+  assert.match(html,/id="controlStyleDisclosure"[^]*id="floatingControllerState">Classic/);
+  assert.match(html,/id="controllerModeDisclosure"[^]*id="controllerModeSelected">Play/);
   assert.match(html,/id="controllerCollapseButton" aria-expanded="true" aria-controls="pad" aria-label="Collapse game controls"/);
   assert.match(analog,/const FLOATING_CONTROLLER=\{collapsed:matchMedia\('\(max-width:480px\)'\)\.matches\}/);
   assert.match(analog,/function setFloatingControllerCollapsed\(collapsed,\{focus=false\}=\{\}\)/);
@@ -524,6 +540,9 @@ test('expands the gameplay viewport without stretching its backing buffers',()=>
 test('uses the reclaimed portrait Fight stage without changing gameplay coordinates',()=>{
   assert.match(fight,/worldOffsetY\(\)\{return innerWidth<=800\?Math\.max\(0,H\*\.5-455\):0;\}/);
   assert.match(fight,/window\.__KICKLAB_FIGHT_COMPOSITION__=\{worldOffsetY:vy,sceneFloorLogical:floor,sceneFloorCss:floor\*sc,stageHeightCss:H\*sc,coverage:floor\/H\}/);
+  assert.match(fight,/const x=W\/2-170,y=clamp\(H\*\.18,150,290\),w=340,hh=14/);
+  assert.match(fight,/window\.__KICKLAB_FIGHT_POWER_BAND__=\{x,y:y-30,width:w,height:58,css:/);
+  assert.doesNotMatch(fight,/const x=W\/2-170,y=H-46/);
   assert.match(fight,/focus:\{x:T0\.x-24,y:T0\.y\+4\+this\.worldOffsetY\(\)\}/);
   assert.match(loop,/const worldOffsetY=typeof M\.worldOffsetY==='function'\?M\.worldOffsetY\(\):0;ctx\.translate\(0,worldOffsetY\)/);
   assert.match(modeFlow,/document\.documentElement\.dataset\.kicklabMode=k/);

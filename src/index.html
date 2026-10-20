@@ -181,8 +181,10 @@
           </section>
         <div class="control-deck" aria-label="Game controls">
           <div class="floating-control-head">
-            <div class="floating-control-title"><span>On-stage controls</span><b id="floatingControllerState">Classic · Play</b></div>
-            <div class="prototype-control-bar" role="group" aria-label="Control style" aria-describedby="controlStyleDescription"><span class="sr-only" id="controlStyleDescription">Choose classic buttons or the experimental analog and gesture controller. Classic controls stay available.</span><button type="button" id="classicControlsButton" aria-pressed="true" aria-controls="pad">Classic</button><button type="button" id="analogControlsButton" aria-pressed="false" aria-controls="touchController">Analog</button></div>
+            <div class="compact-selector control-style-selector" data-expanded="false">
+              <button type="button" class="compact-selector-summary" id="controlStyleDisclosure" aria-expanded="false" aria-controls="controlStyleOptions" aria-haspopup="true"><span class="sr-only">Control style:</span><b id="floatingControllerState">Classic</b><i aria-hidden="true">⌄</i></button>
+              <div class="prototype-control-bar compact-selector-options" id="controlStyleOptions" role="group" aria-label="Control style" aria-describedby="controlStyleDescription" hidden><span class="sr-only" id="controlStyleDescription">Choose Classic buttons or Analog stick and gesture controls.</span><button type="button" id="classicControlsButton" aria-pressed="true" aria-controls="pad">Classic</button><button type="button" id="analogControlsButton" aria-pressed="false" aria-controls="touchController">Analog</button></div>
+            </div>
             <button type="button" class="controller-collapse" id="controllerCollapseButton" aria-expanded="true" aria-controls="pad" aria-label="Collapse game controls"><span aria-hidden="true">⌄</span></button>
           </div>
           <div class="pad" id="pad">
@@ -212,8 +214,10 @@
               </div>
             </section>
             <div class="control-left-slot" id="controlLeftSlot">
-              <div class="controller-mode-toggle" role="group" aria-label="Controller mode" aria-describedby="controllerModeStatus"><button type="button" id="controllerModePlay" aria-pressed="true"><span aria-hidden="true">✥</span> Play</button><button type="button" id="controllerModeManual" aria-pressed="false"><span aria-hidden="true">⌁</span> Manual</button></div>
-              <span class="controller-mode-status" id="controllerModeStatus" role="status" aria-live="polite">D-pad controls active.</span>
+              <div class="compact-selector controller-mode-selector" data-expanded="false">
+                <button type="button" class="compact-selector-summary" id="controllerModeDisclosure" aria-expanded="false" aria-controls="controllerModeOptions" aria-haspopup="true"><span class="sr-only">Controller mode:</span><b id="controllerModeSelected">Play</b><i aria-hidden="true">⌄</i></button>
+                <div class="controller-mode-toggle compact-selector-options" id="controllerModeOptions" role="group" aria-label="Controller mode" aria-describedby="controllerModeStatus" hidden><button type="button" id="controllerModePlay" aria-pressed="true"><span aria-hidden="true">✥</span> Play</button><button type="button" id="controllerModeManual" aria-pressed="false"><span aria-hidden="true">⌁</span> Manual</button><span class="sr-only" id="controllerModeStatus" role="status" aria-live="polite">D-pad controls active.</span></div>
+              </div>
               <button type="button" class="context-disclosure physics-detail-toggle compact-physics-detail-toggle" id="physicsDetailsCompact" data-detail-label="physics details" aria-label="Open physics details" title="Open physics details" aria-expanded="false" aria-controls="physicsDetail"><span aria-hidden="true">⌄</span></button>
               <div class="grp l" id="padL"></div>
               <section class="manual-controller" id="manualController" hidden aria-label="Manual physics controller">
