@@ -36,6 +36,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--hot);outline-of
 @media(max-width:640px){.goal-celebration-controls{left:8px;right:calc(var(--game-rail-space,0px) + 8px);bottom:8px}.goal-celebration-controls span{max-width:52%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.goal-celebration-controls button{padding-inline:11px}}
 @media(prefers-reduced-motion:reduce){.goal-celebration-controls button{transition:none!important}}
 #cv3{position:absolute;left:0;top:0;width:100%;height:auto;aspect-ratio:16/9;display:none;pointer-events:none}
+#race3{position:absolute;left:0;top:0;width:100%;height:auto;aspect-ratio:16/9;display:none;pointer-events:none}
 canvas#cv{position:relative;z-index:1}
 canvas#cv{display:block;width:100%;height:auto;aspect-ratio:16/9;touch-action:none;user-select:none;-webkit-user-select:none;cursor:pointer}
 .dock{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;justify-content:space-between}

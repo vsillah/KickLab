@@ -103,7 +103,7 @@ const Race={
   isIdle(){return this.state==='grid'||this.state==='done'||this.state==='crashed';},
   idleTips(){const c=curCh('race');return[...(c?[c.intro()]:[]),'The yellow notch on the wheel is the math: θ = 15 × atan(L ÷ R). Match it through the turn.','Watch the brake boards. At the corner you want v ≤ √(μ·g·R).','Drag R to 55 m. The needed wheel angle drops and the speed limit jumps.','Try the wet preset for Rain Master. Same corner, less μ, much lower limit.','Finish without a single slide for the Clean Line bonus.'];},
   turnR(w){const c=this.CARS[this.opt.car],d=Math.abs(w)/this.RATIO;return d<0.05?Infinity:c.Lwb/Math.tan(d*DEG);},
-  draw(c){const P=this.P(),S=this.S,L=this.L,R=P.R,HW=this.HW,FIN=this.FIN();
+  draw(c){if(RACE_3D.on)return;const P=this.P(),S=this.S,L=this.L,R=P.R,HW=this.HW,FIN=this.FIN();
     c.fillStyle='#0d2129';c.fillRect(-600,-600,W+1200,H+1200);
     c.fillStyle='rgba(127,220,255,0.05)';for(let x=-40;x<W+40;x+=24)for(let y=-40;y<H+40;y+=24)c.fillRect(x,y,2,2);
     const cx=this.sx(L),cy=this.sy(R);

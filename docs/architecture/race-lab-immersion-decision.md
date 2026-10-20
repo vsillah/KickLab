@@ -1,6 +1,6 @@
 # Race Lab immersion: architecture and asset decision
 
-Status: decision gate, no gameplay or rendering changes. Baseline: `c6ac0b4992ae1f27e81d931e442f29586a0c6039` on `origin/main`.
+Status: self-authored vehicle and chase-camera checkpoint built; visual-quality gate failed. Baseline: `c6ac0b4992ae1f27e81d931e442f29586a0c6039` on `origin/main`.
 
 ## Existing ownership
 
@@ -27,3 +27,11 @@ Status: decision gate, no gameplay or rendering changes. Baseline: `c6ac0b4992ae
 The requested lifelike, dimensional car cannot be validated against the current repo assets: there is no car source model to render. Reusing the athlete rigs or enlarging the current Canvas rounded rectangle would not meet the stated visual bar. The existing local Blender and GLB toolchain can support a newly authored car, but that requires a vehicle design and modeling pass with visual review before it can be treated as the production asset. A sourced car would require third-party acquisition and license resolution, which the request explicitly excludes at this step.
 
 **Decision needed:** choose a newly self-authored vehicle with a visual review checkpoint, or provide an already owned local vehicle GLB/Blender source with its provenance and license. Do not implement the renderer or mechanics against a placeholder and label it production quality. Do not download, purchase, upload, or contact a vendor in this lane. Once the source is established, resume from this branch and complete the architecture, tests, evidence, and draft PR; do not merge or deploy here.
+
+## 2026-10-20 local vehicle checkpoint
+
+The authorized self-authored route produced an editable Blender source, deterministic generator, and a 313,960-byte local GLB with zero glTF errors, warnings, infos, or external URIs. The Race-only scene renders a track and bounded chase camera; Canvas remains the fallback. The local checkpoint captured 1440×1000, 1113×988, 768×1024, 390×844, and reduced-motion 390×844 views, plus a playable H.264 video. These review files are in `qa-artifacts/race-3d-checkpoint/` and are intentionally not committed. The local QA pass measured p95 frame intervals of 8.9–9.3 ms, zero horizontal overflow, zero page errors, and zero external requests. This is a narrow idle/straight-line visual checkpoint, not a complete Race run or gameplay validation.
+
+**Visual decision: fail.** From the actual chase view the vehicle still reads as a faceted rectangular shell. The wheel arches, body surfacing, glazing, light clusters, and suspension stance do not carry enough dimensional detail at gameplay scale. The terrain and roadside are flat color fields with repeated posts; the scene lacks the depth and material quality needed for the stated Direction C bar. On the phone the 16:9 stage makes the car and upcoming decision small, while the rest of the viewport is occupied by the existing guidance/control layout. The first profile toast can also overlap the phone view and its close control was intercepted by the guidance rail in headless QA; the final screenshots removed it programmatically only to inspect the underlying scene. Do not treat those screenshots as a successful interaction test.
+
+No drift, skid, nitro, controller action, scoring, storage, or Live Physics Combo changes were made after this failed gate. The vehicle manifest remains `evaluation-only`. A new art-direction/modeling pass must clear the same-camera desktop and phone renders before this branch can proceed to the dynamics and implementation PR. The available choices are to refine this self-authored source with a reviewed modeling brief, or provide an already owned local production vehicle with provenance; third-party sourcing remains outside this lane.
