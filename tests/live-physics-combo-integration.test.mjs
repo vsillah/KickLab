@@ -1,0 +1,74 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import test from 'node:test';
+
+const root=process.cwd();
+const read=path=>readFileSync(join(root,path),'utf8');
+const runtime=read('src/game/62-live-physics-combo.js');
+const html=read('src/index.html');
+const styles=read('src/styles.css');
+const build=read('scripts/build.mjs');
+
+test('build loads the shared engine before the game runtime',()=>{
+  assert.match(build,/const shared = \[[^\]]*'live-physics-combo\.js'[^\]]*\]/);
+  assert.match(build,/const game = shared \+ '\\n' \+ parts\.map/);
+  assert.ok('live-physics-combo.js'.localeCompare('62-live-physics-combo.js')>0,'shared code is emitted before every sorted game fragment');
+});
+
+test('runtime reuses canonical variable, suggestion, and six-slot models',()=>{
+  assert.match(runtime,/activeVariableProfile\(\)/);
+  assert.match(runtime,/M\.suggest\?M\.suggest\(\)/);
+  assert.match(runtime,/GAME_CORE\.sliderSlotsModel/);
+  assert.match(runtime,/function liveComboChoices\(def,target,model\)/);
+  assert.match(runtime,/Math\.ceil\(\(Math\.min\(target\.lo,target\.hi\)-def\.min-1e-9\)\/def\.step\)/);
+  assert.match(html,/id="livePhysicsComboBand" role="radiogroup"/);
+  assert.match(styles,/grid-template-columns:repeat\(6,minmax\(44px,1fr\)\)/);
+});
+
+test('Fight, Race, and Kick sequences bind to existing active variables',()=>{
+  assert.match(runtime,/fight:Object\.freeze\(\{activity:'Punch exchange',ids:Object\.freeze\(\['m','dt'\]\)/);
+  assert.match(runtime,/race:Object\.freeze\(\{activity:'Corner',ids:Object\.freeze\(\['mu','R'\]\)/);
+  assert.match(runtime,/kick:Object\.freeze\(\{activity:'Free-kick strike',ids:Object\.freeze\(\['v','th'\]\)/);
+});
+
+test('default-off input path preserves the existing action call',()=>{
+  assert.match(runtime,/M\.press\(id,down\);if\(!LIVE_COMBO_ENABLED\|\|!down\)return/);
+  assert.match(runtime,/flagEnabled\(location\.search\)/);
+});
+
+test('pause, replay, results, mode changes, and lifecycle cancel deterministically',()=>{
+  const pause=read('src/game/61-gameplay-pacing.js');
+  const loop=read('src/game/70-main-loop.js');
+  assert.match(runtime,/if\(PAUSE\.on\)return`pause:/);
+  assert.match(runtime,/if\(RP\.on\)return'replay'/);
+  assert.match(runtime,/if\(resOpen\(\)\)return'results'/);
+  assert.match(runtime,/cancelLivePhysicsCombo\('mode-changed'\)/);
+  assert.match(pause,/cancelLivePhysicsCombo\(`pause:\$\{owner\}`\)/);
+  assert.match(loop,/tickLivePhysicsCombo\(rdt\)/);
+});
+
+test('Classic, keyboard, analog, gesture, touch, and pointer inputs share gameInput',()=>{
+  const ui=read('src/game/41-ui.js');
+  const keyboard=read('src/game/53-weekly-challenge.js');
+  const analog=read('src/game/55-analog-gesture-controls.js');
+  assert.match(ui,/gameInput\(a\.id,true,'classic-pointer'\)/);
+  assert.match(ui,/gameInput\(a\.id,true,'classic-keyboard'\)/);
+  assert.match(keyboard,/gameInput\(id,true,'keyboard'/);
+  assert.match(analog,/gameInput\(id,true,'analog'\)/);
+  assert.match(analog,/gameInput\(action\.id,true,'gesture'\)/);
+  assert.match(runtime,/chooseLiveCombo\(event\.target\.closest\('\.live-physics-choice'\),'pointer'\)/);
+  assert.match(runtime,/chooseLiveCombo\(button,'keyboard'\)/);
+});
+
+test('prototype adds no network or persistence channel',()=>{
+  assert.doesNotMatch(runtime,/\b(fetch|XMLHttpRequest|WebSocket|sendBeacon|localStorage|sessionStorage|indexedDB)\b/);
+  assert.match(runtime,/storageWrites:0/);
+});
+
+test('responsive targets retain accessible controls and reduced-motion fallback',()=>{
+  assert.match(styles,/\.live-physics-choice\{[^}]*min-width:44px;min-height:48px/);
+  assert.match(styles,/@media\(max-width:800px\)/);
+  assert.match(styles,/@media\(max-width:480px\)/);
+  assert.match(styles,/@media\(prefers-reduced-motion:reduce\)\{\.live-physics-combo/);
+});

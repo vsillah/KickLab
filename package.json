@@ -12,6 +12,7 @@
     "qa:direction-c": "node scripts/qa-direction-c-athlete.mjs",
     "qa:multi-activity-athlete": "node scripts/qa-multi-activity-athlete.mjs",
     "qa:match-visual-coherence": "node scripts/qa-match-visual-coherence.mjs",
+    "qa:live-physics-combo": "node scripts/qa-live-physics-combo.mjs",
     "qa:near-stand": "node scripts/qa-near-stand.mjs",
     "pages:prepare": "node scripts/prepare-pages.mjs",
     "pages:check": "node scripts/check-pages-prepare.mjs",

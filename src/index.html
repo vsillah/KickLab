@@ -80,6 +80,21 @@
             </div>
           </section>
           <p class="sr-only" id="gamePacingA11y" role="status" aria-live="polite" aria-atomic="true"></p>
+          <section class="live-physics-combo" id="livePhysicsCombo" hidden aria-labelledby="livePhysicsComboVariable" aria-describedby="livePhysicsComboEquation livePhysicsComboCoach">
+            <header class="live-physics-combo-head">
+              <span class="live-physics-combo-coach" aria-hidden="true"><i>TO</i><b>Coach Tomi</b></span>
+              <span class="live-physics-combo-progress" id="livePhysicsComboProgress">1 / 2</span>
+              <span class="live-physics-combo-timer" aria-label="Response time remaining"><i></i><b id="livePhysicsComboTime">2.6 s</b></span>
+            </header>
+            <div class="live-physics-combo-copy">
+              <span>Lock the physics</span>
+              <h2 id="livePhysicsComboVariable">Launch speed</h2>
+              <p id="livePhysicsComboEquation">Choose the value that satisfies the equation.</p>
+              <p class="live-physics-combo-coach-copy" id="livePhysicsComboCoach">Coach recommendation</p>
+            </div>
+            <div class="live-physics-combo-band" id="livePhysicsComboBand" role="radiogroup" aria-label="Physics values"></div>
+            <p class="sr-only" id="livePhysicsComboStatus" role="status" aria-live="assertive" aria-atomic="true"></p>
+          </section>
           <div class="goal-celebration-controls" id="goalCelebrationControls" hidden>
             <span id="goalCelebrationStatus" role="status" aria-live="polite">Goal replay</span>
             <button type="button" id="goalCelebrationSkip">Skip replay</button>

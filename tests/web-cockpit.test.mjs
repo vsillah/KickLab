@@ -324,7 +324,7 @@ test('shows adjustment math temporarily while keeping environment context persis
   assert.match(ui,/function showStageAdjustment\(id\)/);
   assert.match(ui,/function stageAdjustmentVisible\(\)/);
   assert.match(ui,/if\(!stageAdjustmentVisible\(\)\|\|PAUSE\.on\|\|RP\.on\|\|CINE\.on\|\|resOpen\(\)\)return/);
-  assert.match(ui,/hideStageAdjustment\(\);M\.press\(a\.id,true\)/);
+  assert.match(ui,/hideStageAdjustment\(\);gameInput\(a\.id,true,'classic-pointer'\)/);
   assert.match(ui,/const set=x=>\{[^}]*showStageAdjustment\(v\.id\)/);
   assert.ok(games.includes('parts=[`${S.n} · g ${fmt(S.g,2)} m/s²`]'));
   assert.match(html,/class="game-context-header"[^>]+aria-label="Current game context"[\s\S]*id="gameBar"[\s\S]*id="environmentContext"[^>]+role="status"[^>]+aria-label="Environment for the selected Kick experience"[^>]+aria-live="polite"[^>]+hidden/);
@@ -351,7 +351,7 @@ test('keeps Kick action X-ray transient while suppressing persistent stage math'
   assert.match(loop,/if\(physicsVision\).*M\.drawXray\(ctx\)/);
   assert.match(loop,/if\(physicsVision\)xrayFrame\(ctx,E\.env\)/);
   assert.match(loop,/if\(physicsVision&&E\.env>0\.5&&M\.callouts\)/);
-  assert.match(ui,/hideStageAdjustment\(\);M\.press\(a\.id,true\)/);
+  assert.match(ui,/hideStageAdjustment\(\);gameInput\(a\.id,true,'classic-pointer'\)/);
   assert.match(replay,/if\(!RP\.on&&mode!=='kick'\)pushFeed\(m\);else if\(!RP\.on&&mode==='kick'\)\$\('#feed'\)\.innerHTML=''/);
   assert.match(kickSide,/if\(stageAdjustmentVisible\(\)\)text\(c,'bar 2\.44 m'/);
   assert.match(kickSide,/if\(this\.state==='flight'&&!this\.outcome&&stageAdjustmentVisible\(\)\)/);

@@ -1,6 +1,7 @@
 /* ---------- main loop ---------- */
 let last=performance.now(),conT=0,lastEq='';
 function frame(now){const rdt=Math.min(0.05,(now-last)/1000);last=now;
+  if(typeof tickLivePhysicsCombo==='function')tickLivePhysicsCombo(rdt);
   if(RP.on){replayStep(rdt);}else if(E.slow&&!PAUSE.on){const s=E.slow;s.t+=rdt;const e=Math.min(1,s.t/0.15,Math.max(0,(s.dur-s.t)/0.35));E.env=e*e*(3-2*e);E.ts=1-E.env*(1-s.min);if(s.t>=s.dur){E.slow=null;E.slowEnd=performance.now();E.env=0;E.ts=1;}}else{E.env=0;E.ts=1;}
   E.shake=Math.max(0,E.shake-rdt*30);
   if(!PAUSE.on&&!RP.on&&!CINE.on)M.update(rdt*E.ts,rdt);

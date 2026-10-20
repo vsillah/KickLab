@@ -48,8 +48,8 @@ window.addEventListener('keydown',e=>{if(e.code==='Escape'&&typeof CONTINUOUS!==
   if(dd){const a=M.actions().find(x=>x.dir===dd);if(a&&a.disabled){e.preventDefault();return;}if(a&&a.step){e.preventDefault();adjustVar(a.step[0],a.step[1]);return;}if(a)id=a.id;}
   if(resOpen()){const k=KEYMAP[e.code];if(k==='P'||e.code==='Enter'||e.code==='NumpadEnter'){e.preventDefault();if(!e.repeat)ackResults();}else if(id||k)e.preventDefault();return;}
   if(!id)id=KEYMAP[e.code];if(!id)return;if(id==='P')id=primary();if(id==='brake'&&M.key==='fight')id='block';
-  if(!M.actions().some(a=>a.id===id)&&!(id==='center'&&M.key==='race'))return;e.preventDefault();if(e.repeat||held[e.code])return;held[e.code]=id;unlock();M.press(id,true);padEls(id).forEach(b=>b.classList.add('on'));});
-window.addEventListener('keyup',e=>{const id=held[e.code];if(!id)return;held[e.code]=false;M.press(id,false);padEls(id).forEach(b=>b.classList.remove('on'));});
+  if(!M.actions().some(a=>a.id===id)&&!(id==='center'&&M.key==='race'))return;e.preventDefault();if(e.repeat||held[e.code])return;held[e.code]=id;unlock();gameInput(id,true,'keyboard');padEls(id).forEach(b=>b.classList.add('on'));});
+window.addEventListener('keyup',e=>{const id=held[e.code];if(!id)return;held[e.code]=false;gameInput(id,false,'keyboard');padEls(id).forEach(b=>b.classList.remove('on'));});
 /* stage pointer: tap to act, or drag the steering wheel in the race */
 let canvasHeld=false,drag=null;
 function cpt(e){const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)/r.width*W,y:(e.clientY-r.top)/r.height*H};}
