@@ -23,6 +23,8 @@ const kit=readFileSync(join(root,'src','game','52-leaderboard.js'),'utf8');
 const css=readFileSync(join(root,'src','styles.css'),'utf8');
 const rig=readFileSync(join(root,'src','game','04-body-rig.js'),'utf8');
 const analog=readFileSync(join(root,'src','game','55-analog-gesture-controls.js'),'utf8');
+const fight=readFileSync(join(root,'src','game','10-fight.js'),'utf8');
+const modeFlow=readFileSync(join(root,'src','game','53-weekly-challenge.js'),'utf8');
 
 test('keeps relocated feature roots canonical and singular',()=>{
   for(const id of ['quickSettings','settingsDrawer','settingsCategories','settingsChoices','kitroom','liveEq','vars','chart','ticker','mlList','chal','missions','eqs','steps','idea','quiz']){
@@ -517,6 +519,15 @@ test('expands the gameplay viewport without stretching its backing buffers',()=>
   assert.match(css,/@media \(min-width:801px\) and \(max-width:1199px\)[^\n]+aspect-ratio:7\/5/);
   assert.match(css,/@media \(min-width:481px\) and \(max-width:800px\)[^\n]+aspect-ratio:6\/7/);
   assert.match(css,/@media \(max-width:480px\)[^\n]+aspect-ratio:9\/20/);
+});
+
+test('uses the reclaimed portrait Fight stage without changing gameplay coordinates',()=>{
+  assert.match(fight,/worldOffsetY\(\)\{return innerWidth<=800\?Math\.max\(0,H\*\.5-455\):0;\}/);
+  assert.match(fight,/window\.__KICKLAB_FIGHT_COMPOSITION__=\{worldOffsetY:vy,sceneFloorLogical:floor,sceneFloorCss:floor\*sc,stageHeightCss:H\*sc,coverage:floor\/H\}/);
+  assert.match(fight,/focus:\{x:T0\.x-24,y:T0\.y\+4\+this\.worldOffsetY\(\)\}/);
+  assert.match(loop,/const worldOffsetY=typeof M\.worldOffsetY==='function'\?M\.worldOffsetY\(\):0;ctx\.translate\(0,worldOffsetY\)/);
+  assert.match(modeFlow,/document\.documentElement\.dataset\.kicklabMode=k/);
+  assert.match(css,/html\[data-kicklab-mode="fight"\] \.game-frame \.stage>\.control-deck\{top:55%;bottom:auto;max-height:calc\(45% - 7px\)/);
 });
 
 test('keeps settings and contextual details mutually exclusive',()=>{
