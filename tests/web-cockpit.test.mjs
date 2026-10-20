@@ -392,7 +392,7 @@ test('uses compact accessible icon buttons for Classic and Analog control styles
 });
 
 test('keeps one bounded collapsible controller surface and a clear central Classic lane',()=>{
-  assert.match(html,/id="controllerCollapseButton"[^]*id="controlStyleOptions"/);
+  assert.match(html,/id="controlStyleOptions"[^]*id="controllerCollapseButton"/);
   assert.match(html,/id="controllerCollapseButton" aria-expanded="true" aria-controls="pad" aria-label="Collapse game controls"/);
   assert.match(analog,/const FLOATING_CONTROLLER=\{collapsed:matchMedia\('\(max-width:480px\)'\)\.matches\}/);
   assert.match(analog,/function setFloatingControllerCollapsed\(collapsed,\{focus=false\}=\{\}\)/);
@@ -403,9 +403,9 @@ test('keeps one bounded collapsible controller surface and a clear central Class
   assert.match(css,/\.game-frame \.stage>\.control-deck\{width:min\(900px,[^}]+background:transparent[^}]+backdrop-filter:none/);
   assert.match(css,/\.game-frame \.stage>\.control-deck \.control-left-slot\{grid-column:1/);
   assert.match(css,/\.game-frame \.stage>\.control-deck #padR\{grid-column:3/);
-  assert.match(css,/\.floating-control-head\{grid-template-columns:minmax\(0,1fr\) 44px 93px/);
-  assert.match(css,/\.controller-collapse\{grid-column:2;justify-self:end\}/);
-  assert.match(css,/\.control-style-switch\{position:relative;grid-column:3;justify-self:end/);
+  assert.match(css,/\.floating-control-head\{grid-template-columns:minmax\(0,1fr\) 93px 44px/);
+  assert.match(css,/\.controller-collapse\{grid-column:3;justify-self:end\}/);
+  assert.match(css,/\.control-style-switch\{position:relative;grid-column:2;justify-self:end/);
   assert.match(css,/\.game-frame \.stage>\.control-deck \.control-left-slot\{grid-template-rows:minmax\(0,1fr\)!important\}/);
   assert.match(css,/@media \(max-width:480px\)[^\n]+\.control-deck\.controller-collapsed\{width:min\(286px/);
 });
