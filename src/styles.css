@@ -1274,3 +1274,16 @@ html[data-race-telemetry="prototype"][data-kicklab-mode="race"] .gesture-status{
 }
 html[data-race-telemetry="prototype"] .race-telemetry[data-cue="true"]{border-color:#79d8f3;box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 0 12px rgba(127,220,255,.14)}
 html[data-race-telemetry="prototype"] .race-telemetry[data-phase="overheat"][data-cue="true"]{border-color:#ff6b73;box-shadow:inset 0 0 0 1px rgba(255,107,115,.35)}
+
+/* Keep expanded telemetry controls below the phone chase view in both control modes. */
+@media(max-width:480px){
+ html[data-race-telemetry="prototype"][data-kicklab-mode="race"] .game-frame .stage:has(>.control-deck:not(.controller-collapsed)){height:auto;min-height:0;max-height:none;overflow:visible}
+ html[data-race-telemetry="prototype"][data-kicklab-mode="race"] .game-frame .stage:has(>.control-deck:not(.controller-collapsed))>canvas#cv{position:relative;inset:auto;height:clamp(290px,calc(100svh - 550px),360px)}
+ html[data-race-telemetry="prototype"][data-kicklab-mode="race"] .game-frame .stage:has(>.control-deck:not(.controller-collapsed))>#race3{bottom:auto;height:clamp(290px,calc(100svh - 550px),360px)}
+ html[data-race-telemetry="prototype"][data-kicklab-mode="race"] .game-frame .stage>.control-deck:not(.controller-collapsed){position:relative;left:auto;bottom:auto;transform:none;margin:0 0 4px 4px}
+}
+.race-orbit-panel{position:absolute;z-index:29;left:50%;top:16%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;max-width:calc(100% - var(--game-rail-space) - 24px);padding:7px 9px;border:1px solid rgba(151,187,231,.7);border-radius:12px;background:rgba(4,16,33,.88);color:#f0f8ff;font:700 11px var(--f-body);white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.race-orbit-panel[hidden]{display:none}
+.race-orbit-panel button{appearance:none;border:1px solid #8ed9ec;border-radius:7px;background:#14394b;color:#fff;padding:7px 10px;font:700 11px var(--f-body);cursor:pointer}
+.race-orbit-panel button:focus-visible{outline:3px solid #fff;outline-offset:2px}
+@media(max-width:480px){.race-orbit-panel{top:12%;gap:6px;font-size:9px}.race-orbit-panel button{font-size:9px;padding:6px 8px}}

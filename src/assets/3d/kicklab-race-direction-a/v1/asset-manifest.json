@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "1.0.0",
+  "assetId": "kicklab-race-direction-a",
+  "version": "1",
+  "status": "evaluation-only",
+  "artifact": {
+    "path": "src/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+    "mediaType": "model/gltf-binary",
+    "bytes": 1001744,
+    "sha256": "97658df10425c45043f35778872d25d4bb674e701b13548e0a0a16139cfafbcc"
+  },
+  "provenance": {
+    "creator": "KickLab local Direction A authoring",
+    "sourceType": "self-authored-production",
+    "sourcePath": "scripts/race-direction-a/generate.py, scripts/race-direction-a/optimize.py, and src/assets/3d/kicklab-race-direction-a/v1/direction-a-original.blend",
+    "sourceCommit": "fbb403add21d119bdcce2219651791176973c15a",
+    "acquiredOn": "2026-10-20",
+    "externalInputs": false,
+    "likeness": false,
+    "cloudProcessing": false
+  },
+  "license": {
+    "owner": "KickLab",
+    "basis": "self-authored",
+    "permittedUse": "production-game",
+    "thirdPartyRestrictions": "none",
+    "proof": "Blender CLI generated original geometry locally; the atlas optimizer preserves its nodes, positions, normals, indices, and original UV bytes. No provider geometry or external texture is included."
+  },
+  "runtime": {
+    "threeVersion": "0.186.1",
+    "loader": "GLTFLoader",
+    "requiredExtensions": []
+  },
+  "validation": {
+    "allowedIssues": [
+      {"code": "NODE_EMPTY", "severity": 2, "count": 8, "reason": "Named attachment markers carry transforms for future effects."},
+      {"code": "UNUSED_OBJECT", "severity": 2, "count": 5, "reason": "Original UVs remain on each independent mesh as TEXCOORD_1 for reversible material work."}
+    ]
+  },
+  "network": {
+    "runtimeRequests": "same-origin-local-only",
+    "externalUrisAllowed": false
+  }
+}
