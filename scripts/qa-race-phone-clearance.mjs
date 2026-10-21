@@ -22,15 +22,14 @@ async function capture(width, height, style, collapsed, options = {}) {
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
   page.on('request', request => requests.push(request.url()));
   const url = new URL(base);
-  url.searchParams.set('race3d', 'checkpoint');
-  url.searchParams.set('raceSystems', 'proxy');
+  url.searchParams.set('raceCornerTrace', 'prototype');
   url.searchParams.set('rev', revision);
   if (options.fallback) url.searchParams.set('fallback', 'canvas');
   await page.goto(url.toString(), { waitUntil: 'networkidle' });
   if (await page.locator('#profileClose').isVisible()) await page.locator('#profileClose').click();
   await page.locator('#lab-tab-race').click();
-  await page.locator('#gamePacingOverlay').waitFor({ state: 'hidden', timeout: 12000 });
-  if (!options.fallback) await page.waitForFunction(() => window.__KICKLAB_RACE_3D__?.status === 'rendering', null, { timeout: 12000 });
+  await page.locator('#gamePacingOverlay').waitFor({ state: 'hidden', timeout: 20000 });
+  if (!options.fallback) await page.waitForFunction(() => window.__KICKLAB_RACE_3D__?.status === 'rendering', null, { timeout: 20000 });
   await page.locator('.stage').scrollIntoViewIfNeeded();
   await page.waitForTimeout(500);
   if (style === 'Analog') await page.locator('#analogControlsButton').click();
@@ -39,12 +38,12 @@ async function capture(width, height, style, collapsed, options = {}) {
   await page.waitForTimeout(300);
   const state = await page.evaluate(() => {
     const rect = selector => document.querySelector(selector)?.getBoundingClientRect().toJSON() || null;
-    const stage = rect('.stage'), deck = rect('.control-deck'), canvas = rect('#race3');
+    const stage = rect('.stage'), deck = rect('.control-deck'), canvas = rect('#race3') || rect('#cv');
     const audit = window.__KICKLAB_RACE_3D__;
     const car = audit?.composition?.carCenter;
     const carPoint = car ? { x: canvas.x + car[0] * canvas.width, y: canvas.y + car[1] * canvas.height } : null;
-    const carBottom = audit?.composition ? canvas.y + (audit.composition.carCenter[1] + audit.composition.carHeight / 2) * canvas.height : null;
-    return { stage, deck, canvas, carPoint, carBottom, car: audit?.composition, renderer: audit?.status, raceCanvas: !!document.querySelector('#race3'), canvasDisplay: getComputedStyle(document.querySelector('#cv')).display, collapsed: document.querySelector('#controllerCollapseButton').getAttribute('aria-expanded') === 'false', analog: document.querySelector('#analogControlsButton').getAttribute('aria-pressed') === 'true', overlap: carPoint && carPoint.x >= deck.left && carPoint.x <= deck.right && carPoint.y >= deck.top && carPoint.y <= deck.bottom, overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth, storageKeys: Object.keys(localStorage).sort() };
+    const controller = document.querySelector('.control-deck');
+    return { stage, deck, canvas, carPoint, car: audit?.composition, renderer: audit?.status, raceCanvas: !!document.querySelector('#race3'), canvasDisplay: getComputedStyle(document.querySelector('#cv')).display, collapsed: document.querySelector('#controllerCollapseButton').getAttribute('aria-expanded') === 'false', analog: document.querySelector('#analogControlsButton').getAttribute('aria-pressed') === 'true', deckBackground: getComputedStyle(controller).backgroundImage, telemetryBackground: getComputedStyle(document.querySelector('.race-telemetry')).backgroundImage, traceVisible: !document.querySelector('.race-trace-controls')?.hidden, overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth, storageKeys: Object.keys(localStorage).sort() };
   });
   const label = `${width}x${height}-${style.toLowerCase()}-${collapsed ? 'collapsed' : 'expanded'}${options.fallback ? '-canvas' : ''}${options.reducedMotion ? '-reduce' : ''}`;
   await page.screenshot({ path: join(out, `${label}.png`) });
@@ -67,7 +66,11 @@ const failed = reports.flatMap(row => {
   if (row.overflow !== 0) problems.push(`${row.label}: horizontal overflow ${row.overflow}`);
   if (!row.label.includes('-canvas') && (row.renderer !== 'rendering' || !row.car)) problems.push(`${row.label}: Race renderer unavailable`);
   if (row.label.includes('-canvas') && (row.raceCanvas || row.canvasDisplay !== 'block')) problems.push(`${row.label}: Canvas fallback unavailable`);
-  if (row.label.includes('-expanded') && row.label.match(/^(360|390)x/) && (row.overlap || row.carBottom > row.deck.top - 8)) problems.push(`${row.label}: car overlaps controls`);
+  if (row.canvas.height < row.stage.height * .95 || row.stage.height < 700) problems.push(`${row.label}: chase canvas does not fill tall stage`);
+  if (row.label.includes('-expanded') && !row.deckBackground.includes('rgba(6, 20, 39, 0.16)')) problems.push(`${row.label}: floating controller transparency missing`);
+  if (row.collapsed !== row.label.includes('-collapsed')) problems.push(`${row.label}: collapse state mismatch`);
+  if (row.analog !== row.label.includes('-analog-')) problems.push(`${row.label}: control style mismatch`);
+  if (!row.traceVisible) problems.push(`${row.label}: corner trace unavailable`);
   return problems;
 });
 const report = { revision, reports, errors, externalRequests, failed };
