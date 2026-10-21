@@ -1,6 +1,6 @@
 /* ---------- time-outs: pause while you work the dials ---------- */
 const PAUSE={on:false,why:'',resumeT:0};
-function pausable(){return M.key==='fight'?!!(Fight.bout&&!Fight.bout.over&&Fight.bout.intro<=0):M.key==='race'?(Race.state==='run'||Race.state==='count'):M.key==='kick'?(Kick.opt.shot==='dribble'?(Drib.state==='run'||Drib.state==='beat')&&!Drib.outcome:Kick.state==='incoming'):false;}
+function pausable(){return M.key==='fight'?!!(Fight.bout&&!Fight.bout.over&&Fight.bout.intro<=0):M.key==='race'?(Race.state==='run'||Race.state==='count'||RACE_3D.shouldBlockInput()):M.key==='kick'?(Kick.opt.shot==='dribble'?(Drib.state==='run'||Drib.state==='beat')&&!Drib.outcome:Kick.state==='incoming'):false;}
 function pauseGame(why){if(why==='stage'||why==='manual')return setManualPause(true);return claimPauseOwner(why);}
 function resumeGame(){return resumePlayerPause();}
 function returnDialsContent(){const pane=$('#physicsDetail'),fig=pane.querySelector('figure.chart');if($('#liveEq').parentElement!==pane)pane.insertBefore($('#liveEq'),fig);if($('#vars').parentElement!==pane)pane.insertBefore($('#vars'),fig);}
