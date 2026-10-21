@@ -41,6 +41,7 @@ function pacingContext(meta={}){
 function pacingActivityName(meta={}){if(meta.activity)return meta.activity;if(M===Fight)return'Fight round';if(M===Race)return'Race run';if(M===Kick){const game=typeof GAMES!=='undefined'&&GAMES.find(item=>item.k===curGame());return game?game.n:Kick.opt.shot==='header'?'Header duel':'Free kick';}return'Next game';}
 function renderControlPreview(mapping){
   const cell=(icon,title,copy,klass='')=>`<span class="${klass}"><i aria-hidden="true">${icon}</i><b>${title}</b><small>${copy}</small></span>`;
+  if(M===Race&&RACE_CORNER_TRACE.enabled){const preview=$('#gameControlPreview');preview.style.setProperty('--control-accent',mapping.color);preview.innerHTML=cell('↔','Steer left / right','D-pad or stick')+cell('●','Gas / Brake','dedicated hold buttons','control-action')+cell('↕','Tune − / +','selected physics variable');preview.setAttribute('aria-label','Race controls. Steer left and right. Hold dedicated Gas or Brake. Up and down tune the selected physics variable.');return;}
   const html=cell('↔',mapping.x.join(' / '),'side to side')+cell('●',mapping.action[0],mapping.action[1],'control-action')+cell('↕',mapping.y.join(' / '),'down / up');
   const preview=$('#gameControlPreview');preview.style.setProperty('--control-accent',mapping.color);preview.innerHTML=html;preview.setAttribute('aria-label',`${mapping.title}. ${mapping.x.join(' and ')}. ${mapping.y.join(' and ')}. ${mapping.action.join('. ')}.`);
 }
