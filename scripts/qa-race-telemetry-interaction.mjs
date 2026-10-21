@@ -14,14 +14,16 @@ async function open({width=390,height=844,reduced=false,assetFailure=false,flag=
   const context=await browser.newContext({viewport:{width,height},deviceScaleFactor:1,reducedMotion:reduced?'reduce':'no-preference',recordVideo:record?{dir:out,size:{width,height}}:undefined});
   const page=await context.newPage();page.setDefaultTimeout(15000);
   page.on('pageerror',error=>report.errors.push(error.message));
-  await page.route('**/*',route=>{const url=route.request().url();if(assetFailure&&url.endsWith('kicklab-race-vehicle.glb'))return route.abort();if(url.startsWith(new URL(base).origin)||url.startsWith('data:')||url.startsWith('blob:'))return route.continue();report.external.push(url);route.abort();});
+  await page.route('**/*',route=>{const url=route.request().url();if(assetFailure&&(url.endsWith('kicklab-race-vehicle.glb')||url.endsWith('direction-a-atlas.glb')))return route.abort();if(url.startsWith(new URL(base).origin)||url.startsWith('data:')||url.startsWith('blob:'))return route.continue();report.external.push(url);route.abort();});
   const url=new URL(base);if(flag)url.searchParams.set('raceTelemetry','prototype');url.searchParams.set('rev',report.head||'qa');
   await page.goto(url.toString(),{waitUntil:'domcontentloaded'});
   if(await page.locator('#profileFormSave').isVisible())await page.click('#profileFormSave');
   if(await page.locator('#profileClose').isVisible())await page.click('#profileClose');
   await page.click('#lab-tab-race');
   await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});
-  const toast=page.locator('.toast-close:visible').first();if(await toast.count())await toast.click();
+  const orbit=page.locator('.race-orbit-panel button');if(await orbit.isVisible())await orbit.click();
+  if(flag){await page.keyboard.down('Space');if(assetFailure)await page.waitForTimeout(2700);else await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.dynamics?.state==='run',null,{timeout:25000});await page.keyboard.up('Space');}
+  const toast=page.locator('.toast-close:visible').first();if(await toast.count())await toast.evaluate(button=>button.click());
   if(width<=480)await page.click('#controllerCollapseButton');
   await page.locator('.stage:visible').first().scrollIntoViewIfNeeded();
   return{context,page,url:url.toString()};
@@ -31,8 +33,10 @@ const audit=page=>page.evaluate(()=>({t:window.__KICKLAB_RACE_TELEMETRY__,scene:
 try{
   const {context,page,url}=await open({record:true});report.url=url;
   const initial=await audit(page);report.samples.initial=initial;
-  check('prototype starts with Coach recommendation',initial.t?.enabled&&initial.t.selected==='rpm'&&!initial.t.manual,initial.t);
-  await page.click('#raceTelemetryNext');let next=await audit(page);
+  check('prototype starts with Coach recommendation',initial.t?.enabled&&initial.t.selected===initial.t.recommended&&!initial.t.manual,initial.t);
+  if(initial.t?.selected==='torque')await page.click('#raceTelemetryPrev');
+  for(let i=0;i<7&&(await audit(page)).t?.selected!=='torque';i++)await page.click('#raceTelemetryNext');
+  let next=await audit(page);
   check('pointer paging selects torque and holds manual view',next.t?.selected==='torque'&&next.t.manual,next.t);
   await page.locator('#raceTelemetryNext').focus();await page.keyboard.press('ArrowRight');next=await audit(page);
   check('keyboard paging selects NOS',next.t?.selected==='nos'&&next.t.manual,next.t);
@@ -40,8 +44,10 @@ try{
   check('legacy Drift and Nitro keys cannot bypass gauge',!next.scene?.dynamics.inputs.drift&&!next.scene?.dynamics.inputs.nitro,next.scene?.dynamics.inputs);
   await page.locator('#raceTelemetry').screenshot({path:join(out,'manual-nos.png')});
   await page.locator('#raceTelemetryApply').waitFor({state:'visible'});
+  await page.evaluate(()=>document.activeElement?.blur());
   await page.keyboard.down('Space');
   await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.dynamics.state==='run',{timeout:8000});
+  await page.waitForTimeout(2700);report.samples.nosWindow=await audit(page);
   await page.waitForFunction(()=>!document.querySelector('#raceTelemetryApply').disabled,{timeout:8000});
   const beforePulse=await audit(page);await page.click('#raceTelemetryApply');
   await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.effects?.exhaust>.5,null,{timeout:2000});
@@ -69,7 +75,7 @@ try{
   await fallback.page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.status==='canvas-fallback');
   const fb=await audit(fallback.page);check('asset failure keeps telemetry and Canvas playable',fb.scene?.status==='canvas-fallback'&&fb.t?.enabled,fb);await fallback.page.evaluate(()=>document.activeElement?.blur());await fallback.page.keyboard.down('Space');await fallback.page.waitForFunction(()=>window.__KICKLAB_RACE_TELEMETRY__?.clock>.1,null,{timeout:8000});await fallback.page.keyboard.up('Space');await fallback.page.locator('.stage:visible').first().screenshot({path:join(out,'canvas-play.png')});await fallback.context.close();
 
-  const reduced=await open({reduced:true});await reduced.page.click('#raceTelemetryNext');await reduced.page.click('#raceTelemetryNext');await reduced.page.evaluate(()=>document.activeElement?.blur());await reduced.page.keyboard.down('Space');await reduced.page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.dynamics.state==='run',null,{timeout:8000});await reduced.page.waitForFunction(()=>!document.querySelector('#raceTelemetryApply').disabled,null,{timeout:8000});await reduced.page.click('#raceTelemetryApply');await reduced.page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.effects?.exhaust>.5,null,{timeout:2000});const rm=await audit(reduced.page);check('reduced motion preserves NOS but suppresses camera streak',rm.scene?.reducedMotion&&rm.t?.nosPulse>0&&rm.scene.effects?.streak===0,rm);await reduced.page.keyboard.up('Space');await reduced.context.close();
+  const reduced=await open({reduced:true});for(let i=0;i<7&&(await audit(reduced.page)).t?.selected!=='nos';i++)await reduced.page.click('#raceTelemetryNext');await reduced.page.evaluate(()=>document.activeElement?.blur());await reduced.page.keyboard.down('Space');await reduced.page.waitForTimeout(2700);await reduced.page.waitForFunction(()=>!document.querySelector('#raceTelemetryApply').disabled,null,{timeout:8000});await reduced.page.click('#raceTelemetryApply');await reduced.page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.effects?.exhaust>.5,null,{timeout:2000});const rm=await audit(reduced.page);check('reduced motion preserves NOS but suppresses camera streak',rm.scene?.reducedMotion&&rm.t?.nosPulse>0&&rm.scene.effects?.streak===0,rm);await reduced.page.keyboard.up('Space');await reduced.context.close();
 
   const off=await open({flag:false});const defaultOff=await audit(off.page);check('default off keeps telemetry absent',!defaultOff.t&&defaultOff.scene===undefined,defaultOff);await off.context.close();
 }catch(error){report.errors.push(error.stack||String(error));}
