@@ -51,6 +51,7 @@ const Race={
     return{title:r.title,noun:'run',stats:[['Time',sm.ok?fmt(sm.t,2)+' s':'DNF'],['Top speed',fmt((sm.vp||0)*3.6,0)+' km/h'],['Corner entry',en?`${fmt(en.v*3.6,0)} km/h`:'—'],['Corner limit',fmt((m.vmax||0)*3.6,0)+' km/h'],['Sliding',fmt(sm.slideT||0,1)+' s'],['Wheel avg / needed',sm.wNeed?`${fmt(sm.wAvg,0)}° / ${fmt(sm.wNeed,0)}°`:'—']],best:topN(best,3),work:topN(work,3),plan:plan.slice(0,4)};},
   needW(){return this.RATIO*Math.atan(this.CARS[this.opt.car].Lwb/this.V.R)/DEG;},
   reset(){if(RECS.race&&RECS.race.on)stopRec('race');this.sliding=false;this.wasBrake=false;const ch=curCh('race');this.HW=(ch&&ch.env&&ch.env.hw)||7;this.st={x:4,y:0,th:0,v:0,t:0,e:0,k:0,kc:0,alat:0,need:0,zone:0,slide:false,wheel:0,...(RACE_SYSTEMS.enabled()?RACE_SYSTEMS.initial():{})};this.telemetry=RACE_TELEMETRY.enabled?RACE_TELEMETRY.initial():null;this.wheel=0;this.state='grid';this.inp={gas:false,brake:false,left:false,right:false,...(RACE_SYSTEMS.enabled()?{drift:false,nitro:false}:{})};this.cd=0;this.inTurn=false;this.vEntry=0;this.vPeak=0;this.res=null;this.spin=0;this.endT=0;this.trail=[];this.trailT=0;this.skids=[];this.skidPrev=null;this.wSum=0;this.wT=0;this.slideT=0;this.warnB=false;this.warnS=false;this.warnT=false;this.lastDynamicsMode='none';this.lastTelemetryPhase='ready';this.lastTelemetryLock='';this.lastTelemetryRecommendation='';this.lastGripRecoveryUntil=0;RACE_3D.resetOrbit();},
+  beginRunFromReveal(){if(this.state!=='grid'||M!==Race)return;const P=this.P();hideResults();startRec('race',`Run · ${this.CARS[this.opt.car].name} · μ ${fmt(P.mu,2)} · R ${P.R} m`);RECS.race.meta={mu:P.mu,R:P.R,L:P.L,vmax:Math.sqrt(P.mu*G0*P.R),need:this.needW()};RACE_SYSTEMS.cancelInput(this.inp);this.gas=false;this.brake=false;this.wheel=0;this.state='run';tone(880,0.35,'square',0.06);const a=P.F/P.m,cap=P.mu*G0;logMove('race',{who:'sys',kind:'go',title:'GO!',math:`a = F÷m = ${fmt(P.F,0)}÷${fmt(P.m,0)} = ${fmt(a)} m/s²${a>cap?` → grip cap μg = ${fmt(cap)}`:''}`,tone:'info'});},
   press(id,down){if(RACE_3D.shouldBlockInput()){RACE_3D.startOrbit();return;}if(id==='gas'){this.inp.gas=down;this.gas=down;if(down&&this.state==='grid'){this.state='count';this.cd=2.4;hideResults();{const P=this.P();startRec('race',`Run · ${this.CARS[this.opt.car].name} · μ ${fmt(P.mu,2)} · R ${P.R} m`);RECS.race.meta={mu:P.mu,R:P.R,L:P.L,vmax:Math.sqrt(P.mu*G0*P.R),need:this.needW()};}tone(440,0.2,'square',0.05);}else if(down&&(this.state==='done'||this.state==='crashed')&&this.endT>0.8)this.reset();}
     if(id==='brake'){this.inp.brake=down;this.brake=down;}if(id==='left')this.inp.left=down;if(id==='right')this.inp.right=down;if(id==='center')this.wheel=0;if(RACE_SYSTEMS.enabled()&&!RACE_TELEMETRY.enabled&&(id==='drift'||id==='nitro'))this.inp[id]=down;},
   curWheel(){return this.opt.steer==='auto'?this.st.wheel:this.wheel;},
@@ -211,7 +212,7 @@ const Race={
     text(c,`needed ≈ ${fmt(need,0)}°`,x,y+r+52,'500 11px '+MONO,C.muted,'center');},
   hud(c){const s=this.st,P=this.P();
     text(c,'RACE LAB',24,34,'15px '+DISP,C.xray);
-    const msg={grid:'Hold GAS to start. Steer into the corner, brake if the path turns red.',count:'Get ready…',run:'',done:'',crashed:''}[this.state];text(c,msg,24,54,'500 13px '+BODY,C.muted);
+    const preview=RACE_3D.shouldBlockInput()&&!RACE_3D.awaitingPacing,msg=preview?'Vehicle view · Skip to countdown.':{grid:'Hold GAS to start. Steer into the corner, brake if the path turns red.',count:'Get ready…',run:'',done:'',crashed:''}[this.state];text(c,msg,24,54,'500 13px '+BODY,C.muted);
     if(RACE_SYSTEMS.enabled()){const venue=RACE_SYSTEMS.venue(this.opt.venue);text(c,`DEV PROXY · ${venue.name}`,24,77,'700 11px '+MONO,C.yellow);text(c,`Nitro ${Math.round((s.nitro||0)*100)}%${s.nitroCooldown>0?' · cooldown '+fmt(s.nitroCooldown,1)+' s':''} · ${s.driftMode==='drift'?'CONTROLLED DRIFT':s.driftMode==='skid'?'UNCONTROLLED SKID':'GRIP LINE'}`,24,94,'700 10px '+MONO,s.driftMode==='skid'?C.bad:C.xray);}
     this.drawWheel(c);
     c.save();c.translate(190,-196);c.fillStyle='rgba(6,11,24,0.82)';rr(c,20,316,190,92,10);c.fill();c.strokeStyle=C.line;c.stroke();
@@ -222,7 +223,7 @@ const Race={
     text(c,Math.round(use*100)+'%',198,398,'600 11px '+MONO,use>1?C.bad:C.ink,'right');c.restore();
     text(c,fmt(s.t,2)+' s',W-24,40,'22px '+DISP,C.ink,'right');
     if(s.slide&&this.state==='run'){text(c,'SLIDING: need more grip than μ·g',W/2,66,'700 13px '+MONO,C.bad,'center');}
-    if(this.state==='count'||this.state==='grid'){const lit=this.state==='count'?Math.min(3,Math.floor((2.4-this.cd)/0.8)+1):0;
+    if(!preview&&(this.state==='count'||this.state==='grid')){const lit=this.state==='count'?Math.min(3,Math.floor((2.4-this.cd)/0.8)+1):0;
       c.save();c.fillStyle='rgba(6,11,24,0.85)';rr(c,W/2-74,74,148,46,23);c.fill();for(let i=0;i<3;i++){c.fillStyle=i<lit?C.bad:'#2a3552';c.beginPath();c.arc(W/2-44+i*44,97,14,0,Math.PI*2);c.fill();}c.restore();}
     if(this.state==='run'&&s.t<0.8){c.save();c.globalAlpha=1-s.t/0.8;text(c,'GO!',W/2,112,'34px '+DISP,C.good,'center');c.restore();}
   },
