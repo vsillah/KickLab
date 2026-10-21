@@ -29,6 +29,12 @@ raceTelemetryEl.addEventListener('keydown',event=>{if(event.key==='ArrowLeft'||e
 raceTelemetryEl.addEventListener('pointerdown',event=>event.stopPropagation());
 
 let raceNavigationAt=0,raceNavigationGauge='';
+function raceVisorPath(width,height,contentHeight,wingRight,phone){
+  const w=width,h=height,r=14;
+  if(phone)return `path("M 0 ${r} Q 0 0 ${r} 0 L ${w-r} 0 Q ${w} 0 ${w} ${r} L ${w} ${h-r} Q ${w} ${h} ${w-r} ${h} L ${r} ${h} Q 0 ${h} 0 ${h-r} Z")`;
+  const shoulder=Math.min(contentHeight-5,h-36),tip=wingRight-15;
+  return `path("M 0 ${r} Q 0 0 ${r} 0 L ${w-r} 0 Q ${w} 0 ${w} ${r} L ${w} ${shoulder} C ${w} ${shoulder+22}, ${wingRight+8} ${h-30}, ${wingRight+14} ${h-14} Q ${wingRight+3} ${h} ${tip} ${h} L ${r} ${h} Q 0 ${h} 0 ${h-r} Z")`;
+}
 function renderRaceNavigation({gauge,value,unit,fraction,phase,cue}){
   const panel=$('#raceNavigation'),cockpit=$('#raceCockpit');panel.hidden=!(RACE_CORNER_TRACE.enabled&&Race.state==='run'&&!RP.on&&!RACE_3D.shouldBlockInput());cockpit.hidden=panel.hidden;if(panel.hidden){if(globalThis.__KICKLAB_RACE_NAVIGATION__)globalThis.__KICKLAB_RACE_NAVIGATION__.visible=false;return;}
   const now=performance.now();if(now-raceNavigationAt<90&&gauge===raceNavigationGauge)return;raceNavigationAt=now;raceNavigationGauge=gauge;
@@ -47,7 +53,9 @@ function renderRaceNavigation({gauge,value,unit,fraction,phase,cue}){
   panel.style.setProperty('--race-wheel-x',`${wheelX-left}px`);
   panel.style.setProperty('--race-wheel-y',`${wheelY-4}px`);
   panel.style.setProperty('--race-wheel-radius',`${wheelRadius+7}px`);
-  panel.style.setProperty('--race-wing-right',`${wheelX-left+wheelRadius+12}px`);
+  const wingRight=wheelX-left+wheelRadius+12;
+  panel.style.setProperty('--race-wing-right',`${wingRight}px`);
+  panel.style.setProperty('--race-visor-path',raceVisorPath(width,height,contentHeight,wingRight,phone));
   $('#raceNavigationGaugeTitle').textContent=gauge;
   $('#raceNavigationGaugeValue').textContent=`${value} ${unit}`;
   $('#raceNavigationGaugePhase').textContent=phase;
