@@ -1,0 +1,23 @@
+import {existsSync,mkdirSync,writeFileSync} from 'node:fs';
+import {createRequire} from 'node:module';
+import {resolve,join} from 'node:path';
+import {spawnSync} from 'node:child_process';
+
+const require=createRequire(import.meta.url),{chromium}=require('playwright');
+const base=process.argv[2]||'http://127.0.0.1:5861/kicklab.html',out=resolve(process.argv[3]||'qa-artifacts/race-corner-trace/walkthrough'),head=process.env.KICKLAB_QA_HEAD||'qa';
+mkdirSync(out,{recursive:true});const report={url:null,head,states:[],external:[],errors:[],video:null};
+const browser=await chromium.launch({headless:true,executablePath:[process.env.KICKLAB_CHROMIUM_PATH,chromium.executablePath(),'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find(p=>p&&existsSync(p))});
+const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:1,recordVideo:{dir:out,size:{width:390,height:844}}}),page=await context.newPage();page.setDefaultTimeout(20000);
+page.on('pageerror',error=>report.errors.push(error.message));await page.route('**/*',route=>{const url=route.request().url();if(url.startsWith(new URL(base).origin)||url.startsWith('data:')||url.startsWith('blob:'))return route.continue();report.external.push(url);route.abort();});
+async function capture(name){const state=await page.evaluate(()=>({dynamics:window.__KICKLAB_RACE_3D__?.dynamics,trace:window.__KICKLAB_RACE_CORNER_TRACE__}));report.states.push({name,...state});await page.screenshot({path:join(out,`${name}.png`)});}
+try{
+  const url=new URL(base);url.searchParams.set('raceCornerTrace','prototype');url.searchParams.set('rev',head);report.url=url.toString();await page.goto(report.url,{waitUntil:'domcontentloaded'});
+  if(await page.locator('#profileFormSave').isVisible())await page.click('#profileFormSave');if(await page.locator('#profileClose').isVisible())await page.click('#profileClose');await page.click('#lab-tab-race');
+  await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.orbit?.done,{timeout:20000});await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});await page.click('#controllerCollapseButton');await page.locator('.stage').scrollIntoViewIfNeeded();await capture('start');await page.evaluate(()=>document.activeElement?.blur());
+  await page.keyboard.down('Space');await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.dynamics.x>=35,{timeout:15000});await page.keyboard.press('ArrowUp');await capture('tune-up');await page.keyboard.press('ArrowDown');await capture('tune-down');
+  await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.dynamics.x>=62,{timeout:8000});await capture('approach');await page.keyboard.up('Space');await page.keyboard.down('b');await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.dynamics.v<=11,{timeout:6000});await capture('braking');await page.keyboard.up('b');
+  await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.dynamics.x>=116,{timeout:8000});await page.keyboard.down('ArrowRight');await page.waitForTimeout(460);await page.keyboard.up('ArrowRight');await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.dynamics.x>=128,{timeout:5000});await capture('corner');await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.dynamics.x>=145,{timeout:7000});await capture('recovered-line');
+  if(report.states.find(x=>x.name==='approach')?.trace?.state!=='understeer'||report.states.find(x=>x.name==='corner')?.trace?.state!=='safe'||report.states.at(-1)?.dynamics?.state!=='run')throw new Error('Drive did not show understeer to safe recovery through the corner');
+}catch(error){report.errors.push(error.stack||String(error));}finally{await context.close();await browser.close();}
+const raw=await page.video().path(),mp4=join(out,'race-corner-trace-walkthrough.mp4');const encode=spawnSync('ffmpeg',['-y','-loglevel','error','-i',raw,'-c:v','libx264','-crf','18','-pix_fmt','yuv420p','-movflags','+faststart',mp4],{encoding:'utf8'});if(encode.status!==0)report.errors.push(`ffmpeg: ${encode.stderr}`);else{const probe=spawnSync('ffprobe',['-v','error','-show_entries','format=duration:stream=codec_name,width,height','-of','json',mp4],{encoding:'utf8'});if(probe.status!==0)report.errors.push(`ffprobe: ${probe.stderr}`);else{report.video=mp4;report.probe=JSON.parse(probe.stdout);}}
+if(report.external.length)report.errors.push(`External requests: ${report.external.join(', ')}`);writeFileSync(join(out,'report.json'),JSON.stringify(report,null,2));console.log(JSON.stringify({url:report.url,states:report.states.map(x=>({name:x.name,mode:x.dynamics?.state,x:x.dynamics?.x,trace:x.trace?.state})),video:report.video,probe:report.probe,errors:report.errors},null,2));if(report.errors.length)process.exitCode=1;

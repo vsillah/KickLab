@@ -208,6 +208,7 @@
                 <output id="gesturePowerStatus" class="gesture-status" aria-live="polite">Ready · release timing sets power</output>
               </div>
               <div class="race-analog-actions" id="raceAnalogActions" hidden aria-label="Race systems prototype actions">
+                <button type="button" data-race-assist="brake" aria-label="Hold Brake">Hold Brake · B</button>
                 <button type="button" data-race-assist="drift" aria-label="Hold Drift">Hold Drift · Shift</button>
                 <button type="button" data-race-assist="nitro" aria-label="Hold Nitro">Hold Nitro · N</button>
               </div>
@@ -221,6 +222,7 @@
                 <div class="race-telemetry-band" aria-hidden="true"><i id="raceTelemetryFill"></i><em></em></div>
                 <p id="raceTelemetryCue" aria-live="polite">Coach Tomi: Find the bright band.</p>
                 <div class="race-telemetry-actions"><button type="button" id="raceTelemetryPrev" aria-label="Previous telemetry gauge">‹</button><span id="raceTelemetryIndex">1 / 7</span><button type="button" id="raceTelemetryNext" aria-label="Next telemetry gauge">›</button><button type="button" id="raceTelemetryApply" hidden>Release NOS</button></div>
+                <div class="race-trace-controls" id="raceTraceControls" hidden aria-label="Live Race physics variable"><button type="button" id="raceTracePrev" aria-label="Previous Race physics variable">‹</button><div class="race-trace-readout"><b id="raceTraceVariable">Tire grip</b><output id="raceTraceValue">μ 0.90</output><small id="raceTraceBand">Tomi: 1.20–1.60</small><small id="raceTraceEquation">vₘₐₓ = √(μgR)</small><small id="raceTraceState" aria-live="polite">SAFE LINE</small></div><button type="button" id="raceTraceNext" aria-label="Next Race physics variable">›</button></div>
               </section>
               <section class="live-physics-combo" id="livePhysicsCombo" data-state="passive" hidden aria-labelledby="livePhysicsComboVariable" aria-describedby="livePhysicsComboEquation livePhysicsComboCoach">
                 <header class="live-physics-combo-head">

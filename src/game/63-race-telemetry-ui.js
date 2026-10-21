@@ -15,11 +15,14 @@ function renderRaceTelemetry(){
   const cue=t.overheat?'Lift. Cooling restores power.':t.phase==='recovered'?'Cooled. Power is back.':shortCue;
   if($('#raceTelemetryCue').textContent!==`Tomi: ${cue}`)$('#raceTelemetryCue').textContent=`Tomi: ${cue}`;
   $('#raceTelemetryCue').title=t.overheat?'Ease off the gas. Airflow will cool the engine and restore power.':g.coach;
+  const traceControls=$('#raceTraceControls');traceControls.hidden=!RACE_CORNER_TRACE.enabled;
+  if(RACE_CORNER_TRACE.enabled){const def=RACE_CORNER_TRACE.variable(),value=Race.V[def.id],band=Race.suggest()[def.id],P=Race.P(),state=globalThis.__KICKLAB_RACE_CORNER_TRACE__?.state||'safe';$('#raceTraceVariable').textContent=def.name.split(' (')[0];$('#raceTraceValue').textContent=`${def.sym} ${fmt(value,def.d)}${def.unit?' '+def.unit:''}`;$('#raceTraceBand').textContent=`Tomi: ${fmt(band.lo,def.d)}–${fmt(band.hi,def.d)}${def.unit?' '+def.unit:''}`;$('#raceTraceEquation').textContent=def.id==='mu'||def.id==='R'?`√(μgR) → ${fmt(Math.sqrt(P.mu*G0*P.R)*3.6,0)} km/h`:`F ÷ m → ${fmt(P.F/P.m,1)} m/s²`;$('#raceTraceState').textContent={safe:'SAFE LINE',understeer:'UNDERSTEER · LIFT OR BRAKE',oversteer:'OVERSTEER · UNWIND'}[state];traceControls.dataset.state=state;}
   globalThis.__KICKLAB_RACE_TELEMETRY__={enabled:true,selected:t.selected,recommended:t.recommended,manual:t.manualUntil>t.clock,phase:t.phase,overheat:t.overheat,heat:t.heat,pressure:t.pressure,nosPulse:t.nosPulse,lock:t.lock,clock:t.clock,collapsed:FLOATING_CONTROLLER.collapsed};
 }
 function raceTelemetryAction(action){if(!RACE_TELEMETRY.enabled||M!==Race||!Race.telemetry||PAUSE.on||RP.on)return;const changed=RACE_TELEMETRY.tune(Race.telemetry,action);if(changed){renderRaceTelemetry();if(action==='apply'){requestMobileHaptic('tick');}else SND.click();}}
 $('#raceTelemetryPrev').addEventListener('click',()=>raceTelemetryAction('prev'));
 $('#raceTelemetryNext').addEventListener('click',()=>raceTelemetryAction('next'));
 $('#raceTelemetryApply').addEventListener('click',()=>raceTelemetryAction('apply'));
+for(const [id,direction] of [['raceTracePrev',-1],['raceTraceNext',1]])$('#'+id).addEventListener('click',()=>{if(!RACE_CORNER_TRACE.enabled||M!==Race||PAUSE.on)return;RACE_CORNER_TRACE.select(direction);renderRaceTelemetry();SND.click();});
 raceTelemetryEl.addEventListener('keydown',event=>{if(event.key==='ArrowLeft'||event.key==='ArrowRight'){event.preventDefault();event.stopPropagation();raceTelemetryAction(event.key==='ArrowLeft'?'prev':'next');}else if(event.key==='Escape'){event.preventDefault();event.stopPropagation();setFloatingControllerCollapsed(true);}});
 raceTelemetryEl.addEventListener('pointerdown',event=>event.stopPropagation());

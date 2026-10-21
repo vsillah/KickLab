@@ -8,7 +8,7 @@ const RACE_SYSTEMS=(()=>{
   });
   const CONTRACT=Object.freeze({version:1,units:'metres',forward:'+X',up:'+Y',right:'+Z',root:'VehicleRoot',body:'Body',dimensions:Object.freeze({length:4.9,width:1.95,height:1.45,wheelbase:2.9}),wheels:Object.freeze({frontLeft:Object.freeze({node:'WheelFrontLeft',pivot:[1.28,.43,-1.04]}),frontRight:Object.freeze({node:'WheelFrontRight',pivot:[1.28,.43,1.04]}),rearLeft:Object.freeze({node:'WheelRearLeft',pivot:[-1.28,.43,-1.04]}),rearRight:Object.freeze({node:'WheelRearRight',pivot:[-1.28,.43,1.04]})}),cameraTarget:Object.freeze([-.3,1.02,0]),collider:Object.freeze({kind:'box',center:[0,.72,0],halfExtents:[2.45,.72,.98]}),lights:Object.freeze(['BrakeLeft','BrakeRight','HeadlightLeft','HeadlightRight']),effects:Object.freeze(['ExhaustLeft','ExhaustRight','RearTireLeft','RearTireRight']),materialSlots:Object.freeze(['body','glass','aero','wheels','lights']),lod:Object.freeze({high:'VehicleRoot',low:'VehicleLow',canvas:'Race Canvas fallback'})});
   const params=typeof location!=='undefined'?new URLSearchParams(location.search):null;
-  const ACTIVE=!!params&&['localhost','127.0.0.1'].includes(location.hostname)&&(params.get('raceSystems')==='proxy'||params.get('raceTelemetry')==='prototype');
+  const ACTIVE=!!params&&['localhost','127.0.0.1'].includes(location.hostname)&&(params.get('raceSystems')==='proxy'||params.get('raceTelemetry')==='prototype'||params.get('raceCornerTrace')==='prototype');
   if(ACTIVE&&typeof document!=='undefined')document.documentElement.dataset.raceSystems='proxy';
   function enabled(){return ACTIVE;}
   function venue(id){return VENUES[id]||VENUES.highland;}
