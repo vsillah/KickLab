@@ -1328,7 +1328,7 @@ html[data-race-telemetry="prototype"][data-kicklab-mode="race"] .race-telemetry{
 html[data-kicklab-mode="race"] .game-frame .stage>.control-deck .floating-control-head{justify-self:end;width:max-content;grid-template-columns:93px 44px;gap:5px;padding:3px 4px;border:1px solid rgba(151,187,231,.48);border-radius:13px;background:linear-gradient(180deg,rgba(8,24,45,.64),rgba(4,13,28,.56))}
 html[data-kicklab-mode="race"] .game-frame .stage>.control-deck .control-style-switch{grid-column:1}
 html[data-kicklab-mode="race"] .game-frame .stage>.control-deck .controller-collapse{grid-column:2}
-html[data-kicklab-mode="race"] .game-frame .stage>.control-deck.controller-collapsed{width:max-content;max-width:calc(100% - var(--game-rail-space) - 10px);padding:0;border:0;background:transparent;box-shadow:none}
+html[data-kicklab-mode="race"] .game-frame .stage>.control-deck.controller-collapsed{width:152px;max-width:calc(100% - var(--game-rail-space) - 10px);padding:0;border:0;background:transparent;box-shadow:none}
 html[data-kicklab-mode="race"] .game-frame .stage>.control-deck.controller-collapsed .floating-control-head{width:max-content}
 @media (min-width:481px){html[data-kicklab-mode="race"] .game-frame .stage>.control-deck.controller-collapsed{left:auto;right:calc(var(--game-rail-space) + 12px);transform:none}}
-@media (max-width:480px){html[data-kicklab-mode="race"] .game-frame .stage>.control-deck .floating-control-head{width:max-content;padding:2px 3px}}
+@media (max-width:480px){html[data-kicklab-mode="race"] .game-frame .stage>.control-deck .floating-control-head{width:max-content;padding:2px 3px}html[data-kicklab-mode="race"] .game-frame .stage>.control-deck.controller-collapsed{left:6px;right:auto;bottom:12px;width:150px;transform:none}}

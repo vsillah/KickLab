@@ -63,15 +63,18 @@ for (const [label, width, height] of [['phone', 390, 844], ['desktop', 1440, 100
   await page.locator('#analogControlsButton').click();
   await page.waitForTimeout(1200);
   await collapse.click();
+  await page.waitForTimeout(250);
   const collapsed = await page.evaluate(() => {
     const head = document.querySelector('.floating-control-head').getBoundingClientRect();
     const canvas = document.querySelector('#race3').getBoundingClientRect();
+    const rail = document.querySelector('#gameGuidanceHud').getBoundingClientRect();
     const car = window.__KICKLAB_RACE_3D__.composition;
     const carBox = { left: canvas.left + (car.carCenter[0] - car.carWidth / 2) * canvas.width, right: canvas.left + (car.carCenter[0] + car.carWidth / 2) * canvas.width, top: canvas.top + (car.carCenter[1] - car.carHeight / 2) * canvas.height, bottom: canvas.top + (car.carCenter[1] + car.carHeight / 2) * canvas.height };
-    return { head: head.toJSON(), carBox, overlap: head.left < carBox.right && head.right > carBox.left && head.top < carBox.bottom && head.bottom > carBox.top };
+    const margin = 16, touches = box => head.left < box.right + margin && head.right > box.left - margin && head.top < box.bottom + margin && head.bottom > box.top - margin;
+    return { head: head.toJSON(), rail: rail.toJSON(), carBox, margin, carClear: !touches(carBox), railClear: !touches(rail), viewportClear: head.left >= 8 && head.right <= innerWidth - 8 && head.top >= 8 && head.bottom <= innerHeight - 8 };
   });
-  if (collapsed.overlap) throw new Error(`${label}: collapsed header covers the car ${JSON.stringify(collapsed)}`);
-  await page.waitForTimeout(1200);
+  if (!collapsed.carClear || !collapsed.railClear || !collapsed.viewportClear) throw new Error(`${label}: collapsed header clearance failed ${JSON.stringify(collapsed)}`);
+  await page.waitForTimeout(950);
   await collapse.focus(); await page.keyboard.press('Enter');
   await page.waitForTimeout(800);
   await page.locator('#classicControlsButton').click();

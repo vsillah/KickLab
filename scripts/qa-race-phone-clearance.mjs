@@ -45,11 +45,14 @@ async function capture(width, height, style, collapsed, options = {}) {
   const state = await page.evaluate(() => {
     const rect = selector => document.querySelector(selector)?.getBoundingClientRect().toJSON() || null;
     const stage = rect('.stage'), deck = rect('.control-deck'), canvas = rect('#race3') || rect('#cv');
+    const header = rect('.floating-control-head'), guidanceRail = rect('#gameGuidanceHud');
     const audit = window.__KICKLAB_RACE_3D__;
     const car = audit?.composition?.carCenter;
     const carPoint = car ? { x: canvas.x + car[0] * canvas.width, y: canvas.y + car[1] * canvas.height } : null;
+    const composition = audit?.composition;
+    const carBox = composition ? { left: canvas.left + (composition.carCenter[0] - composition.carWidth / 2) * canvas.width, right: canvas.left + (composition.carCenter[0] + composition.carWidth / 2) * canvas.width, top: canvas.top + (composition.carCenter[1] - composition.carHeight / 2) * canvas.height, bottom: canvas.top + (composition.carCenter[1] + composition.carHeight / 2) * canvas.height } : null;
     const controller = document.querySelector('.control-deck');
-    return { stage, deck, canvas, carPoint, car: audit?.composition, renderer: audit?.status, raceCanvas: !!document.querySelector('#race3'), canvasDisplay: getComputedStyle(document.querySelector('#cv')).display, collapsed: document.querySelector('#controllerCollapseButton').getAttribute('aria-expanded') === 'false', analog: document.querySelector('#analogControlsButton').getAttribute('aria-pressed') === 'true', deckBackground: getComputedStyle(controller).backgroundImage, telemetryBackground: getComputedStyle(document.querySelector('.race-telemetry')).backgroundImage, traceVisible: !document.querySelector('.race-trace-controls')?.hidden, overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth, storageKeys: Object.keys(localStorage).sort() };
+    return { stage, deck, canvas, header, guidanceRail, carPoint, carBox, car: composition, renderer: audit?.status, raceCanvas: !!document.querySelector('#race3'), canvasDisplay: getComputedStyle(document.querySelector('#cv')).display, collapsed: document.querySelector('#controllerCollapseButton').getAttribute('aria-expanded') === 'false', analog: document.querySelector('#analogControlsButton').getAttribute('aria-pressed') === 'true', deckBackground: getComputedStyle(controller).backgroundImage, telemetryBackground: getComputedStyle(document.querySelector('.race-telemetry')).backgroundImage, traceVisible: !document.querySelector('.race-trace-controls')?.hidden, overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth, viewport: { width: innerWidth, height: innerHeight }, storageKeys: Object.keys(localStorage).sort() };
   });
   const label = `${width}x${height}-${style.toLowerCase()}-${collapsed ? 'collapsed' : 'expanded'}${options.fallback ? '-canvas' : ''}${options.reducedMotion ? '-reduce' : ''}`;
   await page.screenshot({ path: join(out, `${label}.png`) });
@@ -69,6 +72,8 @@ await browser.close();
 const externalRequests = [...new Set(requests.filter(request => new URL(request).origin !== new URL(base).origin))];
 const failed = reports.flatMap(row => {
   const problems = [];
+  const margin = 16;
+  const touchesWithMargin = (a, b) => a.left < b.right + margin && a.right > b.left - margin && a.top < b.bottom + margin && a.bottom > b.top - margin;
   if (row.overflow !== 0) problems.push(`${row.label}: horizontal overflow ${row.overflow}`);
   if (!row.label.includes('-canvas') && (row.renderer !== 'rendering' || !row.car)) problems.push(`${row.label}: Race renderer unavailable`);
   if (row.label.includes('-canvas') && (row.raceCanvas || row.canvasDisplay !== 'block')) problems.push(`${row.label}: Canvas fallback unavailable`);
@@ -77,6 +82,11 @@ const failed = reports.flatMap(row => {
   if (row.collapsed !== row.label.includes('-collapsed')) problems.push(`${row.label}: collapse state mismatch`);
   if (row.analog !== row.label.includes('-analog-')) problems.push(`${row.label}: control style mismatch`);
   if (!row.traceVisible) problems.push(`${row.label}: corner trace unavailable`);
+  if (row.collapsed && row.carBox) {
+    if (touchesWithMargin(row.header, row.carBox)) problems.push(`${row.label}: header lacks ${margin}px car clearance`);
+    if (touchesWithMargin(row.header, row.guidanceRail)) problems.push(`${row.label}: header lacks ${margin}px guidance rail clearance`);
+    if (row.header.left < 8 || row.header.right > row.viewport.width - 8 || row.header.top < 8 || row.header.bottom > row.viewport.height - 8) problems.push(`${row.label}: header touches viewport edge`);
+  }
   return problems;
 });
 const report = { revision, reports, errors, externalRequests, failed };
