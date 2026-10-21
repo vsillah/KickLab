@@ -70,6 +70,7 @@
         </header>
         <div class="stage">
           <canvas id="cv" width="960" height="540" aria-label="Game stage"></canvas>
+          <section class="race-navigation" id="raceNavigation" hidden aria-label="Live Race steering and exit navigation"><div class="race-navigation-head"><b>EXIT LINE</b><output id="raceNavigationError">Δ 0.0 m</output></div><div class="race-navigation-body"><svg id="raceNavigationMap" viewBox="0 0 160 86" role="img" aria-label="Car and predicted line toward exit corridor"><path id="raceNavigationRoad" class="race-navigation-road"/><path id="raceNavigationTrace" class="race-navigation-trace"/><circle id="raceNavigationTarget" class="race-navigation-target" r="7"/><path id="raceNavigationCar" class="race-navigation-car" d="M 0 -7 L 4 6 L 0 3 L -4 6 Z"/></svg><div class="race-navigation-steering"><b id="raceSteeringCurrent">Current 0°</b><b id="raceSteeringNeeded">Needed 72°</b></div></div><small id="raceNavigationStatus">Prediction updates as you steer</small></section>
           <section class="game-pacing-overlay" id="gamePacingOverlay" hidden aria-labelledby="gamePacingPhase" aria-describedby="gamePacingActivity gamePacingA11y">
             <div class="game-pacing-card">
               <span class="game-pacing-kicker" id="gamePacingKicker">Next activity</span>

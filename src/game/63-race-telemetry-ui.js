@@ -2,7 +2,8 @@
 const raceTelemetryEl=$('#raceTelemetry');
 function renderRaceTelemetry(){
   const active=RACE_TELEMETRY.enabled&&M===Race&&!!Race.telemetry;
-  raceTelemetryEl.hidden=!active;if(!active)return;
+  raceTelemetryEl.hidden=!active;if(!active){$('#raceNavigation').hidden=true;if(globalThis.__KICKLAB_RACE_NAVIGATION__)globalThis.__KICKLAB_RACE_NAVIGATION__.visible=false;return;}
+  renderRaceNavigation();
   const t=Race.telemetry,g=RACE_TELEMETRY.GAUGES.find(item=>item.id===t.selected),index=RACE_TELEMETRY.GAUGES.indexOf(g);
   const values={rpm:[Math.round(t.rpm*8500),'rpm',t.rpm],torque:[Math.round(t.torque*100),'%',t.torque],nos:[Math.round(t.pressure*100),'%',t.pressure],temperature:[Math.round(65+t.heat*90),'°C',t.heat],braking:[Math.round(t.braking*100),'%',t.braking],drift:[Math.round(t.angle*38),'°',t.angle],grip:[Math.round(t.grip*100),'%',t.grip]};
   const [value,unit,fraction]=values[g.id],phase=t.overheat?'POWER SAG · COOLING':t.phase==='recovered'?'COOLED · POWER BACK':t.lock===g.id?'BAND LOCKED':t.phase==='warning'?'HEAT RISING':t.manualUntil>t.clock?'MANUAL VIEW':'COACH RECOMMENDS';
@@ -26,3 +27,35 @@ $('#raceTelemetryApply').addEventListener('click',()=>raceTelemetryAction('apply
 for(const [id,direction] of [['raceTracePrev',-1],['raceTraceNext',1]])$('#'+id).addEventListener('click',()=>{if(!RACE_CORNER_TRACE.enabled||M!==Race||PAUSE.on)return;RACE_CORNER_TRACE.select(direction);renderRaceTelemetry();SND.click();});
 raceTelemetryEl.addEventListener('keydown',event=>{if(event.key==='ArrowLeft'||event.key==='ArrowRight'){event.preventDefault();event.stopPropagation();raceTelemetryAction(event.key==='ArrowLeft'?'prev':'next');}else if(event.key==='Escape'){event.preventDefault();event.stopPropagation();setFloatingControllerCollapsed(true);}});
 raceTelemetryEl.addEventListener('pointerdown',event=>event.stopPropagation());
+
+let raceNavigationAt=0;
+function renderRaceNavigation(){
+  const panel=$('#raceNavigation');panel.hidden=!RACE_CORNER_TRACE.enabled;if(panel.hidden)return;
+  const now=performance.now();if(now-raceNavigationAt<90)return;raceNavigationAt=now;
+  const navScale=(cv.clientWidth||960)/960,diameter=(Race.WH.r+15)*2*navScale;
+  panel.style.left=`${Math.round((Race.WH.x-Race.WH.r-19)*navScale)}px`;
+  panel.style.top=`${Math.round((Race.WH.y+Race.WH.r+18)*navScale)}px`;
+  panel.style.width=`${Math.round(Math.min(270,Math.max(180,262*navScale)))}px`;
+  panel.style.setProperty('--race-wheel-diameter',`${diameter}px`);
+  panel.style.setProperty('--race-wheel-left',`${Math.round((Race.WH.r+19)*navScale-diameter/2)}px`);
+  const prediction=Race.cornerTracePrediction||RACE_CORNER_TRACE.predict();if(!prediction)return;
+  const P=Race.P(),venue=RACE_SYSTEMS.venue(Race.opt.venue),car=Race.st,heading=car.th||0;
+  const local=p=>{const dx=p.x-car.x,dy=p.y-car.y;return{forward:dx*Math.cos(heading)+dy*Math.sin(heading),side:-dx*Math.sin(heading)+dy*Math.cos(heading)};};
+  const end=prediction.points.at(-1),target={x:P.L+P.R,y:venue.turn*P.R},targetLocal=local(target);
+  const distance=Math.max(34,targetLocal.forward+8),mapScale=Math.min(64/distance,24/Math.max(8,Math.abs(targetLocal.side)));
+  const xy=p=>{const q=local(p);return`${Math.max(4,Math.min(156,80+q.side*mapScale*2.4)).toFixed(1)} ${Math.max(7,Math.min(80,77-q.forward*mapScale)).toFixed(1)}`;};
+  const sampled=prediction.points.filter((_,index)=>index%3===0||index===prediction.points.length-1);
+  const road=RACE_3D.trackPoints(P).map(point=>({x:point.x,y:point.z})).filter(point=>{const ahead=local(point).forward;return ahead>=-2&&ahead<=distance+5;});
+  $('#raceNavigationRoad').setAttribute('d',road.map((point,index)=>`${index?'L':'M'} ${xy(point)}`).join(' '));
+  $('#raceNavigationTrace').setAttribute('d',sampled.map((point,index)=>`${index?'L':'M'} ${xy(point)}`).join(' '));
+  const [tx,ty]=xy(target).split(' ');$('#raceNavigationTarget').setAttribute('cx',tx);$('#raceNavigationTarget').setAttribute('cy',ty);
+  $('#raceNavigationCar').setAttribute('transform','translate(80 77)');
+  const error=RACE_SYSTEMS.path(end.x,end.y,P,venue).e,current=Math.round(Race.curWheel()),needed=Math.round(Race.needW()*venue.turn),state=prediction.state;
+  $('#raceNavigationError').textContent=`Δ ${error>=0?'+':''}${error.toFixed(1)} m`;
+  $('#raceSteeringCurrent').textContent=`Current ${current}°`;
+  $('#raceSteeringNeeded').textContent=`Needed ${needed}°`;
+  $('#raceNavigationStatus').textContent=`${{safe:'Safe line',understeer:'Understeer',oversteer:'Oversteer'}[state]} · projected path`;
+  panel.dataset.state=state;
+  panel.setAttribute('aria-label',`Race navigation. Car, predicted path, and target exit corridor. Current steering ${current} degrees. Needed steering ${needed} degrees. Projected signed line error ${error>=0?'plus':'minus'} ${Math.abs(error).toFixed(1)} metres. ${state}.`);
+  globalThis.__KICKLAB_RACE_NAVIGATION__={current,needed,error,state,target,endpoint:end,visible:true};
+}
