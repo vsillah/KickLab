@@ -1130,7 +1130,17 @@ html[data-kicklab-mode="race"] .game-frame .stage>#race3{position:absolute;inset
 html[data-kicklab-mode="race"] .stage .toasts{z-index:28;right:calc(var(--game-rail-space) + 10px);max-width:calc(100% - var(--game-rail-space) - 22px)}
 @media (min-width:481px){html[data-kicklab-mode="race"] .game-frame .stage>.control-deck .pad{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);min-height:0;gap:8px}html[data-kicklab-mode="race"] .game-frame .stage>.control-deck .control-center-slot{display:none}html[data-kicklab-mode="race"] .game-frame .stage>.control-deck.live-combo-active .control-center-slot{display:block;position:absolute;z-index:2;left:12%;right:12%;bottom:calc(100% + 8px);border:1px solid rgba(151,187,231,.58);border-radius:14px;background:rgba(5,15,33,.96);padding:8px}html[data-kicklab-mode="race"] .game-frame .stage>.control-deck .control-left-slot,html[data-kicklab-mode="race"] .game-frame .stage>.control-deck #padR{height:154px;min-height:0}}
 @media (min-width:481px){html[data-kicklab-mode="race"] .game-frame .stage>.control-deck{width:calc(100% - var(--game-rail-space) - 20px);border:0;background:transparent;padding:0;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;pointer-events:none}html[data-kicklab-mode="race"] .game-frame .stage>.control-deck .floating-control-head{position:absolute;right:0;bottom:164px;width:min(280px,45%);border:1px solid rgba(151,187,231,.48);border-radius:13px;background:rgba(5,15,33,.78);padding:3px;pointer-events:auto}html[data-kicklab-mode="race"] .game-frame .stage>.control-deck .pad{grid-template-columns:1fr 1fr;align-items:end;pointer-events:none}html[data-kicklab-mode="race"] .game-frame .stage>.control-deck .control-left-slot{justify-self:start;width:170px;pointer-events:auto}html[data-kicklab-mode="race"] .game-frame .stage>.control-deck #padR{justify-self:end;width:180px;pointer-events:auto}html[data-kicklab-mode="race"] .game-frame .stage>.control-deck.live-combo-active .control-center-slot{left:21%;right:21%;bottom:calc(100% + 8px);pointer-events:auto}}
-@media (max-width:480px){html[data-kicklab-mode="race"] .game-frame .stage{height:calc(100svh - 232px);min-height:480px;max-height:650px}}
+@media (max-width:480px){
+  /* Keep the rear-chase picture and the expanded controls in separate rows. */
+  html[data-kicklab-mode="race"] .game-frame .stage{height:auto;min-height:0;max-height:none}
+  html[data-kicklab-mode="race"] .game-frame .stage>canvas#cv{position:relative;inset:auto;height:clamp(290px,calc(100svh - 550px),360px)}
+  html[data-kicklab-mode="race"] .game-frame .stage>#race3{bottom:auto;height:clamp(290px,calc(100svh - 550px),360px)}
+  html[data-kicklab-mode="race"] .game-frame .stage>.control-deck{position:relative;left:auto;bottom:auto;transform:none;margin:0 0 4px 4px}
+  html[data-kicklab-mode="race"] .game-frame .stage:has(>.control-deck.controller-collapsed){height:calc(100svh - 232px);min-height:480px;max-height:650px}
+  html[data-kicklab-mode="race"] .game-frame .stage:has(>.control-deck.controller-collapsed)>canvas#cv,
+  html[data-kicklab-mode="race"] .game-frame .stage:has(>.control-deck.controller-collapsed)>#race3{position:absolute;inset:0;height:100%}
+  html[data-kicklab-mode="race"] .game-frame .stage>.control-deck.controller-collapsed{position:absolute;left:calc((100% - var(--game-rail-space))/2);bottom:max(4px,env(safe-area-inset-bottom));transform:translateX(-50%);margin:0}
+}
 
 /* Local Race systems prototype: four distinct hold actions remain reachable. */
 html[data-race-systems="proxy"][data-kicklab-mode="race"] .game-frame .stage>.control-deck #padR .arcade{display:grid;grid-template-columns:repeat(2,minmax(58px,1fr));gap:1px 5px;align-items:center;justify-items:center}
