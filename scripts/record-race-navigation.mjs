@@ -11,6 +11,7 @@ mkdirSync(out, { recursive: true });
 const report = { head, views: [], errors: [], external: [], video: null };
 const executablePath = [process.env.KICKLAB_CHROMIUM_PATH, chromium.executablePath(), '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find(path => path && existsSync(path));
 const browser = await chromium.launch({ headless: true, executablePath });
+const cockpitState = page => page.evaluate(() => ({ state: window.__KICKLAB_RACE_3D__?.dynamics?.state, orbit: window.__KICKLAB_RACE_3D__?.orbit?.phase, cockpitVisible: !!document.querySelector('#raceCockpit')?.getClientRects().length, navigationVisible: !!document.querySelector('#raceNavigation')?.getClientRects().length }));
 
 async function record(label, width, height) {
   const context = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: 1, recordVideo: { dir: out, size: { width, height } } });
@@ -32,11 +33,23 @@ async function record(label, width, height) {
     if (await page.locator('#profileClose').isVisible()) await page.click('#profileClose');
     await page.click('#lab-tab-race');
     await page.locator('#gamePacingOverlay').waitFor({ state: 'hidden', timeout: 20000 });
+    const initialToast = page.locator('.toast-close:visible').first();
+    if (await initialToast.count()) await initialToast.evaluate(button => button.click());
     const orbit = page.locator('.race-orbit-panel button');
-    await orbit.waitFor({ state: 'visible', timeout: 5000 }).catch(() => {});
-    if (await orbit.isVisible()) await orbit.click();
+    await orbit.waitFor({ state: 'visible', timeout: 5000 });
+    const orbitState = await cockpitState(page);
+    if (orbitState.cockpitVisible || orbitState.navigationVisible) throw new Error('Cockpit appeared during the vehicle orbit');
+    await page.screenshot({ path: join(out, `${label}-orbit.png`) });
+    await orbit.click();
+    await page.locator('#gamePacingOverlay').waitFor({ state: 'visible', timeout: 10000 });
+    const countdownState = await cockpitState(page);
+    if (countdownState.cockpitVisible || countdownState.navigationVisible) throw new Error('Cockpit appeared during the countdown');
+    await page.screenshot({ path: join(out, `${label}-countdown.png`) });
     await page.keyboard.down('Space');
+    await page.locator('#gamePacingOverlay').waitFor({ state: 'hidden', timeout: 20000 });
     await page.waitForFunction(() => window.__KICKLAB_RACE_3D__?.dynamics?.state === 'run', null, { timeout: 25000 });
+    await page.locator('#raceNavigation').waitFor({ state: 'visible', timeout: 5000 });
+    const runState = await cockpitState(page);
     await page.keyboard.up('Space');
     if (width <= 480) await page.click('#controllerCollapseButton');
     const toast = page.locator('.toast-close:visible').first();
@@ -67,7 +80,7 @@ async function record(label, width, height) {
     await page.click('#analogControlsButton');
     await page.waitForTimeout(500);
     await page.screenshot({ path: join(out, `${label}-analog.png`) });
-    report.views.push({ label, url: url.toString(), start, steering, raw: null });
+    report.views.push({ label, url: url.toString(), orbitState, countdownState, runState, start, steering, raw: null });
   } catch (error) {
     report.errors.push(`${label}: ${error.stack || error}`);
   } finally {

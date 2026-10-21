@@ -30,7 +30,7 @@ raceTelemetryEl.addEventListener('pointerdown',event=>event.stopPropagation());
 
 let raceNavigationAt=0,raceNavigationGauge='';
 function renderRaceNavigation({gauge,value,unit,fraction,phase,cue}){
-  const panel=$('#raceNavigation'),cockpit=$('#raceCockpit');panel.hidden=!RACE_CORNER_TRACE.enabled;cockpit.hidden=panel.hidden;if(panel.hidden)return;
+  const panel=$('#raceNavigation'),cockpit=$('#raceCockpit');panel.hidden=!(RACE_CORNER_TRACE.enabled&&Race.state==='run'&&!RP.on&&!RACE_3D.shouldBlockInput());cockpit.hidden=panel.hidden;if(panel.hidden){if(globalThis.__KICKLAB_RACE_NAVIGATION__)globalThis.__KICKLAB_RACE_NAVIGATION__.visible=false;return;}
   const now=performance.now();if(now-raceNavigationAt<90&&gauge===raceNavigationGauge)return;raceNavigationAt=now;raceNavigationGauge=gauge;
   const navScale=(cv.clientWidth||960)/960,phone=cv.clientWidth<=480,left=8;
   const width=Math.round(Math.min(390,Math.max(205,215+(cv.clientWidth-356)*.18)));
@@ -47,7 +47,7 @@ function renderRaceNavigation({gauge,value,unit,fraction,phase,cue}){
   panel.style.setProperty('--race-wheel-x',`${wheelX-left}px`);
   panel.style.setProperty('--race-wheel-y',`${wheelY-4}px`);
   panel.style.setProperty('--race-wheel-radius',`${wheelRadius+7}px`);
-  panel.style.setProperty('--race-wing-right',`${wheelX-left+wheelRadius+23}px`);
+  panel.style.setProperty('--race-wing-right',`${wheelX-left+wheelRadius+12}px`);
   $('#raceNavigationGaugeTitle').textContent=gauge;
   $('#raceNavigationGaugeValue').textContent=`${value} ${unit}`;
   $('#raceNavigationGaugePhase').textContent=phase;

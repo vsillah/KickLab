@@ -7,6 +7,10 @@ const base = process.argv[2] || 'http://127.0.0.1:5864/kicklab.html';
 const out = resolve(process.argv[3] || 'qa-artifacts/race-navigation/geometry');
 const baseline = process.argv[4] ? JSON.parse(readFileSync(process.argv[4], 'utf8')) : null;
 const head = process.env.KICKLAB_QA_HEAD || 'qa';
+const raceSource = readFileSync(resolve('src/game/20-race.js'), 'utf8');
+const legacyCardSourceAbsent = !raceSource.includes("text(c,'GRIP USED'") && !raceSource.includes('rr(c,20,316,190,92,10)');
+const styleSource = readFileSync(resolve('src/styles.css'), 'utf8');
+const continuousWingSource = styleSource.includes('var(--race-wing-right) 100%,0 100%') && !styleSource.includes('var(--race-wing-right) var(--race-content-height)');
 mkdirSync(out, { recursive: true });
 const browser = await chromium.launch({ headless: true, executablePath: [process.env.KICKLAB_CHROMIUM_PATH, chromium.executablePath(), '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find(path => path && existsSync(path)) });
 const report = { base, head, rows: [], errors: [], external: [], comparisons: [], checks: [] };
@@ -66,7 +70,7 @@ for (const [width, height] of widths) {
       });
       let visibleArea = 0, upperChaseVisible = 0, roadCoreVisible = 0;
       for (let y = 2; y < panel.height; y += 4) for (let x = 2; x < panel.width; x += 4) {
-        const limit = y < contentHeight - 5 ? panel.width : y < contentHeight ? panel.width + (wingRight - panel.width) * (y - contentHeight + 5) / 5 : wingRight;
+        const limit = y < contentHeight - 5 ? panel.width : panel.width + (wingRight - panel.width) * Math.min(1, (y - contentHeight + 5) / Math.max(1, panel.height - contentHeight + 5));
         if (x > limit || Math.hypot(x - cutX, y - cutY) < holeRadius) continue;
         const px = panel.left + x, py = panel.top + y;
         visibleArea += 16;
@@ -78,7 +82,7 @@ for (const [width, height] of widths) {
         panel: { x: panel.x, y: panel.y, width: panel.width, height: panel.height, right: panel.right, bottom: panel.bottom },
         wing: { x: wing.x, y: wing.y, width: wing.width, height: wing.height }, wheel, rightRailLeft: rightRail.left,
         anchorErrorPx: Math.hypot(cockpit.left - wheel.x, cockpit.top - wheel.y), cutoutErrorPx: Math.hypot(cutCenter.x - wheel.x, cutCenter.y - wheel.y), wheelCanvasAligned: Math.abs(overlay.left - stage.left) <= 1 && Math.abs(overlay.top - stage.top) <= 1 && Math.abs(overlay.width - document.querySelector('#cv').clientWidth) <= 1,
-        holeClearancePx: holeRadius - wheel.radius, contentClearance, wingRight: panel.left + wingRight, speedCardLeft: stage.left + 210 * scale,
+        holeClearancePx: holeRadius - wheel.radius, contentClearance, wingRight: panel.left + wingRight,
         rightExtensionPx: Math.max(0, panel.right - left), panelAreaPx2: panel.width * panel.height,
         upperChaseIntrusionPx2: overlap, visibleAreaPx2: visibleArea, upperChaseVisiblePx2: upperChaseVisible, roadCoreVisiblePx2: roadCoreVisible,
         visibleReadouts: [...document.querySelectorAll('[data-race-live-readout]')].filter(element => !!element.getClientRects().length).length,
@@ -86,21 +90,24 @@ for (const [width, height] of widths) {
         background: getComputedStyle(nav, '::before').backgroundImage,
         backdropFilter: getComputedStyle(document.querySelector('.race-navigation-wing')).backdropFilter,
         maskImage: getComputedStyle(nav, '::before').maskImage,
+        clipPath: getComputedStyle(nav, '::before').clipPath,
       };
     });
     report.rows.push(row);
+    const alphas = [...row.background.matchAll(/rgba\([^)]*,\s*([0-9.]+)\)/g)].map(match => Number(match[1]));
+    const continuousRightWing = continuousWingSource && row.clipPath.includes('polygon(');
+    const shapePass = row.anchorErrorPx <= 1 && row.cutoutErrorPx <= 1 && row.wheelCanvasAligned && row.holeClearancePx >= 6 && row.contentClearance.every(item => item.px >= 3) && row.maskImage.includes('radial-gradient') && continuousRightWing && row.visibleAreaPx2 <= row.stage.width * row.stage.height * .09 && row.upperChaseVisiblePx2 <= row.stage.width * row.stage.height * .022 && row.roadCoreVisiblePx2 === 0;
+    const corePass = legacyCardSourceAbsent && shapePass && row.panel.right <= row.rightRailLeft - 4 && row.visibleReadouts === 1 && row.keyFit.every(item => item.fits) && row.cueFit && alphas.length >= 3 && Math.max(...alphas) <= .7 && row.backdropFilter === 'none';
     if (baseline) {
       const old = baseline.rows.find(item => item.width === width);
       if (!old && width !== 942) throw new Error(`Missing baseline ${width}`);
       const reduction = old ? { rightExtension: +(1 - row.rightExtensionPx / old.rightExtensionPx).toFixed(3) } : null;
-      const alphas = [...row.background.matchAll(/rgba\([^)]*,\s*([0-9.]+)\)/g)].map(match => Number(match[1]));
       const horizontalPass = !old || width === 1012 ? !old || row.rightExtensionPx <= old.rightExtensionPx + 1 : reduction.rightExtension >= .2;
-      const shapePass = row.anchorErrorPx <= 1 && row.cutoutErrorPx <= 1 && row.wheelCanvasAligned && row.holeClearancePx >= 6 && row.contentClearance.every(item => item.px >= 3) && row.maskImage.includes('radial-gradient') && row.visibleAreaPx2 <= row.stage.width * row.stage.height * .09 && row.upperChaseVisiblePx2 <= row.stage.width * row.stage.height * .022 && row.roadCoreVisiblePx2 === 0 && (width <= 480 || row.wingRight <= row.speedCardLeft - 3);
-      const pass = horizontalPass && shapePass && row.panel.right <= row.rightRailLeft - 4 && row.visibleReadouts === 1 && row.keyFit.every(item => item.fits) && row.cueFit && alphas.length >= 3 && Math.max(...alphas) <= .7 && row.backdropFilter === 'none';
-      report.comparisons.push({ width, before: old ? { rightExtensionPx: old.rightExtensionPx } : null, after: { rightExtensionPx: row.rightExtensionPx, visibleAreaPx2: row.visibleAreaPx2, upperChaseVisiblePx2: row.upperChaseVisiblePx2, roadCoreVisiblePx2: row.roadCoreVisiblePx2 }, reduction, horizontalPass, shapePass, pass, keyFit: row.keyFit, cueFit: row.cueFit, contentClearance: row.contentClearance, anchorErrorPx: row.anchorErrorPx, cutoutErrorPx: row.cutoutErrorPx, holeClearancePx: row.holeClearancePx, speedCardClearancePx: row.speedCardLeft - row.wingRight, backgroundAlphas: alphas });
+      const pass = corePass && horizontalPass;
+      report.comparisons.push({ width, before: old ? { rightExtensionPx: old.rightExtensionPx } : null, after: { rightExtensionPx: row.rightExtensionPx, visibleAreaPx2: row.visibleAreaPx2, upperChaseVisiblePx2: row.upperChaseVisiblePx2, roadCoreVisiblePx2: row.roadCoreVisiblePx2 }, reduction, horizontalPass, shapePass, continuousRightWing, legacyCardSourceAbsent, pass, keyFit: row.keyFit, cueFit: row.cueFit, contentClearance: row.contentClearance, anchorErrorPx: row.anchorErrorPx, cutoutErrorPx: row.cutoutErrorPx, holeClearancePx: row.holeClearancePx, backgroundAlphas: alphas });
       report.checks.push({ width, pass });
     } else {
-      report.checks.push({ width, pass: row.keyFit.every(item => item.fits) && row.cueFit });
+      report.checks.push({ width, pass: corePass, shapePass, continuousRightWing, legacyCardSourceAbsent });
     }
   } catch (error) { report.errors.push(`${width}: ${error.stack || error}`); }
   await context.close();

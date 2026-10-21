@@ -212,22 +212,21 @@ const Race={
     c.fillStyle='#547b91';c.beginPath();c.moveTo(-7,9);c.lineTo(7,9);c.lineTo(10,r*.43);c.lineTo(-10,r*.43);c.closePath();c.fill();
     c.fillStyle='#132b40';c.beginPath();c.arc(0,2,15,0,Math.PI*2);c.fill();c.strokeStyle='#b1d9e8';c.lineWidth=2;c.stroke();c.fillStyle='#78e8ff';c.beginPath();c.moveTo(-5,5);c.lineTo(0,-4);c.lineTo(5,5);c.lineTo(1,5);c.lineTo(0,2);c.lineTo(-1,5);c.closePath();c.fill();
     c.fillStyle='#78e8ff';c.fillRect(-3,-r-3,6,8);c.restore();},
-  hud(c){const s=this.st,P=this.P();
+  hud(c){const s=this.st;
     const preview=RACE_3D.shouldBlockInput()&&!RACE_3D.awaitingPacing,msg=preview?'Vehicle view · Skip to countdown.':{grid:'Hold GAS to start. Steer into the corner, brake if the path turns red.',count:'Get ready…',run:'',done:'',crashed:''}[this.state];text(c,msg,24,54,'500 13px '+BODY,C.muted);
     const cockpit=$('#raceCockpit');
-    if(RACE_CORNER_TRACE.enabled&&cockpit&&!cockpit.hidden){
-      const overlay=$('#raceWheelCanvas');
-      if(overlay.width!==cv.width||overlay.height!==cv.height){overlay.width=cv.width;overlay.height=cv.height;}
-      const wheelContext=overlay.getContext('2d');
-      wheelContext.setTransform(1,0,0,1,0,0);wheelContext.clearRect(0,0,overlay.width,overlay.height);
-      wheelContext.setTransform(dpr*sc,0,0,dpr*sc,0,0);this.drawWheel(wheelContext);
+    if(RACE_CORNER_TRACE.enabled){
+      if(cockpit)cockpit.hidden=!(this.state==='run'&&!RP.on&&!RACE_3D.shouldBlockInput());
+      const navigation=$('#raceNavigation');if(navigation)navigation.hidden=!cockpit||cockpit.hidden;
+      if(cockpit?.hidden&&globalThis.__KICKLAB_RACE_NAVIGATION__)globalThis.__KICKLAB_RACE_NAVIGATION__.visible=false;
+      if(cockpit&&!cockpit.hidden){
+        const overlay=$('#raceWheelCanvas');
+        if(overlay.width!==cv.width||overlay.height!==cv.height){overlay.width=cv.width;overlay.height=cv.height;}
+        const wheelContext=overlay.getContext('2d');
+        wheelContext.setTransform(1,0,0,1,0,0);wheelContext.clearRect(0,0,overlay.width,overlay.height);
+        wheelContext.setTransform(dpr*sc,0,0,dpr*sc,0,0);this.drawWheel(wheelContext);
+      }
     }else this.drawWheel(c);
-    c.save();c.translate(190,-196);c.fillStyle='rgba(6,11,24,0.82)';rr(c,20,316,190,92,10);c.fill();c.strokeStyle=C.line;c.stroke();
-    text(c,fmt(s.v*3.6,0),32,356,'30px '+DISP,C.ink);c.font='30px '+DISP;const kw=c.measureText(fmt(s.v*3.6,0)).width;text(c,'km/h',38+kw,356,'600 12px '+MONO,C.muted);
-    text(c,fmt(s.v)+' m/s',198,334,'600 11px '+MONO,C.good,'right');
-    const cap=P.mu*G0,use=clamp(s.need/cap,0,1.5);text(c,'GRIP USED',32,384,'700 10px '+MONO,C.muted);
-    c.fillStyle='#1b2744';c.fillRect(32,390,140,8);c.fillStyle=use>1?C.bad:use>0.75?C.hot:C.good;c.fillRect(32,390,140*Math.min(use,1),8);
-    text(c,Math.round(use*100)+'%',198,398,'600 11px '+MONO,use>1?C.bad:C.ink,'right');c.restore();
     text(c,fmt(s.t,2)+' s',W-24,40,'22px '+DISP,C.ink,'right');
     if(s.slide&&this.state==='run'){text(c,'SLIDING: need more grip than μ·g',W/2,66,'700 13px '+MONO,C.bad,'center');}
     if(!preview&&(this.state==='count'||this.state==='grid')){const lit=this.state==='count'?Math.min(3,Math.floor((2.4-this.cd)/0.8)+1):0;
