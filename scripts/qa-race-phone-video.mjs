@@ -26,10 +26,13 @@ for (const [name, width, height] of [['phone', 390, 844], ['desktop', 1440, 1000
   if (await page.locator('#profileClose').isVisible()) await page.locator('#profileClose').click();
   await page.locator('#lab-tab-race').click();
   await page.locator('.stage').scrollIntoViewIfNeeded();
+  const orbit = page.locator('.race-orbit-panel button');
+  await orbit.waitFor({ state: 'visible', timeout: 5000 }).catch(() => {});
   await page.waitForTimeout(1000);
-  if (await page.locator('.race-orbit-panel button').isVisible()) await page.locator('.race-orbit-panel button').click();
+  if (await orbit.isVisible()) await orbit.click();
   await page.locator('#gamePacingOverlay').waitFor({ state: 'hidden', timeout: 20000 });
   await page.waitForFunction(() => window.__KICKLAB_RACE_3D__?.status === 'rendering', null, { timeout: 20000 });
+  await page.waitForFunction(() => window.__KICKLAB_RACE_3D__?.dynamics?.state === 'run', null, { timeout: 25000 });
   await page.locator('.stage').scrollIntoViewIfNeeded();
   const collapse = page.locator('#controllerCollapseButton');
   async function show(style, collapsed) {

@@ -28,8 +28,14 @@ async function capture(width, height, style, collapsed, options = {}) {
   await page.goto(url.toString(), { waitUntil: 'networkidle' });
   if (await page.locator('#profileClose').isVisible()) await page.locator('#profileClose').click();
   await page.locator('#lab-tab-race').click();
+  if (!options.fallback) {
+    const orbit = page.locator('.race-orbit-panel button');
+    await orbit.waitFor({ state: 'visible', timeout: 5000 }).catch(() => {});
+    if (await orbit.isVisible()) await orbit.click();
+  }
   await page.locator('#gamePacingOverlay').waitFor({ state: 'hidden', timeout: 20000 });
   if (!options.fallback) await page.waitForFunction(() => window.__KICKLAB_RACE_3D__?.status === 'rendering', null, { timeout: 20000 });
+  if (!options.fallback) await page.waitForFunction(() => window.__KICKLAB_RACE_3D__?.dynamics?.state === 'run', null, { timeout: 25000 });
   await page.locator('.stage').scrollIntoViewIfNeeded();
   await page.waitForTimeout(500);
   if (style === 'Analog') await page.locator('#analogControlsButton').click();
