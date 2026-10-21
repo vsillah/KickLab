@@ -214,7 +214,14 @@ const Race={
     c.fillStyle='#78e8ff';c.fillRect(-3,-r-3,6,8);c.restore();},
   hud(c){const s=this.st,P=this.P();
     const preview=RACE_3D.shouldBlockInput()&&!RACE_3D.awaitingPacing,msg=preview?'Vehicle view · Skip to countdown.':{grid:'Hold GAS to start. Steer into the corner, brake if the path turns red.',count:'Get ready…',run:'',done:'',crashed:''}[this.state];text(c,msg,24,54,'500 13px '+BODY,C.muted);
-    this.drawWheel(c);
+    const cockpit=$('#raceCockpit');
+    if(RACE_CORNER_TRACE.enabled&&cockpit&&!cockpit.hidden){
+      const overlay=$('#raceWheelCanvas');
+      if(overlay.width!==cv.width||overlay.height!==cv.height){overlay.width=cv.width;overlay.height=cv.height;}
+      const wheelContext=overlay.getContext('2d');
+      wheelContext.setTransform(1,0,0,1,0,0);wheelContext.clearRect(0,0,overlay.width,overlay.height);
+      wheelContext.setTransform(dpr*sc,0,0,dpr*sc,0,0);this.drawWheel(wheelContext);
+    }else this.drawWheel(c);
     c.save();c.translate(190,-196);c.fillStyle='rgba(6,11,24,0.82)';rr(c,20,316,190,92,10);c.fill();c.strokeStyle=C.line;c.stroke();
     text(c,fmt(s.v*3.6,0),32,356,'30px '+DISP,C.ink);c.font='30px '+DISP;const kw=c.measureText(fmt(s.v*3.6,0)).width;text(c,'km/h',38+kw,356,'600 12px '+MONO,C.muted);
     text(c,fmt(s.v)+' m/s',198,334,'600 11px '+MONO,C.good,'right');

@@ -78,7 +78,7 @@ async function record(label, width, height) {
 
 try {
   await record('phone390', 390, 844);
-  await record('mid1012', 1012, 760);
+  await record('mid942', 942, 958);
   await record('desktop1440', 1440, 900);
 } finally {
   await browser.close();
