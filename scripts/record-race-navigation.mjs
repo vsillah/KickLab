@@ -78,14 +78,15 @@ async function record(label, width, height) {
 
 try {
   await record('phone390', 390, 844);
+  await record('mid1012', 1012, 760);
   await record('desktop1440', 1440, 900);
 } finally {
   await browser.close();
 }
 
-if (report.views.length === 2 && !report.errors.length) {
-  const video = join(out, 'race-navigation-phone-desktop.mp4');
-  const encode = spawnSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', report.views[0].raw, '-i', report.views[1].raw, '-filter_complex', '[0:v]scale=414:900:flags=lanczos,setsar=1[phone];[1:v]scale=1280:900:force_original_aspect_ratio=decrease,pad=1280:900:(ow-iw)/2:(oh-ih)/2:color=0x071526,setsar=1[desktop];[phone][desktop]hstack=inputs=2:shortest=1[out]', '-map', '[out]', '-an', '-c:v', 'libx264', '-crf', '20', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', video], { encoding: 'utf8' });
+if (report.views.length === 3 && !report.errors.length) {
+  const video = join(out, 'race-navigation-phone-mid-desktop.mp4');
+  const encode = spawnSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', report.views[0].raw, '-i', report.views[1].raw, '-i', report.views[2].raw, '-filter_complex', '[0:v]scale=414:900:flags=lanczos,setsar=1[phone];[1:v]scale=1200:900:force_original_aspect_ratio=decrease,pad=1200:900:(ow-iw)/2:(oh-ih)/2:color=0x071526,setsar=1[mid];[2:v]scale=1280:900:force_original_aspect_ratio=decrease,pad=1280:900:(ow-iw)/2:(oh-ih)/2:color=0x071526,setsar=1[desktop];[phone][mid][desktop]hstack=inputs=3:shortest=1[out]', '-map', '[out]', '-an', '-c:v', 'libx264', '-crf', '20', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', video], { encoding: 'utf8' });
   if (encode.status !== 0) report.errors.push(`ffmpeg: ${encode.stderr}`);
   else {
     const probe = spawnSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration:stream=codec_name,width,height', '-of', 'json', video], { encoding: 'utf8' });
