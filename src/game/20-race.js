@@ -56,7 +56,7 @@ const Race={
   curWheel(){return this.opt.steer==='auto'?this.st.wheel:this.wheel;},
   update(dt,rdt){const P=this.P(),s=this.st;
     const analog=this.analogControl&&this.analogControl.active?this.analogControl:null,gas=analog?Math.max(0,-analog.y):this.inp.gas,brake=analog?Math.max(0,analog.y):this.inp.brake;
-    if(this.opt.steer==='you'){if(analog)this.wheel=clamp(-analog.x*180,-180,180);else{const d=(this.inp.left?1:0)-(this.inp.right?1:0);if(d)this.wheel=clamp(this.wheel+d*150*rdt,-180,180);}}
+    if(this.opt.steer==='you'){const turnSign=RACE_SYSTEMS.enabled()?1:-1;if(analog)this.wheel=clamp(turnSign*analog.x*180,-180,180);else{const d=(this.inp.right?1:0)-(this.inp.left?1:0);if(d)this.wheel=clamp(this.wheel+turnSign*d*150*rdt,-180,180);}}
     if(this.state==='count'){const before=Math.floor((2.4-this.cd)/0.8);this.cd-=rdt;const after=Math.floor((2.4-this.cd)/0.8);if(after>before&&after<3)tone(440,0.2,'square',0.05);if(this.cd<=0){this.state='run';tone(880,0.35,'square',0.06);const P=this.P(),a=P.F/P.m,cap=P.mu*G0;logMove('race',{who:'sys',kind:'go',title:'GO!',math:`a = F÷m = ${fmt(P.F,0)}÷${fmt(P.m,0)} = ${fmt(a)} m/s²${a>cap?` → grip cap μg = ${fmt(cap)}`:''}`,tone:'info'});}return;}
     if(this.state==='run'){ENGINE.on();ENGINE.set(42+s.v*3.4+(gas?18*gas:0)+(this.telemetry?this.telemetry.rpm*25-this.telemetry.overheat*28:0),0.035);}else ENGINE.off();
     if(this.state==='run'&&(s.slide||(brake&&s.v>8))){const car=this.CARS[this.opt.car],back=car.len*0.34*1.8,side=car.wid*0.46*1.8,cx=s.x-Math.cos(s.th)*back,cy=s.y-Math.sin(s.th)*back,nx=-Math.sin(s.th)*side,ny=Math.cos(s.th)*side;

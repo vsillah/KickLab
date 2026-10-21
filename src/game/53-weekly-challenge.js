@@ -56,7 +56,7 @@ function cpt(e){const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)/r
 cv.addEventListener('pointerdown',e=>{e.preventDefault();unlock();if(RP.on){$('#rbPlay').click();return;}if(PAUSE.on){resumePlayerPause();return;}if(resOpen()){ackResults();return;}
   if(M.key==='race'){const p=cpt(e),wh=Race.WH;if(Math.hypot(p.x-wh.x,p.y-wh.y)<wh.r+26&&Race.opt.steer==='you'){drag={id:e.pointerId,a:Math.atan2(p.y-wh.y,p.x-wh.x)};try{cv.setPointerCapture(e.pointerId);}catch(_){}return;}}
   pauseGame('stage');});
-cv.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;const p=cpt(e),wh=Race.WH,a=Math.atan2(p.y-wh.y,p.x-wh.x);let d=a-drag.a;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;drag.a=a;Race.wheel=clamp(Race.wheel-d/DEG,-180,180);});
+cv.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;const p=cpt(e),wh=Race.WH,a=Math.atan2(p.y-wh.y,p.x-wh.x);let d=a-drag.a;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;drag.a=a;Race.wheel=clamp(Race.wheel+(RACE_SYSTEMS.enabled()?1:-1)*d/DEG,-180,180);});
 ['pointerup','pointercancel'].forEach(ev=>cv.addEventListener(ev,e=>{if(drag&&e.pointerId===drag.id)drag=null;if(canvasHeld){canvasHeld=false;M.press(primary(),false);}}));
 cv.addEventListener('dblclick',()=>{if(M.key==='race')Race.wheel=0;});
 
