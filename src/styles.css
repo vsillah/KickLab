@@ -1292,12 +1292,20 @@ html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .race-analog-
 @media(max-width:480px){html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .game-frame .stage>.control-deck .pad{grid-template-columns:132px minmax(0,1fr)}html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .game-frame .stage>.control-deck .control-left-slot{width:132px;flex-basis:132px}html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .game-frame .stage>.control-deck #padR{width:100%;padding-inline:2px}html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .game-frame .stage>.control-deck.prototype-active .touch-controller{grid-template-columns:106px minmax(82px,1fr) 48px;gap:2px}html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .analog-zone{grid-template-columns:12px 82px 12px;grid-template-rows:12px 82px 12px}html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .analog-stick{width:80px;height:80px}html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .analog-knob{width:38px;height:38px}html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .gesture-zone{grid-template-rows:84px 10px auto auto}html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .gesture-action{width:82px;height:82px}html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .race-analog-actions{grid-template-columns:1fr}html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .race-analog-actions button{min-height:48px;font-size:8px}}
 html[data-race-telemetry="prototype"] .race-telemetry[data-phase="overheat"][data-cue="true"]{border-color:#ff6b73;box-shadow:inset 0 0 0 1px rgba(255,107,115,.35)}
 
-/* Keep expanded telemetry controls below the phone chase view in both control modes. */
+/* Race keeps the full chase view behind the same floating control language as Kick. */
+html[data-kicklab-mode="race"] .game-frame .stage{height:clamp(740px,84svh,860px);overflow:hidden}
+html[data-kicklab-mode="race"] .game-frame .stage>canvas#cv,
+html[data-kicklab-mode="race"] .game-frame .stage>#race3,
+html[data-race-telemetry="prototype"][data-kicklab-mode="race"] .game-frame .stage>canvas#cv,
+html[data-race-telemetry="prototype"][data-kicklab-mode="race"] .game-frame .stage>#race3{position:absolute;inset:0;width:100%;height:100%}
+html[data-kicklab-mode="race"] .game-frame .stage>.control-deck{border-color:rgba(151,187,231,.55);background:linear-gradient(100deg,rgba(6,20,39,.16),rgba(6,20,39,.05) 46%,rgba(6,20,39,.14));box-shadow:0 14px 36px rgba(0,0,0,.2),inset 0 1px 0 rgba(224,239,255,.2);-webkit-backdrop-filter:none;backdrop-filter:none}
+html[data-kicklab-mode="race"] .game-frame .stage>.control-deck .floating-control-head{background:linear-gradient(180deg,rgba(8,24,45,.3),rgba(4,13,28,.24));-webkit-backdrop-filter:none;backdrop-filter:none}
+html[data-kicklab-mode="race"] .game-frame .stage>.control-deck .touch-controller{background:linear-gradient(150deg,rgba(10,31,54,.2),rgba(4,13,29,.16));-webkit-backdrop-filter:none;backdrop-filter:none}
+html[data-race-telemetry="prototype"][data-kicklab-mode="race"] .race-telemetry{background:linear-gradient(145deg,rgba(9,30,50,.11),rgba(4,13,27,.17));-webkit-backdrop-filter:none;backdrop-filter:none;text-shadow:0 1px 3px rgba(0,0,0,.95),0 0 5px rgba(0,0,0,.8)}
 @media(max-width:480px){
- html[data-race-telemetry="prototype"][data-kicklab-mode="race"] .game-frame .stage:has(>.control-deck:not(.controller-collapsed)){height:auto;min-height:0;max-height:none;overflow:visible}
- html[data-race-telemetry="prototype"][data-kicklab-mode="race"] .game-frame .stage:has(>.control-deck:not(.controller-collapsed))>canvas#cv{position:relative;inset:auto;height:clamp(290px,calc(100svh - 550px),360px)}
- html[data-race-telemetry="prototype"][data-kicklab-mode="race"] .game-frame .stage:has(>.control-deck:not(.controller-collapsed))>#race3{bottom:auto;height:clamp(290px,calc(100svh - 550px),360px)}
- html[data-race-telemetry="prototype"][data-kicklab-mode="race"] .game-frame .stage>.control-deck:not(.controller-collapsed){position:relative;left:auto;bottom:auto;transform:none;margin:0 0 4px 4px}
+ html[data-kicklab-mode="race"] .game-frame .stage:has(>.control-deck.controller-collapsed){height:clamp(740px,84svh,860px);min-height:0;max-height:none}
+ html[data-kicklab-mode="race"] .game-frame .stage>.control-deck,
+ html[data-race-telemetry="prototype"][data-kicklab-mode="race"] .game-frame .stage>.control-deck:not(.controller-collapsed){position:absolute;left:calc((100% - var(--game-rail-space))/2);bottom:max(4px,env(safe-area-inset-bottom));transform:translateX(-50%);margin:0;max-height:none;overflow:visible}
 }
 .race-orbit-panel{position:absolute;z-index:29;left:50%;top:16%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;max-width:calc(100% - var(--game-rail-space) - 24px);padding:7px 9px;border:1px solid rgba(151,187,231,.7);border-radius:12px;background:rgba(4,16,33,.88);color:#f0f8ff;font:700 11px var(--f-body);white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.3)}
 .race-orbit-panel[hidden]{display:none}
