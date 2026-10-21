@@ -1287,3 +1287,11 @@ html[data-race-telemetry="prototype"] .race-telemetry[data-phase="overheat"][dat
 .race-orbit-panel button{appearance:none;border:1px solid #8ed9ec;border-radius:7px;background:#14394b;color:#fff;padding:7px 10px;font:700 11px var(--f-body);cursor:pointer}
 .race-orbit-panel button:focus-visible{outline:3px solid #fff;outline-offset:2px}
 @media(max-width:480px){.race-orbit-panel{top:12%;gap:6px;font-size:9px}.race-orbit-panel button{font-size:9px;padding:6px 8px}}
+
+/* The Race phone rail needs room for complete live labels after Physics Vision clears. */
+@media(max-width:480px){
+ html[data-kicklab-mode="race"] .game-frame .stage{--game-rail-space:78px}
+ html[data-kicklab-mode="race"] .game-guidance-hud{width:70px;grid-auto-rows:minmax(54px,auto)}
+ html[data-kicklab-mode="race"] .game-guidance-hud>.contextual-summary{min-height:54px;max-height:none}
+ html[data-kicklab-mode="race"] #gameGuidanceHud :is(.hud-summary-cue,.history-summary>b,.coach .cn b,#liveMathHudValues span,.profile-hud-summary>b,.profile-hud-summary>small){width:100%;max-width:100%;overflow:visible;text-overflow:clip;white-space:normal;overflow-wrap:anywhere}
+}
