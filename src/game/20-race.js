@@ -20,7 +20,7 @@ const Race={
     {id:'F',sym:'F',name:'engine force',unit:'N',min:1000,max:15000,step:100,d:0,col:C.hot}];},
   actions(){return[{id:'gas',dir:'up',aria:'Gas (up)',hold:true},{id:'brake',dir:'down',aria:'Brake (down)',hold:true},{id:'left',dir:'left',aria:'Steer left',hold:true},{id:'right',dir:'right',aria:'Steer right',hold:true},
     {id:'brake',label:'Brake',aria:'Brake (B)',icon:'brake',color:'#ff4d4d',key:'B',hold:true},{id:'gas',label:'Gas',aria:'Gas (Space)',icon:'gas',color:'#2fd37a',key:'SPACE',big:true,hold:true,primary:true},
-    ...(RACE_SYSTEMS.enabled()?[{id:'drift',label:'Drift',aria:'Hold Drift (Shift)',icon:'mv_spin',color:'#f0bc73',key:'SHIFT',hold:true},{id:'nitro',label:'Nitro',aria:'Hold Nitro (N)',icon:'gas',color:'#7fcfff',key:'N',hold:true}]:[])];},
+    ...(RACE_SYSTEMS.enabled()&&!RACE_TELEMETRY.enabled?[{id:'drift',label:'Drift',aria:'Hold Drift (Shift)',icon:'mv_spin',color:'#f0bc73',key:'SHIFT',hold:true},{id:'nitro',label:'Nitro',aria:'Hold Nitro (N)',icon:'gas',color:'#7fcfff',key:'N',hold:true}]:[])];},
   locked(){return this.state==='run'||this.state==='count';},
   FIN(){return this.V.R+40;},
   P(){const c=this.CARS[this.opt.car],v=RACE_SYSTEMS.enabled()?RACE_SYSTEMS.venue(this.opt.venue):null,tireMu=this.V.mu,cornerFactor=v?v.baseGrip*v.gripZones.find(z=>z.from<=this.L&&z.to>this.L).multiplier:1;return{L:this.L,R:this.V.R,m:this.V.m,F:this.V.F,top:c.top,mu:tireMu*cornerFactor,...(v?{tireMu}:{}),Lwb:c.Lwb,ratio:this.RATIO};},
@@ -30,8 +30,8 @@ const Race={
     o.R={lo:20,hi:32,note:`20–32 m. A tighter corner has a lower limit, but corner time only grows like √R while the path gets longer, so tight wins.`};
     const Fcap=P.mu*G0*P.m;o.F={lo:Math.min(15000,Math.ceil(Fcap/100)*100),hi:15000,note:`at least ${fmt(Fcap,0)} N. Past that the tires spin: a is capped at μ·g = ${fmt(P.mu*G0)} m/s².`};
     const mCap=P.F/(P.mu*G0);o.m={lo:150,hi:clamp(Math.floor(mCap/10)*10,150,2000),note:`under ${fmt(Math.min(2000,mCap),0)} kg your launch is grip-limited, the best a = F ÷ m can do.`};return o;},
-  snap(){return{st:{...this.st},spin:this.spin,trailN:this.trail.length,skidsN:this.skids.length,state:this.state,wheel:this.wheel,inp:{...this.inp},cd:this.cd,endT:this.endT};},
-  applySnap(o,r){this.st={...o.st};this.spin=o.spin;this.trail=(r.trail||this.trail).slice(0,o.trailN);this.skids=(r.skids||this.skids).slice(0,o.skidsN);this.state=o.state;this.wheel=o.wheel;this.inp={...o.inp};this.cd=o.cd;this.endT=o.endT;},
+  snap(){return{st:{...this.st},spin:this.spin,trailN:this.trail.length,skidsN:this.skids.length,state:this.state,wheel:this.wheel,inp:{...this.inp},cd:this.cd,endT:this.endT,...(this.telemetry?{telemetry:{...this.telemetry}}:{})};},
+  applySnap(o,r){this.st={...o.st};this.spin=o.spin;this.trail=(r.trail||this.trail).slice(0,o.trailN);this.skids=(r.skids||this.skids).slice(0,o.skidsN);this.state=o.state;this.wheel=o.wheel;this.inp={...o.inp};this.cd=o.cd;this.endT=o.endT;if(o.telemetry)this.telemetry={...o.telemetry};},
   review(r){const mv=r.moves,m=r.meta||{},sm=r.sum||{},K=k=>mv.filter(x=>x.kind===k);const br=K('brake')[0],en=K('entry')[0],sl=K('slide'),fin=K('finish')[0],cr=K('crash')[0];
     const best=[],work=[],plan=[];
     if(en&&en.v<=en.vmax*1.02&&en.v>=en.vmax*0.85)best.push({score:3,t:en.t,text:`${en.title}: ${en.res}`,math:en.math});
@@ -50,21 +50,21 @@ const Race={
     if(!plan.length)plan.push('Clean run. Try a tighter R or the Race car to cut more time.');
     return{title:r.title,noun:'run',stats:[['Time',sm.ok?fmt(sm.t,2)+' s':'DNF'],['Top speed',fmt((sm.vp||0)*3.6,0)+' km/h'],['Corner entry',en?`${fmt(en.v*3.6,0)} km/h`:'—'],['Corner limit',fmt((m.vmax||0)*3.6,0)+' km/h'],['Sliding',fmt(sm.slideT||0,1)+' s'],['Wheel avg / needed',sm.wNeed?`${fmt(sm.wAvg,0)}° / ${fmt(sm.wNeed,0)}°`:'—']],best:topN(best,3),work:topN(work,3),plan:plan.slice(0,4)};},
   needW(){return this.RATIO*Math.atan(this.CARS[this.opt.car].Lwb/this.V.R)/DEG;},
-  reset(){if(RECS.race&&RECS.race.on)stopRec('race');this.sliding=false;this.wasBrake=false;const ch=curCh('race');this.HW=(ch&&ch.env&&ch.env.hw)||7;this.st={x:4,y:0,th:0,v:0,t:0,e:0,k:0,kc:0,alat:0,need:0,zone:0,slide:false,wheel:0,...(RACE_SYSTEMS.enabled()?RACE_SYSTEMS.initial():{})};this.wheel=0;this.state='grid';this.inp={gas:false,brake:false,left:false,right:false,...(RACE_SYSTEMS.enabled()?{drift:false,nitro:false}:{})};this.cd=0;this.inTurn=false;this.vEntry=0;this.vPeak=0;this.trail=[];this.trailT=0;this.res=null;this.spin=0;this.endT=0;this.skids=[];this.skidPrev=null;this.wSum=0;this.wT=0;this.slideT=0;this.warnB=false;this.warnS=false;this.warnT=false;this.lastDynamicsMode='none';},
+  reset(){if(RECS.race&&RECS.race.on)stopRec('race');this.sliding=false;this.wasBrake=false;const ch=curCh('race');this.HW=(ch&&ch.env&&ch.env.hw)||7;this.st={x:4,y:0,th:0,v:0,t:0,e:0,k:0,kc:0,alat:0,need:0,zone:0,slide:false,wheel:0,...(RACE_SYSTEMS.enabled()?RACE_SYSTEMS.initial():{})};this.telemetry=RACE_TELEMETRY.enabled?RACE_TELEMETRY.initial():null;this.wheel=0;this.state='grid';this.inp={gas:false,brake:false,left:false,right:false,...(RACE_SYSTEMS.enabled()?{drift:false,nitro:false}:{})};this.cd=0;this.inTurn=false;this.vEntry=0;this.vPeak=0;this.trail=[];this.trailT=0;this.res=null;this.spin=0;this.endT=0;this.skids=[];this.skidPrev=null;this.wSum=0;this.wT=0;this.slideT=0;this.warnB=false;this.warnS=false;this.warnT=false;this.lastDynamicsMode='none';this.lastTelemetryPhase='ready';this.lastTelemetryLock='';this.lastTelemetryRecommendation='';this.lastGripRecoveryUntil=0;},
   press(id,down){if(id==='gas'){this.inp.gas=down;this.gas=down;if(down&&this.state==='grid'){this.state='count';this.cd=2.4;hideResults();{const P=this.P();startRec('race',`Run · ${this.CARS[this.opt.car].name} · μ ${fmt(P.mu,2)} · R ${P.R} m`);RECS.race.meta={mu:P.mu,R:P.R,L:P.L,vmax:Math.sqrt(P.mu*G0*P.R),need:this.needW()};}tone(440,0.2,'square',0.05);}else if(down&&(this.state==='done'||this.state==='crashed')&&this.endT>0.8)this.reset();}
-    if(id==='brake'){this.inp.brake=down;this.brake=down;}if(id==='left')this.inp.left=down;if(id==='right')this.inp.right=down;if(id==='center')this.wheel=0;if(RACE_SYSTEMS.enabled()&&(id==='drift'||id==='nitro'))this.inp[id]=down;},
+    if(id==='brake'){this.inp.brake=down;this.brake=down;}if(id==='left')this.inp.left=down;if(id==='right')this.inp.right=down;if(id==='center')this.wheel=0;if(RACE_SYSTEMS.enabled()&&!RACE_TELEMETRY.enabled&&(id==='drift'||id==='nitro'))this.inp[id]=down;},
   curWheel(){return this.opt.steer==='auto'?this.st.wheel:this.wheel;},
   update(dt,rdt){const P=this.P(),s=this.st;
     const analog=this.analogControl&&this.analogControl.active?this.analogControl:null,gas=analog?Math.max(0,-analog.y):this.inp.gas,brake=analog?Math.max(0,analog.y):this.inp.brake;
-    if(this.opt.steer==='you'){if(analog)this.wheel=clamp(-analog.x*180,-180,180);else{const d=(this.inp.left?1:0)-(this.inp.right?1:0);if(d)this.wheel=clamp(this.wheel+d*150*rdt,-180,180);}}
+    if(this.opt.steer==='you'){const turnSign=RACE_SYSTEMS.enabled()?1:-1;if(analog)this.wheel=clamp(turnSign*analog.x*180,-180,180);else{const d=(this.inp.right?1:0)-(this.inp.left?1:0);if(d)this.wheel=clamp(this.wheel+turnSign*d*150*rdt,-180,180);}}
     if(this.state==='count'){const before=Math.floor((2.4-this.cd)/0.8);this.cd-=rdt;const after=Math.floor((2.4-this.cd)/0.8);if(after>before&&after<3)tone(440,0.2,'square',0.05);if(this.cd<=0){this.state='run';tone(880,0.35,'square',0.06);const P=this.P(),a=P.F/P.m,cap=P.mu*G0;logMove('race',{who:'sys',kind:'go',title:'GO!',math:`a = F÷m = ${fmt(P.F,0)}÷${fmt(P.m,0)} = ${fmt(a)} m/s²${a>cap?` → grip cap μg = ${fmt(cap)}`:''}`,tone:'info'});}return;}
-    if(this.state==='run'){ENGINE.on();ENGINE.set(42+s.v*3.4+(gas?18*gas:0),0.035);}else ENGINE.off();
+    if(this.state==='run'){ENGINE.on();ENGINE.set(42+s.v*3.4+(gas?18*gas:0)+(this.telemetry?this.telemetry.rpm*25-this.telemetry.overheat*28:0),0.035);}else ENGINE.off();
     if(this.state==='run'&&(s.slide||(brake&&s.v>8))){const car=this.CARS[this.opt.car],back=car.len*0.34*1.8,side=car.wid*0.46*1.8,cx=s.x-Math.cos(s.th)*back,cy=s.y-Math.sin(s.th)*back,nx=-Math.sin(s.th)*side,ny=Math.cos(s.th)*side;
       const seg={l:{x:cx+nx,y:cy+ny},r:{x:cx-nx,y:cy-ny}};if(this.skidPrev)this.skids.push([this.skidPrev,seg]);this.skidPrev=seg;if(this.skids.length>1500)this.skids.shift();
       if(s.slide&&Math.random()<rdt*40)burst(PARTS,this.sx(cx),this.sy(cy),1,{sp:[5,25],life:1.1,size:5,kind:'smoke',col:'#c9d2e3',drag:1});
       this.skidSnd=(this.skidSnd||0)-rdt;if(s.slide&&this.skidSnd<=0){SND.skid();this.skidSnd=0.2;}}else this.skidPrev=null;
     if(this.state==='run'){const n=Math.max(1,Math.ceil(dt/0.004)),h=dt/n;
-      for(let i=0;i<n;i++){if(RACE_SYSTEMS.enabled())RACE_SYSTEMS.step(s,P,{gas,brake,wheel:this.wheel,auto:this.opt.steer==='auto',drift:this.inp.drift,nitro:this.inp.nitro},h,RACE_SYSTEMS.venue(this.opt.venue));else raceStep(s,P,{gas,brake,wheel:this.wheel,auto:this.opt.steer==='auto'},h);
+      for(let i=0;i<n;i++){if(this.telemetry){const t=this.telemetry,driveGas=gas*(t.overheat?.38:t.lock==='torque'?1.06:1),boost=t.nosPulse>0&&gas>.1&&!t.overheat;RACE_SYSTEMS.step(s,P,{gas:driveGas,brake,wheel:this.wheel,auto:this.opt.steer==='auto',drift:s.zone===1&&Math.abs(this.wheel)>9&&t.grip>.45,nitro:boost},h,RACE_SYSTEMS.venue(this.opt.venue));RACE_TELEMETRY.step(t,s,{gas:driveGas,brake,nitro:boost},P,h);}else if(RACE_SYSTEMS.enabled())RACE_SYSTEMS.step(s,P,{gas,brake,wheel:this.wheel,auto:this.opt.steer==='auto',drift:this.inp.drift,nitro:this.inp.nitro},h,RACE_SYSTEMS.venue(this.opt.venue));else raceStep(s,P,{gas,brake,wheel:this.wheel,auto:this.opt.steer==='auto'},h);
         if(RACE_SYSTEMS.enabled()&&s.driftMode!==this.lastDynamicsMode){if(s.driftMode==='drift'){logMove('race',{who:'you',kind:'drift',title:'Controlled drift',res:`${fmt(s.v*3.6,0)} km/h`,math:`slip ${fmt(Math.abs(s.slipAngle)*180/Math.PI,0)}° · grip ${fmt(s.muEffective,2)}`,tone:'info'});COACH.say('Hold the line through the drift; ease the wheel to straighten out.','tip',4);}else if(s.driftMode==='skid')COACH.say('The tires lost the line. Brake and unwind the wheel to recover.','warn',4);this.lastDynamicsMode=s.driftMode;}
         if(s.x<P.L&&s.v>this.vPeak)this.vPeak=s.v;
         if(s.zone===1){this.wSum+=Math.abs(s.wheel)*h;this.wT+=h;}
@@ -74,9 +74,43 @@ const Race={
         if(s.slide){this.slideT+=h;if(!this.warnS&&s.zone>0){this.warnS=true;COACH.say("You're sliding: v² ÷ R_turn is bigger than μ·g. Ease off the gas or unwind the wheel a touch.",'warn',5);}}
         if(s.zone===0&&!brake&&!this.warnB){const vm=Math.sqrt(P.mu*G0*P.R);if(s.v>vm*1.05){const dNeed=(s.v*s.v-vm*vm)/(2*0.95*P.mu*G0);if(P.L-s.x<dNeed+10){this.warnB=true;COACH.say(`Brake now! ${fmt(s.v*3.6,0)} km/h and this corner tops out at ${fmt(vm*3.6,0)}. You need ${fmt(dNeed,0)} m to slow down.`,'warn',5);}}}
         if(s.zone===1&&!this.warnT&&this.opt.steer==='you'&&s.th*(RACE_SYSTEMS.enabled()?RACE_SYSTEMS.venue(this.opt.venue).turn:1)<0.3){const need=this.RATIO*Math.atan(this.CARS[this.opt.car].Lwb/P.R)/DEG;if(s.x>P.L+3&&Math.abs(this.wheel-need*(RACE_SYSTEMS.enabled()?RACE_SYSTEMS.venue(this.opt.venue).turn:1))>20){this.warnT=true;COACH.say(`Turn in! This corner wants about ${fmt(need,0)}° of wheel. You have ${fmt(this.wheel,0)}°.`,'warn',5);}}
-        if(!this.inTurn&&s.zone===1){this.inTurn=true;this.vEntry=s.v;{const vm=Math.sqrt(P.mu*G0*P.R);logMove('race',{who:'you',kind:'entry',v:s.v,vmax:vm,title:`Corner entry ${fmt(s.v*3.6,0)} km/h`,res:`${Math.round(s.v/vm*100)}% of limit`,math:`v_max = √(μ·g·R) = √(${fmt(P.mu,2)}×9.81×${P.R}) = ${fmt(vm*3.6,0)} km/h`,tone:s.v<=vm*1.02?(s.v>=vm*0.85?'good':'info'):'bad'});}if(!(typeof maybeStartLivePhysicsRaceCombo==='function'&&maybeStartLivePhysicsRaceCombo()))startSlow({focus:()=>({x:this.sx(this.st.x),y:this.sy(this.st.y)}),zoom:1.9,dur:1.8,min:0.2});}
+        if(!this.inTurn&&s.zone===1){this.inTurn=true;this.vEntry=s.v;{const vm=Math.sqrt(P.mu*G0*P.R);logMove('race',{who:'you',kind:'entry',v:s.v,vmax:vm,title:`Corner entry ${fmt(s.v*3.6,0)} km/h`,res:`${Math.round(s.v/vm*100)}% of limit`,math:`v_max = √(μ·g·R) = √(${fmt(P.mu,2)}×9.81×${P.R}) = ${fmt(vm*3.6,0)} km/h`,tone:s.v<=vm*1.02?(s.v>=vm*0.85?'good':'info'):'bad'});}if(!this.telemetry&&!(typeof maybeStartLivePhysicsRaceCombo==='function'&&maybeStartLivePhysicsRaceCombo()))startSlow({focus:()=>({x:this.sx(this.st.x),y:this.sy(this.st.y)}),zoom:1.9,dur:1.8,min:0.2});}
         if(Math.abs(s.e)>this.HW){burst(PARTS,this.sx(s.x),this.sy(s.y),26,{sp:[20,90],life:1.4,size:6,kind:'smoke',col:'#b8a27a',drag:1.2});this.state='crashed';this.finish(false,s.e*(RACE_SYSTEMS.enabled()?RACE_SYSTEMS.venue(this.opt.venue).turn:1)>0?'outside':'inside');sfx(0.7,0.7);E.shake=reduce?0:8;break;}
         if(s.zone===2&&s.y*(RACE_SYSTEMS.enabled()?RACE_SYSTEMS.venue(this.opt.venue).turn:1)>=this.FIN()){this.state='done';this.finish(true);break;}}
+      if(this.telemetry){
+        const t=this.telemetry;
+        if(t.phase!==this.lastTelemetryPhase){
+          if(t.phase==='overheat'){
+            COACH.say('Engine overheated! Ease off the gas; airflow will cool it and bring power back.','warn',5);
+            tone(310,.42,'sawtooth',.065,155);noise(.36,510,.035,0,.7,'bandpass',.05);
+          }else if(t.phase==='recovered'){
+            COACH.say('Engine cooled. Power is back; find the torque band again.','hype',4);
+            tone(440,.13,'triangle',.07,620);tone(784,.18,'triangle',.055,null,.1);
+          }else if(t.phase==='warning'){
+            COACH.say('Heat is climbing. Lift the throttle before power drops.','warn',4);
+            tone(540,.12,'triangle',.055,430);
+          }
+          this.lastTelemetryPhase=t.phase;
+        }
+        if(t.lock&&t.lock!==this.lastTelemetryLock){
+          const gauge=RACE_TELEMETRY.GAUGES.find(g=>g.id===t.lock);
+          COACH.say(`${gauge.name} locked. Feel the car respond.`,'hype',3);
+          if(t.lock==='nos'){tone(290,.28,'sawtooth',.07,710);noise(.26,950,.04,0,1,'bandpass',.03);}
+          else if(t.lock==='torque')tone(420,.2,'triangle',.07,640);
+          else if(t.lock==='braking')tone(480,.16,'triangle',.055,390);
+          else tone(640,.16,'triangle',.055,820);
+          requestMobileHaptic('perfect');
+        }
+        this.lastTelemetryLock=t.lock;
+        if(t.gripRecoveryUntil>this.lastGripRecoveryUntil){
+          this.lastGripRecoveryUntil=t.gripRecoveryUntil;
+          COACH.say('The tires have grip again. Hold the clean line.','tip',3);
+          tone(560,.18,'triangle',.05,760);
+        }
+        if(t.recommended!==this.lastTelemetryRecommendation&&t.cueAge>1.5){
+          t.cueAge=0;t.cueUntil=t.clock+.8;this.lastTelemetryRecommendation=t.recommended;
+        }
+      }
       this.trailT+=dt;if(this.trailT>0.06){this.trailT=0;this.trail.push({x:s.x,y:s.y,sl:s.slide});if(this.trail.length>600)this.trail.shift();}}
     else if(this.state==='crashed'){s.v=Math.max(0,s.v-16*dt);s.x+=s.v*Math.cos(s.th)*dt;s.y+=s.v*Math.sin(s.th)*dt;this.spin+=s.v*0.18*dt;
       if(Math.abs((RACE_SYSTEMS.enabled()?RACE_SYSTEMS.path(s.x,s.y,P,RACE_SYSTEMS.venue(this.opt.venue)):racePath(s.x,s.y,P)).e)>this.HW+5)s.v=0;this.endT+=rdt;}
