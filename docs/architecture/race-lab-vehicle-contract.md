@@ -1,5 +1,7 @@
 # Race Lab provider-neutral vehicle contract
 
+The versioned three-car prototype catalog and asset ownership are documented in [race-lab-vehicle-roster.md](race-lab-vehicle-roster.md). This original document describes the earlier proxy-to-Direction-A swap contract.
+
 Status: development contract for the **self-authored proxy** behind `?raceSystems=proxy` on localhost. The proxy is a systems fixture, not accepted Direction A art. Tripo licensing is unresolved; no provider output is used or authorized by this contract.
 
 ## Spatial and scene contract
