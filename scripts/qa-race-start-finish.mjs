@@ -48,7 +48,8 @@ async function inspect(name,width,height,{reduced=false,canvas=false}={}) {
     for(const phase of ['3','2','1','go']){
       await page.waitForFunction(phase=>window.__KICKLAB_RACE_START_LIGHTS__?.phase===phase,phase,{timeout:7000});
       const state=await page.evaluate(()=>({lights:window.__KICKLAB_RACE_START_LIGHTS__,state:window.__KICKLAB_RACE_3D__?.dynamics?.state,blocked:window.__KICKLAB_RACE_3D__?.orbit?.done&&window.__KICKLAB_RACE_3D__?.dynamics?.state==='grid',pacing:!document.querySelector('#gamePacingOverlay').hidden,overlay:document.querySelector('#gamePacingOverlay').dataset.presentation,car:{x:window.__KICKLAB_RACE_3D__?.dynamics?.x,y:window.__KICKLAB_RACE_3D__?.dynamics?.y}}));
-      if(state.lights.lit!==({3:1,2:2,1:3,go:3}[phase])||state.state!=='grid'||!state.blocked||state.overlay!=='race-start')throw new Error(`${phase}: ${JSON.stringify(state)}`);
+      const expected={3:[true,false,false],2:[true,true,false],1:[true,true,false],go:[true,true,true]}[phase];
+      if(JSON.stringify(state.lights.lamps)!==JSON.stringify(['red','yellow','green'].map((color,index)=>({color,lit:expected[index],hex:expected[index]?[0xff4f46,0xffcb47,0x62ff9e][index]:0x33414c})))||state.lights.lit!==expected.filter(Boolean).length||state.lights.go!==(phase==='go')||state.state!=='grid'||!state.blocked||state.overlay!=='race-start')throw new Error(`${phase}: ${JSON.stringify(state)}`);
       if(phase==='3'){await page.keyboard.down('Space');await page.waitForTimeout(60);await page.keyboard.up('Space');const blocked=await page.evaluate(()=>window.__KICKLAB_RACE_3D__?.dynamics);if(blocked.state!=='grid'||blocked.inputs.gas||Math.abs(blocked.x-state.car.x)>.01||Math.abs(blocked.y-state.car.y)>.01)throw new Error(`Countdown accepted throttle: ${JSON.stringify(blocked)}`);}
       phases.push(state);
       if(phase==='2'||phase==='go')await page.locator('.stage').screenshot({path:join(out,`${name}-${phase}.png`)});
