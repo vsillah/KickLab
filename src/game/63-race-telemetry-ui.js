@@ -71,6 +71,9 @@ function renderRaceNavigation({gauge,value,unit,fraction,phase,cue}){
   const sampled=prediction.points.filter((_,index)=>index%3===0||index===prediction.points.length-1);
   const road=RACE_3D.trackPoints(P).map(point=>({x:point.x,y:point.z})).filter(point=>{const ahead=local(point).forward;return ahead>=-2&&ahead<=distance+5;});
   $('#raceNavigationRoad').setAttribute('d',road.map((point,index)=>`${index?'L':'M'} ${xy(point)}`).join(' '));
+  const finish=Race.finishPoint(),finishAhead=local(finish).forward,finishLine=$('#raceNavigationFinish');
+  const showFinish=finishAhead>=-2&&finishAhead<=distance+5;
+  finishLine.setAttribute('d',showFinish?`M ${xy({x:finish.x+Race.HW*.82,y:finish.y})} L ${xy({x:finish.x-Race.HW*.82,y:finish.y})}`:'');
   $('#raceNavigationTrace').setAttribute('d',sampled.map((point,index)=>`${index?'L':'M'} ${xy(point)}`).join(' '));
   const [tx,ty]=xy(target).split(' ');$('#raceNavigationTarget').setAttribute('cx',tx);$('#raceNavigationTarget').setAttribute('cy',ty);
   $('#raceNavigationCar').setAttribute('transform','translate(80 77)');
@@ -82,6 +85,11 @@ function renderRaceNavigation({gauge,value,unit,fraction,phase,cue}){
   $('#raceSteeringNeededTick').style.left=`${Math.max(7,Math.min(93,50+needed*.46))}%`;
   $('#raceNavigationStatus').textContent=`${{safe:'Safe line',understeer:'Understeer',oversteer:'Oversteer'}[state]}`;
   panel.dataset.state=state;
-  panel.setAttribute('aria-label',`Race cockpit. ${gauge} ${value} ${unit}. ${phase}. Car, predicted path, and target exit corridor. Current steering ${current} degrees. Needed steering ${needed} degrees. Projected signed line error ${error>=0?'plus':'minus'} ${Math.abs(error).toFixed(1)} metres. ${state}. Coach Tomi: ${cue}`);
-  globalThis.__KICKLAB_RACE_NAVIGATION__={current,needed,error,state,target,endpoint:end,gauge,value,unit,visible:true};
+  panel.setAttribute('aria-label',`Race cockpit. ${gauge} ${value} ${unit}. ${phase}. Car, predicted path, ${showFinish?'finish line, ':''}and target exit corridor. Current steering ${current} degrees. Needed steering ${needed} degrees. Projected signed line error ${error>=0?'plus':'minus'} ${Math.abs(error).toFixed(1)} metres. ${state}. Coach Tomi: ${cue}`);
+  globalThis.__KICKLAB_RACE_NAVIGATION__={current,needed,error,state,target,endpoint:end,finish,finishVisible:showFinish,gauge,value,unit,visible:true};
 }
+if(RACE_CORNER_TRACE.enabled)globalThis.__KICKLAB_RACE_START_FINISH_QA__={
+  useCanvas(){best.gfx='2d';},
+  approach(){if(M!==Race||Race.state!=='run')return false;const finish=Race.finishPoint(),sign=Math.sign(finish.y);Object.assign(Race.st,{x:finish.x,y:finish.y-sign*25,th:sign*Math.PI/2,zone:2,v:0});Race.cornerTracePrediction=null;RACE_3D.cameraPose=null;renderRaceTelemetry();return true;},
+  cross(){if(M!==Race||Race.state!=='run')return false;const finish=Race.finishPoint();Race.st.y=finish.y+Math.sign(finish.y)*.2;return true;}
+};
