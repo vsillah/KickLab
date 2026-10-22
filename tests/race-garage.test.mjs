@@ -34,6 +34,22 @@ test('four part families alter canonical parameters with costs as well as benefi
   assert.ok(race.F/race.m>stock.F/stock.m&&race.stability<stock.stability);
 });
 
+test('suspension choices produce distinct comparison rates while stock stays at 100 percent',()=>{
+  const stock=garage.summary(P(garage.DEFAULT));
+  const soft=garage.summary(P(build('suspension','soft')));
+  const balanced=garage.summary(P(build('suspension','balanced')));
+  const firm=garage.summary(P(build('suspension','firm')));
+  assert.equal(stock.steeringResponse,1);
+  assert.equal(stock.slideRecovery,1);
+  assert.ok(soft.steeringResponse<balanced.steeringResponse&&balanced.steeringResponse<firm.steeringResponse);
+  assert.ok(soft.slideRecovery>balanced.slideRecovery&&balanced.slideRecovery>firm.slideRecovery);
+  assert.equal(soft.steeringResponse,.78);
+  assert.equal(soft.slideRecovery,1.2);
+  assert.equal(firm.steeringResponse,1.18);
+  assert.equal(firm.slideRecovery,.78);
+  assert.deepEqual(garage.summary(P(garage.DEFAULT)),stock);
+});
+
 test('suspension recovery and brake fade evolve deterministically',()=>{
   const evolve=(params,seconds)=>{const s={v:20,garageRecovery:.45};let response;for(let i=0;i<seconds/.01;i++)response=garage.response(s,params,60,1,.01);return{s,response};};
   const soft=evolve(P(build('suspension','soft')),.3),firm=evolve(P(build('suspension','firm')),.3);

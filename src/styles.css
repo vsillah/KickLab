@@ -1374,4 +1374,5 @@ html[data-race-corner-trace="prototype"] .race-telemetry-actions{grid-column:1/-
 .stage.has-game-overlay .race-orbit-panel{display:none}
 .stage .settings-drawer.garage-open{animation:none!important}
 .stage.garage-review-open .toasts{display:none}
+.race-garage-summary .garage-summary-note{display:block;margin-top:5px;font:600 9px/1.2 var(--f-body);color:#c7e1eb}
 @media (min-width:481px){.stage .settings-drawer.garage-open{height:min(700px,calc(100% - 68px));bottom:auto}}

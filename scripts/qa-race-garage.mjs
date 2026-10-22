@@ -31,6 +31,14 @@ async function inspect(width,height,{reduced=false,canvas=false,analog=false}={}
     const initial=await page.evaluate(()=>({level:document.querySelector('#settingsTitle').textContent,build:window.__KICKLAB_RACE_GARAGE__?.build,summary:!document.querySelector('#raceGarageSummary').hidden,scrollWidth:document.documentElement.scrollWidth,innerWidth,focus:document.activeElement?.dataset.garagePart||''}));
     if(initial.level!=='Garage & tuning'||!initial.summary||initial.scrollWidth>initial.innerWidth+1)throw new Error(`Garage entry: ${JSON.stringify(initial)}`);
     await page.locator('.stage').screenshot({path:join(out,`${name}-stock.png`)});
+    const suspension=[];
+    for(const value of ['soft','balanced','firm']){
+      await page.click(`#raceGarage [data-garage-part="suspension"][data-garage-value="${value}"]`);
+      suspension.push(await page.evaluate(()=>({choice:window.__KICKLAB_RACE_GARAGE__.build.suspension,stock:window.__KICKLAB_RACE_GARAGE__.stock,current:window.__KICKLAB_RACE_GARAGE__.current,summary:document.querySelector('#raceGarageSummary').innerText,visible:document.querySelector('#raceGarageSummary').getBoundingClientRect().bottom<=innerHeight+1})));
+    }
+    if(suspension.some(item=>!item.visible||item.stock.steeringResponse!==1||item.stock.slideRecovery!==1)||!(suspension[0].current.steeringResponse<suspension[1].current.steeringResponse&&suspension[1].current.steeringResponse<suspension[2].current.steeringResponse)||!(suspension[0].current.slideRecovery>suspension[1].current.slideRecovery&&suspension[1].current.slideRecovery>suspension[2].current.slideRecovery)||!suspension[2].summary.includes('118%')||!suspension[2].summary.includes('78%'))throw new Error(`Suspension comparison: ${JSON.stringify(suspension)}`);
+    await page.locator('.stage').screenshot({path:join(out,`${name}-suspension-firm.png`)});
+    await page.click('#raceGarage [data-garage-part="suspension"][data-garage-value="balanced"]');
     for(const [field,value] of [['body','race'],['suspension','firm'],['tires','wide'],['brakes','sport']]){
       await page.click(`#raceGarage [data-garage-part="${field}"][data-garage-value="${value}"]`);
       const applied=await page.evaluate(({field,value})=>({selected:window.__KICKLAB_RACE_GARAGE__?.build?.[field],pressed:document.querySelector(`#raceGarage [data-garage-part="${field}"][data-garage-value="${value}"]`)?.getAttribute('aria-pressed'),focus:document.activeElement?.dataset.garagePart,summary:document.querySelector('#raceGarageSummary').getBoundingClientRect().bottom<=innerHeight+1}),{field,value});
@@ -46,7 +54,7 @@ async function inspect(width,height,{reduced=false,canvas=false,analog=false}={}
     if(analog)await page.click('#controllerCollapseButton');
     const live=await page.evaluate(()=>({state:window.__KICKLAB_LIVE_PHYSICS_COMBO_QA_READ__().race.state,params:window.__KICKLAB_RACE_GARAGE_QA__.read().parameters,style:document.querySelector('#analogControlsButton').getAttribute('aria-pressed'),collapsed:document.querySelector('#controllerCollapseButton').getAttribute('aria-expanded'),telemetry:window.__KICKLAB_RACE_TELEMETRY__?.enabled===true}));
     if(live.state!=='run'||live.params.brakePower<=1||live.params.mu<=.9||(!canvas&&!live.telemetry))throw new Error(`Live Race parameters: ${JSON.stringify(live)}`);
-    report.cases.push({name,width,height,reduced,canvas,analog,initial,tuned,live});
+    report.cases.push({name,width,height,reduced,canvas,analog,initial,suspension,tuned,live});
   }catch(error){report.errors.push(`${name}: ${error.stack||error}`);}finally{await context.close();}
 }
 try{if(process.env.KICKLAB_QA_ONLY==='canvas')await inspect(390,844,{canvas:true});else{for(const [width,height] of sizes)await inspect(width,height);if(!process.env.KICKLAB_QA_WIDTHS){await inspect(390,844,{reduced:true});await inspect(390,844,{canvas:true});await inspect(390,844,{analog:true});}}}finally{await browser.close();}

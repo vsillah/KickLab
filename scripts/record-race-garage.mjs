@@ -19,6 +19,7 @@ async function record(label,width,height,{analog=false}={}){
     if(await page.locator('#profileClose').isVisible())await page.click('#profileClose');
     await page.click('#lab-tab-race');
     await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});
+    await page.locator('.stage:visible').first().evaluate(element=>element.scrollIntoView({block:'start'}));
     const toast=page.locator('.toast-close:visible').first();if(await toast.count())await toast.evaluate(button=>button.click());
     await page.locator('.race-orbit-panel button').waitFor({state:'visible',timeout:10000});await page.click('.race-orbit-panel button');
     await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.dynamics?.state==='run',null,{timeout:15000});
@@ -27,14 +28,20 @@ async function record(label,width,height,{analog=false}={}){
     await page.click('#settingsToggle');await page.locator('#settingsCategories [data-category="garage"]').waitFor({state:'visible'});await page.waitForTimeout(450);
     await page.click('#settingsCategories [data-category="garage"]');await page.waitForTimeout(650);
     const before=await page.evaluate(()=>window.__KICKLAB_RACE_GARAGE_QA__.read());
-    for(const [field,value] of [['body','race'],['suspension','firm'],['tires','wide'],['brakes','sport']]){await page.click(`#raceGarage [data-garage-part="${field}"][data-garage-value="${value}"]`);await page.waitForTimeout(650);}
+    const suspension=[];
+    for(const [field,value] of [['suspension','soft'],['suspension','firm'],['body','race'],['tires','wide'],['brakes','sport']]){
+      await page.click(`#raceGarage [data-garage-part="${field}"][data-garage-value="${value}"]`);
+      if(field==='suspension')suspension.push(await page.evaluate(()=>({choice:window.__KICKLAB_RACE_GARAGE__.build.suspension,current:window.__KICKLAB_RACE_GARAGE__.current,summary:document.querySelector('#raceGarageSummary').innerText,visible:document.querySelector('#raceGarageSummary').getBoundingClientRect().bottom<=innerHeight+1})));
+      await page.waitForTimeout(field==='suspension'?900:650);
+    }
+    if(suspension.length!==2||suspension.some(item=>!item.visible)||!(suspension[0].current.steeringResponse<suspension[1].current.steeringResponse)||!(suspension[0].current.slideRecovery>suspension[1].current.slideRecovery))throw new Error(`Suspension comparison missing in video: ${JSON.stringify(suspension)}`);
     const after=await page.evaluate(()=>window.__KICKLAB_RACE_GARAGE_QA__.read());
     if(after.parameters.mu<=before.parameters.mu||after.parameters.brakePower<=before.parameters.brakePower||after.parameters.m===before.parameters.m)throw new Error('Garage parts did not change live parameters');
     await page.waitForTimeout(450);await page.click('#settingsClose');await page.waitForTimeout(350);await page.evaluate(()=>document.activeElement?.blur());
     await page.keyboard.down('Space');await page.keyboard.down('ArrowRight');await page.waitForTimeout(1450);await page.keyboard.up('ArrowRight');await page.keyboard.up('Space');await page.waitForTimeout(650);
     const drive=await page.evaluate(()=>({garage:window.__KICKLAB_RACE_GARAGE_QA__.read(),telemetry:window.__KICKLAB_RACE_TELEMETRY__,trace:window.__KICKLAB_RACE_CORNER_TRACE__}));
     if(drive.garage.velocity<=0||!drive.telemetry?.enabled||!drive.trace)throw new Error(`Driving response missing: ${JSON.stringify(drive).slice(0,500)}`);
-    report.views.push({label,width,height,url:url.toString(),before,after,drive,raw:null});
+    report.views.push({label,width,height,url:url.toString(),before,suspension,after,drive,raw:null});
   }catch(error){report.errors.push(`${label}: ${error.stack||error}`);}finally{await context.close();const view=report.views.find(item=>item.label===label);if(view)view.raw=await page.video().path();}
 }
 try{await record('phone390',390,844,{analog:true});await record('desktop1440',1440,900);}finally{await browser.close();}
