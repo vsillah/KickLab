@@ -72,6 +72,7 @@ function showKitSettings(trigger=$('#kitRoomToggle')){SETTINGS.trigger=SETTINGS.
 function settingsBack(){if(SETTINGS.level==='kit')setSettingsLevel('choices',{category:'kit'});else if(SETTINGS.level==='choices')setSettingsLevel('categories');else if(SETTINGS.level==='garage')setSettingsLevel('categories');}
 
 settingsToggle.addEventListener('click',()=>settingsDrawer.hidden?openSettings(null,settingsToggle):closeSettings());
+$('#raceGarageShortcut').addEventListener('click',e=>{if(M===Race)openSettings('garage',e.currentTarget);});
 $('#settingsClose').addEventListener('click',()=>closeSettings());
 $('#settingsBack').addEventListener('click',settingsBack);
 $('#quickSettings').addEventListener('click',e=>{const b=e.target.closest('[data-category]');if(!b)return;openSettings(b.dataset.category||null,b);});
@@ -135,7 +136,7 @@ function playerHudState(){
   const action=Fight.state==='swing'?'Punching':Fight.state==='hold'?'Impact':Fight.state==='recoil'?'Resetting':'Ready';return{action,detail:`Fight · ${action}`};
 }
 function renderPlayerHud(){const state=playerHudState(),compact=$('#hudProfileState'),current=$('#profileCurrentPlay'),context=$('#profileCurrentContext');if(compact)compact.textContent=state.action;if(current)current.textContent=state.action;if(context)context.textContent=state.detail;}
-function renderOrientationHud(){const current=$('#orientationCurrentMode');if(current)current.textContent=MODE_NAMES[M.key]||M.key;}
+function renderOrientationHud(){const current=$('#orientationCurrentMode');if(current)current.textContent=MODE_NAMES[M.key]||M.key;$('#raceGarageShortcut').hidden=M!==Race;}
 function renderHistorySummary(){const latest=LOGS[M.key].filter(x=>!x.sep).slice(-1)[0];$('#historyTitle').textContent=latest?latest.title:'Move log ready';$('#historyLatest').textContent=latest?`${fmtT(latest.t)}${latest.res?` · ${latest.res}`:''}${latest.math?` · ${plainMath(latest.math)}`:''}`:{fight:'Your next punch, dodge or block will appear here.',race:'Your next braking or corner event will appear here.',kick:'Your next shot event will appear here.'}[M.key];}
 function renderGoalsSummary(){
   const total=Object.values(BADGES).reduce((n,l)=>n+l.length,0),earned=Object.keys(best.badges||{}).length;

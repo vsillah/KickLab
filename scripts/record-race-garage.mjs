@@ -24,9 +24,8 @@ async function record(label,width,height,{analog=false}={}){
     await page.locator('.race-orbit-panel button').waitFor({state:'visible',timeout:10000});await page.click('.race-orbit-panel button');
     await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.dynamics?.state==='run',null,{timeout:15000});
     if(analog)await page.click('#analogControlsButton');
-    await page.click('#orientationDetailToggle');await page.waitForTimeout(320);
-    await page.click('#settingsToggle');await page.locator('#settingsCategories [data-category="garage"]').waitFor({state:'visible'});await page.waitForTimeout(450);
-    await page.click('#settingsCategories [data-category="garage"]');await page.waitForTimeout(650);
+    await page.click('#orientationDetailToggle');await page.locator('#raceGarageShortcut').waitFor({state:'visible'});await page.waitForTimeout(950);
+    await page.click('#raceGarageShortcut');await page.locator('#raceGarage').waitFor({state:'visible'});await page.waitForTimeout(650);
     const before=await page.evaluate(()=>window.__KICKLAB_RACE_GARAGE_QA__.read());
     const suspension=[];
     for(const [field,value] of [['suspension','soft'],['suspension','firm'],['body','race'],['tires','wide'],['brakes','sport']]){

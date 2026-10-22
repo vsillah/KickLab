@@ -11,7 +11,8 @@ const sizes=[[360,780],[390,844],[768,1024],[942,958],[1113,988],[1440,900]].fil
 
 async function inspect(width,height,{reduced=false,canvas=false,analog=false}={}){
   const name=`${width}${reduced?'-reduced':''}${canvas?'-canvas':''}${analog?'-analog':''}`;
-  const context=await browser.newContext({viewport:{width,height},deviceScaleFactor:1,reducedMotion:reduced?'reduce':'no-preference'}),page=await context.newPage();
+  const input=width===360?'touch':width===390&&!reduced&&!canvas&&!analog?'keyboard-enter':width===768?'keyboard-space':'pointer';
+  const context=await browser.newContext({viewport:{width,height},deviceScaleFactor:1,reducedMotion:reduced?'reduce':'no-preference',hasTouch:input==='touch',isMobile:input==='touch'}),page=await context.newPage();
   page.on('pageerror',error=>report.errors.push(`${name}: ${error.message}`));
   await page.route('**/*',route=>{const url=route.request().url();if(url.startsWith(new URL(base).origin)||url.startsWith('data:')||url.startsWith('blob:'))return route.continue();report.external.push(`${name}: ${url}`);route.abort();});
   try{
@@ -24,9 +25,18 @@ async function inspect(width,height,{reduced=false,canvas=false,analog=false}={}
     await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});
     const toast=page.locator('.toast-close:visible').first();if(await toast.count())await toast.evaluate(button=>button.click());
     if(analog)await page.click('#analogControlsButton');
-    if(!await page.locator('#settingsToggle').isVisible())await page.click('#orientationDetailToggle');
-    await page.click('#settingsToggle');
-    const direct=await page.locator('#settingsCategories [data-category="garage"]').isVisible();if(!direct)throw new Error('Garage missing from first settings screen');
+    await page.click('#orientationDetailToggle');
+    const direct=await page.evaluate(()=>{const button=document.querySelector('#raceGarageShortcut'),panel=document.querySelector('#orientationDetail'),rect=button.getBoundingClientRect(),frame=panel.getBoundingClientRect();return{visible:!!button.getClientRects().length,hidden:button.hidden,allLabs:!!document.querySelector('#modeHomeButton').getClientRects().length,settings:!!document.querySelector('#settingsToggle').getClientRects().length,within:rect.left>=frame.left&&rect.right<=frame.right&&rect.top>=frame.top&&rect.bottom<=frame.bottom,overflow:Math.max(0,document.documentElement.scrollWidth-innerWidth)};});
+    if(!direct.visible||direct.hidden||!direct.allLabs||!direct.settings||!direct.within||direct.overflow)throw new Error(`Garage direct entry: ${JSON.stringify(direct)}`);
+    await page.locator('#orientationDetail').screenshot({path:join(out,`${name}-direct-entry.png`)});
+    const shortcut=page.locator('#raceGarageShortcut');
+    if(input==='touch'){const rect=await shortcut.boundingBox();await page.touchscreen.tap(rect.x+rect.width/2,rect.y+rect.height/2);}
+    else if(input.startsWith('keyboard')){await shortcut.focus();await page.keyboard.press(input==='keyboard-space'?'Space':'Enter');}
+    else await shortcut.click();
+    await page.locator('#raceGarage').waitFor({state:'visible'});
+    if(await page.locator('#orientationDetail').isVisible()||!await page.locator('#settingsDrawer').isVisible())throw new Error('Direct action did not replace Lab controls with Garage');
+    await page.click('#settingsBack');
+    if(!await page.locator('#settingsCategories [data-category="garage"]').isVisible())throw new Error('Garage missing from Settings category path');
     await page.click('#settingsCategories [data-category="garage"]');
     const initial=await page.evaluate(()=>({level:document.querySelector('#settingsTitle').textContent,build:window.__KICKLAB_RACE_GARAGE__?.build,summary:!document.querySelector('#raceGarageSummary').hidden,scrollWidth:document.documentElement.scrollWidth,innerWidth,focus:document.activeElement?.dataset.garagePart||''}));
     if(initial.level!=='Garage & tuning'||!initial.summary||initial.scrollWidth>initial.innerWidth+1)throw new Error(`Garage entry: ${JSON.stringify(initial)}`);
@@ -54,7 +64,15 @@ async function inspect(width,height,{reduced=false,canvas=false,analog=false}={}
     if(analog)await page.click('#controllerCollapseButton');
     const live=await page.evaluate(()=>({state:window.__KICKLAB_LIVE_PHYSICS_COMBO_QA_READ__().race.state,params:window.__KICKLAB_RACE_GARAGE_QA__.read().parameters,style:document.querySelector('#analogControlsButton').getAttribute('aria-pressed'),collapsed:document.querySelector('#controllerCollapseButton').getAttribute('aria-expanded'),telemetry:window.__KICKLAB_RACE_TELEMETRY__?.enabled===true}));
     if(live.state!=='run'||live.params.brakePower<=1||live.params.mu<=.9||(!canvas&&!live.telemetry))throw new Error(`Live Race parameters: ${JSON.stringify(live)}`);
-    report.cases.push({name,width,height,reduced,canvas,analog,initial,suspension,tuned,live});
+    if(width===390&&!reduced&&!canvas&&!analog){
+      for(const lab of ['fight','kick']){
+        await page.click('#orientationDetailToggle');await page.click('#modeHomeButton');await page.click(`#lab-tab-${lab}`);
+        await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});await page.click('#orientationDetailToggle');
+        if(await page.locator('#raceGarageShortcut').isVisible())throw new Error(`Garage shortcut leaked into ${lab}`);
+        await page.click('#orientationDetail [data-close-detail="orientation"]');
+      }
+    }
+    report.cases.push({name,width,height,reduced,canvas,analog,input,direct,initial,suspension,tuned,live});
   }catch(error){report.errors.push(`${name}: ${error.stack||error}`);}finally{await context.close();}
 }
 try{if(process.env.KICKLAB_QA_ONLY==='canvas')await inspect(390,844,{canvas:true});else{for(const [width,height] of sizes)await inspect(width,height);if(!process.env.KICKLAB_QA_WIDTHS){await inspect(390,844,{reduced:true});await inspect(390,844,{canvas:true});await inspect(390,844,{analog:true});}}}finally{await browser.close();}
