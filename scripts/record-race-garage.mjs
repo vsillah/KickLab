@@ -30,8 +30,10 @@ async function record(label,width,height,{analog=false}={}){
     const suspension=[];
     for(const [field,value] of [['suspension','soft'],['suspension','firm'],['body','race'],['tires','wide'],['brakes','sport']]){
       await page.click(`#raceGarage [data-garage-section="${field}"]`);
+      if(field==='suspension'||field==='tires'){await page.locator(`#garage-lesson-${field}`).scrollIntoViewIfNeeded();await page.waitForTimeout(1050);}
       await page.click(`#raceGarage [data-garage-part="${field}"][data-garage-value="${value}"]`);
       if(field==='suspension')suspension.push(await page.evaluate(()=>({choice:window.__KICKLAB_RACE_GARAGE__.build.suspension,current:window.__KICKLAB_RACE_GARAGE__.current,summary:document.querySelector('#raceGarageSummary').innerText,visible:document.querySelector('#raceGarageSummary').getBoundingClientRect().bottom<=innerHeight+1})));
+      if(field==='suspension'||field==='tires')await page.locator(`#garage-lesson-${field}`).scrollIntoViewIfNeeded();
       await page.waitForTimeout(field==='suspension'?900:650);
     }
     if(suspension.length!==2||suspension.some(item=>!item.visible)||!(suspension[0].current.steeringResponse<suspension[1].current.steeringResponse)||!(suspension[0].current.slideRecovery>suspension[1].current.slideRecovery))throw new Error(`Suspension comparison missing in video: ${JSON.stringify(suspension)}`);
@@ -39,7 +41,7 @@ async function record(label,width,height,{analog=false}={}){
     if(after.parameters.mu<=before.parameters.mu||after.parameters.brakePower<=before.parameters.brakePower||after.parameters.m===before.parameters.m)throw new Error('Garage parts did not change live parameters');
     await page.waitForTimeout(450);await page.click('#settingsClose');
     const coachToast=page.locator('#toasts .toast').filter({hasText:'Coach Nia'}).last();await coachToast.waitFor({state:'visible'});await page.waitForTimeout(800);
-    await coachToast.getByRole('button',{name:'Open Coach'}).click();await page.locator('#garageCoachDetail').waitFor({state:'visible'});await page.waitForTimeout(1100);
+    await coachToast.getByRole('button',{name:'Open Coach'}).click();await page.locator('#garageCoachDetail').waitFor({state:'visible'});await page.waitForTimeout(1600);
     await page.locator('#learnDetail [data-close-detail]').click();await page.waitForTimeout(350);await page.evaluate(()=>document.activeElement?.blur());
     await page.keyboard.down('Space');await page.keyboard.down('ArrowRight');await page.waitForTimeout(1450);await page.keyboard.up('ArrowRight');await page.keyboard.up('Space');await page.waitForTimeout(650);
     const drive=await page.evaluate(()=>({garage:window.__KICKLAB_RACE_GARAGE_QA__.read(),telemetry:window.__KICKLAB_RACE_TELEMETRY__,trace:window.__KICKLAB_RACE_CORNER_TRACE__}));

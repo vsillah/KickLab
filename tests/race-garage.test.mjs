@@ -50,6 +50,27 @@ test('suspension choices produce distinct comparison rates while stock stays at 
   assert.deepEqual(garage.summary(P(garage.DEFAULT)),stock);
 });
 
+test('every Garage lesson teaches the selected canonical effect with units and a tradeoff',()=>{
+  assert.equal(garage.lesson('unknown',garage.DEFAULT,P(garage.DEFAULT)),null);
+  const bodies={kart:{m:160,F:2200,top:30,Lwb:1.05},street:{m:1400,F:8500,top:55,Lwb:2.7},race:{m:760,F:11000,top:80,Lwb:2.9}};
+  for(const field of garage.fields)for(const choice of garage.PARTS[field].choices){
+    const selection=build(field,choice.id),params=garage.parameters({...base,...(field==='body'?bodies[choice.id]:{})},selection),sum=garage.summary(params),lesson=garage.lesson(field,selection,params);
+    assert.equal(JSON.stringify(garage.lesson(field,selection,params)),JSON.stringify(lesson));
+    assert.ok(lesson.formula.length&&lesson.formula.every(line=>line.includes('=')));
+    for(const key of ['reading','how','when','tradeoff','coach'])assert.ok(lesson[key].length>20,`${field}/${choice.id}: ${key}`);
+    if(field==='body')assert.ok(lesson.reading.includes(`${params.F.toFixed(0)} N`)&&lesson.reading.includes(`${params.m.toFixed(0)} kg`)&&lesson.reading.includes(`${sum.launch.toFixed(1)} m/s²`));
+    if(field==='suspension')assert.ok(lesson.reading.includes(`${(sum.steeringResponse*100).toFixed(0)}%`)&&lesson.reading.includes(`${(sum.slideRecovery*100).toFixed(0)}%`));
+    if(field==='tires')assert.ok(lesson.reading.includes(`μ ${params.mu.toFixed(2)}`)&&lesson.reading.includes(`${sum.corner.toFixed(0)} km/h`));
+    if(field==='brakes')assert.ok(lesson.reading.includes(`${(params.brakePower*100).toFixed(0)}%`)&&lesson.reading.includes(`${sum.stop.toFixed(1)} m`));
+  }
+  const soft=garage.lesson('suspension',build('suspension','soft'),P(build('suspension','soft'))),firm=garage.lesson('suspension',build('suspension','firm'),P(build('suspension','firm')));
+  assert.match(soft.tradeoff,/78%/);assert.match(firm.tradeoff,/78%/);assert.match(firm.coach,/Unwind sooner/);
+  const wide=garage.lesson('tires',build('tires','wide'),P(build('tires','wide'))),narrow=garage.lesson('tires',build('tires','narrow'),P(build('tires','narrow')));
+  assert.match(wide.tradeoff,/120%.*128%/);assert.match(narrow.tradeoff,/92%/);
+  const sport=garage.lesson('brakes',build('brakes','sport'),P(build('brakes','sport'))),endurance=garage.lesson('brakes',build('brakes','endurance'),P(build('brakes','endurance')));
+  assert.match(sport.tradeoff,/135%.*130%.*12 kg/);assert.match(endurance.tradeoff,/94%.*16 kg/);
+});
+
 test('suspension recovery and brake fade evolve deterministically',()=>{
   const evolve=(params,seconds)=>{const s={v:20,garageRecovery:.45};let response;for(let i=0;i<seconds/.01;i++)response=garage.response(s,params,60,1,.01);return{s,response};};
   const soft=evolve(P(build('suspension','soft')),.3),firm=evolve(P(build('suspension','firm')),.3);
