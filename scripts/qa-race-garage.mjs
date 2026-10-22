@@ -77,10 +77,10 @@ async function inspect(width,height,{reduced=false,canvas=false,analog=false}={}
         await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});await page.click('#orientationDetailToggle');
         if(await page.locator('#raceGarageShortcut').isVisible())throw new Error(`Garage shortcut leaked into ${lab}`);
         await page.click('#orientationDetail [data-close-detail="orientation"]');
-        await page.evaluate(()=>toast('Notification check','Coach action remains available.',{action:'Open Coach',onAction:()=>setContextDetail('learn',{trigger:document.querySelector('#learnDetailToggle'),focus:true})}));
-        await page.locator('#toasts .toast').filter({hasText:'Notification check'}).getByRole('button',{name:'Open Coach'}).click();
-        if(!await page.locator('#learnDetail').isVisible()||await page.locator('#garageCoachDetail').isVisible())throw new Error(`${lab} Coach notification regression`);
-        await page.locator('#learnDetail [data-close-detail]').click();
+        await page.click('#profileBtn');await page.click('#profileEdit');await page.click('#profileFormSave');const toastAtSave=await page.locator('#toasts').innerText();await page.locator('#profileClose').evaluate(button=>button.click());
+        const profileToast=page.locator('#toasts .toast').filter({hasText:'Profile saved'}).last();
+        if(!await profileToast.isVisible()||await page.locator('#garageCoachDetail').isVisible())throw new Error(`${lab} notification regression: ${JSON.stringify({toast:await profileToast.isVisible(),coach:await page.locator('#garageCoachDetail').isVisible(),toasts:await page.locator('#toasts').innerText(),toastAtSave,formMsg:await page.locator('#profileFormMsg').innerText(),formHidden:await page.locator('#profileForm').evaluate(element=>element.hidden),replayBar:await page.locator('#rbar').isVisible(),profileTitle:await page.locator('#profileFormTitle').innerText()})}`);
+        await profileToast.getByRole('button',{name:'Dismiss Profile saved'}).click();
       }
     }
     report.cases.push({name,width,height,reduced,canvas,analog,input,direct,initial,suspension,tuned,live});
