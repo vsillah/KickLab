@@ -230,7 +230,7 @@
                 <b id="raceCoachSetupTitle">Coach Nia · Race setup</b>
                 <p id="raceCoachSetupTargets"></p>
                 <p id="raceCoachSetupRecommendation"></p>
-                <div><button type="button" id="raceCoachSetupGarage">Garage &amp; tuning</button><button type="button" id="raceCoachSetupStart">Start heat</button></div>
+                <div><button type="button" id="raceCoachSetupGarage">Garage &amp; tuning</button><button type="button" id="raceCoachSetupControls" hidden>Analog controls</button><button type="button" id="raceCoachSetupSteering" hidden>Autopilot steering</button><button type="button" id="raceCoachSetupStart">Start heat</button></div>
               </section>
               <section class="race-coach-setup race-coach-result" id="raceCoachResult" aria-labelledby="raceCoachResultTitle" hidden>
                 <b id="raceCoachResultTitle">Coach Nia · Heat review</b>
@@ -242,7 +242,7 @@
                 <div class="race-telemetry-head" data-race-live-readout><span class="race-telemetry-coach" aria-label="Coach Nia">NI</span><div><b id="raceTelemetryTitle">RPM</b><small id="raceTelemetryPhase">Ready</small></div><output id="raceTelemetryValue">—</output></div>
                 <div class="race-telemetry-band" aria-hidden="true"><i id="raceTelemetryFill"></i><em></em></div>
                 <button type="button" id="raceTelemetryCue" aria-label="Coach Nia level plan" aria-live="off">Coach Nia: Find the bright band.</button>
-                <div class="race-telemetry-actions"><button type="button" id="raceTelemetryPrev" aria-label="Previous telemetry gauge">‹</button><span id="raceTelemetryIndex">1 / 7</span><button type="button" id="raceTelemetryNext" aria-label="Next telemetry gauge">›</button><button type="button" id="raceTelemetryApply" hidden>Release NOS</button></div>
+                <div class="race-telemetry-actions"><button type="button" id="raceTelemetryPrev" aria-label="Previous telemetry gauge">‹</button><span id="raceTelemetryIndex">1 / 7</span><button type="button" id="raceTelemetryNext" aria-label="Next telemetry gauge">›</button><button type="button" id="raceTelemetryShift" hidden>Shift</button><button type="button" id="raceTelemetryApply" hidden>Release NOS</button></div>
                 <div class="race-trace-controls" id="raceTraceControls" hidden aria-label="Live Race physics variable"><button type="button" id="raceTracePrev" aria-label="Previous Race physics variable">‹</button><div class="race-trace-readout"><b id="raceTraceVariable">Tire grip</b><output id="raceTraceValue">μ 0.90</output><small id="raceTraceBand">Nia: 1.20–1.60</small><small id="raceTraceEquation">vₘₐₓ = √(μgR)</small><small id="raceTraceState" aria-live="polite">SAFE LINE</small></div><button type="button" id="raceTraceNext" aria-label="Next Race physics variable">›</button></div>
               </section>
               <section class="live-physics-combo" id="livePhysicsCombo" data-state="passive" hidden aria-labelledby="livePhysicsComboVariable" aria-describedby="livePhysicsComboEquation livePhysicsComboCoach">
