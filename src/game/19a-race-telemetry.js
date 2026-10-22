@@ -12,6 +12,8 @@ const RACE_TELEMETRY=(()=>{
     {id:'drift',name:'Drift angle',unit:'°',target:[.35,.65],coach:'Hold a modest angle. Too much slip loses the line.'},
     {id:'grip',name:'Grip recovery',unit:'%',target:[.7,1],coach:'Unwind the wheel until the tires bite again.'}
   ]);
+  function thermalStage(t){if(t.overheat)return t.heat>=.91?'critical':'power-loss';if(t.phase==='recovered')return'cooling';if(t.heat>=.76)return'hot';if(t.heat>=.58)return'warming';if(t.phase==='cooling')return'cooling';return'normal';}
+  function powerFactor(t){if(t.overheat)return t.heat>=.91?clamp(.65-(t.heat-.91)*3,.38,.65):clamp(.65+(.91-t.heat)*(.35/.43),.65,1);return clamp(1-Math.max(0,t.heat-.58)*(.35/.33),.65,1);}
   function initial(){return{heat:.2,brakeHeat:0,pressure:.5,capacity:1,rpm:.25,torque:0,braking:0,brakeDistance:0,angle:0,grip:1,gripLost:false,gripRecoveryUntil:0,selected:'rpm',recommended:'rpm',manualUntil:0,lock:'',lockUntil:0,phase:'ready',recoveryUntil:0,overheat:false,cooled:false,nosPulse:0,clock:0,lastCue:'',cueAge:0,cueUntil:0};}
   function recommend(t,s,input,P){if(t.overheat||t.heat>.76)return'temperature';if(s.slide||s.driftMode==='skid')return'grip';if(s.zone===1&&Math.abs(s.slipAngle||0)>.07)return'drift';if(s.zone===0&&s.x>P.L-55&&s.v>9)return'braking';if(input.brake>.1)return'braking';if(input.gas>.2&&t.pressure>.65&&s.v>9)return'nos';if(input.gas>.2)return t.rpm<.55?'rpm':'torque';return t.pressure<.6?'nos':'rpm';}
   function step(t,s,input,P,dt){const h=clamp(dt,0,.05),gas=clamp(Number(input.gas)||0,0,1),brake=clamp(Number(input.brake)||0,0,1);t.clock+=h;
@@ -21,7 +23,7 @@ const RACE_TELEMETRY=(()=>{
     t.heat=clamp(t.heat+(gas*gas*.19+(input.nitro?.28:0)+Math.max(0,t.rpm-.8)*.18)*h-cooling,0,1);
     if(!t.overheat&&t.heat>=.91){t.overheat=true;t.phase='overheat';t.cooled=false;}
     else if(t.overheat&&t.heat<=.48){t.overheat=false;t.phase='recovered';t.recoveryUntil=t.clock+1.5;t.cooled=true;}
-    else if(!t.overheat)t.phase=t.clock<t.recoveryUntil?'recovered':t.heat>.76?'warning':'drive';
+    else if(!t.overheat)t.phase=t.clock<t.recoveryUntil?'recovered':t.heat>.76?'warning':gas<.2&&t.heat>.42?'cooling':'drive';
     if(t.nosPulse>0)t.nosPulse=Math.max(0,t.nosPulse-h);
     t.pressure=clamp(t.pressure+(input.nitro?-h*.36:(1-gas*.4)*h*.09),0,1);
     t.recommended=recommend(t,s,input,P);if(t.clock>=t.manualUntil)t.selected=t.recommended;
@@ -34,5 +36,5 @@ const RACE_TELEMETRY=(()=>{
     if(action==='apply'&&canLock(t)){t.lock=t.selected;t.lockUntil=t.clock+2;if(t.selected==='nos'){t.nosPulse=1.2;t.pressure=Math.max(0,t.pressure-.32);t.heat=clamp(t.heat+.09,0,1);}return true;}
     return false;}
   function cancel(t){if(t){t.nosPulse=0;t.manualUntil=0;t.lock='';t.lockUntil=0;}}
-  return Object.freeze({enabled,GAUGES,initial,step,tune,recommend,canLock,cancel});
+  return Object.freeze({enabled,GAUGES,initial,step,tune,recommend,canLock,cancel,thermalStage,powerFactor});
 })();
