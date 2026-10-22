@@ -27,6 +27,7 @@ function setContextDetail(name,{trigger=null,focus=false,open=true}={}){
   const panel=contextPanel(name);if(!panel)return;
   if(!open){closeContextDetail();return;}
   if(CONTEXT_DETAILS.open===name){closeContextDetail();return;}
+  if(name==='learn'){const note=$('#garageCoachDetail');note.hidden=M!==Race||!GARAGE_UI.last;if(!note.hidden)$('#garageCoachMessage').textContent=GARAGE_UI.last;}
   closeContextDetail({restore:false,restart:false});
   if(!settingsDrawer.hidden)closeSettings({restore:false,restart:false});
   if(!profileDialog.hidden)closeProfiles({restore:false,restart:false});
@@ -46,33 +47,39 @@ function setSettingsPause(on){
 }
 function setSettingsLevel(level,{category=SETTINGS.category,focus=true}={}){
   SETTINGS.level=level;SETTINGS.category=category;
-  const cats=$('#settingsCategories'),choices=$('#settingsChoices'),kitRoom=$('#kitroom'),back=$('#settingsBack');
-  cats.hidden=level!=='categories';choices.hidden=level!=='choices';kitRoom.hidden=level!=='kit';back.hidden=level==='categories';
+  settingsDrawer.classList.toggle('garage-open',level==='garage');
+  gameStage.classList.toggle('garage-review-open',level==='garage');
+  const cats=$('#settingsCategories'),choices=$('#settingsChoices'),kitRoom=$('#kitroom'),garage=$('#raceGarage'),garageSummary=$('#raceGarageSummary'),back=$('#settingsBack');
+  cats.hidden=level!=='categories';choices.hidden=level!=='choices';kitRoom.hidden=level!=='kit';garage.hidden=level!=='garage';garageSummary.hidden=level!=='garage';back.hidden=level==='categories';
   const group=settingsGroups().find(g=>g.id===category),label=group?group.label:'Settings';
-  $('#settingsBreadcrumb').textContent=level==='categories'?'Settings':level==='kit'?'Settings / Kit':`Settings / ${label}`;
+  $('#settingsBreadcrumb').textContent=level==='categories'?'Settings':level==='kit'?'Settings / Kit':level==='garage'?'Settings / Race':`Settings / ${label}`;
   $('#settingsTitle').textContent=level==='categories'?'Choose a category':level==='kit'?'Equipment details':label;
   if(level==='categories')renderSettingsCategories();
   else if(level==='choices')renderSettingsChoices(category);
+  else if(level==='garage')renderGarage();
   else renderKit();
   $('#settingsDrawerBody').scrollTop=0;
-  if(focus)requestAnimationFrame(()=>{const target=level==='categories'?cats.querySelector('button'):level==='choices'?choices.querySelector('button'):kitRoom.querySelector('button');(target||back).focus();});
+  if(focus)requestAnimationFrame(()=>{const target=level==='categories'?cats.querySelector('button'):level==='choices'?choices.querySelector('button'):level==='garage'?garage.querySelector('button'):kitRoom.querySelector('button');(target||back).focus();});
 }
 function openSettings(category=null,trigger=settingsToggle){
   if(!profileDialog.hidden)closeProfiles({restore:false,restart:false});if(CONTEXT_DETAILS.open)closeContextDetail({restore:false,restart:false});SETTINGS.trigger=trigger;SETTINGS.restoreCategory=trigger&&trigger.dataset?trigger.dataset.category:null;settingsDrawer.hidden=false;settingsToggle.setAttribute('aria-expanded','true');releaseGameplayForOverlay();setSettingsPause(true);
-  setSettingsLevel(category?'choices':'categories',{category,focus:true});syncGameOverlayBackdrop();requestAnimationFrame(resize);
+  setSettingsLevel(category?(category==='garage'?'garage':'choices'):'categories',{category,focus:true});syncGameOverlayBackdrop();requestAnimationFrame(resize);
 }
 function closeSettings({restore=true,restart=true}={}){
-  if(settingsDrawer.hidden)return;settingsDrawer.hidden=true;$('#kitroom').hidden=true;settingsToggle.setAttribute('aria-expanded','false');releasePauseOwner('settings',{restart});
+  if(settingsDrawer.hidden)return;settingsDrawer.hidden=true;gameStage.classList.remove('garage-review-open');$('#kitroom').hidden=true;settingsToggle.setAttribute('aria-expanded','false');releasePauseOwner('settings',{restart});
   syncGameOverlayBackdrop();if(restore){const trigger=SETTINGS.trigger&&SETTINGS.trigger.isConnected&&SETTINGS.trigger.offsetParent!==null?SETTINGS.trigger:SETTINGS.restoreCategory!=null?$(`#quickSettings [data-category="${SETTINGS.restoreCategory}"]`):null;(trigger||$('#orientationDetailToggle')||settingsToggle).focus();}requestAnimationFrame(resize);
+  if(M===Race&&GARAGE_UI.notice){const message=GARAGE_UI.notice;GARAGE_UI.notice=null;toast('Coach Nia',message,{action:'Open Coach',hold:14000,onAction:()=>setContextDetail('learn',{trigger:$('#learnDetailToggle'),focus:true})});}
 }
 function showKitSettings(trigger=$('#kitRoomToggle')){SETTINGS.trigger=SETTINGS.trigger||trigger;setSettingsLevel('kit',{category:'kit',focus:true});}
-function settingsBack(){if(SETTINGS.level==='kit')setSettingsLevel('choices',{category:'kit'});else if(SETTINGS.level==='choices')setSettingsLevel('categories');}
+function settingsBack(){if(SETTINGS.level==='kit')setSettingsLevel('choices',{category:'kit'});else if(SETTINGS.level==='choices')setSettingsLevel('categories');else if(SETTINGS.level==='garage')setSettingsLevel('categories');}
 
 settingsToggle.addEventListener('click',()=>settingsDrawer.hidden?openSettings(null,settingsToggle):closeSettings());
+$('#raceGarageShortcut').addEventListener('click',e=>{if(M===Race)openSettings('garage',e.currentTarget);});
 $('#settingsClose').addEventListener('click',()=>closeSettings());
 $('#settingsBack').addEventListener('click',settingsBack);
 $('#quickSettings').addEventListener('click',e=>{const b=e.target.closest('[data-category]');if(!b)return;openSettings(b.dataset.category||null,b);});
-$('#settingsCategories').addEventListener('click',e=>{const b=e.target.closest('[data-category]');if(!b)return;setSettingsLevel('choices',{category:b.dataset.category});});
+$('#settingsCategories').addEventListener('click',e=>{const b=e.target.closest('[data-category]');if(!b)return;setSettingsLevel(b.dataset.category==='garage'?'garage':'choices',{category:b.dataset.category});});
+$('#raceGarage').addEventListener('click',e=>{if(M!==Race)return;const section=e.target.closest('[data-garage-section]');if(section){GARAGE_UI.active=section.dataset.garageSection;renderGarage();requestAnimationFrame(()=>$(`#raceGarage [data-garage-section="${GARAGE_UI.active}"]`)?.focus());return;}const button=e.target.closest('[data-garage-part]');if(!button)return;const field=button.dataset.garagePart,value=button.dataset.garageValue;if(Race.garage[field]===value)return;if(!Race.setGaragePart(field,value))return;GARAGE_UI.active=field;const lesson=RACE_GARAGE.lesson(field,Race.garage,Race.P());GARAGE_UI.notice=lesson.coach;GARAGE_UI.last=`${RACE_GARAGE.option(field,value).name} · ${RACE_GARAGE.PARTS[field].label}\n${lesson.formula.join(' · ')}\n${lesson.reading}\n${lesson.how}\n${lesson.when}\nTradeoff: ${lesson.tradeoff}`;renderGarage();renderQuickSettings();renderRaceTelemetry();requestAnimationFrame(()=>$(`#raceGarage [data-garage-part="${field}"][data-garage-value="${value}"]`)?.focus());});
 settingsDrawer.addEventListener('pointerdown',e=>e.stopPropagation());
 settingsDrawer.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();closeSettings();return;}trapOverlayFocus(settingsDrawer,e);e.stopPropagation();});
 document.addEventListener('pointerdown',e=>{if(settingsDrawer.hidden||settingsDrawer.contains(e.target)||settingsToggle.contains(e.target)||$('#quickSettings').contains(e.target))return;const focusTarget=e.target.closest&&e.target.closest('button,input,select,textarea,[tabindex]');closeSettings({restore:false});if(!focusTarget)requestAnimationFrame(()=>settingsToggle.focus());});
@@ -131,7 +138,7 @@ function playerHudState(){
   const action=Fight.state==='swing'?'Punching':Fight.state==='hold'?'Impact':Fight.state==='recoil'?'Resetting':'Ready';return{action,detail:`Fight · ${action}`};
 }
 function renderPlayerHud(){const state=playerHudState(),compact=$('#hudProfileState'),current=$('#profileCurrentPlay'),context=$('#profileCurrentContext');if(compact)compact.textContent=state.action;if(current)current.textContent=state.action;if(context)context.textContent=state.detail;}
-function renderOrientationHud(){const current=$('#orientationCurrentMode');if(current)current.textContent=MODE_NAMES[M.key]||M.key;}
+function renderOrientationHud(){const current=$('#orientationCurrentMode');if(current)current.textContent=MODE_NAMES[M.key]||M.key;$('#raceGarageShortcut').hidden=M!==Race;}
 function renderHistorySummary(){const latest=LOGS[M.key].filter(x=>!x.sep).slice(-1)[0];$('#historyTitle').textContent=latest?latest.title:'Move log ready';$('#historyLatest').textContent=latest?`${fmtT(latest.t)}${latest.res?` · ${latest.res}`:''}${latest.math?` · ${plainMath(latest.math)}`:''}`:{fight:'Your next punch, dodge or block will appear here.',race:'Your next braking or corner event will appear here.',kick:'Your next shot event will appear here.'}[M.key];}
 function renderGoalsSummary(){
   const total=Object.values(BADGES).reduce((n,l)=>n+l.length,0),earned=Object.keys(best.badges||{}).length;

@@ -11,7 +11,7 @@ const src = (p) => readFileSync(join(root, 'src', p), 'utf8');
 
 const gameDir = join(root, 'src', 'game');
 const parts = readdirSync(gameDir).filter((f) => f.endsWith('.js')).sort();
-const shared = ['profile-store.js', 'game-core.js', 'gameplay-pacing.js', 'live-physics-combo.js'].map((file) => src(`shared/${file}`).replace(/\n$/, '')).join('\n');
+const shared = ['profile-store.js', 'game-core.js', 'gameplay-pacing.js', 'live-physics-combo.js', 'race-garage.js'].map((file) => src(`shared/${file}`).replace(/\n$/, '')).join('\n');
 const game = shared + '\n' + parts.map((f) => readFileSync(join(gameDir, f), 'utf8').replace(/\n$/, '')).join('\n') + '\n';
 
 const vendor = src('vendor/three.min.js');

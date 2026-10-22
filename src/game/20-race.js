@@ -1,7 +1,9 @@
+const RACE_GARAGE=globalThis.KickLabRaceGarage;
 const Race={
   key:'race',
   gas:false,brake:false,
   opt:{car:'street',steer:'you',venue:'highland'},
+  garage:RACE_GARAGE.normalize(best.raceGarage),
   V:{mu:0.9,m:1400,F:8500,R:32},
   COL:{mu:['μ',C.xray],m:['m',C.violet],F:['F',C.hot],R:['R',C.pink],v:['v',C.good],w:['θ',C.yellow]},
   CARS:{kart:{name:'Go-kart',m:160,F:2200,top:30,len:2.1,wid:1.3,Lwb:1.05,col:'#5fe3a1'},street:{name:'Street car',m:1400,F:8500,top:55,len:4.5,wid:1.85,Lwb:2.7,col:'#7fdcff'},race:{name:'Race car',m:760,F:11000,top:80,len:4.9,wid:1.95,Lwb:2.9,col:'#ff6b73'}},
@@ -12,7 +14,9 @@ const Race={
     {id:'car',label:'Car',choices:Object.entries(this.CARS).map(([k,c])=>[k,c.name,`wheelbase ${c.Lwb} m`])},
     {id:'steer',label:'Steering',choices:[['you','You steer','drag wheel or ← →'],['auto','Autopilot','watch the math']]},
     ...(RACE_SYSTEMS.enabled()?[{id:'venue',label:'Structural venue',choices:Object.values(RACE_SYSTEMS.VENUES).map(v=>[v.id,v.name,'Systems prototype · no final scenery'])}]:[])];},
-  onOpt(id,v){if(id==='car'){const c=this.CARS[v];this.V.m=c.m;this.V.F=c.F;}},
+  onOpt(id,v){if(id==='car'){const c=this.CARS[v];this.V.m=c.m;this.V.F=c.F;this.garage={...this.garage,body:v};best.raceGarage={...this.garage};saveBest();}},
+  loadGarage(){this.garage=RACE_GARAGE.normalize(best.raceGarage);this.garageLastPart=null;this.opt.car=this.garage.body;const c=this.CARS[this.opt.car];this.V.m=c.m;this.V.F=c.F;},
+  setGaragePart(field,value){if(!RACE_GARAGE.option(field,value))return false;this.garage={...this.garage,[field]:value};this.garageLastPart=field;if(field==='body'){this.opt.car=value;const c=this.CARS[value];this.V.m=c.m;this.V.F=c.F;}if(this.st)this.st.garageSteer=this.wheel*this.P().turnIn;best.raceGarage={...this.garage};saveBest();if(this.st&&RACE_CORNER_TRACE.enabled)this.cornerTracePrediction=RACE_CORNER_TRACE.predict();return true;},
   vars(){return[
     {id:'mu',sym:'μ',name:'tire grip (friction coefficient)',unit:'',min:0.3,max:1.6,step:0.05,d:2,col:C.xray,pre:[[0.5,'wet'],[0.9,'street'],[1.4,'slicks']]},
     {id:'R',sym:'R',name:'corner radius (reshapes the track)',unit:'m',min:20,max:60,step:1,d:0,col:C.pink,lock:true,pre:[[20,'hairpin'],[32,'normal'],[55,'sweeper']]},
@@ -24,7 +28,7 @@ const Race={
   locked(){return this.state==='run'||this.state==='count';},
   FIN(){return this.V.R+40;},
   finishPoint(){const P=this.P(),turn=RACE_SYSTEMS.enabled()?RACE_SYSTEMS.venue(this.opt.venue).turn:1;return{x:P.L+P.R,y:turn*this.FIN()};},
-  P(){const c=this.CARS[this.opt.car],v=RACE_SYSTEMS.enabled()?RACE_SYSTEMS.venue(this.opt.venue):null,tireMu=this.V.mu,cornerFactor=v?v.baseGrip*v.gripZones.find(z=>z.from<=this.L&&z.to>this.L).multiplier:1;return{L:this.L,R:this.V.R,m:this.V.m,F:this.V.F,top:c.top,mu:tireMu*cornerFactor,...(v?{tireMu}:{}),Lwb:c.Lwb,ratio:this.RATIO};},
+  P(){const c=this.CARS[this.opt.car],v=RACE_SYSTEMS.enabled()?RACE_SYSTEMS.venue(this.opt.venue):null,tireMu=this.V.mu,cornerFactor=v?v.baseGrip*v.gripZones.find(z=>z.from<=this.L&&z.to>this.L).multiplier:1;return RACE_GARAGE.parameters({L:this.L,R:this.V.R,m:this.V.m,F:this.V.F,top:c.top,mu:tireMu*cornerFactor,...(v?{tireMu}:{}),Lwb:c.Lwb,ratio:this.RATIO},this.garage);},
   sx(x){return this.OX+x*this.S;},sy(y){return this.OY-y*this.S;},
   suggest(){const P=this.P(),o={},vk=Math.sqrt(P.mu*G0*P.R)*3.6;
     o.mu={lo:1.2,hi:1.6,note:`1.2–1.6. The corner limit is √(μ·g·R) = ${fmt(vk,0)} km/h now; more grip also shortens braking.`};
@@ -229,7 +233,6 @@ const Race={
       }
     }else this.drawWheel(c);
     text(c,fmt(s.t,2)+' s',W-24,40,'22px '+DISP,C.ink,'right');
-    if(s.slide&&this.state==='run'){text(c,'SLIDING: need more grip than μ·g',W/2,66,'700 13px '+MONO,C.bad,'center');}
     if(!RACE_3D.on&&!preview&&(this.state==='count'||this.state==='grid')){const lit=this.state==='count'?Math.min(3,Math.floor((2.4-this.cd)/0.8)+1):0;
       c.save();c.fillStyle='rgba(6,11,24,0.85)';rr(c,W/2-74,74,148,46,23);c.fill();for(let i=0;i<3;i++){c.fillStyle=i<lit?C.bad:'#2a3552';c.beginPath();c.arc(W/2-44+i*44,97,14,0,Math.PI*2);c.fill();}c.restore();}
     if(this.state==='run'&&s.t<0.8){c.save();c.globalAlpha=1-s.t/0.8;text(c,'GO!',W/2,112,'34px '+DISP,C.good,'center');c.restore();}
@@ -263,6 +266,14 @@ const Race={
       {h:'Speed limit',p:'Set them equal. Mass is on both sides and cancels.',eq:`v_max = √(μ·g·R) = <em>${fmt(r.vmax)} m/s</em> (${fmt(r.vmax*3.6,0)} km/h)`},
       {h:'Braking distance',p:r.vp>r.vmax?`Top speed on the straight was ${fmt(r.vp)} m/s.`:'You never went over the limit on the straight.',eq:r.vp>r.vmax?`d = (v₁² − v₂²) / (2·0.95·μ·g) = <em>${fmt(r.dB,0)} m</em> before the corner`:`<em>${fmt(r.vp)} ≤ ${fmt(r.vmax)} m/s</em>, no braking needed`}],
     idea:`Two ways to go faster through a corner: more grip (μ) or a bigger radius (R). Drag R up and watch the needed wheel angle shrink and the speed limit rise. That's why racers use the whole track to make the turn wider.`,quiz:QUIZ.race};}
+};
+Race.loadGarage();
+if(typeof location!=='undefined'&&['localhost','127.0.0.1'].includes(location.hostname))globalThis.__KICKLAB_RACE_GARAGE_QA__={
+  read:()=>({build:{...Race.garage},parameters:Race.P(),state:Race.state,velocity:Race.st?.v||0,slide:!!Race.st?.slide,slideTime:Race.slideT||0,zone:Race.st?.zone||0,coachWarned:!!Race.warnS,telemetry:Race.telemetry?{braking:Race.telemetry.braking,brakeHeat:Race.telemetry.brakeHeat,brakeDistance:Race.telemetry.brakeDistance}:null,cornerTrace:Race.cornerTracePrediction?{exit:Race.cornerTracePrediction.exit,state:Race.cornerTracePrediction.state,grip:Race.cornerTracePrediction.grip}:null}),
+  auditSlideHud(){const original=CanvasRenderingContext2D.prototype.fillText,drawn=[],prior={state:Race.state,slide:Race.st.slide,t:Race.st.t};CanvasRenderingContext2D.prototype.fillText=function(value,x,y,...rest){drawn.push({value:String(value),x,y});return original.call(this,value,x,y,...rest);};
+    try{const context=document.createElement('canvas').getContext('2d');Race.state='run';Race.st.t=3;return[false,true].map(slide=>{drawn.length=0;Race.st.slide=slide;Race.hud(context);return{slide,top:drawn.filter(item=>item.y<140),forbidden:drawn.filter(item=>/sliding:|need more grip/i.test(item.value))};});}
+    finally{CanvasRenderingContext2D.prototype.fillText=original;Race.st.slide=prior.slide;Race.st.t=prior.t;Race.state=prior.state;}},
+  beginSlideFixture(){if(M!==Race||Race.state!=='run')return false;const P=Race.P();Race.opt.steer='you';Object.assign(Race.st,{x:P.L+2,y:0,th:0,v:20,e:0,zone:1,slide:false,need:0});Race.wheel=160;Race.inp.gas=true;Race.inp.brake=false;Race.inp.left=false;Race.inp.right=false;Race.cornerTracePrediction=null;Race.warnS=false;return true;}
 };
 
 /* =====================================================================

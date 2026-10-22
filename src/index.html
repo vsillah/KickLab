@@ -127,6 +127,7 @@
               <div class="orientation-current"><span>Current lab</span><b id="orientationCurrentMode">Fight</b><small>Return to the lab chooser or open settings without covering the field permanently.</small></div>
               <div class="orientation-actions" role="group" aria-label="Lab navigation and settings">
                 <button type="button" class="mode-home-button" id="modeHomeButton"><span aria-hidden="true">←</span><span><b>All labs</b><small>Choose Fight, Race, or Kick</small></span></button>
+                <button type="button" class="garage-shortcut" id="raceGarageShortcut" aria-controls="settingsDrawer" hidden><span aria-hidden="true">⚙</span><span><b>Garage &amp; tuning</b><small>Car setup and physics</small></span></button>
                 <button type="button" class="settings-toggle" id="settingsToggle" aria-label="Open game settings" aria-expanded="false" aria-controls="settingsDrawer"><span aria-hidden="true">⚙</span><span><b>Settings</b><small>Game, controls, look, and kit</small></span></button>
               </div>
             </div>
@@ -141,6 +142,7 @@
           <section class="context-detail learn-detail" id="learnDetail" role="dialog" aria-modal="true" aria-labelledby="learnDetailTitle" hidden>
             <header class="context-detail-head"><div><span>Learn</span><h2 id="learnDetailTitle">Working, notebook and quick check</h2></div><button type="button" data-close-detail="learn" aria-label="Close coach notebook">Close <span aria-hidden="true">✕</span></button></header>
             <p class="context-detail-state">Game pauses while the coach notebook is open.</p>
+            <div class="garage-coach-detail" id="garageCoachDetail" hidden><b>Coach Nia · Your latest tune</b><p id="garageCoachMessage"></p></div>
             <div class="full"><h2>Full working</h2><div class="eqs" id="eqs"></div></div>
             <section class="notebook" aria-live="polite">
               <div class="nb-head"><div class="row"><h2 id="nbTitle">Lab notebook</h2><span class="big" id="nbBig"></span></div><p class="nb-sub" id="nbSub"></p></div>
@@ -171,7 +173,9 @@
                   <div id="kitBody"></div>
                   <div class="kit-foot"><button type="button" class="fb-x" id="kitReset">Reset to match kit</button></div>
                 </section>
+                <section class="race-garage" id="raceGarage" hidden aria-label="Race garage and tuning"></section>
               </div>
+              <div class="race-garage-summary" id="raceGarageSummary" hidden aria-live="polite"></div>
           </section>
           <section class="context-detail physics-detail" id="physicsDetail" role="dialog" aria-modal="true" aria-labelledby="mathHudTitle" hidden>
             <header class="context-detail-head"><div><span>Math</span><h2 id="mathHudTitle">Current physics</h2></div><button type="button" data-close-detail="math" aria-label="Close physics details">Close <span aria-hidden="true">✕</span></button></header>
