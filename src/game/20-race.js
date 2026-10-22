@@ -3,7 +3,7 @@ const RACE_PROGRESSION=globalThis.KickLabRaceProgression;
 const Race={
   key:'race',
   gas:false,brake:false,
-  opt:{car:'street',steer:'you',venue:'highland'},
+  opt:{car:'street',steer:'you',venue:'highland',vehicle:'cobalt'},
   garage:RACE_GARAGE.normalize(best.raceGarage),
   progressionActive(){return RACE_PROGRESSION.enabled();},
   progressionLevel(){return RACE_PROGRESSION.level(best.raceProgression);},
@@ -16,9 +16,10 @@ const Race={
   LIVE(){return[1,3,4];},
   groups(){return[
     {id:'car',label:'Car',choices:Object.entries(this.CARS).map(([k,c])=>[k,c.name,`wheelbase ${c.Lwb} m`])},
+    ...(globalThis.KickLabRaceVehicleCatalog.enabled()?[{id:'vehicle',label:'Race vehicle',choices:globalThis.KickLabRaceVehicleCatalog.list().map(c=>[c.id,c.name,`${c.role} · ${c.tradeoff}`])}]:[]),
     {id:'steer',label:'Steering',choices:[['you','You steer','drag wheel or ← →'],['auto','Autopilot','watch the math']]},
     ...(RACE_SYSTEMS.enabled()?[{id:'venue',label:'Structural venue',choices:Object.values(RACE_SYSTEMS.VENUES).map(v=>[v.id,v.name,'Systems prototype · no final scenery'])}]:[])];},
-  onOpt(id,v){if(id==='car'){const c=this.CARS[v];this.V.m=c.m;this.V.F=c.F;this.garage={...this.garage,body:v};best.raceGarage={...this.garage};saveBest();}},
+  onOpt(id,v){if(id==='car'){const c=this.CARS[v];this.V.m=c.m;this.V.F=c.F;this.garage={...this.garage,body:v};best.raceGarage={...this.garage};saveBest();}if(id==='vehicle'&&globalThis.KickLabRaceVehicleCatalog.enabled())RACE_3D.selectVehicle(v);},
   loadGarage(){this.garage=RACE_GARAGE.normalize(best.raceGarage);this.garageLastPart=null;this.opt.car=this.garage.body;const c=this.CARS[this.opt.car];this.V.m=c.m;this.V.F=c.F;},
   setGaragePart(field,value){if(!RACE_GARAGE.option(field,value))return false;this.garage={...this.garage,[field]:value};this.garageLastPart=field;if(field==='body'){this.opt.car=value;const c=this.CARS[value];this.V.m=c.m;this.V.F=c.F;}if(this.st)this.st.garageSteer=this.wheel*this.P().turnIn;best.raceGarage={...this.garage};saveBest();if(this.st&&RACE_CORNER_TRACE.enabled)this.cornerTracePrediction=RACE_CORNER_TRACE.predict();return true;},
   vars(){return[
@@ -32,7 +33,7 @@ const Race={
   locked(){return this.state==='run'||this.state==='count';},
   FIN(){return this.V.R+40;},
   finishPoint(){const P=this.P(),turn=RACE_SYSTEMS.enabled()?RACE_SYSTEMS.venue(this.opt.venue).turn:1;return{x:P.L+P.R,y:turn*this.FIN()};},
-  P(){const c=this.CARS[this.opt.car],v=RACE_SYSTEMS.enabled()?RACE_SYSTEMS.venue(this.opt.venue):null,tireMu=this.V.mu,cornerFactor=v?v.baseGrip*v.gripZones.find(z=>z.from<=this.L&&z.to>this.L).multiplier:1,P=RACE_GARAGE.parameters({L:this.L,R:this.V.R,m:this.V.m,F:this.V.F,top:c.top,mu:tireMu*cornerFactor,...(v?{tireMu}:{}),Lwb:c.Lwb,ratio:this.RATIO},this.garage);if(this.progressionActive()){P.garageStock=false;P.progressionGrade=true;P.progressionHeat=true;P.approachMu=tireMu*v.baseGrip*v.gripZones[0].multiplier*RACE_GARAGE.option('tires',this.garage.tires).grip;P.approachGrade=RACE_PROGRESSION.grade(v,80);}return P;},
+  P(){const c=this.CARS[this.opt.car],v=RACE_SYSTEMS.enabled()?RACE_SYSTEMS.venue(this.opt.venue):null,roster=globalThis.KickLabRaceVehicleCatalog.enabled()?globalThis.KickLabRaceVehicleCatalog.get(this.opt.vehicle).physics:null,tireMu=this.V.mu*(roster?.grip??1),cornerFactor=v?v.baseGrip*v.gripZones.find(z=>z.from<=this.L&&z.to>this.L).multiplier:1,P=RACE_GARAGE.parameters({L:this.L,R:this.V.R,m:roster?.massKg??this.V.m,F:roster?.driveForceN??this.V.F,top:roster?.topSpeedMs??c.top,mu:tireMu*cornerFactor,...(v?{tireMu}:{}),Lwb:c.Lwb,ratio:this.RATIO},this.garage);if(roster){P.garageStock=false;P.rolling*=roster.rollingLoss;P.stability*=roster.steeringResponse;P.recovery*=roster.slideRecovery;P.brakeHeat*=roster.brakeHeat;P.brakeRecovery=roster.brakeRecovery;P.downforce=roster.downforce;}if(this.progressionActive()){P.garageStock=false;P.progressionGrade=true;P.progressionHeat=true;P.approachMu=tireMu*v.baseGrip*v.gripZones[0].multiplier*RACE_GARAGE.option('tires',this.garage.tires).grip;P.approachGrade=RACE_PROGRESSION.grade(v,80);}return P;},
   sx(x){return this.OX+x*this.S;},sy(y){return this.OY-y*this.S;},
   suggest(){const P=this.P(),o={},vk=Math.sqrt(P.mu*G0*P.R)*3.6;
     o.mu={lo:1.2,hi:1.6,note:`1.2–1.6. The corner limit is √(μ·g·R) = ${fmt(vk,0)} km/h now; more grip also shortens braking.`};
