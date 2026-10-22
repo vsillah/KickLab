@@ -1,6 +1,6 @@
 /* Default-off Race telemetry. This state is deliberately absent from records/storage. */
 const RACE_TELEMETRY=(()=>{
-  const enabled=globalThis.KickLabRaceOrigin.trusted()&&['raceTelemetry','raceCornerTrace'].some(key=>new URLSearchParams(location.search).get(key)==='prototype');
+  const enabled=globalThis.KickLabRaceOrigin.trusted()&&['raceTelemetry','raceCornerTrace','raceExpansion'].some(key=>new URLSearchParams(location.search).get(key)==='prototype');
   if(enabled&&typeof document!=='undefined')document.documentElement.dataset.raceTelemetry='prototype';
   const clamp=(value,min,max)=>Math.min(max,Math.max(min,value));
   const GAUGES=Object.freeze([

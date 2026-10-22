@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "1.0.0",
+  "assetId": "kicklab-race-kestrel",
+  "version": "1",
+  "status": "evaluation-only",
+  "artifact": {
+    "path": "src/assets/3d/kicklab-race-kestrel/v1/kestrel-original.glb",
+    "mediaType": "model/gltf-binary",
+    "bytes": 488004,
+    "sha256": "664da4cc38fcead58c9a5ede35915fcbc9129ad60ac4e44862a3600a2469d092"
+  },
+  "provenance": {
+    "creator": "KickLab local Race roster authoring",
+    "sourceType": "self-authored-production",
+    "sourcePath": "scripts/race-roster/generate.py, scripts/race-roster/body_variants.py, and src/assets/3d/kicklab-race-kestrel/v1/kestrel-original.blend",
+    "sourceCommit": "d03034aee57633dd3c0ce0bce9bfdd69a7689a64",
+    "acquiredOn": "2026-10-22",
+    "externalInputs": false,
+    "likeness": false,
+    "cloudProcessing": false
+  },
+  "license": {
+    "owner": "KickLab",
+    "basis": "self-authored",
+    "permittedUse": "production-game",
+    "thirdPartyRestrictions": "none",
+    "proof": "Blender CLI generated original analytic geometry and local UV/material work. No provider geometry, image, or external texture is included."
+  },
+  "runtime": {
+    "threeVersion": "0.186.1",
+    "loader": "GLTFLoader",
+    "requiredExtensions": []
+  },
+  "validation": {
+    "allowedIssues": [
+      {
+        "code": "NODE_EMPTY",
+        "severity": 2,
+        "count": 8,
+        "reason": "Named attachment markers carry transforms for future effects."
+      },
+      {
+        "code": "UNUSED_OBJECT",
+        "severity": 2,
+        "count": 15,
+        "reason": "Original local UVs are preserved for reversible material work; this untextured PBR variant uses solid factors."
+      }
+    ]
+  },
+  "network": {
+    "runtimeRequests": "same-origin-local-only",
+    "externalUrisAllowed": false
+  }
+}
