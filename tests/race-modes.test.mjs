@@ -48,6 +48,7 @@ test('Drift route has an acceleration lead-in, two opposite curves, and recovery
   assert.ok(route.leadEnd>=80);
   assert.ok(route.recoveryEnd-route.recoveryStart>=60);
   assert.ok(route.finishX>route.exitX+50);
+  assert.ok(route.roadEndX-route.finishX>=180,'road continues visibly past scored finish');
   for(const [x,y,zone,curvature] of [[60,0,0,0],[110,8,1,1],[118,60,2,0],[126,112,3,-1],[200,120,4,0]]){
     const p=modes.driftPath(x,y);
     assert.equal(p.zone,zone,`zone at ${x},${y}`);
@@ -56,6 +57,28 @@ test('Drift route has an acceleration lead-in, two opposite curves, and recovery
   }
   assert.ok(points.length>100);
   assert.equal(points.at(-1).z,route.exitY);
+});
+
+test('start lights and finish crossings have deterministic order and direction',()=>{
+  assert.deepEqual([2.4,1.6,1.5,.8,.7,0].map(modes.lightPhase),['red','yellow','yellow','green','green','go']);
+  const drag=modes.config('drag'),drift=modes.config('drift');
+  assert.equal(modes.crossedFinish(drag,{x:239},{x:240.1,e:0}),true);
+  assert.equal(modes.crossedFinish(drag,{x:241},{x:242,e:0}),false);
+  assert.equal(modes.crossedFinish(drift,{x:214},{x:215.1,e:0,zone:4}),true);
+  assert.equal(modes.crossedFinish(drift,{x:214},{x:215.1,e:0,zone:3}),false);
+  assert.equal(modes.crossedFinish(drift,{x:216},{x:217,e:0,zone:4}),false);
+});
+
+test('Drag speed treatment is bounded and honors reduced motion',()=>{
+  const idle=modes.speedTreatment(0,55,false),fast=modes.speedTreatment(55,55,false),reduced=modes.speedTreatment(55,55,true);
+  assert.equal(idle.intensity,0);
+  assert.equal(fast.intensity,1);
+  assert.ok(fast.fieldOfView>idle.fieldOfView&&fast.fieldOfView<=60);
+  assert.ok(fast.cameraVibration>0&&fast.cameraVibration<=.035);
+  assert.ok(fast.streakOpacity>0&&fast.streakOpacity<=.28);
+  assert.equal(reduced.fieldOfView,55);
+  assert.equal(reduced.cameraVibration,0);
+  assert.equal(reduced.streakOpacity,0);
 });
 
 test('Drag trap and result coast remain on paved centerline',()=>{
