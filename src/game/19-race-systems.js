@@ -8,7 +8,7 @@ const RACE_SYSTEMS=(()=>{
   });
   const CONTRACT=Object.freeze({version:1,units:'metres',forward:'+X',up:'+Y',right:'+Z',root:'VehicleRoot',body:'Body',dimensions:Object.freeze({length:4.9,width:1.95,height:1.45,wheelbase:2.9}),wheels:Object.freeze({frontLeft:Object.freeze({node:'WheelFrontLeft',pivot:[1.28,.43,-1.04]}),frontRight:Object.freeze({node:'WheelFrontRight',pivot:[1.28,.43,1.04]}),rearLeft:Object.freeze({node:'WheelRearLeft',pivot:[-1.28,.43,-1.04]}),rearRight:Object.freeze({node:'WheelRearRight',pivot:[-1.28,.43,1.04]})}),cameraTarget:Object.freeze([-.3,1.02,0]),collider:Object.freeze({kind:'box',center:[0,.72,0],halfExtents:[2.45,.72,.98]}),lights:Object.freeze(['BrakeLeft','BrakeRight','HeadlightLeft','HeadlightRight']),effects:Object.freeze(['ExhaustLeft','ExhaustRight','RearTireLeft','RearTireRight']),materialSlots:Object.freeze(['body','glass','aero','wheels','lights']),lod:Object.freeze({high:'VehicleRoot',low:'VehicleLow',canvas:'Race Canvas fallback'})});
   const params=typeof location!=='undefined'?new URLSearchParams(location.search):null;
-  const ACTIVE=!!params&&['localhost','127.0.0.1'].includes(location.hostname)&&(params.get('raceSystems')==='proxy'||params.get('raceTelemetry')==='prototype'||params.get('raceCornerTrace')==='prototype');
+  const ACTIVE=!!params&&['localhost','127.0.0.1'].includes(location.hostname)&&(params.get('raceSystems')==='proxy'||params.get('raceTelemetry')==='prototype'||params.get('raceCornerTrace')==='prototype'||params.get('raceProgression')==='prototype');
   if(ACTIVE&&typeof document!=='undefined')document.documentElement.dataset.raceSystems='proxy';
   function enabled(){return ACTIVE;}
   function venue(id){return VENUES[id]||VENUES.highland;}
@@ -34,7 +34,8 @@ const RACE_SYSTEMS=(()=>{
     const slipGoal=mode==='drift'?Math.sign(wheel)*clamp(.08+requestedLat/Math.max(cap,1)*.14,.08,.3):mode==='skid'?Math.sign(wheel||s.slipAngle||1)*.42:0;
     s.slipAngle=(s.slipAngle||0)+(slipGoal-(s.slipAngle||0))*Math.min(1,h*(mode==='skid'?2.5:4.5*(P.recovery??1)));
     s.latV=s.v*Math.sin(s.slipAngle);
-    const drag=(P.F/P.m)/(P.top*P.top)*(P.rolling??1),accel=longitudinal-drag*s.v*s.v;
+    const slope=P.progressionGrade?globalThis.KickLabRaceProgression.grade(v,s.x)*Math.cos(s.th):0;
+    const drag=(P.F/P.m)/(P.top*P.top)*(P.rolling??1),accel=longitudinal-drag*s.v*s.v-g*slope/Math.sqrt(1+slope*slope);
     s.v=Math.max(0,s.v+accel*h);s.th+=s.v*yawCurvature*h;s.x+=(s.v*Math.cos(s.th)-s.latV*Math.sin(s.th))*h;s.y+=(s.v*Math.sin(s.th)+s.latV*Math.cos(s.th))*h;s.t+=h;
     s.nitroActive=boostAllowed;if(boostAllowed){s.nitro=Math.max(0,(s.nitro||0)-h/2.2);if(s.nitro===0)s.nitroCooldown=3.5;}else if((s.nitroCooldown||0)>0)s.nitroCooldown=Math.max(0,s.nitroCooldown-h);else s.nitro=Math.min(1,(s.nitro||0)+h/9);
     s.driftMode=mode;s.slide=mode==='skid';s.drift=mode==='drift';s.wheel=wheel;s.k=yawCurvature;s.kc=requested;s.alat=s.v*s.v*Math.abs(yawCurvature);s.need=requestedLat;s.muEffective=mu;

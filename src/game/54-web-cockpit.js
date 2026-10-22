@@ -27,7 +27,7 @@ function setContextDetail(name,{trigger=null,focus=false,open=true}={}){
   const panel=contextPanel(name);if(!panel)return;
   if(!open){closeContextDetail();return;}
   if(CONTEXT_DETAILS.open===name){closeContextDetail();return;}
-  if(name==='learn'){const note=$('#garageCoachDetail');note.hidden=M!==Race||!GARAGE_UI.last;if(!note.hidden)$('#garageCoachMessage').textContent=GARAGE_UI.last;}
+  if(name==='learn'){const note=$('#garageCoachDetail');note.hidden=M!==Race||!GARAGE_UI.last;if(!note.hidden)$('#garageCoachMessage').textContent=GARAGE_UI.last;const progression=$('#raceProgressionCoach');progression.hidden=M!==Race||!Race.progressionActive();if(!progression.hidden){const level=Race.progressionLevel(),P=Race.P(),v=RACE_SYSTEMS.venue(level.venue);$('#raceProgressionCoachChallenge').textContent=level.challenge+` Pass each heat within ${level.time} s, at least ${level.entry} km/h at corner entry, no more than ${level.slide} s sliding, and at least ${fmt(level.brakeFactor*100,0)}% brake power.`;$('#raceProgressionCoachMath').textContent=`v_limit = √(μgR) = ${fmt(Math.sqrt(P.mu*G0*P.R)*3.6,0)} km/h; μ ${fmt(P.mu,2)} is unitless, g = 9.81 m/s², R = ${P.R} m. Approach grade ${fmt(globalThis.KickLabRaceProgression.grade(v,4)*100,1)}%.`;$('#raceProgressionCoachStrategies').innerHTML=level.strategies.map(strategy=>`<li>${strategy}</li>`).join('');}}
   closeContextDetail({restore:false,restart:false});
   if(!settingsDrawer.hidden)closeSettings({restore:false,restart:false});
   if(!profileDialog.hidden)closeProfiles({restore:false,restart:false});
@@ -69,12 +69,14 @@ function closeSettings({restore=true,restart=true}={}){
   if(settingsDrawer.hidden)return;settingsDrawer.hidden=true;gameStage.classList.remove('garage-review-open');$('#kitroom').hidden=true;settingsToggle.setAttribute('aria-expanded','false');releasePauseOwner('settings',{restart});
   syncGameOverlayBackdrop();if(restore){const trigger=SETTINGS.trigger&&SETTINGS.trigger.isConnected&&SETTINGS.trigger.offsetParent!==null?SETTINGS.trigger:SETTINGS.restoreCategory!=null?$(`#quickSettings [data-category="${SETTINGS.restoreCategory}"]`):null;(trigger||$('#orientationDetailToggle')||settingsToggle).focus();}requestAnimationFrame(resize);
   if(M===Race&&GARAGE_UI.notice){const message=GARAGE_UI.notice;GARAGE_UI.notice=null;toast('Coach Nia',message,{action:'Open Coach',hold:14000,onAction:()=>setContextDetail('learn',{trigger:$('#learnDetailToggle'),focus:true})});}
+  if(restore&&M===Race&&GARAGE_UI.returnToProgression){GARAGE_UI.returnToProgression=false;renderChal();setContextDetail('goals',{trigger:$('#goalsDetailToggle'),focus:false});requestAnimationFrame(()=>$(`#chal [data-race-level="${best.raceProgression.selected}"]`)?.focus());}else GARAGE_UI.returnToProgression=false;
 }
 function showKitSettings(trigger=$('#kitRoomToggle')){SETTINGS.trigger=SETTINGS.trigger||trigger;setSettingsLevel('kit',{category:'kit',focus:true});}
 function settingsBack(){if(SETTINGS.level==='kit')setSettingsLevel('choices',{category:'kit'});else if(SETTINGS.level==='choices')setSettingsLevel('categories');else if(SETTINGS.level==='garage')setSettingsLevel('categories');}
 
 settingsToggle.addEventListener('click',()=>settingsDrawer.hidden?openSettings(null,settingsToggle):closeSettings());
 $('#raceGarageShortcut').addEventListener('click',e=>{if(M===Race)openSettings('garage',e.currentTarget);});
+$('#raceProgressionCoachGarage').addEventListener('click',e=>{if(M===Race&&Race.progressionActive()){GARAGE_UI.returnToProgression=true;openSettings('garage',e.currentTarget);}});
 $('#settingsClose').addEventListener('click',()=>closeSettings());
 $('#settingsBack').addEventListener('click',settingsBack);
 $('#quickSettings').addEventListener('click',e=>{const b=e.target.closest('[data-category]');if(!b)return;openSettings(b.dataset.category||null,b);});
@@ -128,7 +130,7 @@ function challengeSummary(){
   return{eyebrow:`Challenge ${k+1} of ${n}`,title:c.name,detail:c.goal};
 }
 function liveHudState(){if(M===Fight&&Fight.bout)return`You ${Math.ceil(Fight.bout.me)} HP · ${Fight.bout.T.name} ${Math.ceil(Fight.bout.opp)} HP`;if(M===Race)return RACE_3D.shouldBlockInput()&&!RACE_3D.awaitingPacing?'Race · vehicle view':Race.state==='run'?`${fmt(Race.st.t,1)} s · ${fmt(Race.st.v*3.6,0)} km/h`:`Race · ${Race.state==='count'?'countdown':'ready'}`;if(M===Kick&&typeof MATCH!=='undefined'&&MATCH.on)return`Match ${MATCH.you}–${MATCH.them}`;if(M===Kick&&typeof LIVEM!=='undefined'&&LIVEM.on)return`Live ${LIVEM.you}–${LIVEM.them} · ${LIVEM.clock()}`;if(M===Kick&&Kick.opt.shot==='dribble')return`Kick · ${(GAMES.find(game=>game.k===curGame())||{}).n||'activity'}`;return M===Kick?`Kick · ${Kick.opt.shot==='header'?'Header duel':'Free kick'}`:`${M.key} lab`;}
-function railHudState(){if(M===Fight&&Fight.bout)return`${Math.ceil(Fight.bout.me)}–${Math.ceil(Fight.bout.opp)} HP`;if(M===Race)return RACE_3D.shouldBlockInput()&&!RACE_3D.awaitingPacing?'Vehicle view':Race.state==='run'?`${fmt(Race.st.v*3.6,0)} km/h`:Race.state==='count'?'Countdown':'Ready';if(M===Kick&&typeof MATCH!=='undefined'&&MATCH.on)return`${MATCH.you}–${MATCH.them}`;if(M===Kick&&typeof LIVEM!=='undefined'&&LIVEM.on)return`${LIVEM.you}–${LIVEM.them}`;if(M===Kick&&Kick.opt.shot==='dribble')return(GAMES.find(game=>game.k===curGame())||{}).n||'Activity';return M===Kick?(Kick.opt.shot==='header'?'Header':'Free kick'):`${M.key} lab`;}
+function railHudState(){if(M===Fight&&Fight.bout)return`${Math.ceil(Fight.bout.me)}–${Math.ceil(Fight.bout.opp)} HP`;if(M===Race)return RACE_3D.shouldBlockInput()&&!RACE_3D.awaitingPacing?'Vehicle view':Race.state==='run'?`${fmt(Race.st.v*3.6,0)} km/h`:Race.state==='count'?'Countdown':Race.progressionActive()?`Level ${best.raceProgression.selected+1} · heat ${best.raceProgression.heats+1}`:'Ready';if(M===Kick&&typeof MATCH!=='undefined'&&MATCH.on)return`${MATCH.you}–${MATCH.them}`;if(M===Kick&&typeof LIVEM!=='undefined'&&LIVEM.on)return`${LIVEM.you}–${LIVEM.them}`;if(M===Kick&&Kick.opt.shot==='dribble')return(GAMES.find(game=>game.k===curGame())||{}).n||'Activity';return M===Kick?(Kick.opt.shot==='header'?'Header':'Free kick'):`${M.key} lab`;}
 function renderChallengeHud(){$('#challengeHudSummary').innerHTML=`<span class="mobile-hud-label" aria-hidden="true">Goal</span><b class="hud-summary-cue">${railHudState()}</b>`;}
 function playerHudState(){
   if(!M)return{action:'Ready',detail:'Choose a lab to begin'};
