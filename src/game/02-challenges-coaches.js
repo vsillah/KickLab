@@ -50,7 +50,7 @@ function raceFail(r,c){const bits=[];if(!r.ok)bits.push(r.where==='outside'?`You
 
 /* ---------- coaches ---------- */
 const COACHES={fight:{name:'Coach Dre',role:'boxing coach',ini:'DR',col:'#ffb04a',hello:"I'm Coach Dre. Your timing sets the speed, the sliders set everything else. Land one in the green and let's see the numbers."},
-  race:{name:'Chief Nia',role:'race engineer',ini:'NI',col:'#7fdcff',hello:"Chief Nia on the radio. This car turns with real steering geometry. Match the yellow notch on the wheel and brake before the corner."},
+  race:{name:'Coach Nia',role:'race engineer',ini:'NI',col:'#7fdcff',hello:"Coach Nia on the radio. This car turns with real steering geometry. Match the yellow notch on the wheel and brake before the corner."},
   kick:{name:'Coach Tomi',role:'set-piece coach',ini:'TO',col:'#5fe3a1',hello:"Coach Tomi here. Beat the wall, dip under the bar. Get both checks green in Live Math, then take the shot."}};
 const COACH={t:0,hold:8,last:'',tipI:0,
   set(mode){const c=COACHES[mode];$('#coach').style.setProperty('--cc',c.col);$('#coachAv').textContent=c.ini;$('#coachName').textContent=c.name;$('#coachRole').textContent=c.role;this.last='';this.tipI=0;const ci=chIntro(mode);this.say(ci||c.hello,'tip',14);},

@@ -41,16 +41,17 @@ async function inspect(width,height,{reduced=false,canvas=false,analog=false}={}
     const initial=await page.evaluate(()=>({level:document.querySelector('#settingsTitle').textContent,build:window.__KICKLAB_RACE_GARAGE__?.build,summary:!document.querySelector('#raceGarageSummary').hidden,scrollWidth:document.documentElement.scrollWidth,innerWidth,focus:document.activeElement?.dataset.garagePart||''}));
     if(initial.level!=='Garage & tuning'||!initial.summary||initial.scrollWidth>initial.innerWidth+1)throw new Error(`Garage entry: ${JSON.stringify(initial)}`);
     await page.locator('.stage').screenshot({path:join(out,`${name}-stock.png`)});
+    const choose=async(field,value)=>{await page.click(`#raceGarage [data-garage-section="${field}"]`);await page.click(`#raceGarage [data-garage-part="${field}"][data-garage-value="${value}"]`);};
     const suspension=[];
     for(const value of ['soft','balanced','firm']){
-      await page.click(`#raceGarage [data-garage-part="suspension"][data-garage-value="${value}"]`);
+      await choose('suspension',value);
       suspension.push(await page.evaluate(()=>({choice:window.__KICKLAB_RACE_GARAGE__.build.suspension,stock:window.__KICKLAB_RACE_GARAGE__.stock,current:window.__KICKLAB_RACE_GARAGE__.current,summary:document.querySelector('#raceGarageSummary').innerText,visible:document.querySelector('#raceGarageSummary').getBoundingClientRect().bottom<=innerHeight+1})));
     }
     if(suspension.some(item=>!item.visible||item.stock.steeringResponse!==1||item.stock.slideRecovery!==1)||!(suspension[0].current.steeringResponse<suspension[1].current.steeringResponse&&suspension[1].current.steeringResponse<suspension[2].current.steeringResponse)||!(suspension[0].current.slideRecovery>suspension[1].current.slideRecovery&&suspension[1].current.slideRecovery>suspension[2].current.slideRecovery)||!suspension[2].summary.includes('118%')||!suspension[2].summary.includes('78%'))throw new Error(`Suspension comparison: ${JSON.stringify(suspension)}`);
     await page.locator('.stage').screenshot({path:join(out,`${name}-suspension-firm.png`)});
-    await page.click('#raceGarage [data-garage-part="suspension"][data-garage-value="balanced"]');
+    await choose('suspension','balanced');
     for(const [field,value] of [['body','race'],['suspension','firm'],['tires','wide'],['brakes','sport']]){
-      await page.click(`#raceGarage [data-garage-part="${field}"][data-garage-value="${value}"]`);
+      await choose(field,value);
       const applied=await page.evaluate(({field,value})=>({selected:window.__KICKLAB_RACE_GARAGE__?.build?.[field],pressed:document.querySelector(`#raceGarage [data-garage-part="${field}"][data-garage-value="${value}"]`)?.getAttribute('aria-pressed'),focus:document.activeElement?.dataset.garagePart,summary:document.querySelector('#raceGarageSummary').getBoundingClientRect().bottom<=innerHeight+1}),{field,value});
       if(applied.selected!==value||applied.pressed!=='true'||!applied.summary)throw new Error(`${field}: ${JSON.stringify(applied)}`);
     }
@@ -58,6 +59,12 @@ async function inspect(width,height,{reduced=false,canvas=false,analog=false}={}
     if(tuned.current.launch<=tuned.stock.launch||tuned.current.corner<=tuned.stock.corner||tuned.overflow)throw new Error(`No tuned physics or overflow: ${JSON.stringify(tuned)}`);
     await page.locator('.stage').screenshot({path:join(out,`${name}-tuned.png`)});
     await page.keyboard.press('Escape');if(await page.locator('#settingsDrawer').isVisible())throw new Error('Escape did not close settings');
+    const coachToast=page.locator('#toasts .toast').filter({hasText:'Coach Nia'}).last();await coachToast.waitFor({state:'visible'});
+    if(!await coachToast.getByRole('button',{name:'Open Coach'}).isVisible())throw new Error('Coach toast has no action');
+    await coachToast.getByRole('button',{name:'Open Coach'}).click();
+    if(!await page.locator('#learnDetail').isVisible()||!await page.locator('#garageCoachDetail').isVisible()||!await page.locator('#garageCoachMessage').innerText())throw new Error('Coach action did not open existing detail');
+    await page.locator('#learnDetail [data-close-detail]').click();
+    if(await page.locator('#learnDetail').isVisible()||!await page.locator('#learnDetailToggle').evaluate(element=>document.activeElement===element))throw new Error('Coach detail focus return failed');
     if(!canvas){await page.locator('.race-orbit-panel button').waitFor({state:'visible',timeout:8000});await page.click('.race-orbit-panel button');}
     else {await page.evaluate(()=>document.activeElement?.blur());await page.keyboard.down('Space');await page.keyboard.up('Space');}
     await page.waitForFunction(()=>window.__KICKLAB_LIVE_PHYSICS_COMBO_QA_READ__().race.state==='run',null,{timeout:15000});
@@ -70,6 +77,10 @@ async function inspect(width,height,{reduced=false,canvas=false,analog=false}={}
         await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});await page.click('#orientationDetailToggle');
         if(await page.locator('#raceGarageShortcut').isVisible())throw new Error(`Garage shortcut leaked into ${lab}`);
         await page.click('#orientationDetail [data-close-detail="orientation"]');
+        await page.evaluate(()=>toast('Notification check','Coach action remains available.',{action:'Open Coach',onAction:()=>setContextDetail('learn',{trigger:document.querySelector('#learnDetailToggle'),focus:true})}));
+        await page.locator('#toasts .toast').filter({hasText:'Notification check'}).getByRole('button',{name:'Open Coach'}).click();
+        if(!await page.locator('#learnDetail').isVisible()||await page.locator('#garageCoachDetail').isVisible())throw new Error(`${lab} Coach notification regression`);
+        await page.locator('#learnDetail [data-close-detail]').click();
       }
     }
     report.cases.push({name,width,height,reduced,canvas,analog,input,direct,initial,suspension,tuned,live});

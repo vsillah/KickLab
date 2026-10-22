@@ -27,6 +27,7 @@ function setContextDetail(name,{trigger=null,focus=false,open=true}={}){
   const panel=contextPanel(name);if(!panel)return;
   if(!open){closeContextDetail();return;}
   if(CONTEXT_DETAILS.open===name){closeContextDetail();return;}
+  if(name==='learn'){const note=$('#garageCoachDetail');note.hidden=M!==Race||!GARAGE_UI.last;if(!note.hidden)$('#garageCoachMessage').textContent=GARAGE_UI.last;}
   closeContextDetail({restore:false,restart:false});
   if(!settingsDrawer.hidden)closeSettings({restore:false,restart:false});
   if(!profileDialog.hidden)closeProfiles({restore:false,restart:false});
@@ -67,6 +68,7 @@ function openSettings(category=null,trigger=settingsToggle){
 function closeSettings({restore=true,restart=true}={}){
   if(settingsDrawer.hidden)return;settingsDrawer.hidden=true;gameStage.classList.remove('garage-review-open');$('#kitroom').hidden=true;settingsToggle.setAttribute('aria-expanded','false');releasePauseOwner('settings',{restart});
   syncGameOverlayBackdrop();if(restore){const trigger=SETTINGS.trigger&&SETTINGS.trigger.isConnected&&SETTINGS.trigger.offsetParent!==null?SETTINGS.trigger:SETTINGS.restoreCategory!=null?$(`#quickSettings [data-category="${SETTINGS.restoreCategory}"]`):null;(trigger||$('#orientationDetailToggle')||settingsToggle).focus();}requestAnimationFrame(resize);
+  if(M===Race&&GARAGE_UI.notice){const message=GARAGE_UI.notice;GARAGE_UI.notice=null;toast('Coach Nia',message,{action:'Open Coach',hold:14000,onAction:()=>setContextDetail('learn',{trigger:$('#learnDetailToggle'),focus:true})});}
 }
 function showKitSettings(trigger=$('#kitRoomToggle')){SETTINGS.trigger=SETTINGS.trigger||trigger;setSettingsLevel('kit',{category:'kit',focus:true});}
 function settingsBack(){if(SETTINGS.level==='kit')setSettingsLevel('choices',{category:'kit'});else if(SETTINGS.level==='choices')setSettingsLevel('categories');else if(SETTINGS.level==='garage')setSettingsLevel('categories');}
@@ -77,7 +79,7 @@ $('#settingsClose').addEventListener('click',()=>closeSettings());
 $('#settingsBack').addEventListener('click',settingsBack);
 $('#quickSettings').addEventListener('click',e=>{const b=e.target.closest('[data-category]');if(!b)return;openSettings(b.dataset.category||null,b);});
 $('#settingsCategories').addEventListener('click',e=>{const b=e.target.closest('[data-category]');if(!b)return;setSettingsLevel(b.dataset.category==='garage'?'garage':'choices',{category:b.dataset.category});});
-$('#raceGarage').addEventListener('click',e=>{const button=e.target.closest('[data-garage-part]');if(!button||M!==Race)return;const field=button.dataset.garagePart,value=button.dataset.garageValue;if(Race.garage[field]===value)return;if(!Race.setGaragePart(field,value))return;renderGarage();renderQuickSettings();renderRaceTelemetry();requestAnimationFrame(()=>$(`#raceGarage [data-garage-part="${field}"][data-garage-value="${value}"]`)?.focus());});
+$('#raceGarage').addEventListener('click',e=>{if(M!==Race)return;const section=e.target.closest('[data-garage-section]');if(section){GARAGE_UI.active=section.dataset.garageSection;renderGarage();requestAnimationFrame(()=>$(`#raceGarage [data-garage-section="${GARAGE_UI.active}"]`)?.focus());return;}const button=e.target.closest('[data-garage-part]');if(!button)return;const field=button.dataset.garagePart,value=button.dataset.garageValue;if(Race.garage[field]===value)return;if(!Race.setGaragePart(field,value))return;GARAGE_UI.active=field;GARAGE_UI.last=`${RACE_GARAGE.PARTS[field].label}: ${RACE_GARAGE.option(field,value).coach} Check the stock-to-current numbers in Garage, then drive a lap to feel it.`;GARAGE_UI.notice=GARAGE_UI.last;renderGarage();renderQuickSettings();renderRaceTelemetry();requestAnimationFrame(()=>$(`#raceGarage [data-garage-part="${field}"][data-garage-value="${value}"]`)?.focus());});
 settingsDrawer.addEventListener('pointerdown',e=>e.stopPropagation());
 settingsDrawer.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();closeSettings();return;}trapOverlayFocus(settingsDrawer,e);e.stopPropagation();});
 document.addEventListener('pointerdown',e=>{if(settingsDrawer.hidden||settingsDrawer.contains(e.target)||settingsToggle.contains(e.target)||$('#quickSettings').contains(e.target))return;const focusTarget=e.target.closest&&e.target.closest('button,input,select,textarea,[tabindex]');closeSettings({restore:false});if(!focusTarget)requestAnimationFrame(()=>settingsToggle.focus());});
