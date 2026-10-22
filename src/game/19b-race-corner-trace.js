@@ -1,6 +1,6 @@
-/* Local, default-off Race trajectory and canonical variable tuning. Never persisted. */
+/* Default-off Race trajectory and canonical variable tuning. Never persisted. */
 const RACE_CORNER_TRACE=(()=>{
-  const enabled=typeof location!=='undefined'&&['localhost','127.0.0.1'].includes(location.hostname)&&new URLSearchParams(location.search).get('raceCornerTrace')==='prototype';
+  const enabled=globalThis.KickLabRaceOrigin.trusted()&&new URLSearchParams(location.search).get('raceCornerTrace')==='prototype';
   if(enabled&&typeof document!=='undefined')document.documentElement.dataset.raceCornerTrace='prototype';
   const VARIABLES=Object.freeze(['mu','F','m']);
   let selected='mu';

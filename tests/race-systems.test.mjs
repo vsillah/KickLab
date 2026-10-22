@@ -2,16 +2,21 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
+import {local,pages,raceContext} from './helpers/race-origin.mjs';
 
 const source=readFileSync(new URL('../src/game/19-race-systems.js',import.meta.url),'utf8');
-function load(hostname='localhost',search='?raceSystems=proxy'){return vm.runInNewContext(source+'\nRACE_SYSTEMS',{location:{hostname,search},URLSearchParams});}
+function load(location=local('?raceSystems=proxy')){return vm.runInNewContext(source+'\nRACE_SYSTEMS',raceContext(location));}
 const api=load(),P={L:120,R:32,m:1400,F:8500,top:55,mu:.9,Lwb:2.7,ratio:15};
 const state=(extra={})=>({x:95,y:0,th:0,v:18,t:0,...api.initial(),...extra});
 const drive=(s,input,seconds,v=api.venue('highland'))=>{for(let n=0;n<seconds/.004;n++)api.step(s,P,input,.004,v);return s;};
 
-test('the development systems flag defaults off and stays local',()=>{
-  assert.equal(load('localhost','').enabled(),false);assert.equal(load('127.0.0.1','?raceSystems=proxy').enabled(),true);
-  assert.equal(load('kicklab.example','?raceSystems=proxy').enabled(),false);
+test('the systems flag is default-off and trusted-location only',()=>{
+  assert.equal(load(local()).enabled(),false);
+  assert.equal(load({...local('?raceSystems=proxy'),hostname:'127.0.0.1'}).enabled(),true);
+  assert.equal(load(pages()).enabled(),false);
+  assert.equal(load(pages('?raceSystems=proxy')).enabled(),true);
+  assert.equal(load({...pages('?raceSystems=proxy'),pathname:'/Other/'}).enabled(),false);
+  assert.equal(load({...pages('?raceSystems=proxy'),hostname:'kicklab.example'}).enabled(),false);
 });
 
 test('vehicle contract has four independently positioned wheel pivots and required swap fields',()=>{
