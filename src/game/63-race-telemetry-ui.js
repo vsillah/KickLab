@@ -1,5 +1,9 @@
 /* The same telemetry surface lives inside the shared Classic/Analog controller. */
 const raceTelemetryEl=$('#raceTelemetry');
+function renderRaceTemperature(t){
+  const stage=RACE_TELEMETRY.thermalStage(t),celsius=Math.round(65+t.heat*90),color={normal:'#70eac0',warming:'#f0cc72',hot:'#ffab63',critical:'#ff7478','power-loss':'#ff9b75',cooling:'#8ed9ec'}[stage];
+  for(const id of ['raceTelemetryTemp','raceNavigationTemp']){const arc=$('#'+id);arc.style.setProperty('--temp-angle',`${Math.round(t.heat*240)}deg`);arc.style.setProperty('--temp-color',color);arc.dataset.stage=stage;arc.querySelector('b').textContent=`${celsius}°`;arc.setAttribute('aria-label',`Engine temperature ${celsius} degrees Celsius, ${stage.replace('-',' ')}${t.overheat?', reduced power':''}`);}
+}
 function renderRaceTelemetry(){
   const active=RACE_TELEMETRY.enabled&&M===Race&&!!Race.telemetry;
   const coachActive=Race.progressionActive()||Race.expansionActive();
@@ -17,9 +21,9 @@ function renderRaceTelemetry(){
   $('#raceCoachResult').hidden=!resultReview;
   if(resultReview){$('#raceCoachResultTitle').textContent=`Coach Nia · ${Race.expansionActive()?Race.mode().name:Race.progressionLevel().name} review`;$('#raceCoachResultMeasurements').textContent=Race.progressionComparison;$('#raceCoachResultRecommendation').textContent=Race.progressionReviewNote;const category=Race.expansionActive()?Race.mode().preferred:RACE_PROGRESSION.category(Race.progressionOutcome.failed);$('#raceCoachResultGarage').textContent=category?`Garage · ${category}`:'Garage & tuning';$('#raceCoachResultRetry').textContent=Race.expansionActive()?'Retry run':'Retry heat';}
   raceTelemetryEl.hidden=!active||setupPreview||resultReview;if(!active){$('#raceNavigation').hidden=true;if(globalThis.__KICKLAB_RACE_NAVIGATION__)globalThis.__KICKLAB_RACE_NAVIGATION__.visible=false;return;}
-  const t=Race.telemetry,g=RACE_TELEMETRY.GAUGES.find(item=>item.id===t.selected),index=RACE_TELEMETRY.GAUGES.indexOf(g);
+  const t=Race.telemetry,g=RACE_TELEMETRY.GAUGES.find(item=>item.id===t.selected),index=RACE_TELEMETRY.GAUGES.indexOf(g),thermal=RACE_TELEMETRY.thermalStage(t);renderRaceTemperature(t);
   const values={rpm:[Math.round(t.rpm*8500),'rpm',t.rpm],torque:[Math.round(t.torque*100),'%',t.torque],nos:[Math.round(t.pressure*100),'%',t.pressure],temperature:[Math.round(65+t.heat*90),'°C',t.heat],braking:[Math.round(t.braking*100),'%',t.braking],drift:[Math.round(t.angle*38),'°',t.angle],grip:[Math.round(t.grip*100),'%',t.grip]};
-  const [value,unit,fraction]=values[g.id],phase=t.overheat?'POWER SAG · COOLING':t.phase==='recovered'?'COOLED · POWER BACK':t.lock===g.id?'BAND LOCKED':t.phase==='warning'?'HEAT RISING':t.manualUntil>t.clock?'MANUAL VIEW':'COACH RECOMMENDS';
+  const [value,unit,fraction]=values[g.id],phase={warming:'ENGINE WARMING',hot:'HOT · POWER FADING',critical:'CRITICAL · LIFT','power-loss':'POWER LOW · COOLING',cooling:t.phase==='recovered'?'COOLED · POWER BACK':'COOLING'}[thermal]|| (t.lock===g.id?'BAND LOCKED':t.manualUntil>t.clock?'MANUAL VIEW':'COACH RECOMMENDS');
   raceTelemetryEl.dataset.phase=t.overheat?'overheat':t.phase;raceTelemetryEl.dataset.lock=String(t.lock===g.id);raceTelemetryEl.dataset.cue=String(t.clock<t.cueUntil);
   const compact=matchMedia('(max-width:980px)').matches,shortName={rpm:'RPM',torque:'Torque',nos:'NOS',temperature:'Engine heat',braking:'Brakes',drift:'Drift angle',grip:'Grip recovery'}[g.id];
   $('#raceTelemetryTitle').textContent=compact?shortName:g.name;$('#raceTelemetryTitle').title=g.name;$('#raceTelemetryPhase').textContent=phase;$('#raceTelemetryValue').textContent=`${value} ${unit}`;$('#raceTelemetryValue').setAttribute('aria-label',g.id==='nos'?`NOS pressure ${value} percent, capacity ${Math.round(t.capacity*100)} percent`:g.id==='braking'?`Braking force ${value} percent, stopping distance ${Math.round(t.brakeDistance)} metres`:`${g.name} ${value} ${unit}`);$('#raceTelemetryFill').style.width=`${Math.round(fraction*100)}%`;
@@ -28,16 +32,16 @@ function renderRaceTelemetry(){
   $('#raceTelemetryShift').hidden=!dragShift;if(dragShift){$('#raceTelemetryShift').textContent=Race.modeAttempt.gear<4?`Shift ${Race.modeAttempt.gear+1}`:'Gear 4';$('#raceTelemetryShift').disabled=Race.state!=='run'||Race.modeAttempt.gear>=4||Race.modeAttempt.shiftCooldown>0;}
   $('#raceTelemetryApply').hidden=dragShift&&g.id!=='nos';$('#raceTelemetryApply').textContent=g.id==='nos'?'Release NOS':'Lock band';$('#raceTelemetryApply').disabled=!RACE_TELEMETRY.canLock(t)||Race.state!=='run';
   const shortCue={rpm:'Hold the bright RPM band.',torque:'Feed throttle into the band.',nos:`Tank ${Math.round(t.capacity*100)}%. Release a pulse.`,temperature:'Lift; airflow cools the engine.',braking:`Need ${Math.round(t.brakeDistance)} m to stop. Brake early.`,drift:'Hold a modest angle.',grip:'Unwind to regain grip.'}[g.id];
-  const cue=t.overheat?'Lift. Cooling restores power.':t.phase==='recovered'?'Cooled. Power is back.':shortCue;
+  const cue={warming:'Watch the temperature arc.',hot:'Lift; power is fading.',critical:'Lift now; power is reduced.','power-loss':'Keep lifting until power returns.',cooling:t.phase==='recovered'?'Cooled. Power is back.':'Airflow is cooling the engine.'}[thermal]||shortCue;
   const level=Race.progressionActive()?Race.progressionLevel():null,mode=Race.expansionActive()?Race.mode():null,coachCue=mode?(Race.state==='run'?RACE_MODES.live(Race.modeAttempt,Race.st):Race.progressionComparison||mode.description):level?(Race.progressionComparison&&['done','crashed'].includes(Race.state)?Race.progressionComparison:Race.state==='run'?RACE_PROGRESSION.live(level,{slide:Race.st.slide,zone:Race.st.zone,distance:Race.P().L-Race.st.x}):RACE_PROGRESSION.preview(level)):cue;
-  const coachText=`Nia: ${coachCue}`,coachButton=$('#raceTelemetryCue');
+  const thermalCue=['hot','critical','power-loss','cooling'].includes(thermal)?cue:coachCue,coachText=`Nia: ${thermalCue}`,coachButton=$('#raceTelemetryCue');
   if(coachButton.textContent!==coachText)coachButton.textContent=coachText;
-  coachButton.title=level||mode?coachCue:t.overheat?'Ease off the gas. Airflow will cool the engine and restore power.':g.coach;
-  coachButton.setAttribute('aria-label',level||mode?`Coach Nia. ${coachCue} Activate for the full mode plan and Garage link.`:`Coach Nia. ${coachCue}`);
+  coachButton.title=thermalCue;
+  coachButton.setAttribute('aria-label',`Coach Nia. ${thermalCue}${level||mode?' Activate for the full mode plan and Garage link.':''}`);
   const traceControls=$('#raceTraceControls');traceControls.hidden=!RACE_CORNER_TRACE.enabled;
   if(RACE_CORNER_TRACE.enabled){const def=RACE_CORNER_TRACE.variable(),value=Race.V[def.id],band=Race.suggest()[def.id],P=Race.P(),state=globalThis.__KICKLAB_RACE_CORNER_TRACE__?.state||'safe';$('#raceTraceVariable').textContent=def.name.split(' (')[0];$('#raceTraceValue').textContent=`${def.sym} ${fmt(value,def.d)}${def.unit?' '+def.unit:''}`;$('#raceTraceBand').textContent=`Nia: ${fmt(band.lo,def.d)}–${fmt(band.hi,def.d)}${def.unit?' '+def.unit:''}`;$('#raceTraceEquation').textContent=def.id==='mu'||def.id==='R'?`√(μgR) → ${fmt(Math.sqrt(P.mu*G0*P.R)*3.6,0)} km/h`:`F ÷ m → ${fmt(P.F/P.m,1)} m/s²`;$('#raceTraceState').textContent={safe:'SAFE LINE',understeer:'UNDERSTEER · LIFT OR BRAKE',oversteer:'OVERSTEER · UNWIND'}[state];traceControls.dataset.state=state;}
-  renderRaceNavigation({gauge:shortName,value,unit,fraction,phase,cue});
-  globalThis.__KICKLAB_RACE_TELEMETRY__={enabled:true,selected:t.selected,recommended:t.recommended,manual:t.manualUntil>t.clock,phase:t.phase,overheat:t.overheat,heat:t.heat,pressure:t.pressure,nosPulse:t.nosPulse,lock:t.lock,clock:t.clock,collapsed:FLOATING_CONTROLLER.collapsed};
+  renderRaceNavigation({gauge:shortName,value,unit,fraction,phase,cue:thermalCue});
+  globalThis.__KICKLAB_RACE_TELEMETRY__={enabled:true,selected:t.selected,recommended:t.recommended,manual:t.manualUntil>t.clock,phase:t.phase,thermalStage:thermal,powerFactor:RACE_TELEMETRY.powerFactor(t),overheat:t.overheat,heat:t.heat,pressure:t.pressure,nosPulse:t.nosPulse,lock:t.lock,clock:t.clock,collapsed:FLOATING_CONTROLLER.collapsed};
 }
 function raceTelemetryAction(action){if(!RACE_TELEMETRY.enabled||M!==Race||!Race.telemetry||PAUSE.on||RP.on)return;const changed=RACE_TELEMETRY.tune(Race.telemetry,action);if(changed){renderRaceTelemetry();if(action==='apply'){requestMobileHaptic('tick');}else SND.click();}}
 $('#raceCoachSetupStart').addEventListener('click',()=>{if(M!==Race||!(Race.progressionActive()||Race.expansionActive())||Race.state!=='grid'||RACE_3D.shouldBlockInput()||PAUSE.on)return;Race.coachStartRequested=true;Race.press('gas',true);Race.press('gas',false);renderRaceTelemetry();});
@@ -88,8 +92,8 @@ function renderRaceNavigation({gauge,value,unit,fraction,phase,cue}){
   $('#raceNavigationGaugeValue').textContent=`${value} ${unit}`;
   $('#raceNavigationGaugePhase').textContent=phase;
   $('#raceNavigationGaugeFill').style.width=`${Math.round(fraction*100)}%`;
-  const compactCue={RPM:'Hold RPM band.',Torque:'Feed throttle.',NOS:'Release a pulse.','Engine heat':'Lift to cool.',Brakes:'Brake early.','Drift angle':'Hold modest angle.','Grip recovery':'Unwind to recover.'};
-  $('#raceNavigationCue').textContent=`Nia: ${matchMedia('(max-width:980px)').matches?(compactCue[gauge]||cue):cue}`;
+  const compactCue={RPM:'Hold RPM band.',Torque:'Feed throttle.',NOS:'Release a pulse.','Engine heat':'Watch temperature.',Brakes:'Brake early.','Drift angle':'Hold modest angle.','Grip recovery':'Unwind to recover.'},thermal=RACE_TELEMETRY.thermalStage(Race.telemetry),thermalCue={warming:'Engine warming.',hot:'Hot. Ease off.',critical:'Critical. Lift now.','power-loss':'Power low. Keep lifting.',cooling:Race.telemetry.phase==='recovered'?'Cooled. Power back.':'Cooling. Keep airflow.'};
+  $('#raceNavigationCue').textContent=`Nia: ${matchMedia('(max-width:980px)').matches?(thermalCue[thermal]||compactCue[gauge]||cue):cue}`;
   const prediction=Race.cornerTracePrediction||RACE_CORNER_TRACE.predict();if(!prediction)return;
   const P=Race.P(),venue=RACE_SYSTEMS.venue(Race.opt.venue),car=Race.st,heading=car.th||0;
   const local=p=>{const dx=p.x-car.x,dy=p.y-car.y;return{forward:dx*Math.cos(heading)+dy*Math.sin(heading),side:-dx*Math.sin(heading)+dy*Math.cos(heading)};};
@@ -121,3 +125,9 @@ if(RACE_CORNER_TRACE.enabled)globalThis.__KICKLAB_RACE_START_FINISH_QA__={
   approach(){if(M!==Race||Race.state!=='run')return false;const finish=Race.finishPoint(),sign=Math.sign(finish.y);Object.assign(Race.st,{x:finish.x,y:finish.y-sign*25,th:sign*Math.PI/2,zone:2,v:0});Race.cornerTracePrediction=null;RACE_3D.cameraPose=null;renderRaceTelemetry();return true;},
   cross(){if(M!==Race||Race.state!=='run')return false;const finish=Race.finishPoint();Race.st.y=finish.y+Math.sign(finish.y)*.2;return true;}
 };
+if(['localhost','127.0.0.1'].includes(location.hostname)&&new URLSearchParams(location.search).get('raceEngineQA')==='1')globalThis.__KICKLAB_RACE_ENGINE_QA__=Object.freeze({
+  select(mode,vehicle){Race.selectMode(mode);Race.opt.vehicle=vehicle;RACE_3D.selectVehicle(vehicle);},
+  run(){RACE_3D.orbit.phase='done';RACE_3D.orbit.done=true;RACE_3D.awaitingPacing=false;RACE_3D.cameraPose=null;if(RACE_3D.orbitPanel)RACE_3D.orbitPanel.hidden=true;RACE_3D.setStartLights('go');Race.state='run';if(Race.mode().id==='drag')Race.st.x=45;Race.st.v=18;Race.st.t=4;Race.telemetry.selected='temperature';Race.telemetry.manualUntil=1000;renderRaceTelemetry();},
+  thermal(heat,overheat,phase){Race.telemetry.heat=heat;Race.telemetry.overheat=overheat;Race.telemetry.phase=phase;Race.telemetry.recoveryUntil=phase==='recovered'?Race.telemetry.clock+1.5:0;Race.telemetry.selected='temperature';Race.telemetry.manualUntil=1000;Race.inp.gas=overheat&&heat>=.91;Race.st.t+=.2;renderRaceTelemetry();},
+  state(){return{phase:Race.state,inputs:{...Race.inp},paused:PAUSE.on,heat:Race.telemetry?.heat,thermal:Race.telemetry?RACE_TELEMETRY.thermalStage(Race.telemetry):null};}
+});
