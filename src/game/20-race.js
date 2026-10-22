@@ -233,7 +233,6 @@ const Race={
       }
     }else this.drawWheel(c);
     text(c,fmt(s.t,2)+' s',W-24,40,'22px '+DISP,C.ink,'right');
-    if(s.slide&&this.state==='run'){text(c,'SLIDING: need more grip than μ·g',W/2,66,'700 13px '+MONO,C.bad,'center');}
     if(!RACE_3D.on&&!preview&&(this.state==='count'||this.state==='grid')){const lit=this.state==='count'?Math.min(3,Math.floor((2.4-this.cd)/0.8)+1):0;
       c.save();c.fillStyle='rgba(6,11,24,0.85)';rr(c,W/2-74,74,148,46,23);c.fill();for(let i=0;i<3;i++){c.fillStyle=i<lit?C.bad:'#2a3552';c.beginPath();c.arc(W/2-44+i*44,97,14,0,Math.PI*2);c.fill();}c.restore();}
     if(this.state==='run'&&s.t<0.8){c.save();c.globalAlpha=1-s.t/0.8;text(c,'GO!',W/2,112,'34px '+DISP,C.good,'center');c.restore();}
@@ -269,7 +268,13 @@ const Race={
     idea:`Two ways to go faster through a corner: more grip (μ) or a bigger radius (R). Drag R up and watch the needed wheel angle shrink and the speed limit rise. That's why racers use the whole track to make the turn wider.`,quiz:QUIZ.race};}
 };
 Race.loadGarage();
-if(typeof location!=='undefined'&&['localhost','127.0.0.1'].includes(location.hostname))globalThis.__KICKLAB_RACE_GARAGE_QA__={read:()=>({build:{...Race.garage},parameters:Race.P(),state:Race.state,velocity:Race.st?.v||0,telemetry:Race.telemetry?{braking:Race.telemetry.braking,brakeHeat:Race.telemetry.brakeHeat,brakeDistance:Race.telemetry.brakeDistance}:null,cornerTrace:Race.cornerTracePrediction?{exit:Race.cornerTracePrediction.exit,state:Race.cornerTracePrediction.state,grip:Race.cornerTracePrediction.grip}:null})};
+if(typeof location!=='undefined'&&['localhost','127.0.0.1'].includes(location.hostname))globalThis.__KICKLAB_RACE_GARAGE_QA__={
+  read:()=>({build:{...Race.garage},parameters:Race.P(),state:Race.state,velocity:Race.st?.v||0,slide:!!Race.st?.slide,slideTime:Race.slideT||0,zone:Race.st?.zone||0,coachWarned:!!Race.warnS,telemetry:Race.telemetry?{braking:Race.telemetry.braking,brakeHeat:Race.telemetry.brakeHeat,brakeDistance:Race.telemetry.brakeDistance}:null,cornerTrace:Race.cornerTracePrediction?{exit:Race.cornerTracePrediction.exit,state:Race.cornerTracePrediction.state,grip:Race.cornerTracePrediction.grip}:null}),
+  auditSlideHud(){const original=CanvasRenderingContext2D.prototype.fillText,drawn=[],prior={state:Race.state,slide:Race.st.slide,t:Race.st.t};CanvasRenderingContext2D.prototype.fillText=function(value,x,y,...rest){drawn.push({value:String(value),x,y});return original.call(this,value,x,y,...rest);};
+    try{const context=document.createElement('canvas').getContext('2d');Race.state='run';Race.st.t=3;return[false,true].map(slide=>{drawn.length=0;Race.st.slide=slide;Race.hud(context);return{slide,top:drawn.filter(item=>item.y<140),forbidden:drawn.filter(item=>/sliding:|need more grip/i.test(item.value))};});}
+    finally{CanvasRenderingContext2D.prototype.fillText=original;Race.st.slide=prior.slide;Race.st.t=prior.t;Race.state=prior.state;}},
+  beginSlideFixture(){if(M!==Race||Race.state!=='run')return false;const P=Race.P();Race.opt.steer='you';Object.assign(Race.st,{x:P.L+2,y:0,th:0,v:20,e:0,zone:1,slide:false,need:0});Race.wheel=160;Race.inp.gas=true;Race.inp.brake=false;Race.inp.left=false;Race.inp.right=false;Race.cornerTracePrediction=null;Race.warnS=false;return true;}
+};
 
 /* =====================================================================
    KICK LAB

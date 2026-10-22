@@ -92,6 +92,8 @@ async function inspect(width,height,{reduced=false,canvas=false,analog=false,for
     if(analog)await page.click('#controllerCollapseButton');
     const live=await page.evaluate(()=>({state:window.__KICKLAB_LIVE_PHYSICS_COMBO_QA_READ__().race.state,params:window.__KICKLAB_RACE_GARAGE_QA__.read().parameters,style:document.querySelector('#analogControlsButton').getAttribute('aria-pressed'),collapsed:document.querySelector('#controllerCollapseButton').getAttribute('aria-expanded'),telemetry:window.__KICKLAB_RACE_TELEMETRY__?.enabled===true}));
     if(live.state!=='run'||live.params.brakePower<=1||live.params.mu<=.9||(!canvas&&!live.telemetry))throw new Error(`Live Race parameters: ${JSON.stringify(live)}`);
+    const slideHud=await page.evaluate(()=>window.__KICKLAB_RACE_GARAGE_QA__.auditSlideHud());
+    if(slideHud.length!==2||slideHud.some(phase=>phase.forbidden.length))throw new Error(`Race sky message returned: ${JSON.stringify(slideHud)}`);
     if(width===390&&!reduced&&!canvas&&!analog&&!forced){
       await page.click('#profileBtn');const originalId=await page.locator('#profileList [aria-current="true"]').getAttribute('data-profile-id');
       await page.click('#profileCreate');await page.fill('#profileNickname','QA Driver');await page.click('#profileFormSave');
@@ -114,7 +116,7 @@ async function inspect(width,height,{reduced=false,canvas=false,analog=false,for
         await profileToast.getByRole('button',{name:'Dismiss Profile saved'}).click();
       }
     }
-    report.cases.push({name,width,height,reduced,canvas,analog,forced,input,direct,initial,archetypes,lessonSnapshots,suspension,tuned,live});
+    report.cases.push({name,width,height,reduced,canvas,analog,forced,input,direct,initial,archetypes,lessonSnapshots,suspension,tuned,live,slideHud});
   }catch(error){report.errors.push(`${name}: ${error.stack||error}`);}finally{await context.close();}
 }
 try{if(process.env.KICKLAB_QA_ONLY==='canvas')await inspect(390,844,{canvas:true});else if(process.env.KICKLAB_QA_ONLY==='forced')await inspect(390,844,{forced:true});else{for(const [width,height] of sizes)await inspect(width,height);if(!process.env.KICKLAB_QA_WIDTHS){await inspect(390,844,{reduced:true});await inspect(390,844,{canvas:true});await inspect(390,844,{analog:true});await inspect(390,844,{forced:true});}}}finally{await browser.close();}

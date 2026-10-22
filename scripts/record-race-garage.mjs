@@ -52,7 +52,12 @@ async function record(label,width,height,{analog=false}={}){
     await page.keyboard.down('Space');await page.keyboard.down('ArrowRight');await page.waitForTimeout(1450);await page.keyboard.up('ArrowRight');await page.keyboard.up('Space');await page.waitForTimeout(650);
     const drive=await page.evaluate(()=>({garage:window.__KICKLAB_RACE_GARAGE_QA__.read(),telemetry:window.__KICKLAB_RACE_TELEMETRY__,trace:window.__KICKLAB_RACE_CORNER_TRACE__}));
     if(drive.garage.velocity<=0||!drive.telemetry?.enabled||!drive.trace)throw new Error(`Driving response missing: ${JSON.stringify(drive).slice(0,500)}`);
-    report.views.push({label,width,height,url:url.toString(),before,suspension,after,drive,raw:null});
+    if(!await page.evaluate(()=>window.__KICKLAB_RACE_GARAGE_QA__.beginSlideFixture()))throw new Error('Slide fixture refused');
+    await page.waitForFunction(()=>window.__KICKLAB_RACE_GARAGE_QA__.read().slideTime>.2,null,{timeout:5000});
+    const slide=await page.evaluate(()=>({garage:window.__KICKLAB_RACE_GARAGE_QA__.read(),hud:window.__KICKLAB_RACE_GARAGE_QA__.auditSlideHud(),telemetry:window.__KICKLAB_RACE_TELEMETRY__,coach:document.querySelector('#coachMsg')?.textContent||''}));
+    if(slide.hud.some(phase=>phase.forbidden.length)||slide.garage.slideTime<=.2||slide.telemetry?.selected!=='grip')throw new Error(`Slide shot missing or sky message returned: ${JSON.stringify(slide).slice(0,900)}`);
+    await page.waitForTimeout(700);
+    report.views.push({label,width,height,url:url.toString(),before,suspension,after,drive,slide,raw:null});
   }catch(error){report.errors.push(`${label}: ${error.stack||error}`);}finally{await context.close();const view=report.views.find(item=>item.label===label);if(view)view.raw=await page.video().path();}
 }
 try{await record('phone390',390,844,{analog:true});await record('desktop1440',1440,900);}finally{await browser.close();}
