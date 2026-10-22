@@ -2,10 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
+import {local,raceContext} from './helpers/race-origin.mjs';
 
 const read=path=>readFileSync(new URL(path,import.meta.url),'utf8');
 const garage=vm.runInNewContext(read('../src/shared/race-garage.js')+'\nKickLabRaceGarage');
-const systems=vm.runInNewContext(read('../src/game/19-race-systems.js')+'\nRACE_SYSTEMS',{globalThis:{KickLabRaceGarage:garage},location:{hostname:'localhost',search:'?raceSystems=proxy'},URLSearchParams});
+const systems=vm.runInNewContext(read('../src/game/19-race-systems.js')+'\nRACE_SYSTEMS',raceContext(local('?raceSystems=proxy'),{globalThis:{KickLabRaceGarage:garage}}));
 const source=read('../src/game/10-fight.js'),classic=vm.runInNewContext(source.slice(source.indexOf('//<raceStep>'),source.indexOf('//</raceStep>'))+'\nraceStep',{globalThis:{KickLabRaceGarage:garage}});
 const base={L:120,R:32,m:1400,F:8500,top:55,mu:.9,Lwb:2.7,ratio:15};
 const build=(field,value)=>({...garage.DEFAULT,[field]:value});

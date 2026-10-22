@@ -4,12 +4,13 @@ import {readFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import {dirname,join} from 'node:path';
 import vm from 'node:vm';
+import {local,pages,raceContext} from './helpers/race-origin.mjs';
 
 const root=join(dirname(fileURLToPath(import.meta.url)),'..');
 const read=file=>readFileSync(join(root,file),'utf8');
 const garage=vm.runInNewContext(read('src/shared/race-garage.js')+'\nglobalThis.KickLabRaceGarage');
-const progression=vm.runInNewContext(read('src/shared/race-progression.js')+'\nglobalThis.KickLabRaceProgression');
-const systems=vm.runInNewContext(read('src/game/19-race-systems.js')+'\nRACE_SYSTEMS',{KickLabRaceGarage:garage,KickLabRaceProgression:progression,location:{hostname:'localhost',search:'?raceProgression=prototype'},URLSearchParams});
+const progression=vm.runInNewContext(read('src/shared/race-progression.js')+'\nglobalThis.KickLabRaceProgression',raceContext(local('?raceProgression=prototype')));
+const systems=vm.runInNewContext(read('src/game/19-race-systems.js')+'\nRACE_SYSTEMS',raceContext(local('?raceProgression=prototype'),{KickLabRaceGarage:garage,KickLabRaceProgression:progression}));
 const cars={kart:{m:160,F:2200,top:30,Lwb:1.05},street:{m:1400,F:8500,top:55,Lwb:2.7},race:{m:760,F:11000,top:80,Lwb:2.9}};
 const build=(body='street',suspension='balanced',tires='balanced',brakes='standard')=>({version:1,body,suspension,tires,brakes});
 
@@ -35,9 +36,11 @@ function heat(level,selection,carry={brakeHeat:0,tireHeat:0}){
   return{ok,t:state.t,slideT,entryKmh,brakeFactor,brakeHeat,tireHeat};
 }
 
-test('progression is localhost-only, finite, and distinct in grip, radius, grade and heat count',()=>{
-  const inactive=vm.runInNewContext(read('src/shared/race-progression.js')+'\nglobalThis.KickLabRaceProgression.enabled()',{location:{hostname:'kicklab.example',search:'?raceProgression=prototype'},URLSearchParams});
+test('progression is trusted-location only, finite, and distinct in grip, radius, grade and heat count',()=>{
+  const inactive=vm.runInNewContext(read('src/shared/race-progression.js')+'\nglobalThis.KickLabRaceProgression.enabled()',raceContext({...pages('?raceProgression=prototype'),pathname:'/Other/'}));
   assert.equal(inactive,false);
+  assert.equal(vm.runInNewContext(read('src/shared/race-progression.js')+'\nglobalThis.KickLabRaceProgression.enabled()',raceContext(pages())),false);
+  assert.equal(vm.runInNewContext(read('src/shared/race-progression.js')+'\nglobalThis.KickLabRaceProgression.enabled()',raceContext(pages('?raceProgression=prototype'))),true);
   assert.equal(progression.LEVELS.length,3);
   assert.deepEqual([...progression.LEVELS].map(x=>x.venue),['highland','marine','forest']);
   assert.ok(progression.LEVELS[0].radius>progression.LEVELS[1].radius&&progression.LEVELS[1].radius>progression.LEVELS[2].radius);
