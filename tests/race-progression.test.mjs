@@ -59,6 +59,18 @@ test('profile progress rejects stale or invalid unlocks and stays independent',(
   assert.equal(bounded.unlocked,3);assert.equal(bounded.selected,2);assert.equal(bounded.heats,2);assert.equal(bounded.brakeHeat,1);assert.equal(bounded.tireHeat,0);
 });
 
+test('Coach Nia previews the selected level, guides live play, and compares every pass criterion',()=>{
+  const level=progression.LEVELS[0],preview=progression.preview(level);
+  assert.match(preview,/Highland Switchback/);assert.match(preview,/≤17s/);assert.match(preview,/entry ≥34 km\/h/);
+  assert.match(preview,/street body, soft suspension, wide tires and endurance brakes/);
+  assert.match(progression.live(level,{slide:false,zone:0,distance:31}),/Brake for entry/);
+  assert.match(progression.live(level,{slide:true,zone:1,distance:0}),/Ease the wheel/);
+  const run={ok:false,t:19.2,slideT:.8,entryKmh:29,brakeFactor:.6},result=progression.evaluate(level,run),summary=progression.comparison(level,run,result);
+  for(const marker of ['finish no','time 19.2/17s','slide 0.80/0.55s','entry 29/34 km/h','brakes 60/70%'])assert.ok(summary.includes(marker),marker);
+  assert.equal(progression.category(result.failed),'tires');
+  assert.equal(progression.category(['brakes']),'brakes');assert.equal(progression.category(['time']),'body');
+});
+
 test('each venue has an observed failing and succeeding Garage setup in the canonical simulation',()=>{
   const scenarios=[
     {level:progression.LEVELS[0],failing:build('race','soft','wide','endurance'),succeeding:build('street','soft','wide','endurance')},
