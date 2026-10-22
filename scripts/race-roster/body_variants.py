@@ -1,7 +1,7 @@
 """Two original analytic silhouettes; evaluated by generate.py in Blender.
 
-Both retain Direction A's cobalt/ivory/graphite material language, but every
-body surface below is authored for this roster. No external mesh or texture.
+Kestrel and Aegis retain distinct original silhouettes. Their local material
+colorways are defined in generate.py. No external mesh or texture.
 """
 
 def sculpt(name, stations, section, material, levels=2):
@@ -46,7 +46,7 @@ def shell_ring(x,w,h):
         (x,-w*.75,h+.035),(x,-w*.36,h+.06)]
 
 
-shell=sculpt(f"{VARIANT} continuous unibody",stations,shell_ring,cobalt,2)
+shell=sculpt(f"{VARIANT} continuous unibody",stations,shell_ring,body_paint,2)
 for axle_x in (-axle,axle):
     for side_y in (-1.04,1.04):
         bpy.ops.mesh.primitive_cylinder_add(vertices=48,radius=arch,depth=.86,
@@ -76,21 +76,21 @@ for side in (-1,1):
             (1.98,side*.66,.69),(.92,side*.91,.81),
             (-.36,side*.86,.77),(-1.85,side*.78,.75),
             (-1.41,side*.88,.59),(.49,side*.88,.65)],
-            (0,side*.033,0),cobalt_edge)
-        facet(f"kestrel rising ivory sill {side}",[
+            (0,side*.033,0),shoulder_paint)
+        facet(f"kestrel rising graphite sill {side}",[
             (2.17,side*.58,.37),(1.52,side*.83,.29),
             (.40,side*.91,.24),(-.80,side*.90,.29),
             (-2.22,side*.65,.47),(-1.76,side*.84,.55),
             (-.34,side*.88,.43),(.90,side*.87,.40)],
-            (0,side*.032,0),warm_white)
+            (0,side*.032,0),aero_paint)
         facet(f"kestrel aft air cut {side}",[
             (-.87,side*.93,.70),(-1.78,side*.84,.70),
             (-1.37,side*.91,.49),(-.62,side*.92,.49)],
             (0,side*.035,0),carbon)
         rod(f"kestrel swept canopy rail {side}",(-.71,side*.39,1.11),
-            (.45,side*.43,1.15),.022,cobalt_edge,10)
+            (.45,side*.43,1.15),.022,shoulder_paint,10)
         rod(f"kestrel taper buttress {side}",(-.78,side*.40,1.10),
-            (-1.91,side*.77,.78),.052,cobalt,10)
+            (-1.91,side*.77,.78),.052,body_paint,10)
         box(f"kestrel short aero mirror {side}",(.63,side*.65,.86),
             (.18,.15,.055),carbon,.018)
     else:
@@ -100,23 +100,23 @@ for side in (-1,1):
             (.41,side*.94,.83),(-.63,side*.95,.81),
             (-1.65,side*1.03,.91),(-2.40,side*.87,.78),
             (-1.45,side*1.035,.69),(.40,side*.95,.68)],
-            (0,side*.035,0),cobalt_edge)
+            (0,side*.035,0),shoulder_paint)
         facet(f"aegis deep lateral channel {side}",[
             (1.15,side*1.00,.62),(.38,side*.99,.69),
             (-1.63,side*1.05,.66),(-2.23,side*.95,.49),
             (-.67,side*1.04,.45),(.72,side*.99,.48)],
             (0,side*.037,0),carbon)
-        facet(f"aegis ivory aero skirt {side}",[
+        facet(f"aegis carbon aero skirt {side}",[
             (2.32,side*.81,.42),(1.84,side*.96,.28),
             (.41,side*1.04,.22),(-1.54,side*1.04,.24),
             (-2.43,side*.84,.42),(-1.50,side*1.04,.40),
-            (.80,side*1.00,.39)],(0,side*.031,0),warm_white)
+            (.80,side*1.00,.39)],(0,side*.031,0),aero_paint)
         box(f"aegis side floor {side}",(-.1,side*1.06,.22),
             (3.67,.19,.055),carbon,.013)
         rod(f"aegis roof rail {side}",(-.87,side*.52,1.14),
-            (.53,side*.48,1.16),.027,cobalt_edge,10)
+            (.53,side*.48,1.16),.027,shoulder_paint,10)
         rod(f"aegis rear flying buttress {side}",(-1.02,side*.53,1.13),
-            (-2.22,side*.89,.88),.078,cobalt,10)
+            (-2.22,side*.89,.88),.078,body_paint,10)
         box(f"aegis aero mirror {side}",(.89,side*.74,.91),
             (.24,.18,.065),carbon,.022)
 
@@ -125,7 +125,7 @@ for side in (-1,1):
               .43+(arch+.01)*sin(pi*i/16)) for i in range(17)]
         for i in range(16):
             rod(f"{VARIANT} arch lip {axle_x} {side} {i}",
-                arc[i],arc[i+1],.012,cobalt_edge,6)
+                arc[i],arc[i+1],.012,shoulder_paint,6)
 
 if VARIANT == "kestrel":
     # The slender nose and roof-width tail make it visibly unlike Direction A.
@@ -140,20 +140,20 @@ if VARIANT == "kestrel":
         facet(f"kestrel tail lamp {side}",[
             (-2.45,side*.59,.72),(-2.47,side*.15,.69),
             (-2.47,side*.15,.64),(-2.45,side*.59,.67)],(-.009,0,0),red)
-        facet(f"kestrel nose ivory sweep {side}",[
+        facet(f"kestrel nose graphite sweep {side}",[
             (2.38,side*.62,.48),(2.42,side*.42,.27),
-            (2.37,side*.32,.26),(2.33,side*.63,.41)],(.015,0,0),warm_white)
+            (2.37,side*.32,.26),(2.33,side*.63,.41)],(.015,0,0),aero_paint)
     box("kestrel center rain light",(-2.48,0,.37),(.018,.035,.09),red,.003)
 else:
     box("aegis full span front splitter",(2.60,0,.19),(.43,2.23,.060),carbon,.012)
     box("aegis deep front intake",(2.64,0,.42),(.12,1.32,.29),carbon,.014)
-    box("aegis front aero lip",(2.67,0,.25),(.12,1.58,.035),warm_white,.005)
+    box("aegis front aero lip",(2.67,0,.25),(.12,1.58,.035),aero_paint,.005)
     box("aegis rear vent fascia",(-2.67,0,.64),(.06,1.80,.33),carbon,.014)
     box("aegis broad rear wing",(-2.34,0,1.51),(.62,2.42,.075),carbon,.016)
     box("aegis lower wing element",(-2.42,0,1.30),(.37,2.08,.040),carbon,.009)
-    box("aegis cobalt wing leading edge",(-2.01,0,1.54),(.055,2.34,.022),cobalt_edge,.003)
-    facet("aegis ivory dorsal fin",[(-.84,0,1.22),(-1.39,0,1.43),
-        (-2.31,0,1.47),(-2.46,0,1.33),(-1.72,0,1.10)],(0,.045,0),warm_white)
+    box("aegis crimson wing leading edge",(-2.01,0,1.54),(.055,2.34,.022),shoulder_paint,.003)
+    facet("aegis carbon dorsal fin",[(-.84,0,1.22),(-1.39,0,1.43),
+        (-2.31,0,1.47),(-2.46,0,1.33),(-1.72,0,1.10)],(0,.045,0),aero_paint)
     box("aegis deep diffuser",(-2.63,0,.24),(.52,2.04,.10),carbon,.010)
     for i in range(-4,5):
         box(f"aegis diffuser vane {i}",(-2.70,i*.224,.23),

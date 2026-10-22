@@ -23,13 +23,13 @@ async function start(page,flag=true){
 }
 async function pick(page,id){
   if(id==='cobalt')return;
+  const body={kestrel:'kart',cobalt:'street',aegis:'race'}[id];
   await page.locator('#orientationDetailToggle').click();
-  await page.locator('#settingsToggle').click();
-  await page.locator('[data-category="vehicle"]').click();
-  await page.locator(`[data-setting="vehicle"][data-value="${id}"]`).click();
+  await page.locator('#raceGarageShortcut').click();
+  await page.locator(`#raceGarage [data-garage-part="body"][data-garage-value="${body}"]`).click();
   await page.waitForFunction(id=>window.__KICKLAB_RACE_3D__?.assetUrl?.includes(`race-${id}/`)&&window.__KICKLAB_RACE_3D__?.status==='rendering',id,{timeout:12000});
   await page.locator('#settingsClose').click();
-  if(await page.locator('[data-close-detail="orientation"]').isVisible())await page.locator('[data-close-detail="orientation"]').click();
+  await page.evaluate(()=>document.querySelectorAll('.toast-close').forEach(button=>button.click()));
 }
 async function frameP95(page){
   const values=await page.evaluate(()=>new Promise(resolve=>{const frames=[];let last=performance.now();function next(now){frames.push(now-last);last=now;frames.length>=90?resolve(frames):requestAnimationFrame(next);}requestAnimationFrame(next);}));
@@ -75,7 +75,7 @@ execFileSync('ffprobe',['-v','error','-show_entries','format=duration','-of','de
 const noFlag=await browser.newPage();await start(noFlag,false);const defaultAudit=await noFlag.evaluate(()=>({systems:document.documentElement.dataset.raceSystems||null,roster:!!document.querySelector('[data-category="vehicle"]'),scene:window.__KICKLAB_RACE_3D__||null}));await noFlag.close();
 const fallbackPage=await browser.newPage({viewport:{width:1440,height:1000}});
 await fallbackPage.route('**/kicklab-race-kestrel/v1/kestrel-original.glb',route=>route.abort());
-await start(fallbackPage);await fallbackPage.locator('#orientationDetailToggle').click();await fallbackPage.locator('#settingsToggle').click();await fallbackPage.locator('[data-category="vehicle"]').click();await fallbackPage.locator('[data-setting="vehicle"][data-value="kestrel"]').click();
+await start(fallbackPage);await fallbackPage.locator('#orientationDetailToggle').click();await fallbackPage.locator('#raceGarageShortcut').click();await fallbackPage.locator('#raceGarage [data-garage-part="body"][data-garage-value="kart"]').click();
 await fallbackPage.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.status==='canvas-fallback',null,{timeout:12000});
 const fallbackAudit=await fallbackPage.evaluate(()=>({race:window.__KICKLAB_RACE_3D__,canvasVisible:document.querySelector('#race3')?.style.display==='none'}));
 await fallbackPage.screenshot({path:join(out,'kestrel-asset-fallback.png')});await fallbackPage.close();

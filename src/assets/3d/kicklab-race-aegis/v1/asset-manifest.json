@@ -6,8 +6,8 @@
   "artifact": {
     "path": "src/assets/3d/kicklab-race-aegis/v1/aegis-original.glb",
     "mediaType": "model/gltf-binary",
-    "bytes": 641364,
-    "sha256": "8983fb19fe68a4244b8e19b0413e7589dca5fe487c0173265bb431e06cfdcaa4"
+    "bytes": 641396,
+    "sha256": "130f89f00f420b615dbc1ca081909be8c85691c232a071628175422017fbc916"
   },
   "provenance": {
     "creator": "KickLab local Race roster authoring",
@@ -24,7 +24,7 @@
     "basis": "self-authored",
     "permittedUse": "production-game",
     "thirdPartyRestrictions": "none",
-    "proof": "Blender CLI generated original analytic geometry and local UV/material work. No provider geometry, image, or external texture is included."
+    "proof": "Blender CLI generated original analytic geometry and local UV/material work. The 2026-10-22 local colorway revision changed materials only; geometry and UV fingerprints match the original roster baseline. No provider geometry, image, or external texture is included."
   },
   "runtime": {
     "threeVersion": "0.186.1",

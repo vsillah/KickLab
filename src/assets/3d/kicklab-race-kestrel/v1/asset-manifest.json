@@ -6,8 +6,8 @@
   "artifact": {
     "path": "src/assets/3d/kicklab-race-kestrel/v1/kestrel-original.glb",
     "mediaType": "model/gltf-binary",
-    "bytes": 488004,
-    "sha256": "664da4cc38fcead58c9a5ede35915fcbc9129ad60ac4e44862a3600a2469d092"
+    "bytes": 488024,
+    "sha256": "1d933fb1cb3924a2b2ffa811e7c21854b7c8bfc95cd7a928ce9e3b2f89fe2adb"
   },
   "provenance": {
     "creator": "KickLab local Race roster authoring",
@@ -24,7 +24,7 @@
     "basis": "self-authored",
     "permittedUse": "production-game",
     "thirdPartyRestrictions": "none",
-    "proof": "Blender CLI generated original analytic geometry and local UV/material work. No provider geometry, image, or external texture is included."
+    "proof": "Blender CLI generated original analytic geometry and local UV/material work. The 2026-10-22 local colorway revision changed materials only; geometry and UV fingerprints match the original roster baseline. No provider geometry, image, or external texture is included."
   },
   "runtime": {
     "threeVersion": "0.186.1",

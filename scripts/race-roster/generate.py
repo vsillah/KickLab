@@ -48,9 +48,14 @@ def mat(name, rgb, metallic=0, roughness=.4, emission=0):
     return m
 
 
-cobalt = mat("body · original cobalt lacquer", (.018, .085, .38), .68, .23)
-cobalt_edge = mat("body · bright cobalt edge", (.045, .16, .53), .56, .25)
-warm_white = mat("aero · original warm white", (.83, .80, .70), .30, .32)
+if VARIANT == "kestrel":
+    body_paint = mat("body · solar orange lacquer", (.96, .21, .014), .38, .28)
+    shoulder_paint = mat("body · graphite shoulder", (.040, .047, .055), .24, .39)
+    aero_paint = mat("aero · dark graphite sill", (.055, .062, .068), .20, .42)
+else:
+    body_paint = mat("body · deep crimson lacquer", (.34, .012, .034), .42, .27)
+    shoulder_paint = mat("body · crimson shoulder highlight", (.55, .038, .067), .36, .30)
+    aero_paint = mat("aero · black carbon surfaces", (.018, .022, .027), .18, .43)
 carbon = mat("aero · graphite composite", (.020, .025, .033), .22, .44)
 glass = mat("glass · smoked blue", (.018, .034, .066), .38, .16)
 rubber = mat("wheels · unmarked graphite rubber", (.012, .014, .017), .02, .78)
