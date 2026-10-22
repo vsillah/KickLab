@@ -91,6 +91,7 @@ function renderGarage(){if(M!==Race)return;const build=Race.garage,selected=RACE
   box.dataset.tires=build.tires;box.dataset.body=build.body;
   const stockBase={...parameters,m:Race.CARS.street.m,F:Race.CARS.street.F,top:Race.CARS.street.top,Lwb:Race.CARS.street.Lwb,mu:parameters.mu/tire.grip};
   if('tireMu'in parameters)stockBase.tireMu=parameters.tireMu/tire.grip;
+  if('approachMu'in parameters)stockBase.approachMu=parameters.approachMu/tire.grip;
   const current=RACE_GARAGE.summary(parameters),stock=RACE_GARAGE.summary(RACE_GARAGE.parameters(stockBase,RACE_GARAGE.DEFAULT)),items=[['Mass','kg',stock.mass,current.mass,0],['Launch','m/s²',stock.launch,current.launch,1],['Corner limit','km/h',stock.corner,current.corner,0],['Stop from 72 km/h','m',stock.stop,current.stop,1],['Steering response','%',stock.steeringResponse*100,current.steeringResponse*100,0],['Slide recovery','%',stock.slideRecovery*100,current.slideRecovery*100,0]];
   $('#raceGarageSummary').innerHTML=`<strong>Stock street → current build</strong><div>${items.map(([label,unit,before,after,places])=>`<span><small>${label}</small><b>${fmt(before,places)}${unit==='%'?'%':''} → ${fmt(after,places)}${unit==='%'?'%':` ${unit}`}</b></span>`).join('')}</div><small class="garage-summary-note">Steering and recovery: 100% is stock; higher is quicker.</small>`;
   globalThis.__KICKLAB_RACE_GARAGE__={build:{...build},parameters,stock,current,lesson:RACE_GARAGE.lesson(GARAGE_UI.active,build,parameters)};}
