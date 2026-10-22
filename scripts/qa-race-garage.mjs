@@ -9,10 +9,10 @@ const browser=await chromium.launch({headless:true,executablePath:[process.env.K
 const report={head,cases:[],errors:[],external:[]};
 const sizes=[[360,780],[390,844],[768,1024],[942,958],[1113,988],[1440,900]].filter(([width])=>!process.env.KICKLAB_QA_WIDTHS||process.env.KICKLAB_QA_WIDTHS.split(',').includes(String(width)));
 
-async function inspect(width,height,{reduced=false,canvas=false,analog=false}={}){
-  const name=`${width}${reduced?'-reduced':''}${canvas?'-canvas':''}${analog?'-analog':''}`;
-  const input=width===360?'touch':width===390&&!reduced&&!canvas&&!analog?'keyboard-enter':width===768?'keyboard-space':'pointer';
-  const context=await browser.newContext({viewport:{width,height},deviceScaleFactor:1,reducedMotion:reduced?'reduce':'no-preference',hasTouch:input==='touch',isMobile:input==='touch'}),page=await context.newPage();
+async function inspect(width,height,{reduced=false,canvas=false,analog=false,forced=false}={}){
+  const name=`${width}${reduced?'-reduced':''}${canvas?'-canvas':''}${analog?'-analog':''}${forced?'-forced-colors':''}`;
+  const input=width===360?'touch':width===390&&!reduced&&!canvas&&!analog&&!forced?'keyboard-enter':width===768?'keyboard-space':'pointer';
+  const context=await browser.newContext({viewport:{width,height},deviceScaleFactor:1,reducedMotion:reduced?'reduce':'no-preference',forcedColors:forced?'active':'none',hasTouch:input==='touch',isMobile:input==='touch'}),page=await context.newPage();
   page.on('pageerror',error=>report.errors.push(`${name}: ${error.message}`));
   await page.route('**/*',route=>{const url=route.request().url();if(url.startsWith(new URL(base).origin)||url.startsWith('data:')||url.startsWith('blob:'))return route.continue();report.external.push(`${name}: ${url}`);route.abort();});
   try{
@@ -40,6 +40,17 @@ async function inspect(width,height,{reduced=false,canvas=false,analog=false}={}
     await page.click('#settingsCategories [data-category="garage"]');
     const initial=await page.evaluate(()=>({level:document.querySelector('#settingsTitle').textContent,build:window.__KICKLAB_RACE_GARAGE__?.build,summary:!document.querySelector('#raceGarageSummary').hidden,scrollWidth:document.documentElement.scrollWidth,innerWidth,focus:document.activeElement?.dataset.garagePart||''}));
     if(initial.level!=='Garage & tuning'||!initial.summary||initial.scrollWidth>initial.innerWidth+1)throw new Error(`Garage entry: ${JSON.stringify(initial)}`);
+    await page.locator('.stage').screenshot({path:join(out,`${name}-garage-open.png`)});
+    const archetypes=[];
+    for(const value of ['kart','street','race']){
+      await page.click(`#raceGarage [data-garage-part="body"][data-garage-value="${value}"]`);
+      await page.locator('.garage-vehicle-preview').evaluate(image=>image.decode());
+      const state=await page.evaluate(value=>{const preview=document.querySelector('.garage-vehicle-preview'),thumbs=[...document.querySelectorAll('.garage-body-thumb')],chosen=document.querySelector(`#raceGarage [data-garage-part="body"][data-garage-value="${value}"]`),rect=preview.getBoundingClientRect(),list=chosen.parentElement;return{value,build:window.__KICKLAB_RACE_GARAGE__.build.body,preview:preview.getAttribute('src'),loaded:preview.complete&&preview.naturalWidth===640&&preview.naturalHeight===400,thumbs:thumbs.map(image=>({src:image.getAttribute('src'),loaded:image.complete&&image.naturalWidth===640,width:image.getBoundingClientRect().width,height:image.getBoundingClientRect().height})),grid:getComputedStyle(chosen).gridTemplateColumns,listDisplay:getComputedStyle(list).display,listColumns:getComputedStyle(list).gridTemplateColumns.split(' ').length,width:rect.width,height:rect.height,pressed:chosen?.getAttribute('aria-pressed'),focus:document.activeElement===chosen,overflow:document.documentElement.scrollWidth>innerWidth+1};},value);
+      if(state.build!==value||!state.preview.endsWith(`${value}.webp`)||!state.loaded||state.thumbs.length!==3||state.thumbs.some(image=>!image.loaded||image.width<(width<=480?80:70))||state.listDisplay!=='grid'||state.listColumns!==(width<=480?1:width<=800?2:3)||state.width<100||state.height<90||state.pressed!=='true'||!state.focus||state.overflow)throw new Error(`Archetype visual: ${JSON.stringify(state)}`);
+      archetypes.push(state);
+      if(width===390&&!reduced&&!canvas&&!analog)await page.locator('.stage').screenshot({path:join(out,`${name}-${value}-archetype.png`)});
+    }
+    await page.click('#raceGarage [data-garage-part="body"][data-garage-value="street"]');
     await page.locator('.stage').screenshot({path:join(out,`${name}-stock.png`)});
     const lessonSnapshots={};
     const choose=async(field,value)=>{await page.click(`#raceGarage [data-garage-section="${field}"]`);
@@ -81,7 +92,7 @@ async function inspect(width,height,{reduced=false,canvas=false,analog=false}={}
     if(analog)await page.click('#controllerCollapseButton');
     const live=await page.evaluate(()=>({state:window.__KICKLAB_LIVE_PHYSICS_COMBO_QA_READ__().race.state,params:window.__KICKLAB_RACE_GARAGE_QA__.read().parameters,style:document.querySelector('#analogControlsButton').getAttribute('aria-pressed'),collapsed:document.querySelector('#controllerCollapseButton').getAttribute('aria-expanded'),telemetry:window.__KICKLAB_RACE_TELEMETRY__?.enabled===true}));
     if(live.state!=='run'||live.params.brakePower<=1||live.params.mu<=.9||(!canvas&&!live.telemetry))throw new Error(`Live Race parameters: ${JSON.stringify(live)}`);
-    if(width===390&&!reduced&&!canvas&&!analog){
+    if(width===390&&!reduced&&!canvas&&!analog&&!forced){
       await page.click('#profileBtn');const originalId=await page.locator('#profileList [aria-current="true"]').getAttribute('data-profile-id');
       await page.click('#profileCreate');await page.fill('#profileNickname','QA Driver');await page.click('#profileFormSave');
       const fresh=await page.evaluate(()=>({build:window.__KICKLAB_RACE_GARAGE_QA__.read().build,coachNotice:[...document.querySelectorAll('#toasts .toast')].some(node=>node.getAttribute('aria-label')==='Coach Nia')}));
@@ -103,10 +114,10 @@ async function inspect(width,height,{reduced=false,canvas=false,analog=false}={}
         await profileToast.getByRole('button',{name:'Dismiss Profile saved'}).click();
       }
     }
-    report.cases.push({name,width,height,reduced,canvas,analog,input,direct,initial,lessonSnapshots,suspension,tuned,live});
+    report.cases.push({name,width,height,reduced,canvas,analog,forced,input,direct,initial,archetypes,lessonSnapshots,suspension,tuned,live});
   }catch(error){report.errors.push(`${name}: ${error.stack||error}`);}finally{await context.close();}
 }
-try{if(process.env.KICKLAB_QA_ONLY==='canvas')await inspect(390,844,{canvas:true});else{for(const [width,height] of sizes)await inspect(width,height);if(!process.env.KICKLAB_QA_WIDTHS){await inspect(390,844,{reduced:true});await inspect(390,844,{canvas:true});await inspect(390,844,{analog:true});}}}finally{await browser.close();}
+try{if(process.env.KICKLAB_QA_ONLY==='canvas')await inspect(390,844,{canvas:true});else if(process.env.KICKLAB_QA_ONLY==='forced')await inspect(390,844,{forced:true});else{for(const [width,height] of sizes)await inspect(width,height);if(!process.env.KICKLAB_QA_WIDTHS){await inspect(390,844,{reduced:true});await inspect(390,844,{canvas:true});await inspect(390,844,{analog:true});await inspect(390,844,{forced:true});}}}finally{await browser.close();}
 writeFileSync(join(out,'report.json'),JSON.stringify(report,null,2)+'\n');
 console.log(JSON.stringify({head,cases:report.cases.map(x=>x.name),errors:report.errors,external:report.external},null,2));
 if(report.errors.length||report.external.length)process.exitCode=1;

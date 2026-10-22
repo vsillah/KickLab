@@ -1388,3 +1388,13 @@ html[data-race-corner-trace="prototype"] .race-telemetry-actions{grid-column:1/-
 @media(min-width:481px) and (max-width:800px){.race-garage .garage-options.chips{grid-template-columns:repeat(2,minmax(0,1fr))}.race-garage .garage-lesson-points{grid-template-columns:1fr}}
 .stage .orientation-actions .garage-shortcut{background:#073f43}
 @media (min-width:481px){.stage .settings-drawer.garage-open{height:min(700px,calc(100% - 68px));bottom:auto}}
+/* Local Blender archetypes replace the Garage's schematic and body swatches. */
+.race-garage .garage-preview{grid-template-columns:minmax(150px,42%) minmax(0,1fr);min-height:130px}
+.race-garage .garage-vehicle-preview{display:block;width:100%;height:130px;object-fit:contain;filter:drop-shadow(0 10px 10px rgba(0,0,0,.48))}
+.race-garage .garage-options.chips{display:grid}
+.race-garage .garage-option[data-garage-part="body"]{grid-template-columns:1fr!important;min-height:120px;align-content:start;justify-items:center;gap:0}
+.race-garage .garage-body-thumb{display:block;width:100%;height:68px;object-fit:contain;filter:drop-shadow(0 5px 5px rgba(0,0,0,.48))}
+.race-garage .garage-option[data-garage-part="body"] .choice-copy{justify-self:stretch}
+@media(max-width:480px){.race-garage .garage-preview{grid-template-columns:1fr;gap:1px;min-height:0;padding:5px 8px}.race-garage .garage-vehicle-preview{height:94px}.race-garage .garage-preview h3{margin:1px 0}.race-garage .garage-preview small{margin-top:3px}.race-garage .garage-option[data-garage-part="body"]{grid-template-columns:94px minmax(0,1fr)!important;min-height:64px;align-content:center;justify-items:stretch;gap:7px}.race-garage .garage-body-thumb{height:54px}}
+@media(min-width:481px) and (max-width:800px){.race-garage .garage-vehicle-preview{height:112px}.race-garage .garage-option[data-garage-part="body"]{min-height:108px}}
+@media(forced-colors:active){.race-garage .garage-vehicle-preview,.race-garage .garage-body-thumb{background:Canvas;border:1px solid CanvasText}.race-garage .garage-option[aria-pressed="true"]{outline:2px solid Highlight;outline-offset:-3px}}

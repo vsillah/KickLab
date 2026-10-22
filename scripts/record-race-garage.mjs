@@ -26,6 +26,12 @@ async function record(label,width,height,{analog=false}={}){
     if(analog)await page.click('#analogControlsButton');
     await page.click('#orientationDetailToggle');await page.locator('#raceGarageShortcut').waitFor({state:'visible'});await page.waitForTimeout(950);
     await page.click('#raceGarageShortcut');await page.locator('#raceGarage').waitFor({state:'visible'});await page.waitForTimeout(650);
+    for(const value of ['kart','street','race','street']){
+      await page.click(`#raceGarage [data-garage-part="body"][data-garage-value="${value}"]`);
+      await page.locator('.garage-vehicle-preview').evaluate(image=>image.decode());
+      await page.locator('.garage-vehicle-preview').scrollIntoViewIfNeeded();
+      await page.waitForTimeout(value==='street'?850:1150);
+    }
     const before=await page.evaluate(()=>window.__KICKLAB_RACE_GARAGE_QA__.read());
     const suspension=[];
     for(const [field,value] of [['suspension','soft'],['suspension','firm'],['body','race'],['tires','wide'],['brakes','sport']]){
