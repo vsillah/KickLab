@@ -68,7 +68,9 @@ function openSettings(category=null,trigger=settingsToggle){
 function closeSettings({restore=true,restart=true}={}){
   if(settingsDrawer.hidden)return;settingsDrawer.hidden=true;gameStage.classList.remove('garage-review-open');$('#kitroom').hidden=true;settingsToggle.setAttribute('aria-expanded','false');releasePauseOwner('settings',{restart});
   syncGameOverlayBackdrop();if(restore){const trigger=SETTINGS.trigger&&SETTINGS.trigger.isConnected&&SETTINGS.trigger.offsetParent!==null?SETTINGS.trigger:SETTINGS.restoreCategory!=null?$(`#quickSettings [data-category="${SETTINGS.restoreCategory}"]`):null;(trigger||$('#orientationDetailToggle')||settingsToggle).focus();}requestAnimationFrame(resize);
-  if(M===Race&&GARAGE_UI.notice){const message=GARAGE_UI.notice;GARAGE_UI.notice=null;toast('Coach Nia',message,{action:'Open Coach',hold:14000,onAction:()=>setContextDetail('learn',{trigger:$('#learnDetailToggle'),focus:true})});}
+  const returnToRaceRetry=restore&&M===Race&&GARAGE_UI.returnToRaceRetry;GARAGE_UI.returnToRaceRetry=false;
+  if(returnToRaceRetry){GARAGE_UI.notice=null;document.querySelectorAll('#toasts .toast[aria-label="Coach Nia"]').forEach(note=>note.remove());prepareRaceCoachRetry();}
+  else if(M===Race&&GARAGE_UI.notice){const message=GARAGE_UI.notice;GARAGE_UI.notice=null;toast('Coach Nia',message,{action:'Open Coach',hold:14000,onAction:()=>setContextDetail('learn',{trigger:$('#learnDetailToggle'),focus:true})});}
   if(restore&&M===Race&&GARAGE_UI.returnToProgression){GARAGE_UI.returnToProgression=false;renderChal();setContextDetail('goals',{trigger:$('#goalsDetailToggle'),focus:false});requestAnimationFrame(()=>$(`#chal [data-race-level="${best.raceProgression.selected}"]`)?.focus());}else GARAGE_UI.returnToProgression=false;
 }
 function showKitSettings(trigger=$('#kitRoomToggle')){SETTINGS.trigger=SETTINGS.trigger||trigger;setSettingsLevel('kit',{category:'kit',focus:true});}
