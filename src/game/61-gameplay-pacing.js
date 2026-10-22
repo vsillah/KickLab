@@ -51,11 +51,12 @@ function clearMatchPacing(meta={}){if(meta.presentation==='match'&&MATCH.tr&&MAT
 function cuePacingPhase(phase){if(best.mute)return;if(phase.key==='go')SND.total();else if(['3','2','1'].includes(phase.key))SND.tick();}
 const PACE_SEQUENCE=KickLabGameplayPacing.createTransitionSequence({
   onPhase(phase,meta){
-    const mapping=GAME_CORE.resolveControlMapping(pacingContext(meta));if(isMatchPresentation(meta))renderMatchPacing(phase,meta,mapping);else{pacingOverlay.hidden=false;pacingOverlay.dataset.state='countdown';pacingOverlay.dataset.presentation='card';pacingResume.hidden=true;$('#gamePacingKicker').textContent=phase.key==='ready'?'Next activity':'Get set';pacingPhase.textContent=phase.label;pacingActivity.textContent=pacingActivityName(meta);renderControlPreview(mapping);}cuePacingPhase(phase);
+    const raceStart=M===Race&&RACE_3D.on&&RACE_3D.awaitingPacing;if(raceStart)RACE_3D.setStartLights(phase.key);
+    const mapping=GAME_CORE.resolveControlMapping(pacingContext(meta));if(isMatchPresentation(meta))renderMatchPacing(phase,meta,mapping);else{pacingOverlay.hidden=false;pacingOverlay.dataset.state='countdown';pacingOverlay.dataset.presentation=raceStart?'race-start':'card';pacingResume.hidden=true;$('#gamePacingKicker').textContent=phase.key==='ready'?'Next activity':'Get set';pacingPhase.textContent=phase.label;pacingActivity.textContent=pacingActivityName(meta);renderControlPreview(mapping);}cuePacingPhase(phase);
     if(phase.key==='ready')pacingA11y.textContent=`${pacingActivityName(meta)} is next. Countdown starting. ${mapping.title}. ${mapping.x.join(' and ')}. ${mapping.y.join(' and ')}. ${mapping.action.join('. ')}.`;else if(phase.key==='go')pacingA11y.textContent='Go. Gameplay started.';
   },
   onComplete(meta){PACE.activeMeta=null;clearMatchPacing(meta);pacingOverlay.hidden=true;releasePauseOwner('transition',{restart:false});if(meta&&typeof meta.onGo==='function')meta.onGo();},
-  onCancel(reason,meta){PACE.activeMeta=null;clearMatchPacing(meta);releasePauseOwner('transition',{restart:false});}
+  onCancel(reason,meta){PACE.activeMeta=null;clearMatchPacing(meta);if(M===Race&&RACE_3D.on&&Race.state!=='run')RACE_3D.setStartLights('ready');releasePauseOwner('transition',{restart:false});}
 });
 function startGameTransition(meta={}){const snapshot=PAUSE_OWNERS.snapshot();if(snapshot.manual||snapshot.owners.some(owner=>owner!=='transition')){PACE.pending=meta;return PACE_SEQUENCE.state();}PACE.pending=null;if(PACE_SEQUENCE.state().active)PACE_SEQUENCE.cancel('replaced');PACE.activeMeta=meta;claimPauseOwner('transition');PACE_SEQUENCE.start(meta);return PACE_SEQUENCE.state();}
 function cancelGameTransition(reason='cancelled',{retain=false}={}){const active=PACE_SEQUENCE.state();if(!active.active)return active;if(retain)PACE.pending=active.meta;PACE_SEQUENCE.cancel(reason);return PACE_SEQUENCE.state();}
