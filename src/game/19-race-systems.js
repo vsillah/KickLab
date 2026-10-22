@@ -18,27 +18,27 @@ const RACE_SYSTEMS=(()=>{
   function cancelInput(input){input.gas=false;input.brake=false;input.left=false;input.right=false;input.drift=false;input.nitro=false;return input;}
   function autoWheel(s,P,v){const p=path(s.x,s.y,P,v),look=Math.max(8,.7*s.v);let error=p.phi-s.th;while(error>Math.PI)error-=2*Math.PI;while(error<-Math.PI)error+=2*Math.PI;const curvature=p.kp+2*Math.sin(error+Math.atan(p.e/look))/look;return clamp(P.ratio*Math.atan(curvature*P.Lwb)*180/Math.PI,-180,180);}
   function step(s,P,input,dt,v=VENUES.highland){
-    const h=clamp(dt,0,.02),gas=clamp(Number(input.gas)||0,0,1),brake=clamp(Number(input.brake)||0,0,1),mu=grip(s,P,v),g=9.81;
-    const wheel=input.auto?autoWheel(s,P,v):clamp(Number(input.wheel)||0,-180,180),steer=wheel/P.ratio*Math.PI/180,requested=Math.tan(steer)/P.Lwb;
+    const h=clamp(dt,0,.02),gas=clamp(Number(input.gas)||0,0,1),brake=clamp(Number(input.brake)||0,0,1),g=9.81;
+    const rawWheel=input.auto?autoWheel(s,P,v):clamp(Number(input.wheel)||0,-180,180),garage=globalThis.KickLabRaceGarage,tune=garage?garage.response(s,P,rawWheel,brake,h):{wheel:rawWheel,muFactor:1,brakeFactor:1},mu=grip(s,P,v)*tune.muFactor,wheel=tune.wheel,steer=wheel/P.ratio*Math.PI/180,requested=Math.tan(steer)/P.Lwb;
     const requestedLat=s.v*s.v*Math.abs(requested),was=s.driftMode||'none';
     const canDrift=!!input.drift&&s.v>=9&&Math.abs(wheel)>=9&&brake<.3&&Math.abs(s.slipAngle||0)<.48;
     let mode=was==='skid'&&s.skidTime>0?'skid':canDrift?'drift':'none';
     if(mode==='drift')s.driftHold=Math.min(5,(s.driftHold||0)+h);else s.driftHold=0;
-    const cap=mu*g,longDesired=brake?-.95*cap*brake:gas?Math.min(P.F/P.m,cap)*gas:Math.max(-.5,-s.v*1.4);
+    const cap=mu*g,longDesired=brake?-.95*cap*brake*tune.brakeFactor:gas?Math.min(P.F/P.m,cap)*gas:Math.max(-.5*(P.rolling??1),-s.v*1.4*(P.rolling??1));
     const boostAllowed=!!input.nitro&&gas>.1&&brake<.1&&(s.nitroCooldown||0)<=0&&(s.nitro||0)>0&&mode!=='skid';
     const boost=boostAllowed?Math.min(3.8,Math.max(0,cap-Math.max(0,longDesired))):0;
     const longitudinal=clamp(longDesired+boost,-cap,cap),lateralBudget=Math.sqrt(Math.max(0,cap*cap-longitudinal*longitudinal))*(mode==='drift'?.78:1);
     if((requestedLat>lateralBudget*(mode==='drift'?1.5:1.18)&&s.v>5)||Math.abs(s.slipAngle||0)>.55){mode='skid';s.skidTime=Math.max(s.skidTime||0,.55);}
     if(mode==='skid')s.skidTime=Math.max(0,(s.skidTime||0)-h);else s.skidTime=0;
-    const yawCap=(mode==='skid'?.62:1)*lateralBudget/Math.max(s.v*s.v,.01),yawCurvature=clamp(requested,-yawCap,yawCap);
+    const yawCap=(mode==='skid'?.62:1)*lateralBudget*(P.stability??1)/Math.max(s.v*s.v,.01),yawCurvature=clamp(requested,-yawCap,yawCap);
     const slipGoal=mode==='drift'?Math.sign(wheel)*clamp(.08+requestedLat/Math.max(cap,1)*.14,.08,.3):mode==='skid'?Math.sign(wheel||s.slipAngle||1)*.42:0;
-    s.slipAngle=(s.slipAngle||0)+(slipGoal-(s.slipAngle||0))*Math.min(1,h*(mode==='skid'?2.5:4.5));
+    s.slipAngle=(s.slipAngle||0)+(slipGoal-(s.slipAngle||0))*Math.min(1,h*(mode==='skid'?2.5:4.5*(P.recovery??1)));
     s.latV=s.v*Math.sin(s.slipAngle);
-    const drag=(P.F/P.m)/(P.top*P.top),accel=longitudinal-drag*s.v*s.v;
+    const drag=(P.F/P.m)/(P.top*P.top)*(P.rolling??1),accel=longitudinal-drag*s.v*s.v;
     s.v=Math.max(0,s.v+accel*h);s.th+=s.v*yawCurvature*h;s.x+=(s.v*Math.cos(s.th)-s.latV*Math.sin(s.th))*h;s.y+=(s.v*Math.sin(s.th)+s.latV*Math.cos(s.th))*h;s.t+=h;
     s.nitroActive=boostAllowed;if(boostAllowed){s.nitro=Math.max(0,(s.nitro||0)-h/2.2);if(s.nitro===0)s.nitroCooldown=3.5;}else if((s.nitroCooldown||0)>0)s.nitroCooldown=Math.max(0,s.nitroCooldown-h);else s.nitro=Math.min(1,(s.nitro||0)+h/9);
     s.driftMode=mode;s.slide=mode==='skid';s.drift=mode==='drift';s.wheel=wheel;s.k=yawCurvature;s.kc=requested;s.alat=s.v*s.v*Math.abs(yawCurvature);s.need=requestedLat;s.muEffective=mu;
-    const p=path(s.x,s.y,P,v);s.e=p.e;s.zone=p.zone;return s;
+    const p=path(s.x,s.y,P,v);s.e=p.e;s.zone=p.zone;if(garage)garage.afterStep(s,P);return s;
   }
   function camera(s,width,{reduced=false}={}){const h=s.th||0,fx=Math.cos(h),fz=Math.sin(h),speed=clamp((s.v||0)/30,0,1),phone=width<500,back=(phone?13.6:width<850?12.6:width<1150?9.1:7.7)+speed,height=(phone?5.1:width<850?5.5:4.7)+speed*.35,ahead=(phone?3.8:3)+speed*2;return{position:[s.x-fx*back-fz*.6,height,s.y-fz*back+fx*.6],look:[s.x+fx*ahead,1.05,s.y+fz*ahead],back,height,lookAhead:ahead,instant:!!reduced};}
   function validateVehicle(names,{proxy=false}={}){const set=new Set(names.map(name=>String(name).replace(/\s+/g,'_'))),missing=[];if(proxy){for(const key of ['front tire -1','front tire 1','rear tire -1','rear tire 1','sculpted blue body shell'])if(!set.has(key.replace(/\s+/g,'_')))missing.push(key);}else for(const key of [CONTRACT.root,CONTRACT.body,...Object.values(CONTRACT.wheels).map(w=>w.node)])if(!set.has(key))missing.push(key);return{ok:missing.length===0,missing,proxy,contractVersion:CONTRACT.version};}

@@ -46,33 +46,37 @@ function setSettingsPause(on){
 }
 function setSettingsLevel(level,{category=SETTINGS.category,focus=true}={}){
   SETTINGS.level=level;SETTINGS.category=category;
-  const cats=$('#settingsCategories'),choices=$('#settingsChoices'),kitRoom=$('#kitroom'),back=$('#settingsBack');
-  cats.hidden=level!=='categories';choices.hidden=level!=='choices';kitRoom.hidden=level!=='kit';back.hidden=level==='categories';
+  settingsDrawer.classList.toggle('garage-open',level==='garage');
+  gameStage.classList.toggle('garage-review-open',level==='garage');
+  const cats=$('#settingsCategories'),choices=$('#settingsChoices'),kitRoom=$('#kitroom'),garage=$('#raceGarage'),garageSummary=$('#raceGarageSummary'),back=$('#settingsBack');
+  cats.hidden=level!=='categories';choices.hidden=level!=='choices';kitRoom.hidden=level!=='kit';garage.hidden=level!=='garage';garageSummary.hidden=level!=='garage';back.hidden=level==='categories';
   const group=settingsGroups().find(g=>g.id===category),label=group?group.label:'Settings';
-  $('#settingsBreadcrumb').textContent=level==='categories'?'Settings':level==='kit'?'Settings / Kit':`Settings / ${label}`;
+  $('#settingsBreadcrumb').textContent=level==='categories'?'Settings':level==='kit'?'Settings / Kit':level==='garage'?'Settings / Race':`Settings / ${label}`;
   $('#settingsTitle').textContent=level==='categories'?'Choose a category':level==='kit'?'Equipment details':label;
   if(level==='categories')renderSettingsCategories();
   else if(level==='choices')renderSettingsChoices(category);
+  else if(level==='garage')renderGarage();
   else renderKit();
   $('#settingsDrawerBody').scrollTop=0;
-  if(focus)requestAnimationFrame(()=>{const target=level==='categories'?cats.querySelector('button'):level==='choices'?choices.querySelector('button'):kitRoom.querySelector('button');(target||back).focus();});
+  if(focus)requestAnimationFrame(()=>{const target=level==='categories'?cats.querySelector('button'):level==='choices'?choices.querySelector('button'):level==='garage'?garage.querySelector('button'):kitRoom.querySelector('button');(target||back).focus();});
 }
 function openSettings(category=null,trigger=settingsToggle){
   if(!profileDialog.hidden)closeProfiles({restore:false,restart:false});if(CONTEXT_DETAILS.open)closeContextDetail({restore:false,restart:false});SETTINGS.trigger=trigger;SETTINGS.restoreCategory=trigger&&trigger.dataset?trigger.dataset.category:null;settingsDrawer.hidden=false;settingsToggle.setAttribute('aria-expanded','true');releaseGameplayForOverlay();setSettingsPause(true);
-  setSettingsLevel(category?'choices':'categories',{category,focus:true});syncGameOverlayBackdrop();requestAnimationFrame(resize);
+  setSettingsLevel(category?(category==='garage'?'garage':'choices'):'categories',{category,focus:true});syncGameOverlayBackdrop();requestAnimationFrame(resize);
 }
 function closeSettings({restore=true,restart=true}={}){
-  if(settingsDrawer.hidden)return;settingsDrawer.hidden=true;$('#kitroom').hidden=true;settingsToggle.setAttribute('aria-expanded','false');releasePauseOwner('settings',{restart});
+  if(settingsDrawer.hidden)return;settingsDrawer.hidden=true;gameStage.classList.remove('garage-review-open');$('#kitroom').hidden=true;settingsToggle.setAttribute('aria-expanded','false');releasePauseOwner('settings',{restart});
   syncGameOverlayBackdrop();if(restore){const trigger=SETTINGS.trigger&&SETTINGS.trigger.isConnected&&SETTINGS.trigger.offsetParent!==null?SETTINGS.trigger:SETTINGS.restoreCategory!=null?$(`#quickSettings [data-category="${SETTINGS.restoreCategory}"]`):null;(trigger||$('#orientationDetailToggle')||settingsToggle).focus();}requestAnimationFrame(resize);
 }
 function showKitSettings(trigger=$('#kitRoomToggle')){SETTINGS.trigger=SETTINGS.trigger||trigger;setSettingsLevel('kit',{category:'kit',focus:true});}
-function settingsBack(){if(SETTINGS.level==='kit')setSettingsLevel('choices',{category:'kit'});else if(SETTINGS.level==='choices')setSettingsLevel('categories');}
+function settingsBack(){if(SETTINGS.level==='kit')setSettingsLevel('choices',{category:'kit'});else if(SETTINGS.level==='choices')setSettingsLevel('categories');else if(SETTINGS.level==='garage')setSettingsLevel('categories');}
 
 settingsToggle.addEventListener('click',()=>settingsDrawer.hidden?openSettings(null,settingsToggle):closeSettings());
 $('#settingsClose').addEventListener('click',()=>closeSettings());
 $('#settingsBack').addEventListener('click',settingsBack);
 $('#quickSettings').addEventListener('click',e=>{const b=e.target.closest('[data-category]');if(!b)return;openSettings(b.dataset.category||null,b);});
-$('#settingsCategories').addEventListener('click',e=>{const b=e.target.closest('[data-category]');if(!b)return;setSettingsLevel('choices',{category:b.dataset.category});});
+$('#settingsCategories').addEventListener('click',e=>{const b=e.target.closest('[data-category]');if(!b)return;setSettingsLevel(b.dataset.category==='garage'?'garage':'choices',{category:b.dataset.category});});
+$('#raceGarage').addEventListener('click',e=>{const button=e.target.closest('[data-garage-part]');if(!button||M!==Race)return;const field=button.dataset.garagePart,value=button.dataset.garageValue;if(Race.garage[field]===value)return;if(!Race.setGaragePart(field,value))return;renderGarage();renderQuickSettings();renderRaceTelemetry();requestAnimationFrame(()=>$(`#raceGarage [data-garage-part="${field}"][data-garage-value="${value}"]`)?.focus());});
 settingsDrawer.addEventListener('pointerdown',e=>e.stopPropagation());
 settingsDrawer.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();closeSettings();return;}trapOverlayFocus(settingsDrawer,e);e.stopPropagation();});
 document.addEventListener('pointerdown',e=>{if(settingsDrawer.hidden||settingsDrawer.contains(e.target)||settingsToggle.contains(e.target)||$('#quickSettings').contains(e.target))return;const focusTarget=e.target.closest&&e.target.closest('button,input,select,textarea,[tabindex]');closeSettings({restore:false});if(!focusTarget)requestAnimationFrame(()=>settingsToggle.focus());});

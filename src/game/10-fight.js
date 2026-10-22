@@ -397,13 +397,14 @@ function racePath(x,y,P){
 function autoWheel(s,P){const pp=racePath(s.x,s.y,P);let eh=pp.phi-s.th;while(eh>Math.PI)eh-=2*Math.PI;while(eh<-Math.PI)eh+=2*Math.PI;
   const Ld=Math.max(8,0.7*s.v),kc=pp.kp+2*Math.sin(eh+Math.atan(pp.e/Ld))/Ld;return Math.max(-180,Math.min(180,P.ratio*Math.atan(kc*P.Lwb)*180/Math.PI));}
 function raceStep(s,P,inp,dt){
-  const G=9.81,drag=(P.F/P.m)/(P.top*P.top);
+  const G=9.81,drag=(P.F/P.m)/(P.top*P.top)*(P.rolling??1);
   const gas=typeof inp.gas==='number'?Math.max(0,Math.min(1,inp.gas)):inp.gas?1:0,brake=typeof inp.brake==='number'?Math.max(0,Math.min(1,inp.brake)):inp.brake?1:0;
-  let a;if(brake)a=-0.95*P.mu*G*brake;else if(gas)a=Math.min(P.F/P.m,P.mu*G)*gas;else a=-0.5;
+  const rawWheel=inp.auto?autoWheel(s,P):inp.wheel,garage=globalThis.KickLabRaceGarage,tune=garage?garage.response(s,P,rawWheel,brake,dt):{wheel:rawWheel,muFactor:1,brakeFactor:1},mu=P.mu*tune.muFactor;
+  let a;if(brake)a=-0.95*mu*G*brake*tune.brakeFactor;else if(gas)a=Math.min(P.F/P.m,mu*G)*gas;else a=-0.5*(P.rolling??1);
   a-=drag*s.v*s.v;s.v=Math.max(0,s.v+a*dt);
-  const wheel=inp.auto?autoWheel(s,P):inp.wheel;s.wheel=wheel;
-  const d=wheel/P.ratio*Math.PI/180,kc=Math.tan(d)/P.Lwb,kmax=P.mu*G/Math.max(s.v*s.v,0.01),k=Math.max(-kmax,Math.min(kmax,kc));
+  const wheel=tune.wheel;s.wheel=wheel;
+  const d=wheel/P.ratio*Math.PI/180,kc=Math.tan(d)/P.Lwb,kmax=mu*G*(P.stability??1)/Math.max(s.v*s.v,0.01),k=Math.max(-kmax,Math.min(kmax,kc));
   s.slide=Math.abs(kc)>kmax&&s.v>1.5;
   s.th+=s.v*k*dt;s.x+=s.v*Math.cos(s.th)*dt;s.y+=s.v*Math.sin(s.th)*dt;s.t+=dt;
-  const pp=racePath(s.x,s.y,P);s.e=pp.e;s.zone=pp.zone;s.k=k;s.kc=kc;s.alat=s.v*s.v*Math.abs(k);s.need=s.v*s.v*Math.abs(kc);return s;}
+  const pp=racePath(s.x,s.y,P);s.e=pp.e;s.zone=pp.zone;s.k=k;s.kc=kc;s.alat=s.v*s.v*Math.abs(k);s.need=s.v*s.v*Math.abs(kc);s.muEffective=mu;if(garage)garage.afterStep(s,P);return s;}
 //</raceStep>
