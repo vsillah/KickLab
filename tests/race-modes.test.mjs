@@ -31,8 +31,9 @@ test('all modes have different measured pass rules and safe profile migration',(
   assert.equal(modes.gearEfficiency(shifted,1,55),0);
   shifted.shiftCooldown=0;
   assert.ok(modes.gearEfficiency(shifted,1,55)<modes.gearEfficiency(shifted,15,55));
-  const drift={...modes.initial('drift'),driftPoints:500};
+  const drift={...modes.initial('drift'),driftPoints:500,driftCurvePoints:[250,250]};
   assert.equal(modes.result(drift,true,0).pass,true);
+  assert.equal(modes.result({...drift,driftCurvePoints:[500,0]},true,0).pass,false);
   assert.equal(modes.result({...drift,spinCount:1},true,0).pass,false);
   const circuit={...modes.initial('circuit'),laps:2,elapsed:70,lapTimes:[34,36]};
   assert.equal(modes.result(circuit,true,0).pass,true);
@@ -42,6 +43,33 @@ test('all modes have different measured pass rules and safe profile migration',(
   assert.equal(modes.result(hill,true,.7).pass,false);
 });
 
+test('Drift route has an acceleration lead-in, two opposite curves, and recovery room',()=>{
+  const route=modes.DRIFT_ROUTE,points=modes.driftPoints();
+  assert.ok(route.leadEnd>=80);
+  assert.ok(route.recoveryEnd-route.recoveryStart>=60);
+  assert.ok(route.finishX>route.exitX+50);
+  for(const [x,y,zone,curvature] of [[60,0,0,0],[110,8,1,1],[118,60,2,0],[126,112,3,-1],[200,120,4,0]]){
+    const p=modes.driftPath(x,y);
+    assert.equal(p.zone,zone,`zone at ${x},${y}`);
+    assert.ok(Math.abs(p.e)<7,`on pavement at ${x},${y}`);
+    assert.equal(Math.sign(p.kp),curvature);
+  }
+  assert.ok(points.length>100);
+  assert.equal(points.at(-1).z,route.exitY);
+});
+
+test('Drag trap and result coast remain on paved centerline',()=>{
+  const a=modes.initial('drag'),s={x:240,y:0.3,v:35,e:-0.3};
+  for(let i=0;i<500;i++){
+    s.v=Math.max(0,s.v-6*.02);
+    modes.coast(a,s,.02);
+    assert.ok(s.x>=240&&s.x<=390);
+    assert.ok(Math.abs(s.y)<7);
+    assert.ok(Math.abs(s.e)<7);
+  }
+  assert.ok(Math.abs(s.y)<.01);
+});
+
 test('canonical physics can finish each route without a vehicle lock',()=>{
   const physics=raceContext(local('?raceExpansion=prototype'));
   for(const path of ['src/shared/race-garage.js','src/shared/race-progression.js','src/shared/race-modes.js','src/game/19-race-systems.js'])vm.runInNewContext(read(path),physics);
@@ -49,17 +77,17 @@ test('canonical physics can finish each route without a vehicle lock',()=>{
   for(const id of ['drag','drift','circuit','hill']){
     const mode=modeApi.config(id),P=garage.parameters({L:120,R:32,m:1400,F:8500,top:55,mu:.9,tireMu:.9,Lwb:2.7,ratio:15,expansionCourse:mode.course,progressionGrade:id==='hill',progressionHeat:true},garage.DEFAULT),s={x:id==='circuit'?10:4,y:0,th:id==='circuit'?-Math.PI/2:0,v:0,t:0,...systems.initial()},a=modeApi.initial(id);a.phase='run';let finished=false;
     for(let i=0;i<6000;i++){
-      const before={x:s.x,y:s.y,angle:a.lastAngle,mode:s.driftMode},limit=id==='drag'?50:id==='drift'?13:id==='hill'?15:12,input={gas:s.v<limit?1:0,brake:s.v>limit+1?1:0,auto:true,wheel:0,drift:id==='drift'&&s.zone===1};
+      const before={x:s.x,y:s.y,angle:a.lastAngle,mode:s.driftMode},limit=id==='drag'?50:id==='drift'?10.5:id==='hill'?15:12,input={gas:s.v<limit?1:0,brake:s.v>limit+1?1:0,auto:true,wheel:0,drift:id==='drift'&&(s.zone===1||s.zone===3)};
       if(id==='drag'){
         if(a.gear===1&&s.v>=P.top*.25||a.gear===2&&s.v>=P.top*.47||a.gear===3&&s.v>=P.top*.7)modeApi.shift(a,s.v,P.top);
         input.gas*=modeApi.gearEfficiency(a,s.v,P.top);
       }
       systems.step(s,P,input,.02,systems.venue('highland'));modeApi.observe(a,s,before,.02,input,P);
       assert.ok(Math.abs(s.e)<7,`${id} off course at ${s.t.toFixed(1)} s`);
-      finished=id==='drag'?s.x>=mode.distance:id==='circuit'?a.laps>=2:s.zone===2&&s.y>=72;
+      finished=id==='drag'?s.x>=mode.distance:id==='circuit'?a.laps>=2:id==='drift'?s.zone===4&&s.x>=modeApi.DRIFT_ROUTE.finishX:s.zone===2&&s.y>=72;
       if(finished)break;
     }
     assert.ok(finished,`${id} did not finish`);
-    assert.ok(modeApi.result(a,true,0).pass,`${id} controlled run should pass`);
+    assert.ok(modeApi.result(a,true,0).pass,`${id} controlled run should pass: ${JSON.stringify({score:modeApi.result(a,true,0).score,curves:a.driftCurvePoints,spins:a.spinCount,elapsed:a.elapsed,zone:s.zone})}`);
   }
 });
