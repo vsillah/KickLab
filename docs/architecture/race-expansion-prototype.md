@@ -9,11 +9,13 @@
 | Format | Route and finish | Main measures | Pass rule |
 | --- | --- | --- | --- |
 | Drag Sprint | 240 m straight, crossing at x=240 | Elapsed time, trap speed, gear shifts, launch slip, NOS use, peak heat | At most 19 s and at least 95 km/h |
-| Drift Trial | Existing Highland bend and exit | Controlled angle at speed on the line, drift time, spin and off-line loss | At least 150 net points, no spin |
+| Drift Trial | 90 m acceleration straight, left 28 m radius curve, 64 m recovery straight, right 28 m radius curve, exit and finish at x=215 | Controlled angle and points in each curve, drift time, spin and off-line loss | At least 150 net points with 50 in each curve, no spin |
 | Circuit Laps | Closed oval, two forward start/finish crossings after reaching the far side | Lap count, individual lap times, consistency, slide time | Two laps in at most 90 s with less than 2 s sliding |
 | Time Attack / Hill Climb | Existing Highland switchback with canonical grade | Elapsed time, slide time, off-line loss | At most 20 s and less than 0.5 s sliding |
 
 The oval path uses the same `RACE_SYSTEMS.step` dynamics as other routes. Lap credit requires forward angular progress, the far-side arming sector, the start/finish sector, road proximity, and at least eight seconds since the prior crossing. A reset starts a new attempt; it never teleports the car between laps.
+
+Drag continues straight along the paved runoff after the trap; its result coast cannot change lanes or leave the road. Drift route centerline, physics projection, track mesh, Canvas fallback, and finish gate share the same two-curve geometry. Coach Nia calls for about 38 km/h at each curve and recovery before the second.
 
 ## Vehicle catalog seam
 
@@ -34,3 +36,5 @@ Drag uses four acceleration bands. Its Shift button remains available as the tel
 ## Validation gate
 
 Run `npm run check` and `node scripts/qa-race-modes.mjs <local-url> <output-folder>`. The QA script captures setup screenshots at 390×844, 768×1024, and 1440×900, plus Classic and Analog play clips for all four modes. It fails on script errors, horizontal overflow, or external runtime requests. Compile the clips with `python3 scripts/compile-race-modes-video.py <output-folder>` and inspect the final MP4. Separately verify unflagged Race, a no-WebGL Canvas run, and profile switching before PR review. A fixture simulation proves all four routes can finish with canonical physics, including real two-lap Circuit timing.
+
+For the Drag and Drift follow-up, run `node scripts/qa-race-route-followup.mjs <local-url> <output-folder>` against the exact built commit, then `python3 scripts/compile-race-route-followup-video.py <output-folder>`. The browser report asserts a passing Drag trap and paved coast 5.5 seconds later in Classic and Analog, and passing Drift runs through both scored curves and the recovery straight at desktop and phone widths. Screenshots include each curve, recovery, finish, and Drag coast. The run fails on page errors, external requests, horizontal overflow, missed curve credit, off-road finish, or a failed result.
