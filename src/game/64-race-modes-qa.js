@@ -1,0 +1,2 @@
+/* Read-only diagnostics for the trusted prototype route. */
+if(RACE_MODES.enabled())globalThis.__KICKLAB_RACE_MODES_QA__=Object.freeze({state:()=>({mode:Race.mode().id,phase:Race.state,elapsed:Race.modeAttempt?.elapsed||0,speedKmh:Race.st.v*3.6,laps:Race.modeAttempt?.laps||0,driftPoints:Race.modeAttempt?.driftPoints||0,result:Race.modeOutcome||null,controller:$('#analogControlsButton').getAttribute('aria-pressed')==='true'?'analog':'classic',garage:{...Race.garage},car:globalThis.KickLabRaceVehicleCatalog.forGarageBody(Race.garage.body).id,canvasFallback:RACE_3D.failed})});

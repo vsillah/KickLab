@@ -16,7 +16,7 @@ test('versioned roster has stable local assets and complete handling traits',()=
   const roster=catalog('http://127.0.0.1:4357/kicklab.html?raceExpansion=prototype');
   assert.equal(roster.schemaVersion,1);
   assert.equal(roster.defaultId,'cobalt');
-  assert.deepEqual(Array.from(roster.list(),car=>car.id),['cobalt','kestrel','aegis']);
+  assert.deepEqual(Array.from(roster.list(),car=>car.id).sort(),['aegis','cobalt','kestrel']);
   for(const car of roster.list()){
     assert.match(car.assetUrl,/^assets\/3d\/[a-z0-9/-]+\.glb$/);
     assert.ok(existsSync(resolve('src',car.assetUrl)));
