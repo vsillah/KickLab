@@ -131,20 +131,31 @@ if(['localhost','127.0.0.1'].includes(location.hostname)&&new URLSearchParams(lo
   run(){RACE_3D.orbit.phase='done';RACE_3D.orbit.done=true;RACE_3D.awaitingPacing=false;RACE_3D.cameraPose=null;if(RACE_3D.orbitPanel)RACE_3D.orbitPanel.hidden=true;RACE_3D.setStartLights('go');Race.state='run';E.title=null;if(Race.mode().id==='drag')Race.st.x=45;Race.st.v=18;Race.st.t=4;Race.telemetry.selected='temperature';Race.telemetry.manualUntil=1000;renderRaceTelemetry();},
   thermal(heat,overheat,phase){Race.telemetry.heat=heat;Race.telemetry.overheat=overheat;Race.telemetry.phase=phase;Race.telemetry.recoveryUntil=phase==='recovered'?Race.telemetry.clock+1.5:0;Race.telemetry.selected='temperature';Race.telemetry.manualUntil=1000;Race.inp.gas=overheat&&heat>=.91;Race.st.t+=.2;renderRaceTelemetry();},
   state(){return{phase:Race.state,inputs:{...Race.inp},paused:PAUSE.on,heat:Race.telemetry?.heat,thermal:Race.telemetry?RACE_TELEMETRY.thermalStage(Race.telemetry):null};},
-  effect(fixture){const t=Race.telemetry,s=Race.st;RACE_CINEMATIC_FX.clear(RACE_3D);Race.state='run';Race.inp.gas=false;Race.inp.brake=false;t.nosPulse=0;t.brakeHeat=0;s.nitroActive=false;s.nitroDelivered=false;s.launchSlip=0;s.driftMode='none';s.slipAngle=0;t.heat=.35;t.overheat=false;t.phase='drive';
+  effect(fixture){const t=Race.telemetry,s=Race.st;RACE_CINEMATIC_FX.clear(RACE_3D);Race.state='run';if(Race.mode().id==='drag')Object.assign(s,{x:45,y:0,th:0});Race.inp.gas=false;Race.inp.brake=false;t.nosPulse=0;t.brakeHeat=0;t.braking=0;t.grip=1;t.gripRecoveryUntil=0;s.nitroActive=false;s.nitroDelivered=false;s.launchSlip=0;s.driftMode='none';s.slipAngle=0;s.skidTime=0;s.slide=false;s.wheel=0;t.heat=.35;t.overheat=false;t.phase='drive';
     if(fixture==='exhaust'){t.heat=.82;t.torque=.75;}
     if(fixture==='normal-exhaust'){t.heat=.35;t.torque=.75;}
     if(fixture==='nos'||fixture==='nos-ignition'){t.nosPulse=1.2;s.nitroActive=true;s.nitroDelivered=true;t.torque=.8;}
     if(fixture==='launch'){s.launchSlip=.28;s.v=3;}
     if(fixture==='drift'){s.driftMode='drift';s.slipAngle=.2;s.v=18;}
-    if(fixture==='brake'||fixture==='brake-hot'){s.driftMode='skid';s.slipAngle=.26;t.braking=fixture==='brake-hot'?.86:.7;t.brakeHeat=fixture==='brake-hot'?.91:0;s.v=18;}
+    if(fixture==='brake'||fixture==='brake-hot'||fixture==='brake-lock'){s.driftMode='skid';s.slide=true;s.slipAngle=.26;t.braking=fixture==='brake-hot'?.86:.7;t.brakeHeat=fixture==='brake-hot'?.91:0;s.v=18;}
+    if(fixture==='spinout'){s.driftMode='skid';s.slide=true;s.skidTime=.8;s.slipAngle=.44;s.wheel=-42;s.v=16;t.grip=.48;}
     if(fixture.startsWith('cutaway')){Race.state='done';RACE_CINEMATIC_FX.success(RACE_3D,fixture==='cutaway'?'drivetrain':fixture.slice('cutaway-'.length));}
-    if(RACE_3D.cinematicFx)for(let i=0;i<(fixture.startsWith('cutaway')?(reduce?1:26):fixture==='nos-ignition'?1:35);i++)RACE_CINEMATIC_FX.step(RACE_3D,.05);
-    if(RACE_3D.ready){RACE_3D.car.updateMatrixWorld(true);RACE_3D.render(.016);}
-    return{fx:globalThis.__KICKLAB_RACE_FX__||null,vehicle:Race.vehicle().id,mode:Race.mode().id,phase:Race.state,paused:PAUSE.on,nitroActive:s.nitroActive,nosPulse:t.nosPulse,overheat:t.overheat,captionShown:!RACE_3D.cutawayCaption?.hidden,flamesVisible:RACE_3D.cinematicFx?.flames.some(item=>item.sprite.visible)||false,storage:Object.keys(localStorage).sort(),gpu:globalThis.__KICKLAB_RACE_3D__?.gpuMemory,renderer:globalThis.__KICKLAB_RACE_3D__?.status};},
+    if(RACE_3D.cinematicFx)for(let i=0;i<(fixture.startsWith('cutaway')?(reduce?1:26):fixture==='nos-ignition'?1:35);i++){
+      if(['launch','drift','brake','brake-hot','brake-lock','spinout'].includes(fixture)){
+        const distance=s.v*.05;s.x+=Math.cos(s.th)*distance;s.y+=Math.sin(s.th)*distance;
+        if(fixture==='drift')s.th+=.0025;if(fixture==='spinout')s.th+=.006;
+        RACE_3D.car.position.set(s.x,.025,s.y);RACE_3D.car.rotation.y=-s.th-Race.spin;RACE_3D.car.updateMatrixWorld(true);
+      }
+      RACE_CINEMATIC_FX.step(RACE_3D,.05);
+    }
+    if(RACE_3D.ready){RACE_3D.car.updateMatrixWorld(true);RACE_3D.cameraPose=null;if(fixture==='spinout')for(let i=0;i<12;i++)RACE_3D.render(.05);RACE_3D.render(.016);}
+    return{fx:globalThis.__KICKLAB_RACE_FX__||null,spin:globalThis.__KICKLAB_RACE_SPIN__||null,vehicle:Race.vehicle().id,mode:Race.mode().id,phase:Race.state,paused:PAUSE.on,nitroActive:s.nitroActive,nosPulse:t.nosPulse,overheat:t.overheat,captionShown:!RACE_3D.cutawayCaption?.hidden,flamesVisible:RACE_3D.cinematicFx?.flames.some(item=>item.sprite.visible)||false,storage:Object.keys(localStorage).sort(),gpu:globalThis.__KICKLAB_RACE_3D__?.gpuMemory,renderer:globalThis.__KICKLAB_RACE_3D__?.status};},
   effectsLifecycle(action){if(action==='fade'){Race.state='done';Race.st.launchSlip=0;for(let i=0;i<115;i++)RACE_CINEMATIC_FX.step(RACE_3D,.05);}if(action==='reset')Race.reset();if(action==='pagehide'){window.dispatchEvent(new Event('pagehide'));RACE_CINEMATIC_FX.step(RACE_3D,.05);}return{fx:globalThis.__KICKLAB_RACE_FX__||null,captionShown:!RACE_3D.cutawayCaption?.hidden,paused:PAUSE.on,inputs:{...Race.inp}};},
   holdPresentation(on){if(on){if(!Race.__cinematicQaUpdate)Race.__cinematicQaUpdate=Race.update;Race.update=()=>{};}else if(Race.__cinematicQaUpdate){Race.update=Race.__cinematicQaUpdate;delete Race.__cinematicQaUpdate;}return !!Race.__cinematicQaUpdate;},
   nudgePresentation(meters){Race.st.x+=Number(meters)||0;return Race.st.x;},
+  tireAudit(){const state=RACE_CINEMATIC_FX.canvasTires;return{renderer:RACE_3D.on?'rendering':'canvas',canvasTires:state?{event:state.event,clock:state.clock,lastSample:state.lastSample,lastRaceTime:state.lastRaceTime,raceTime:Race.st.t,raceState:Race.state,paused:PAUSE.on,marks:state.marks.length,puffs:state.puffs.length,position:[Race.st.x,Race.st.y],pathError:RACE_SYSTEMS.path(Race.st.x,Race.st.y,Race.P(),RACE_SYSTEMS.venue(Race.opt.venue)).e}:null,storage:Object.keys(localStorage).sort()};},
+  spinPauseResume(){PAUSE.on=true;RACE_3D.render(.05);const paused={...globalThis.__KICKLAB_RACE_SPIN__};PAUSE.on=false;RACE_3D.render(.05);return{paused,resumed:{...globalThis.__KICKLAB_RACE_SPIN__}};},
   endBoostPresentation(){Race.telemetry.nosPulse=0;Race.st.nitroActive=false;Race.st.nitroDelivered=false;return true;},
-  stopSlipPresentation(){Race.st.launchSlip=0;Race.st.driftMode='none';Race.st.slipAngle=0;Race.telemetry.braking=0;return true;}
+  stopSlipPresentation(){Race.st.launchSlip=0;Race.st.driftMode='none';Race.st.slipAngle=0;Race.telemetry.braking=0;return true;},
+  recoverSpinPresentation(){const s=Race.st,t=Race.telemetry;s.driftMode='none';s.slide=false;s.skidTime=0;s.slipAngle=0;s.wheel=0;t.braking=0;t.grip=.86;t.gripRecoveryUntil=t.clock+.8;for(let i=0;i<24;i++)RACE_3D.render(.05);return{fx:globalThis.__KICKLAB_RACE_FX__,spin:globalThis.__KICKLAB_RACE_SPIN__,grip:t.grip,vehicle:Race.vehicle().id};}
 });

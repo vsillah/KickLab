@@ -21,30 +21,36 @@ async function open(width,height,{analog=false,reduced=false,canvas=false,mode='
   return{context,page};
 }
 async function stage(page,label,fixture,{capture=false}={}){
-  const result=await page.evaluate(fixture=>{const data=window.__KICKLAB_RACE_ENGINE_QA__.effect(fixture),rect=document.querySelector('.stage:not([hidden])')?.getBoundingClientRect();return{...data,stage:rect&&{width:rect.width,height:rect.height},overflow:document.documentElement.scrollWidth-innerWidth};},fixture);
+  const canvasMotion=label.startsWith('canvas-fallback')&&fixture==='spinout';
+  if(canvasMotion){
+    await page.evaluate(fixture=>window.__KICKLAB_RACE_ENGINE_QA__.effect(fixture),fixture);
+    for(let i=0;i<9;i++){await page.evaluate(()=>window.__KICKLAB_RACE_ENGINE_QA__.nudgePresentation(.42));await page.waitForTimeout(130);}
+  }
+  const result=await page.evaluate(({fixture,canvasMotion})=>{const data=canvasMotion?window.__KICKLAB_RACE_ENGINE_QA__.tireAudit():window.__KICKLAB_RACE_ENGINE_QA__.effect(fixture),rect=document.querySelector('.stage:not([hidden])')?.getBoundingClientRect();return{...data,stage:rect&&{width:rect.width,height:rect.height},overflow:document.documentElement.scrollWidth-innerWidth};},{fixture,canvasMotion});
   if(capture){const path=join(out,label+'.png');await page.locator('.stage').screenshot({path});result.screenshot=path;}
   report.states.push({label,fixture,...result});return result;
 }
 try{
   for(const [width,height] of [[360,780],[390,844],[768,1024],[1113,988],[1440,1000]])for(const analog of [false,true]){
     const label=`${width}-${analog?'analog':'classic'}`,run=await open(width,height,{analog});
-    for(const fixture of ['normal-exhaust','exhaust','nos-ignition','nos','launch','brake','brake-hot','drift','cutaway-chassis','cutaway-drivetrain','cutaway-suspension','cutaway-brakes','cutaway-cooling'])await stage(run.page,`${label}-${fixture}`,fixture,{capture:width===390||width===1440});
+    for(const fixture of ['normal-exhaust','exhaust','nos-ignition','nos','launch','brake','brake-hot','brake-lock','drift','spinout','cutaway-chassis','cutaway-drivetrain','cutaway-suspension','cutaway-brakes','cutaway-cooling'])await stage(run.page,`${label}-${fixture}`,fixture,{capture:width===390||width===1440});
     const p95=await run.page.evaluate(()=>new Promise(resolve=>{let last=performance.now();const frames=[];function tick(now){if(last)frames.push(now-last);last=now;if(frames.length<80)requestAnimationFrame(tick);else{frames.sort((a,b)=>a-b);resolve(frames[Math.floor(frames.length*.95)]);}}requestAnimationFrame(tick);}));report.pacing.push({label,p95Ms:+p95.toFixed(2),budgetMs:width<=480?40:33.3,pass:p95<=(width<=480?40:33.3)});
-    if(width===390&&!analog){await stage(run.page,'lifecycle-launch','launch');const faded=await run.page.evaluate(()=>window.__KICKLAB_RACE_ENGINE_QA__.effectsLifecycle('fade'));report.lifecycle.push({name:'marks-fade',pass:faded.fx?.visibleMarks===0,detail:faded});await stage(run.page,'lifecycle-nos','nos');const hidden=await run.page.evaluate(()=>window.__KICKLAB_RACE_ENGINE_QA__.effectsLifecycle('pagehide'));report.lifecycle.push({name:'pagehide-cancels-boost',pass:hidden.paused&&hidden.fx?.flameEnergy===0&&!hidden.inputs.gas,detail:hidden});const reset=await run.page.evaluate(()=>window.__KICKLAB_RACE_ENGINE_QA__.effectsLifecycle('reset'));report.lifecycle.push({name:'reset-clears-pools',pass:!reset.fx&&!reset.captionShown,detail:reset});}
+    if(width===390&&!analog){await stage(run.page,'lifecycle-spinout','spinout');const pausedSpin=await run.page.evaluate(()=>window.__KICKLAB_RACE_ENGINE_QA__.spinPauseResume());report.lifecycle.push({name:'spinout-pause-resume',pass:pausedSpin.paused?.energy===0&&pausedSpin.paused?.compression===0&&pausedSpin.resumed?.energy>0,detail:pausedSpin});const recovered=await run.page.evaluate(()=>window.__KICKLAB_RACE_ENGINE_QA__.recoverSpinPresentation());report.lifecycle.push({name:'spinout-recovery',pass:recovered.spin?.energy<.05&&!recovered.spin?.countersteer&&recovered.grip>.8,detail:recovered});await stage(run.page,'lifecycle-launch','launch');const faded=await run.page.evaluate(()=>window.__KICKLAB_RACE_ENGINE_QA__.effectsLifecycle('fade'));report.lifecycle.push({name:'marks-fade',pass:faded.fx?.visibleMarks===0,detail:faded});await stage(run.page,'lifecycle-nos','nos');const hidden=await run.page.evaluate(()=>window.__KICKLAB_RACE_ENGINE_QA__.effectsLifecycle('pagehide'));report.lifecycle.push({name:'pagehide-cancels-boost',pass:hidden.paused&&hidden.fx?.flameEnergy===0&&!hidden.inputs.gas,detail:hidden});const reset=await run.page.evaluate(()=>window.__KICKLAB_RACE_ENGINE_QA__.effectsLifecycle('reset'));report.lifecycle.push({name:'reset-clears-pools',pass:!reset.fx&&!reset.captionShown,detail:reset});}
     await run.context.close();
   }
   for(const vehicle of ['kestrel','cobalt','aegis'])for(const mode of ['drag','drift','circuit','hill']){
     const run=await open(390,844,{vehicle,mode});await stage(run.page,`${mode}-${vehicle}-nos`,'nos');await run.context.close();
   }
-  const reduced=await open(390,844,{reduced:true});for(const fixture of ['nos','drift','cutaway'])await stage(reduced.page,`reduced-${fixture}`,fixture,{capture:true});await reduced.context.close();
-  const fallback=await open(390,844,{canvas:true});await stage(fallback.page,'canvas-fallback','exhaust',{capture:true});await fallback.context.close();
+  const reduced=await open(390,844,{reduced:true});for(const fixture of ['nos','drift','spinout','cutaway'])await stage(reduced.page,`reduced-${fixture}`,fixture,{capture:true});await reduced.context.close();
+  const fallback=await open(390,844,{canvas:true});for(const fixture of ['exhaust','spinout'])await stage(fallback.page,`canvas-fallback-${fixture}`,fixture,{capture:true});await fallback.context.close();
 }catch(error){report.errors.push(error.stack||String(error));}finally{await browser.close();}
 report.failed=report.states.filter(row=>{
   if(row.overflow>0||row.storage.some(key=>!['impactlab.v1','impactlab.nick','kicklab.profiles.v1'].includes(key)))return true;
+  if(row.renderer==='canvas')return row.fixture==='spinout'&&(!row.canvasTires||row.canvasTires.event!=='spinout'||row.canvasTires.marks<2||row.canvasTires.puffs<1);
   if(row.renderer!=='rendering')return false;
   if(row.fixture==='exhaust'||row.fixture==='normal-exhaust')return row.fx?.vapor<1;
   if(row.fixture==='nos'||row.fixture==='nos-ignition')return !row.fx?.boost||row.fx.flameEnergy<.1||(!row.fx.reducedMotion&&!row.flamesVisible)||row.fx.reducedMotion&&row.flamesVisible;
-  if(['launch','brake','brake-hot','drift'].includes(row.fixture))return row.fx?.markCount<2||(!row.fx.reducedMotion&&row.fx.tireSmoke<1);
+  if(['launch','brake','brake-hot','brake-lock','drift','spinout'].includes(row.fixture))return row.fx?.markCount<2||(!row.fx.reducedMotion&&row.fx.tireSmoke<1)||row.fx?.tireEvent!==(row.fixture==='brake'||row.fixture==='brake-hot'?'brake-lock':row.fixture);
   if(row.fixture.startsWith('cutaway'))return !row.fx?.cutaway||!row.captionShown||row.fixture!=='cutaway'&&row.fx.cutaway.system!==row.fixture.slice('cutaway-'.length);
   return false;
 }).map(row=>row.label).concat(report.lifecycle.filter(row=>!row.pass).map(row=>row.name),report.pacing.filter(row=>!row.pass).map(row=>row.label+'-pacing'));
