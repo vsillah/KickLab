@@ -1328,7 +1328,10 @@ html[data-race-telemetry="prototype"][data-kicklab-mode="race"] .race-telemetry{
 .race-orbit-panel[hidden]{display:none}
 .race-orbit-panel button{appearance:none;border:1px solid #8ed9ec;border-radius:7px;background:#14394b;color:#fff;padding:7px 10px;font:700 11px var(--f-body);cursor:pointer}
 .race-orbit-panel button:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.race-cutaway-caption{position:absolute;z-index:18;top:13%;left:50%;transform:translateX(-50%);max-width:calc(100% - var(--game-rail-space) - 24px);padding:7px 12px;border:1px solid rgba(122,221,233,.68);border-radius:999px;background:rgba(4,19,31,.82);box-shadow:0 7px 22px rgba(0,0,0,.24);color:#e5f9ff;font:700 11px var(--f-body);letter-spacing:.04em;text-align:center;white-space:nowrap;pointer-events:none}
+.race-cutaway-caption[hidden]{display:none}
 @media(max-width:480px){.race-orbit-panel{top:12%;gap:6px;font-size:9px}.race-orbit-panel button{font-size:9px;padding:6px 8px}}
+@media(max-width:480px){.race-cutaway-caption{top:11%;font-size:9px;padding:6px 8px;white-space:normal;min-width:152px}}
 
 /* The Race phone rail needs room for complete live labels after Physics Vision clears. */
 @media(max-width:480px){
