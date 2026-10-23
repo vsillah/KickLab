@@ -21,6 +21,9 @@ await page.locator('#simStart').click();await page.evaluate(()=>{const qa=window
 const gas=await page.locator('#simGas').boundingBox();if(gas){await page.mouse.move(gas.x+gas.width/2,gas.y+gas.height/2);await page.mouse.down();await page.waitForTimeout(950);await page.locator('#simShiftUp').evaluate(node=>node.click());await page.waitForTimeout(800);await page.mouse.up();}
 await page.locator('#simHandbrake').focus();await page.keyboard.press('Space');await page.waitForTimeout(500);
 await page.locator('#simNos').focus();await page.keyboard.press('Space');await page.waitForTimeout(700);
+await page.evaluate(()=>window.__KICKLAB_RACE_SIMULATOR_QA__.pause());await page.locator('#simResume').waitFor({state:'visible',timeout:3000});await page.waitForTimeout(500);
+await page.locator('#simResume').click();await page.waitForTimeout(500);
+await page.locator('#simEnable').click();await page.evaluate(()=>{window.__KICKLAB_RACE_SIMULATOR_QA__.orientation(0,0,0);window.__KICKLAB_RACE_SIMULATOR_QA__.orientation(0,-19,0);});await page.waitForTimeout(500);
 await page.evaluate(()=>window.__KICKLAB_RACE_SIMULATOR_QA__.cancel('Page hidden',true));await page.waitForTimeout(700);
 await page.locator('#simFallbackClassic').click();await page.waitForTimeout(550);
 await context.close();await browser.close();
