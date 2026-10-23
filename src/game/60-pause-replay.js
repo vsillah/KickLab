@@ -1,7 +1,7 @@
 /* ---------- time-outs: pause while you work the dials ---------- */
 const PAUSE={on:false,why:'',resumeT:0};
 function pausable(){return M.key==='fight'?!!(Fight.bout&&!Fight.bout.over&&Fight.bout.intro<=0):M.key==='race'?(Race.state==='run'||Race.state==='count'||RACE_3D.shouldBlockInput()):M.key==='kick'?(Kick.opt.shot==='dribble'?(Drib.state==='run'||Drib.state==='beat')&&!Drib.outcome:Kick.state==='incoming'):false;}
-function pauseGame(why){if(why==='stage'||why==='manual')return setManualPause(true);return claimPauseOwner(why);}
+function pauseGame(why){if(M===Race)RACE_SPEED_AUDIO.stop();if(why==='stage'||why==='manual')return setManualPause(true);return claimPauseOwner(why);}
 function resumeGame(){return resumePlayerPause();}
 function returnDialsContent(){const pane=$('#physicsDetail'),fig=pane.querySelector('figure.chart');if($('#liveEq').parentElement!==pane)pane.insertBefore($('#liveEq'),fig);if($('#vars').parentElement!==pane)pane.insertBefore($('#vars'),fig);}
 function dialsUnavailableReason(){if(RP.on)return'Dials are unavailable during replay. Exit replay first.';if(CINE.on)return'Dials are unavailable during the replay sequence.';if(!$('#rvBack').hidden)return'Close Coach review before opening Dials.';if(!$('#lvlup').hidden)return'Finish the level-up moment before opening Dials.';if(resOpen())return'Dials are unavailable while results are open. Choose Next round first.';return'';}

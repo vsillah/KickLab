@@ -50,7 +50,7 @@ for(const name of chosen){
       for(let i=0;i<90;i++){
         await page.waitForTimeout(200);const state=await page.evaluate(()=>globalThis.__KICKLAB_RACE_MODES_QA__.state());
         if(state.phase==='done'||state.phase==='crashed')break;
-        if(!speedShot&&state.speedKmh>=95){const high=await capture(page,name,'speed',result);speedShot=true;if(!reduced&&(!high.cinematic||high.cinematic.fieldOfView<=55||high.cinematic.streakOpacity<=0||high.cinematic.roadsideReflectors<1))throw new Error(`Drag speed treatment absent: ${JSON.stringify(high.cinematic)}`);if(reduced&&high.cinematic&&(high.cinematic.cameraVibration||high.cinematic.streakOpacity))throw new Error('Reduced motion kept speed streaks or vibration');}
+        if(!speedShot&&state.speedKmh>=95){const high=await capture(page,name,'speed',result);speedShot=true;if(!reduced&&(!high.cinematic||high.cinematic.fieldOfView<=55||high.cinematic.roadsideReflectors<1||high.cinematic.streakOpacity))throw new Error(`Drag speed treatment absent: ${JSON.stringify(high.cinematic)}`);if(reduced&&high.cinematic&&(high.cinematic.fieldOfView!==55||high.cinematic.roll||high.cinematic.heave||high.cinematic.streakOpacity))throw new Error('Reduced motion kept camera motion or streaks');}
         if(!approach&&state.x>=228){await capture(page,name,'approach',result);approach=true;}
         if(shifted<thresholds.length&&state.speedKmh>=thresholds[shifted]){
           if(pointer){await page.mouse.up();pointer=false;}
