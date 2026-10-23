@@ -20,7 +20,7 @@ const RACE_TELEMETRY=(()=>{
     t.rpm=clamp(.18+s.v/Math.max(P.top,1)*.56+gas*.29,0,1);t.torque=gas*clamp(1-Math.abs(t.rpm-.67)*1.2,.2,1);t.braking=clamp(brake*(s.garageBrakeFactor||P.brakePower||1),0,1);t.brakeHeat=s.garageBrakeHeat||0;t.brakeDistance=s.v*s.v/(2*Math.max(.1,.95*(s.muEffective||P.mu)*9.81*(s.garageBrakeFactor||P.brakePower||1)));t.angle=clamp(Math.abs(s.slipAngle||0)/.48,0,1);t.grip=clamp(1-t.angle*.62-(s.slide?.25:0),0,1);t.capacity=clamp(Number(s.nitro??1),0,1);
     if(t.grip<.65)t.gripLost=true;else if(t.gripLost&&t.grip>=.78){t.gripLost=false;t.gripRecoveryUntil=t.clock+.8;}
     const cooling=(.035+s.v/Math.max(P.top,1)*.11+(1-gas)*.13+brake*.04)*h;
-    t.heat=clamp(t.heat+(gas*gas*.19+(input.nitro?.28:0)+Math.max(0,t.rpm-.8)*.18)*h-cooling,0,1);
+    t.heat=clamp(t.heat+(gas*gas*.19*(P.engineHeatLoad||1)+(input.nitro?.28:0)+Math.max(0,t.rpm-.8)*.18)*h-cooling,0,1);
     if(!t.overheat&&t.heat>=.91){t.overheat=true;t.phase='overheat';t.cooled=false;}
     else if(t.overheat&&t.heat<=.48){t.overheat=false;t.phase='recovered';t.recoveryUntil=t.clock+1.5;t.cooled=true;}
     else if(!t.overheat)t.phase=t.clock<t.recoveryUntil?'recovered':t.heat>.76?'warning':gas<.2&&t.heat>.42?'cooling':'drive';

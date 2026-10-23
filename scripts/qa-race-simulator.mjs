@@ -3,15 +3,16 @@ import {existsSync,mkdirSync,writeFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 const {chromium}=createRequire(import.meta.url)('playwright');
 const base=process.argv[2]||'http://127.0.0.1:5879/kicklab.html';
+const origin=new URL(base).origin;
 const out=resolve(process.argv[3]||'qa-artifacts/race-simulator');mkdirSync(out,{recursive:true});
 const executablePath=[process.env.KICKLAB_CHROMIUM_PATH,chromium.executablePath(),'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find(path=>path&&existsSync(path));
 const browser=await chromium.launch({headless:true,executablePath});
 const report={base,views:[],errors:[],external:[]};
-for(const [width,height] of (process.env.QA_ONE?[[360,780]]:[[360,780],[390,844],[768,1024],[1113,834],[1440,900]])){
+for(const [width,height] of (process.env.QA_ONE?[[360,780]]:[[360,780],[390,844],[768,1024],[1113,988],[1440,1000]])){
   const context=await browser.newContext({viewport:{width,height},deviceScaleFactor:1,reducedMotion:'reduce'});
   await context.addInitScript(gfx=>localStorage.setItem('impactlab.v1',JSON.stringify({gfx,ch:{fight:0,race:0,kick:0},play:{fight:'ch',race:'ch',kick:'ch'}})),process.env.QA_GFX||'2d');
   await context.addInitScript(mode=>{if(mode==='denied')Object.defineProperty(window,'DeviceOrientationEvent',{configurable:true,value:class{static requestPermission(){return Promise.resolve('denied');}}});if(mode==='unavailable')Object.defineProperty(window,'DeviceOrientationEvent',{configurable:true,value:undefined});},process.env.QA_PERMISSION||'');
-  const page=await context.newPage();page.on('pageerror',error=>report.errors.push(`${width}: ${error}`));page.on('request',request=>{if(!request.url().startsWith('http://127.0.0.1:5879/')&&!request.url().startsWith('blob:http://127.0.0.1:5879/'))report.external.push(request.url());});
+  const page=await context.newPage();page.on('pageerror',error=>report.errors.push(`${width}: ${error}`));page.on('request',request=>{if(!request.url().startsWith(`${origin}/`)&&!request.url().startsWith(`blob:${origin}/`))report.external.push(request.url());});
   const cleanScreenshot=async(path)=>{const skip=await page.evaluate(()=>{document.activeElement?.blur();const link=document.querySelector('.skip-link');return{focused:link.matches(':focus'),bottom:link.getBoundingClientRect().bottom}});if(skip.focused||skip.bottom>0)report.errors.push(`${width}: skip link visible in evidence`);await page.screenshot({path,fullPage:false});};
   const url=new URL(base);url.searchParams.set('raceExpansion','prototype');url.searchParams.set('raceSimulator','prototype');url.searchParams.set('raceTelemetry','prototype');url.searchParams.set('rev','sim-local');
   await page.goto(url.toString(),{waitUntil:'networkidle'});

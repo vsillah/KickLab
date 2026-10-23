@@ -1,13 +1,14 @@
 import {createRequire} from 'node:module';
 import {existsSync} from 'node:fs';
 const {chromium}=createRequire(import.meta.url)('playwright');
+const base=process.argv[2]||'http://127.0.0.1:5879/kicklab.html',origin=new URL(base).origin;
 const browser=await chromium.launch({headless:true,executablePath:[process.env.KICKLAB_CHROMIUM_PATH,chromium.executablePath(),'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find(path=>path&&existsSync(path))});
 const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:1,hasTouch:true,reducedMotion:'reduce'});
 await context.addInitScript(()=>localStorage.setItem('impactlab.v1',JSON.stringify({gfx:'3d',ch:{fight:0,race:0,kick:0},play:{fight:'ch',race:'ch',kick:'ch'}})));
 const page=await context.newPage(),errors=[],external=[];
 page.on('pageerror',error=>errors.push(String(error)));
-page.on('request',request=>{if(!request.url().startsWith('http://127.0.0.1:5879/')&&!request.url().startsWith('blob:http://127.0.0.1:5879/'))external.push(request.url());});
-await page.goto('http://127.0.0.1:5879/kicklab.html?raceExpansion=prototype&raceSimulator=prototype&raceTelemetry=prototype&rev=sim-inputs',{waitUntil:'networkidle'});
+page.on('request',request=>{if(!request.url().startsWith(`${origin}/`)&&!request.url().startsWith(`blob:${origin}/`))external.push(request.url());});
+await page.goto(`${base}?raceExpansion=prototype&raceSimulator=prototype&raceTelemetry=prototype&rev=sim-inputs`,{waitUntil:'networkidle'});
 if(await page.locator('#profileClose').isVisible())await page.locator('#profileClose').click();
 await page.locator('#lab-tab-race').click();await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});
 await page.locator('.race-orbit-panel button').click();
