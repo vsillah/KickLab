@@ -30,12 +30,12 @@ async function record(reduced){
     await page.evaluate(()=>{document.querySelector('#raceCinematicQaLabel').textContent='QA · Skid marks fade';window.__KICKLAB_RACE_ENGINE_QA__.stopSlipPresentation();});report.segments.push({name:'Skid marks fade',reduced,durationMs:5600});await page.waitForTimeout(5600);
     await page.evaluate(()=>{document.querySelector('#raceCinematicQaLabel').textContent='QA · Critical heat';window.__KICKLAB_RACE_ENGINE_QA__.effect('exhaust');window.__KICKLAB_RACE_ENGINE_QA__.thermal(.94,true,'overheat');});report.segments.push({name:'Critical heat',reduced,durationMs:1700});await page.waitForTimeout(1700);
     await page.evaluate(()=>{document.querySelector('#raceCinematicQaLabel').textContent='QA · Cooling and recovery';window.__KICKLAB_RACE_ENGINE_QA__.thermal(.44,false,'recovered');});report.segments.push({name:'Cooling and recovery',reduced,durationMs:1400});await page.waitForTimeout(1400);
-    await hold('Success cutaway: drivetrain','cutaway',2900);
+    for(const system of ['chassis','drivetrain','suspension','brakes','cooling'])await hold(`Success cutaway: ${system}`,`cutaway-${system}`,2300);
   }else{
     await hold('Reduced motion: hot engine','exhaust',1400);
     await hold('Reduced motion: active boost','nos',1400);
     await hold('Reduced motion: road-contact slip','drift',1500);
-    await hold('Reduced motion: success cutaway','cutaway',2200);
+    for(const system of ['chassis','drivetrain','suspension','brakes','cooling'])await hold(`Reduced motion: ${system} cutaway`,`cutaway-${system}`,1500);
   }
   report.storage.push({reduced,keys:await page.evaluate(()=>Object.keys(localStorage).sort())});await page.evaluate(()=>window.__KICKLAB_RACE_ENGINE_QA__.holdPresentation(false));await context.close();videos.push(await video.path());
 }

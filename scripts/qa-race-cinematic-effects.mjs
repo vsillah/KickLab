@@ -28,7 +28,7 @@ async function stage(page,label,fixture,{capture=false}={}){
 try{
   for(const [width,height] of [[360,780],[390,844],[768,1024],[1113,988],[1440,1000]])for(const analog of [false,true]){
     const label=`${width}-${analog?'analog':'classic'}`,run=await open(width,height,{analog});
-    for(const fixture of ['exhaust','nos','launch','brake','drift','cutaway'])await stage(run.page,`${label}-${fixture}`,fixture,{capture:width===390||width===1440});
+    for(const fixture of ['normal-exhaust','exhaust','nos-ignition','nos','launch','brake','drift','cutaway-chassis','cutaway-drivetrain','cutaway-suspension','cutaway-brakes','cutaway-cooling'])await stage(run.page,`${label}-${fixture}`,fixture,{capture:width===390||width===1440});
     const p95=await run.page.evaluate(()=>new Promise(resolve=>{let last=performance.now();const frames=[];function tick(now){if(last)frames.push(now-last);last=now;if(frames.length<80)requestAnimationFrame(tick);else{frames.sort((a,b)=>a-b);resolve(frames[Math.floor(frames.length*.95)]);}}requestAnimationFrame(tick);}));report.pacing.push({label,p95Ms:+p95.toFixed(2),budgetMs:width<=480?40:33.3,pass:p95<=(width<=480?40:33.3)});
     if(width===390&&!analog){await stage(run.page,'lifecycle-launch','launch');const faded=await run.page.evaluate(()=>window.__KICKLAB_RACE_ENGINE_QA__.effectsLifecycle('fade'));report.lifecycle.push({name:'marks-fade',pass:faded.fx?.visibleMarks===0,detail:faded});await stage(run.page,'lifecycle-nos','nos');const hidden=await run.page.evaluate(()=>window.__KICKLAB_RACE_ENGINE_QA__.effectsLifecycle('pagehide'));report.lifecycle.push({name:'pagehide-cancels-boost',pass:hidden.paused&&hidden.fx?.flameEnergy===0&&!hidden.inputs.gas,detail:hidden});const reset=await run.page.evaluate(()=>window.__KICKLAB_RACE_ENGINE_QA__.effectsLifecycle('reset'));report.lifecycle.push({name:'reset-clears-pools',pass:!reset.fx&&!reset.captionShown,detail:reset});}
     await run.context.close();
@@ -42,10 +42,10 @@ try{
 report.failed=report.states.filter(row=>{
   if(row.overflow>0||row.storage.some(key=>!['impactlab.v1','impactlab.nick','kicklab.profiles.v1'].includes(key)))return true;
   if(row.renderer!=='rendering')return false;
-  if(row.fixture==='exhaust')return row.fx?.vapor<1;
-  if(row.fixture==='nos')return !row.fx?.boost||row.fx.flameEnergy<.1||(!row.fx.reducedMotion&&!row.flamesVisible)||row.fx.reducedMotion&&row.flamesVisible;
+  if(row.fixture==='exhaust'||row.fixture==='normal-exhaust')return row.fx?.vapor<1;
+  if(row.fixture==='nos'||row.fixture==='nos-ignition')return !row.fx?.boost||row.fx.flameEnergy<.1||(!row.fx.reducedMotion&&!row.flamesVisible)||row.fx.reducedMotion&&row.flamesVisible;
   if(['launch','brake','drift'].includes(row.fixture))return row.fx?.markCount<2||(!row.fx.reducedMotion&&row.fx.tireSmoke<1);
-  if(row.fixture==='cutaway')return !row.fx?.cutaway||!row.captionShown;
+  if(row.fixture.startsWith('cutaway'))return !row.fx?.cutaway||!row.captionShown||row.fixture!=='cutaway'&&row.fx.cutaway.system!==row.fixture.slice('cutaway-'.length);
   return false;
 }).map(row=>row.label).concat(report.lifecycle.filter(row=>!row.pass).map(row=>row.name),report.pacing.filter(row=>!row.pass).map(row=>row.label+'-pacing'));
 writeFileSync(join(out,'report.json'),JSON.stringify(report,null,2));console.log(JSON.stringify({states:report.states.length,failed:report.failed,errors:report.errors,external:[...new Set(report.external)]},null,2));if(report.failed.length||report.errors.length||report.external.length)process.exitCode=1;
