@@ -16,9 +16,8 @@
     aegis:create({id:'aegis',legacyBodyId:'race',name:'Aegis',role:'Corner hold',shortTradeoff:'Extra mass and drag soften launch.',strength:'Most grip · strongest slide recovery',modeSuitability:{drag:'Strong trap speed; heavier launch.',drift:'Grip holds the line but resists rotation.',circuit:'High grip rewards precise laps.',hill:'Carries speed through the switchback.'},availability:'prototype',assetUrl:local+'kicklab-race-aegis/v1/aegis-original.glb',coach:'Aegis holds a fast line with more tire grip and aero load. Its extra mass asks you to begin braking earlier.',tradeoff:'High corner grip and slide recovery; extra mass and rolling loss soften the launch and straight-line gain.',massKg:1560,driveForceN:8800,topMps:53,grip:1.10,rollingLoss:1.17,steeringResponse:.96,slideRecovery:1.16,brakeHeat:.90,brakeRecovery:1.12,downforce:.08,wheelbaseM:2.9,lengthM:4.9,widthM:1.95,color:'#a82643',physics:{massKg:1560,driveForceN:8800,topSpeedMs:53,grip:1.10,rollingLoss:1.17,steeringResponse:.96,slideRecovery:1.16,brakeHeat:.90,brakeRecovery:1.12,downforce:.08}})
   });
   function enabled(loc=typeof location==='undefined'?null:location){
-    if(!loc||!['localhost','127.0.0.1'].includes(loc.hostname))return false;
-    if(!['http:','https:'].includes(loc.protocol))return false;
-    return new URLSearchParams(loc.search).get('raceExpansion')==='prototype';
+    return !!root.KickLabRaceOrigin?.trusted(loc)&&
+      new URLSearchParams(loc.search).get('raceExpansion')==='prototype';
   }
   const get=id=>vehicles[id]||vehicles.cobalt;
   const list=()=>Object.values(vehicles);
