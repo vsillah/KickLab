@@ -5,9 +5,11 @@ import {runInNewContext} from 'node:vm';
 import {resolve} from 'node:path';
 
 const source=readFileSync(resolve('src/shared/race-vehicle-catalog.js'),'utf8');
+const originSource=readFileSync(resolve('src/shared/race-origin.js'),'utf8');
 function catalog(url){
   const context={location:new URL(url),URLSearchParams};
   context.globalThis=context;
+  runInNewContext(originSource,context);
   runInNewContext(source,context);
   return context.KickLabRaceVehicleCatalog;
 }
@@ -31,7 +33,27 @@ test('versioned roster has stable local assets and complete handling traits',()=
   assert.ok(roster.cars.aegis.physics.downforce>roster.cars.kestrel.physics.downforce);
 });
 
-test('roster gate is explicit and localhost only',()=>{
-  for(const url of ['http://127.0.0.1:4357/kicklab.html','https://vsillah.github.io/KickLab/?raceExpansion=prototype','https://example.com/kicklab.html?raceExpansion=prototype'])assert.equal(catalog(url).enabled(),false);
-  for(const url of ['http://127.0.0.1:4357/kicklab.html?raceExpansion=prototype','http://localhost:4357/kicklab.html?raceExpansion=prototype'])assert.equal(catalog(url).enabled(),true);
+test('roster gate requires the explicit flag on trusted local and Pages locations',()=>{
+  for(const url of [
+    'http://127.0.0.1:4357/kicklab.html?raceExpansion=prototype',
+    'http://localhost:4357/kicklab.html?raceExpansion=prototype',
+    'https://vsillah.github.io/KickLab/?raceExpansion=prototype',
+    'https://vsillah.github.io/KickLab/index.html?raceExpansion=prototype'
+  ])assert.equal(catalog(url).enabled(),true,url);
+  for(const url of [
+    'http://127.0.0.1:4357/kicklab.html',
+    'https://vsillah.github.io/KickLab/',
+    'https://vsillah.github.io/KickLab/?raceExpansion=preview',
+    'http://vsillah.github.io/KickLab/?raceExpansion=prototype',
+    'https://vsillah.github.io:8443/KickLab/?raceExpansion=prototype',
+    'https://vsillah.github.io/KickLab?raceExpansion=prototype',
+    'https://vsillah.github.io/KickLab/other.html?raceExpansion=prototype',
+    'https://vsillah.github.io.evil.test/KickLab/?raceExpansion=prototype',
+    'file:///KickLab/?raceExpansion=prototype',
+    'https://example.com/kicklab.html?raceExpansion=prototype'
+  ])assert.equal(catalog(url).enabled(),false,url);
+  const context={location:new URL('https://vsillah.github.io/KickLab/?raceExpansion=prototype'),URLSearchParams};
+  context.globalThis=context;
+  runInNewContext(source,context);
+  assert.equal(context.KickLabRaceVehicleCatalog.enabled(),false,'missing trust policy fails closed');
 });
