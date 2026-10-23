@@ -8,7 +8,7 @@ mkdirSync(output,{recursive:true});
 const browser=await chromium.launch({headless:true,executablePath:[process.env.KICKLAB_CHROMIUM_PATH,chromium.executablePath(),'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find(path=>path&&existsSync(path))});
 const report={base,commit:process.env.KICKLAB_QA_HEAD||'working',cases:[],errors:[],external:[]};
 const requestedModes=process.argv.find(arg=>arg.startsWith('--modes='));
-const modes=requestedModes?requestedModes.slice(8).split(','):['drag','drift','circuit','hill'];
+const modes=requestedModes?requestedModes.slice(8).split(','):['drag','drift','circuit','hill','endurance'];
 async function prepare(page,mode,analog){
   if(await page.locator('#profileFormSave').isVisible())await page.click('#profileFormSave');
   if(await page.locator('#profileClose').isVisible())await page.click('#profileClose');
@@ -22,10 +22,10 @@ async function prepare(page,mode,analog){
   await page.click('#settingsClose');
   await page.locator('#raceCoachSetup').waitFor({state:'visible',timeout:20000});
   if(analog)await page.click('#raceCoachSetupControls');
-  if(mode==='circuit'||mode==='drift'||mode==='hill')await page.click('#raceCoachSetupSteering');
+  if(mode==='circuit'||mode==='drift'||mode==='hill'||mode==='endurance')await page.click('#raceCoachSetupSteering');
   try{await dismiss.waitFor({state:'visible',timeout:1500});await dismiss.click();await page.locator('#toasts .toast[aria-label="Profile saved"]').waitFor({state:'hidden',timeout:5000});}catch{}
 }
-if(!process.argv.includes('--video-only'))for(const [width,height] of [[390,844],[768,1024],[1440,900]])for(const mode of modes){
+if(!process.argv.includes('--video-only'))for(const [width,height] of [[360,780],[390,844],[768,1024],[1113,988],[1440,1000]])for(const mode of modes){
   const context=await browser.newContext({viewport:{width,height},deviceScaleFactor:1,reducedMotion:'reduce'});
   const page=await context.newPage();const name=`${mode}-${width}`;
   page.on('pageerror',e=>report.errors.push(`${name}: ${e.message}`));

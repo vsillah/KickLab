@@ -1564,3 +1564,21 @@ html[data-race-telemetry="prototype"] .game-frame .stage>.control-deck.simulator
 .race-simulator .sim-wheel{display:flex;align-items:center;justify-content:center;line-height:1}.race-simulator .sim-wheel svg{display:block;width:100%;height:100%;fill:none;stroke:#b8d9ff;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .race-simulator .sim-coach-motion{width:18px;height:18px;flex:none;fill:none;stroke:#ffc37a;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 @media(max-width:480px){.race-simulator .sim-icon{width:20px;height:20px}.race-simulator .sim-setup-actions button,.race-simulator .sim-fallbacks button{min-height:46px;font-size:9px;gap:4px}.race-simulator .sim-controls .sim-pedal-icon{width:25px;height:25px}.race-simulator .sim-controls .sim-pedal small{font-size:8px}.race-simulator .sim-boost-mark svg{width:14px;height:14px}.race-simulator .sim-controls .sim-paddle-icon{width:14px;height:14px}.race-simulator .sim-live-foot #simLaunch{font-size:8px}.race-simulator .sim-coach{max-width:100px}}
+
+/* Endurance strategy and result cards leave the chase car in view on phones. */
+@media(max-width:480px){html[data-race-telemetry="prototype"][data-kicklab-mode="race"] .game-frame .stage>.control-deck.race-endurance-card{top:7px;bottom:auto}}
+
+/* Endurance keeps measured engine heat in the Simulator's live cockpit. */
+.race-simulator:not([data-mode="endurance"]) #simTemp{display:none}
+.race-simulator[data-mode="endurance"] .sim-live-top{grid-template-columns:42px minmax(30px,1fr) 34px auto}
+.race-simulator[data-mode="endurance"] #simTemp{width:34px;height:34px}
+@media(max-width:480px){.race-simulator[data-mode="endurance"] .sim-live-top{grid-template-columns:30px minmax(25px,1fr) 29px auto;gap:4px}.race-simulator[data-mode="endurance"] #simTemp{width:29px;height:29px}.race-simulator[data-mode="endurance"] #simTemp::before{inset:3px}.race-simulator[data-mode="endurance"] #simTemp b{font-size:7px}}
+
+.race-simulator .sim-result[hidden]{display:none!important}
+.race-simulator[data-phase="result"] :is(.sim-live,.sim-setup,.sim-launch){display:none!important}
+.race-simulator .sim-result{display:grid;gap:5px;padding:2px 3px;color:#f0f9ff}
+.race-simulator .sim-result b{font:800 12px/1.2 var(--f-body);color:#b6efff}
+.race-simulator .sim-result p{margin:0;font:600 10px/1.35 var(--f-body);overflow-wrap:anywhere}
+.race-simulator .sim-result>div{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.race-simulator .sim-result button{min-height:44px}
+.race-simulator #simResultRetry{border-color:#a9eea4;background:#28624c}

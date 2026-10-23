@@ -1,6 +1,6 @@
 # Race expansion prototype
 
-`raceExpansion=prototype` activates on the existing trusted Race origins only. The unflagged game keeps its original challenge, progression, telemetry, storage keys, and 3D route. Endurance / Heat Management is a declared extension point; it is unavailable in the selector.
+`raceExpansion=prototype` activates on the existing trusted Race origins only. The unflagged game keeps its original challenge, progression, telemetry, storage keys, and 3D route. Endurance / Heat Management is the fifth selectable prototype format.
 
 ## Ownership and lifecycle
 
@@ -12,8 +12,11 @@
 | Drift Trial | 90 m acceleration straight, left 28 m radius curve, 64 m recovery straight, right 28 m radius curve, exit and finish at x=215 | Controlled angle and points in each curve, drift time, spin and off-line loss | At least 150 net points with 50 in each curve, no spin |
 | Circuit Laps | Closed oval, two forward start/finish crossings after reaching the far side | Lap count, individual lap times, consistency, slide time | Two laps in at most 90 s with less than 2 s sliding |
 | Time Attack / Hill Climb | Existing Highland switchback with canonical grade | Elapsed time, slide time, off-line loss | At most 20 s and less than 0.5 s sliding |
+| Endurance / Heat Management | Three forward, on-road crossings of the closed oval | Lap times, total time, spread, peak engine heat, critical heat seconds, slide and off-line time | Three laps within 150 s, spread at most 8 s, peak heat below 95%, critical heat at most 3 s |
 
 The oval path uses the same `RACE_SYSTEMS.step` dynamics as other routes. Lap credit requires forward angular progress, the far-side arming sector, the start/finish sector, road proximity, and at least eight seconds since the prior crossing. A reset starts a new attempt; it never teleports the car between laps.
+
+Endurance uses that paved oval and the existing telemetry heat state without a lap reset. Its sustained-load parameter doubles only the engine's throttle heat term in this prototype; speed, throttle release, and braking retain the production cooling law and overheat recovery threshold. Power fades continuously as heat rises and returns after cooling. Garage tires, brakes, suspension and vehicle traits still affect the canonical car physics, so Kestrel with wide tires, balanced Cobalt, and Aegis with endurance brakes are viable but have different pace and grip costs. Coach Nia previews all three, reports measured laps and heat live, then compares the result with the targets. A forward third crossing starts a 2.4-second paved oval coast before the result card appears.
 
 Drag continues straight along the paved runoff after the trap; its result coast cannot change lanes or leave the road. Drift route centerline, physics projection, track mesh, Canvas fallback, and finish gate share the same two-curve geometry. The Drift road now extends to x=440, well past the x=215 finish. Both modes require a forward, on-road finish crossing. Their result panel waits for a 2.4-second paved coast, while measurement stops at the finish. Coach Nia calls for about 38 km/h at each curve and recovery before the second.
 
@@ -37,6 +40,6 @@ Drag uses four acceleration bands. Its Shift button remains available as the tel
 
 ## Validation gate
 
-Run `npm run check` and `node scripts/qa-race-modes.mjs <local-url> <output-folder>`. The QA script captures setup screenshots at 390×844, 768×1024, and 1440×900, plus Classic and Analog play clips for all four modes. It fails on script errors, horizontal overflow, or external runtime requests. Compile the clips with `python3 scripts/compile-race-modes-video.py <output-folder>` and inspect the final MP4. Separately verify unflagged Race, a no-WebGL Canvas run, and profile switching before PR review. A fixture simulation proves all four routes can finish with canonical physics, including real two-lap Circuit timing.
+Run `npm run check`, `node scripts/qa-race-modes.mjs <local-url> <output-folder>`, and `node scripts/qa-race-endurance.mjs <local-url> <output-folder> <width>x<height>`. The first QA script captures mode setup at 360×780, 390×844, 768×1024, 1113×988 and 1440×1000, plus Classic and Analog play clips. The Endurance script records a real three-lap Simulator run with a measured hot/critical/cooling episode, valid finish coast, and passing Coach result, then encodes H.264. Both reject runtime errors and external requests. Also verify unflagged Race, Canvas, profile switching, pause, and input lifecycle before PR review. Shared-model fixtures prove all five routes can finish through canonical physics.
 
 For the Drag and Drift follow-up, run `node scripts/qa-race-route-followup.mjs <local-url> <output-folder>` against the exact built commit, then `python3 scripts/compile-race-route-followup-video.py <output-folder>`. The browser report asserts red → yellow → green with a still car and blocked input, a passing Drag trap and paved coast before its delayed result in Classic and Analog, and passing Drift runs through both scored curves, the recovery straight, legitimate finish, and long paved runoff at desktop and phone widths. Screenshots cover the lights, speed, curves, crossing, coast, and result. Run `--reduced` for the reduced-motion camera and streak assertion. The run fails on page errors, external requests, horizontal overflow, missed curve credit, off-road finish, premature result, or a failed result.

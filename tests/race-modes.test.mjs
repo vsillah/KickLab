@@ -14,7 +14,7 @@ test('expansion remains trusted and its roster seam uses stable IDs',()=>{
   assert.equal(modes.enabled(),true);
   assert.deepEqual(Object.keys(catalog.vehicles).sort(),['aegis','cobalt','kestrel']);
   assert.equal(catalog.forGarageBody('street').id,'cobalt');
-  assert.equal(modes.NEXT.available,false);
+  assert.equal(modes.NEXT.available,true);
   const off=vm.runInNewContext(read('src/shared/race-modes.js')+'\nglobalThis.KickLabRaceModes.enabled()',raceContext(local(''),{KickLabRaceOrigin:origin}));
   assert.equal(off,false);
 });
@@ -108,6 +108,33 @@ test('Drag trap and result coast remain on paved centerline',()=>{
   assert.ok(Math.abs(s.y)<.01);
 });
 
+test('Endurance counts only armed forward paved crossings and coasts on the oval',()=>{
+  const a=modes.initial('endurance');a.phase='run';
+  const point=(theta,e=0,reverse=false)=>({x:80+(70+e)*Math.cos(theta),y:(38+e)*Math.sin(theta),e,v:12,th:Math.atan2(38*Math.cos(theta),-70*Math.sin(theta))+(reverse?Math.PI:0)});
+  const observe=(before,after,dt=.02)=>{const angle=Math.atan2(before.y/38,(before.x-80)/70);modes.observe(a,after,{...before,angle},dt,{gas:1,heat:.62},{});};
+  observe(point(-.1),point(.1));
+  a.elapsed=29.9;observe(point(2.8),point(2.9));
+  assert.equal(a.laps,0,'crossing before the gate does not count');
+  observe(point(Math.PI-.15),point(Math.PI-.1,8));
+  assert.equal(a.laps,0,'off-road finish does not count');
+  observe(point(Math.PI-.15),point(Math.PI-.1,0,true));
+  assert.equal(a.laps,0,'reverse finish does not count');
+  observe(point(Math.PI-.15),point(Math.PI-.1));
+  assert.equal(a.laps,1);
+  const s=point(Math.PI-.1);s.v=12;for(let i=0;i<120;i++){s.v=Math.max(0,s.v-.12);modes.coast(a,s,.02);assert.ok(Math.abs(s.e)<.01);}
+  assert.ok(s.y<0,'coast follows the next curve after the line');
+});
+
+test('Endurance score uses completed lap time, spread and actual heat exposure',()=>{
+  const a={...modes.initial('endurance'),laps:3,elapsed:91,lapTimes:[30,30.5,30.5],peakEngineHeat:.82,criticalSeconds:0};
+  const clean=modes.result(a,true,0);
+  assert.equal(clean.pass,true);
+  for(const changed of [{laps:2},{elapsed:151},{lapTimes:[25,30,36]},{peakEngineHeat:.96},{criticalSeconds:3.1}])assert.equal(modes.result({...a,...changed},true,0).pass,false);
+  assert.equal(modes.result(a,false,0).pass,false);
+  assert.ok(modes.result({...a,criticalSeconds:2},true,0).score<clean.score);
+  assert.ok(modes.result({...a,lapTimes:[25,30,36]},true,0).score<clean.score);
+});
+
 test('canonical physics can finish each route without a vehicle lock',()=>{
   const physics=raceContext(local('?raceExpansion=prototype'));
   for(const path of ['src/shared/race-garage.js','src/shared/race-progression.js','src/shared/race-modes.js','src/game/19-race-systems.js'])vm.runInNewContext(read(path),physics);
@@ -127,5 +154,28 @@ test('canonical physics can finish each route without a vehicle lock',()=>{
     }
     assert.ok(finished,`${id} did not finish`);
     assert.ok(modeApi.result(a,true,0).pass,`${id} controlled run should pass: ${JSON.stringify({score:modeApi.result(a,true,0).score,curves:a.driftCurvePoints,spins:a.spinCount,elapsed:a.elapsed,zone:s.zone})}`);
+  }
+});
+
+test('each roster car can complete three continuous Endurance laps with the shared heat model',()=>{
+  const physics=raceContext(local('?raceExpansion=prototype'));
+  for(const path of ['src/shared/race-garage.js','src/shared/race-vehicle-catalog.js','src/shared/race-modes.js','src/game/19-race-systems.js','src/game/19a-race-telemetry.js'])vm.runInNewContext(read(path),physics);
+  const systems=vm.runInNewContext('RACE_SYSTEMS',physics),telemetry=vm.runInNewContext('RACE_TELEMETRY',physics),garage=physics.KickLabRaceGarage,vehicles=physics.KickLabRaceVehicleCatalog,api=physics.KickLabRaceModes;
+  for(const [id,limit,tires] of [['kestrel',10,'wide'],['cobalt',12,'balanced'],['aegis',12,'balanced']]){
+    const car=vehicles.get(id),build={...garage.DEFAULT,body:car.legacyBodyId,tires},P=garage.parameters({L:120,R:32,m:car.massKg,F:car.driveForceN,top:car.topMps,mu:.9*car.grip,tireMu:.9*car.grip,Lwb:car.wheels.wheelbaseM,ratio:15,expansionCourse:'oval',progressionHeat:true},build);
+    Object.assign(P,{garageStock:false,rolling:P.rolling*car.rollingLoss,stability:P.stability*car.steeringResponse,response:P.response*car.steeringResponse,recovery:P.recovery*car.slideRecovery,brakeHeat:P.brakeHeat*car.brakeHeat,brakeRecovery:car.brakeRecovery,downforce:car.downforce,engineHeatLoad:2});
+    const s={x:10,y:0,th:-Math.PI/2,v:0,t:0,...systems.initial()},a=api.initial('endurance'),t=telemetry.initial(),crossingHeat=[];a.phase='run';let previousLaps=0;
+    for(let i=0;i<9000&&a.laps<3;i++){
+      const before={x:s.x,y:s.y,angle:a.lastAngle,mode:s.driftMode},heatBefore=t.heat,gas=s.v<limit&&t.heat<.78?1:0,brake=s.v>limit+1?1:0;
+      systems.step(s,P,{gas:gas*telemetry.powerFactor(t),brake,auto:true},.02,systems.venue('highland'));
+      telemetry.step(t,s,{gas,brake,nitro:false},P,.02);api.observe(a,s,before,.02,{gas,heat:t.heat},P);
+      assert.ok(Math.abs(s.e)<7,`${id} left pavement at ${a.elapsed.toFixed(1)} s`);
+      if(a.laps>previousLaps){crossingHeat.push(t.heat);assert.ok(Math.abs(t.heat-heatBefore)<.02,`${id} heat jumped at crossing`);previousLaps=a.laps;}
+    }
+    assert.equal(a.laps,3,`${id} did not finish`);
+    assert.equal(a.lapTimes.length,3);
+    assert.equal(api.result(a,true,0).pass,true,`${id} controlled strategy did not pass`);
+    assert.equal(crossingHeat.length,3);
+    assert.ok(a.peakEngineHeat>=Math.max(...crossingHeat));
   }
 });

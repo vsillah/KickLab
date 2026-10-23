@@ -1,6 +1,6 @@
 # Race simulator controls prototype
 
-This lane starts from `e19c63112d1c39417bb648eddc2cad05bb30ff9e`. It is available only on a trusted origin with both `raceExpansion=prototype` and `raceSimulator=prototype`. Classic remains the default. The Endurance extension point is unchanged.
+This control lane is available only on a trusted origin with both `raceExpansion=prototype` and `raceSimulator=prototype`. Classic remains the default. The same Simulator inputs are available in Endurance; its mode rules live in the Race expansion model.
 
 ## Input ownership
 
