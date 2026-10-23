@@ -1,0 +1,11 @@
+# Race Championship prototype
+
+The Race Championship is an opt-in, device-local season over the existing Race physics. It requires a trusted origin and both `raceExpansion=prototype` and `raceChampionship=prototype`. Without those flags, the existing Race flow remains the default.
+
+The five-event ladder is Opening Sprint (Drag), Control Trial (Drift), Summit Run (Hill), Circuit Test, and the Endurance final. Each event opens after the prior event qualifies under its existing mode rules. A qualifying run records 10–15 points based on its score. Replaying an event can improve its best; it cannot erase earned points. Clearing all five events earns the local Champion crest and completes the season. Crests are cosmetic. There are no purchases or repeat-run requirements.
+
+Each profile stores `raceChampionship.version = 1` and its event results inside the existing profile progress record. Results contain a bounded score, points, vehicle ID, and up to 80 local ghost samples. Standings use device aliases such as “Racer 1.” Coach Nia previews the event demand, selected vehicle, and current tune; after a run, she points to the next event or the relevant Garage category. The optional local head-to-head button hands off to the existing alternating-player match when `raceMultiplayer=prototype` is enabled. That match does not award season points.
+
+Season runs use the existing track, controls, tuning, telemetry, renderer, cinematic effects, and replay. Their results write only the season record. Solo XP, mode bests, challenge progress, and Race Competition awards remain separate. Leaving the season or switching profiles cancels its active state and ghost timer. No season request leaves the device. Replay uses the existing in-memory recording; no season upload or public board exists.
+
+Validation: `node scripts/build.mjs --emit-game`, `node scripts/prepare-mobile.mjs`, `npm test`, `node scripts/qa-race-championship.mjs`, and `node scripts/record-race-championship.mjs`. The browser QA covers five viewport sizes, Classic/Analog and Simulator selection, Canvas fallback, reduced motion, season completion and restoration, profile isolation, default-off behavior, local-match handoff, and runtime request monitoring. The recording uses an actual Drag run and produces an exact-head MP4 for review.
