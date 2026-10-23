@@ -1,7 +1,7 @@
 {
   "version": 1,
   "runtimePayloadCeilingBytes": 768000,
-  "combinedNewAssetsBytes": 642298,
+  "combinedNewAssetsBytes": 659126,
   "assets": [
     {
       "path": "src/assets/effects/race/v1/nitrous-flame-atlas.webp",
@@ -25,8 +25,65 @@
       "sha256": "b82b329071bf14a68f63588e00c0f002ba9b08dba0bf4d8500766a573609e505",
       "source": "scripts/race-cinematic-art/bake.py",
       "origin": "Original Blender CLI geometry, local only."
+    },
+    {
+      "path": "src/assets/effects/race/v1/tire-smoke-00.webp",
+      "bytes": 2062,
+      "sha256": "a866d1b747a454d3172b2f4dccb3ebccb1c30cf098b469df5f58ea758a6d5a48",
+      "source": "scripts/race-cinematic-art/tire-smoke.py",
+      "origin": "Original deterministic CLI-authored tire-smoke frame; generated locally from procedural eddies and turbulence. No provider, download, or runtime egress."
+    },
+    {
+      "path": "src/assets/effects/race/v1/tire-smoke-01.webp",
+      "bytes": 1946,
+      "sha256": "3c6a5b42028099170855c7acf3cebd3391d778a66adcc5d45e12a864f7dd9d3b",
+      "source": "scripts/race-cinematic-art/tire-smoke.py",
+      "origin": "Original deterministic CLI-authored tire-smoke frame; generated locally from procedural eddies and turbulence. No provider, download, or runtime egress."
+    },
+    {
+      "path": "src/assets/effects/race/v1/tire-smoke-02.webp",
+      "bytes": 2148,
+      "sha256": "53f8fb8427d9722e5619415c5507d17b13f5cd993887d6f9a7b3c6df31c0faf2",
+      "source": "scripts/race-cinematic-art/tire-smoke.py",
+      "origin": "Original deterministic CLI-authored tire-smoke frame; generated locally from procedural eddies and turbulence. No provider, download, or runtime egress."
+    },
+    {
+      "path": "src/assets/effects/race/v1/tire-smoke-03.webp",
+      "bytes": 2122,
+      "sha256": "c658e427e4fe7df18e90d44f0c933abc72ea6377d75afc927a3863cb289ba19e",
+      "source": "scripts/race-cinematic-art/tire-smoke.py",
+      "origin": "Original deterministic CLI-authored tire-smoke frame; generated locally from procedural eddies and turbulence. No provider, download, or runtime egress."
+    },
+    {
+      "path": "src/assets/effects/race/v1/tire-smoke-04.webp",
+      "bytes": 2042,
+      "sha256": "27452dbc379696476fc8e57c9d78ba06e620068ae6f285123bc2c42ead59639d",
+      "source": "scripts/race-cinematic-art/tire-smoke.py",
+      "origin": "Original deterministic CLI-authored tire-smoke frame; generated locally from procedural eddies and turbulence. No provider, download, or runtime egress."
+    },
+    {
+      "path": "src/assets/effects/race/v1/tire-smoke-05.webp",
+      "bytes": 2296,
+      "sha256": "79bee506b847820328801039ee6922c9934792953985185ff17c08994c50c15b",
+      "source": "scripts/race-cinematic-art/tire-smoke.py",
+      "origin": "Original deterministic CLI-authored tire-smoke frame; generated locally from procedural eddies and turbulence. No provider, download, or runtime egress."
+    },
+    {
+      "path": "src/assets/effects/race/v1/tire-smoke-06.webp",
+      "bytes": 2200,
+      "sha256": "9173509e6257d8b707410a997cbff3360c87f53b97af8e63ac806b715a217222",
+      "source": "scripts/race-cinematic-art/tire-smoke.py",
+      "origin": "Original deterministic CLI-authored tire-smoke frame; generated locally from procedural eddies and turbulence. No provider, download, or runtime egress."
+    },
+    {
+      "path": "src/assets/effects/race/v1/tire-smoke-07.webp",
+      "bytes": 2012,
+      "sha256": "060d287a8224b2976f5f29082000772a301c6478a66ac7c7dabc56d5ad871cb1",
+      "source": "scripts/race-cinematic-art/tire-smoke.py",
+      "origin": "Original deterministic CLI-authored tire-smoke frame; generated locally from procedural eddies and turbulence. No provider, download, or runtime egress."
     }
   ],
   "review": "qa-artifacts/race-cinematic-effects/blender-bakeoff/gate-report-v2.json",
-  "committedVisualAssetsBytes": 766348
+  "committedVisualAssetsBytes": 783176,
+  "runtimePayloadCeilingNote": "The 768,000-byte ceiling applies to combined runtime visual assets. The committed source-inclusive count records provenance separately."
 }
