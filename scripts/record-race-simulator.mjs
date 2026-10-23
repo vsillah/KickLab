@@ -42,11 +42,16 @@ await page.evaluate(()=>window.__KICKLAB_RACE_SIMULATOR_QA__.pause());await page
 await page.locator('#simResume').click();await page.waitForTimeout(500);
 await page.locator('#simEnable').click();await page.evaluate(()=>{window.__KICKLAB_RACE_SIMULATOR_QA__.orientation(0,0,0);window.__KICKLAB_RACE_SIMULATOR_QA__.orientation(0,-19,0);});await page.waitForTimeout(500);
 await page.evaluate(()=>window.__KICKLAB_RACE_SIMULATOR_QA__.cancel('Page hidden',true));await page.waitForTimeout(700);
+await page.evaluate(()=>window.__KICKLAB_RACE_SIMULATOR_QA__.reset());await page.waitForTimeout(250);
+await page.locator('#simStart').click();await page.waitForTimeout(3200);
 await page.locator('#simFallbackClassic').click();await page.waitForTimeout(550);
 await page.screenshot({path:resolve(out,'race-simulator-3d-classic.png')});
+if(await page.locator('#raceSimulator').isVisible()||await page.locator('#classicControlsButton').getAttribute('aria-pressed')!=='true')throw new Error('Classic fallback did not switch controls');
 await page.evaluate(()=>window.__KICKLAB_RACE_SIMULATOR_QA__.reset());await page.waitForTimeout(350);
-await page.locator('#raceCoachSetupSimulator').click();await page.locator('#simFallbackAnalog').click();await page.waitForTimeout(550);
+await page.locator('#raceCoachSetupSimulator').click();await page.locator('#simFallbackAnalog').click();
+await page.locator('#raceCoachSetupStart').click();await page.waitForTimeout(3200);
 await page.screenshot({path:resolve(out,'race-simulator-3d-analog.png')});
+if(await page.locator('#raceSimulator').isVisible()||await page.locator('#analogControlsButton').getAttribute('aria-pressed')!=='true')throw new Error('Analog fallback did not switch controls');
 const audit=await page.evaluate(()=>({renderer:window.__KICKLAB_RACE_3D__?.status,vehicle:window.__KICKLAB_RACE_3D__?.vehicle,proxy:window.__KICKLAB_RACE_3D__?.proxy,mode:window.__KICKLAB_RACE_MODES_QA__?.state?.().mode,telemetry:window.__KICKLAB_RACE_TELEMETRY__}));
 await context.close();await browser.close();
 const webm=readdirSync(out).filter(name=>name.endsWith('.webm')).map(name=>resolve(out,name)).sort((a,b)=>statSync(b).mtimeMs-statSync(a).mtimeMs)[0];
