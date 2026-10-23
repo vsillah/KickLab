@@ -22,13 +22,15 @@ const url=new URL(base);url.searchParams.set('raceExpansion','prototype');url.se
 await page.goto(url.toString(),{waitUntil:'domcontentloaded'});
 if(await page.locator('#profileClose').isVisible())await page.locator('#profileClose').click();
 await page.locator('#lab-tab-race').click();await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});
-const skip=page.locator('.race-orbit-panel button');if(await skip.isVisible())await skip.click();
+if(gfx==='3d'){await page.waitForFunction(()=>globalThis.__KICKLAB_RACE_3D__?.status==='rendering',null,{timeout:30000});await page.waitForFunction(()=>globalThis.__KICKLAB_RACE_3D__?.orbit?.phase==='orbit'||globalThis.__KICKLAB_RACE_3D__?.orbit?.done===true,null,{timeout:10000});const skip=page.locator('.race-orbit-panel button');if(await skip.isVisible())await skip.click();await page.waitForFunction(()=>globalThis.__KICKLAB_RACE_3D__?.orbit?.done===true,null,{timeout:10000});}
 await page.locator('#raceCoachSetup').waitFor({state:'visible',timeout:20000});
 await page.evaluate(()=>{if(!globalThis.__KICKLAB_RACE_SIMULATOR_QA__.selectMode('endurance'))throw new Error('Endurance unavailable');});
 await page.locator('#raceCoachSetup').waitFor({state:'visible',timeout:10000});
 await page.locator('#raceCoachSetupSteering').click();
 await page.locator('#raceCoachSetupSimulator').click();
 await page.locator('#raceSimulator').scrollIntoViewIfNeeded();
+await page.locator('#simStart').waitFor({state:'visible',timeout:30000});
+await page.waitForFunction(()=>{const button=document.querySelector('#simStart'),box=button?.getBoundingClientRect();return !!button&&!button.disabled&&button.getAttribute('aria-disabled')!=='true'&&box.width>0&&box.height>0;},null,{timeout:30000});
 await shot('setup');
 const setup=await state();if(setup.mode!=='endurance'||!setup.simulator||setup.overflow>1)errors.push('Endurance setup or layout failed');
 await page.locator('#simStart').click();
