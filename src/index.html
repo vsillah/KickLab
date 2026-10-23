@@ -75,6 +75,11 @@
           </nav>
           <div class="environment-context" id="environmentContext" role="status" aria-label="Environment for the selected Kick experience" aria-live="polite" aria-atomic="true" hidden><span>Environment</span><b id="environmentContextLabel"></b><small id="environmentContextDetail"></small></div>
         </header>
+        <section class="race-multiplayer" id="raceMultiplayer" hidden aria-label="Local head to head Race match">
+          <div class="race-multiplayer-copy"><strong id="raceMultiplayerTitle">Local head to head</strong><p id="raceMultiplayerStatus" role="status" aria-live="polite"></p><small id="raceMultiplayerContract"></small></div>
+          <div class="race-multiplayer-actions"><label id="raceMultiplayerOpponentLabel">Seat B <select id="raceMultiplayerOpponent" aria-label="Choose a second local player"></select></label><button type="button" id="raceMultiplayerStart">Start match</button><button type="button" id="raceMultiplayerRetry" hidden>Retry this seat</button><button type="button" id="raceMultiplayerRematch" hidden>New match</button><button type="button" id="raceMultiplayerAbandon" hidden>Abandon match</button></div>
+          <div class="race-multiplayer-ghost" id="raceMultiplayerGhost" hidden aria-label="Live Seat A ghost reference"><span id="raceMultiplayerGhostText"></span><div class="race-multiplayer-track" aria-hidden="true"><i id="raceMultiplayerGhostA"></i><i id="raceMultiplayerGhostB"></i></div></div>
+        </section>
         <div class="stage">
           <canvas id="cv" width="960" height="540" aria-label="Game stage"></canvas>
           <div class="race-cockpit" id="raceCockpit" hidden>
