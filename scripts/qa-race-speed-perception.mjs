@@ -18,9 +18,13 @@ async function run(width,height,mode='endurance',reduced=false,canvas=false,vide
   try{
     const url=new URL(base);for(const [key,value] of [['raceExpansion','prototype'],['raceSimulator','prototype'],['raceTelemetry','prototype'],['rev',report.head]])url.searchParams.set(key,value);
     await page.goto(url.toString(),{waitUntil:'domcontentloaded'});if(await page.locator('#profileFormSave').isVisible())await page.locator('#profileFormSave').click();if(await page.locator('#profileClose').isVisible())await page.locator('#profileClose').click();
-    await page.locator('#lab-tab-race').click();await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});const skip=page.locator('.race-orbit-panel button');if(await skip.isVisible())await skip.click();await page.locator('#raceCoachSetup').waitFor({state:'visible',timeout:20000});
+    await page.locator('#lab-tab-race').click();await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});
+    if(!canvas){await page.waitForFunction(()=>globalThis.__KICKLAB_RACE_3D__?.status==='rendering',null,{timeout:30000});await page.waitForFunction(()=>globalThis.__KICKLAB_RACE_3D__?.orbit?.phase==='orbit'||globalThis.__KICKLAB_RACE_3D__?.orbit?.done===true,null,{timeout:10000});const skip=page.locator('.race-orbit-panel button');if(await skip.isVisible())await skip.click();await page.waitForFunction(()=>globalThis.__KICKLAB_RACE_3D__?.orbit?.done===true,null,{timeout:10000});}
+    await page.locator('#raceCoachSetup').waitFor({state:'visible',timeout:20000});
     if(!await page.evaluate(selected=>globalThis.__KICKLAB_RACE_SIMULATOR_QA__.selectMode(selected),mode))throw new Error('mode unavailable');
-    if(mode!=='drag')await page.locator('#raceCoachSetupSteering').click();await page.locator('#raceCoachSetupSimulator').click();await page.locator('#simStart').waitFor({state:'visible',timeout:10000});
+    if(mode!=='drag')await page.locator('#raceCoachSetupSteering').click();await page.locator('#raceCoachSetupSimulator').click();await page.locator('#simStart').waitFor({state:'visible',timeout:30000});
+    if(!canvas)await page.waitForFunction(()=>globalThis.__KICKLAB_RACE_3D__?.status==='rendering',null,{timeout:30000});
+    await page.waitForFunction(()=>{const button=document.querySelector('#simStart'),box=button?.getBoundingClientRect();return !!button&&!button.disabled&&button.getAttribute('aria-disabled')!=='true'&&box.width>0&&box.height>0;},null,{timeout:30000});
     await capture('setup');await page.locator('#simStart').click();await page.waitForFunction(()=>globalThis.__KICKLAB_RACE_MODES_QA__.state().phase==='run',null,{timeout:10000});
     await page.evaluate(()=>{const stage=document.querySelector('.stage');window.scrollTo(0,stage.getBoundingClientRect().top+window.scrollY);});
     await capture('low');clipStart=Math.max(0,(Date.now()-recordingStart)/1000-.45);await page.evaluate(()=>globalThis.__KICKLAB_RACE_SIMULATOR_QA__.input('gas',true));
