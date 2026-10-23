@@ -27,7 +27,7 @@ await page.waitForTimeout(700);
 await page.locator('#simFallbackClassic').click();
 await page.waitForTimeout(700);
 await page.screenshot({path:resolve(out,'canvas-classic.png')});
-const audit=await page.evaluate(()=>({canvasVisible:getComputedStyle(document.querySelector('#cv')).display!=='none',webglVisible:getComputedStyle(document.querySelector('#cv3')).display!=='none',controller:window.__KICKLAB_RACE_MODES_QA__?.state?.().controller}));
+const audit=await page.evaluate(()=>({canvasVisible:getComputedStyle(document.querySelector('#cv')).display!=='none',webglVisible:!!document.querySelector('#cv3')&&getComputedStyle(document.querySelector('#cv3')).display!=='none',controller:window.__KICKLAB_RACE_MODES_QA__?.state?.().controller}));
 await context.close();await browser.close();
 const webm=readdirSync(out).filter(name=>name.endsWith('.webm')).map(name=>resolve(out,name)).sort((a,b)=>statSync(b).mtimeMs-statSync(a).mtimeMs)[0];
 const mp4=resolve(out,'race-simulator-canvas-fallback.mp4');
