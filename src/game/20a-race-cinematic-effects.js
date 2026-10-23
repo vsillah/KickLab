@@ -12,15 +12,20 @@ const RACE_CINEMATIC_FX={
     }
     const markGeometry=new T.BoxGeometry(.42,.004,.15),markMaterial=new T.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.45,depthWrite:false}),marks=new T.InstancedMesh(markGeometry,markMaterial,72);
     marks.count=0;marks.frustumCulled=false;scene.add(marks);
-    const flameAtlas=new T.TextureLoader().load('assets/effects/race/v1/nitrous-flame-atlas.webp');flameAtlas.colorSpace=T.SRGBColorSpace;flameAtlas.repeat.set(.25,.5);flameAtlas.offset.set(0,.5);
+    const coreCanvas=document.createElement('canvas');coreCanvas.width=128;coreCanvas.height=64;const coreContext=coreCanvas.getContext('2d'),corePixels=coreContext.createImageData(128,64);
+    for(let y=0;y<64;y++)for(let x=0;x<128;x++){const u=x/127,v=Math.abs((y-31.5)/31.5),width=(.23+.22*Math.sin(Math.PI*u))*(1-.38*u),edge=Math.max(0,Math.min(1,(width-v)*7)),fade=(1-u)*(.74+.26*Math.sin(u*21)**2),index=(y*128+x)*4;corePixels.data[index]=168+Math.round(87*(1-u));corePixels.data[index+1]=210+Math.round(45*(1-u));corePixels.data[index+2]=255;corePixels.data[index+3]=Math.round(210*edge*fade);}
+    coreContext.putImageData(corePixels,0,0);const coreTexture=new T.CanvasTexture(coreCanvas);coreTexture.colorSpace=T.SRGBColorSpace;
     const flames=[];
     for(const side of ['Left','Right']){
       const marker=car.getObjectByName('Exhaust'+side);if(!marker)continue;
-      const map=flameAtlas;
-      const material=new T.SpriteMaterial({map,color:0xffffff,transparent:true,opacity:0,depthWrite:false,alphaTest:.015,toneMapped:false});
-      const sprite=new T.Sprite(material);sprite.visible=false;sprite.renderOrder=9;car.add(sprite);flames.push({sprite,marker,map,side:side==='Left'?0:1,frame:-1});
+      const material=new T.SpriteMaterial({color:0xffffff,transparent:true,opacity:0,depthWrite:false,alphaTest:.01,toneMapped:false}),sprite=new T.Sprite(material);
+      const core=new T.Sprite(new T.SpriteMaterial({map:coreTexture,color:0xd5f4ff,transparent:true,opacity:0,depthWrite:false,alphaTest:.01,toneMapped:false}));
+      const wisp=new T.Sprite(new T.SpriteMaterial({map:smokeTexture,color:0xffa965,transparent:true,opacity:0,depthWrite:false,alphaTest:.01,toneMapped:false}));
+      for(const layer of [sprite,core,wisp]){layer.visible=false;layer.renderOrder=9;car.add(layer);}
+      flames.push({sprite,core,wisp,marker,map:null,side:side==='Left'?0:1,frame:-1});
     }
-    const fx={particles,smokeTexture,particleCursor:0,particleTick:0,flameAtlas,flames,flameEnergy:0,marks,markGeometry,markMaterial,markEntries:[],markCursor:0,markTick:0,internals:null,assetReady:false,assetError:null,pendingSuccess:null,cutaway:null,materials:[],lastBoost:false,counts:{vapor:0,tire:0,marks:0}};
+    const fx={particles,smokeTexture,particleCursor:0,particleTick:0,coreTexture,flameAtlas:null,flames,flameEnergy:0,visualClock:0,marks,markGeometry,markMaterial,markEntries:[],markCursor:0,markTick:0,internals:null,assetReady:false,assetError:null,pendingSuccess:null,cutaway:null,materials:[],lastBoost:false,counts:{vapor:0,tire:0,marks:0}};
+    fx.flameAtlas=new T.TextureLoader().load('assets/effects/race/v1/nitrous-flame-atlas.webp',atlas=>{if(view.cinematicFx!==fx)return;atlas.colorSpace=T.SRGBColorSpace;for(const flame of flames){const map=atlas.clone();map.repeat.set(.25,.5);map.offset.set(0,.5);map.needsUpdate=true;flame.map=map;flame.sprite.material.map=map;flame.sprite.material.needsUpdate=true;}});
     view.cinematicFx=fx;this.loadInternals(view,fx);
   },
   loadInternals(view,fx){
@@ -66,16 +71,18 @@ const RACE_CINEMATIC_FX={
   step(view,dt){
     const fx=view.cinematicFx,t=Race.telemetry,s=Race.st;if(!fx||!t)return;
     const visualStep=!PAUSE.on&&!document.hidden?Math.min(.05,Math.max(0,dt)):0,active=Race.state==='run'&&!PAUSE.on&&!document.hidden,step=active?visualStep:0,boost=active&&s.nitroDelivered&&t.nosPulse>0&&!t.overheat;
-    fx.flameEnergy=!active?0:boost?Math.min(1,fx.flameEnergy+step*9):Math.max(0,fx.flameEnergy-step*7);
+    fx.visualClock+=visualStep;fx.flameEnergy=!active?0:boost?Math.min(1,fx.flameEnergy+step*9):Math.max(0,fx.flameEnergy-step*7);
     for(const flame of fx.flames){
-      const {sprite,marker,map}=flame;sprite.visible=boost&&!reduce;
+      const {sprite,core,wisp,marker,map}=flame;sprite.visible=core.visible=wisp.visible=boost&&!reduce&&!!map;
       if(!sprite.visible)continue;
-      marker.updateWorldMatrix(true,false);const nozzle=marker.getWorldPosition(new THREE.Vector3()),localNozzle=view.car.worldToLocal(nozzle.clone()),back=new THREE.Vector3(Math.cos(s.th),0,Math.sin(s.th));
-      const length=(.82+Math.min(1,t.nosPulse/1.2)*.36)*(.88+Math.sin(s.t*57+flame.side*1.7)*.07);
-      sprite.position.copy(localNozzle).x-=length*.46;sprite.scale.set(length,length*.52,1);sprite.material.opacity=Math.min(.9,.48+fx.flameEnergy*.38);
+      marker.updateWorldMatrix(true,false);const nozzle=marker.getWorldPosition(new THREE.Vector3()),localNozzle=view.car.worldToLocal(nozzle.clone()),back=new THREE.Vector3(Math.cos(s.th),0,Math.sin(s.th)),time=fx.visualClock+flame.side*.043;
+      const surge=Math.max(.55,Math.min(1.38,.91+.24*Math.sin(time*38+flame.side*2.1)+.16*Math.sin(time*67+flame.side*.7))),length=(.61+Math.min(1,t.nosPulse/1.2)*.19)*surge,width=length*(.48+.1*Math.sin(time*53+flame.side*1.9));
+      sprite.position.copy(localNozzle).x-=length*.58;sprite.position.y+=.025*Math.sin(time*71+flame.side);sprite.scale.set(length,width,1);sprite.material.opacity=(.4+.22*Math.sin(time*47+flame.side*2.7)**2)*fx.flameEnergy;
+      const coreLength=length*(.26+.08*Math.sin(time*59+flame.side)),coreWidth=width*.47;core.position.copy(localNozzle).x-=coreLength*.45;core.scale.set(coreLength,coreWidth,1);core.material.opacity=(.56+.2*Math.sin(time*61+flame.side*2)**2)*fx.flameEnergy;
+      const breakup=.5+.5*Math.sin(time*43+flame.side*2.4);wisp.position.copy(localNozzle).x-=length*(.66+.2*breakup);wisp.position.y+=(breakup-.5)*.11;wisp.scale.set(width*(.68+.25*breakup),width*(.55+.2*breakup),1);wisp.material.opacity=.12*(1-breakup*.45)*fx.flameEnergy;
       const a=nozzle.clone().project(view.camera),b=nozzle.clone().addScaledVector(back,-1).project(view.camera);
-      if(Math.hypot(b.x-a.x,b.y-a.y)>.006)sprite.material.rotation=Math.atan2(b.y-a.y,b.x-a.x);
-      const frame=Math.floor(s.t*19%8);if(frame!==flame.frame){flame.frame=frame;map.offset.set((frame%4)*.25,frame<4?.5:0);}
+      if(Math.hypot(b.x-a.x,b.y-a.y)>.006){const angle=Math.atan2(b.y-a.y,b.x-a.x);sprite.material.rotation=angle;core.material.rotation=angle;wisp.material.rotation=angle+.28*Math.sin(time*37);}
+      const frame=Math.floor((time*23+flame.side*2.8)%8);if(frame!==flame.frame){flame.frame=frame;map.offset.set((frame%4)*.25,frame<4?.5:0);}
     }
     const heat=t.heat,load=t.torque,stage=RACE_TELEMETRY.thermalStage(t),vaporRate=active&&!reduce&&stage!=='normal'?(stage==='critical'?4:stage==='hot'?2.5:1.1):active&&!reduce&&load>.62?1.2:0;
     fx.particleTick+=step*vaporRate;
@@ -101,12 +108,12 @@ const RACE_CINEMATIC_FX={
   clear(view,dispose=false){
     const fx=view.cinematicFx;if(!fx)return;globalThis.__KICKLAB_RACE_FX__=null;this.endCutaway(view);
     for(const particle of fx.particles)particle.mesh.visible=false;
-    fx.markEntries.length=0;fx.marks.count=0;fx.markCursor=fx.particleCursor=0;fx.markTick=fx.particleTick=fx.flameEnergy=0;fx.counts={vapor:0,tire:0,marks:0};
-    for(const {sprite} of fx.flames){sprite.visible=false;sprite.material.opacity=0;}
+    fx.markEntries.length=0;fx.marks.count=0;fx.markCursor=fx.particleCursor=0;fx.markTick=fx.particleTick=fx.flameEnergy=fx.visualClock=0;fx.counts={vapor:0,tire:0,marks:0};
+    for(const {sprite,core,wisp} of fx.flames)for(const layer of [sprite,core,wisp]){layer.visible=false;layer.material.opacity=0;}
     if(!dispose)return;
     for(const particle of fx.particles){view.scene.remove(particle.mesh);particle.mesh.material.dispose();}fx.smokeTexture.dispose();
     view.scene.remove(fx.marks);fx.markGeometry.dispose();fx.markMaterial.dispose();
-    for(const {sprite} of fx.flames){view.car?.remove(sprite);sprite.material.dispose();}fx.flameAtlas.dispose();
+    for(const {sprite,core,wisp,map} of fx.flames){for(const layer of [sprite,core,wisp]){view.car?.remove(layer);layer.material.dispose();}map?.dispose();}fx.flameAtlas?.dispose();fx.coreTexture.dispose();
     if(fx.internals){view.car?.remove(fx.internals.group);fx.internals.group.traverse(node=>{node.geometry?.dispose();for(const material of [node.material].flat())material?.dispose();});}view.cinematicFx=null;
   }
 };

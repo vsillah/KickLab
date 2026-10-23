@@ -131,13 +131,13 @@ if(['localhost','127.0.0.1'].includes(location.hostname)&&new URLSearchParams(lo
   run(){RACE_3D.orbit.phase='done';RACE_3D.orbit.done=true;RACE_3D.awaitingPacing=false;RACE_3D.cameraPose=null;if(RACE_3D.orbitPanel)RACE_3D.orbitPanel.hidden=true;RACE_3D.setStartLights('go');Race.state='run';E.title=null;if(Race.mode().id==='drag')Race.st.x=45;Race.st.v=18;Race.st.t=4;Race.telemetry.selected='temperature';Race.telemetry.manualUntil=1000;renderRaceTelemetry();},
   thermal(heat,overheat,phase){Race.telemetry.heat=heat;Race.telemetry.overheat=overheat;Race.telemetry.phase=phase;Race.telemetry.recoveryUntil=phase==='recovered'?Race.telemetry.clock+1.5:0;Race.telemetry.selected='temperature';Race.telemetry.manualUntil=1000;Race.inp.gas=overheat&&heat>=.91;Race.st.t+=.2;renderRaceTelemetry();},
   state(){return{phase:Race.state,inputs:{...Race.inp},paused:PAUSE.on,heat:Race.telemetry?.heat,thermal:Race.telemetry?RACE_TELEMETRY.thermalStage(Race.telemetry):null};},
-  effect(fixture){const t=Race.telemetry,s=Race.st;RACE_CINEMATIC_FX.clear(RACE_3D);Race.state='run';Race.inp.gas=false;Race.inp.brake=false;t.nosPulse=0;s.nitroActive=false;s.nitroDelivered=false;s.launchSlip=0;s.driftMode='none';s.slipAngle=0;t.heat=.35;t.overheat=false;t.phase='drive';
+  effect(fixture){const t=Race.telemetry,s=Race.st;RACE_CINEMATIC_FX.clear(RACE_3D);Race.state='run';Race.inp.gas=false;Race.inp.brake=false;t.nosPulse=0;t.brakeHeat=0;s.nitroActive=false;s.nitroDelivered=false;s.launchSlip=0;s.driftMode='none';s.slipAngle=0;t.heat=.35;t.overheat=false;t.phase='drive';
     if(fixture==='exhaust'){t.heat=.82;t.torque=.75;}
     if(fixture==='normal-exhaust'){t.heat=.35;t.torque=.75;}
     if(fixture==='nos'||fixture==='nos-ignition'){t.nosPulse=1.2;s.nitroActive=true;s.nitroDelivered=true;t.torque=.8;}
     if(fixture==='launch'){s.launchSlip=.28;s.v=3;}
     if(fixture==='drift'){s.driftMode='drift';s.slipAngle=.2;s.v=18;}
-    if(fixture==='brake'){s.driftMode='skid';s.slipAngle=.26;t.braking=.7;s.v=18;}
+    if(fixture==='brake'||fixture==='brake-hot'){s.driftMode='skid';s.slipAngle=.26;t.braking=fixture==='brake-hot'?.86:.7;t.brakeHeat=fixture==='brake-hot'?.91:0;s.v=18;}
     if(fixture.startsWith('cutaway')){Race.state='done';RACE_CINEMATIC_FX.success(RACE_3D,fixture==='cutaway'?'drivetrain':fixture.slice('cutaway-'.length));}
     if(RACE_3D.cinematicFx)for(let i=0;i<(fixture.startsWith('cutaway')?(reduce?1:26):fixture==='nos-ignition'?1:35);i++)RACE_CINEMATIC_FX.step(RACE_3D,.05);
     if(RACE_3D.ready){RACE_3D.car.updateMatrixWorld(true);RACE_3D.render(.016);}

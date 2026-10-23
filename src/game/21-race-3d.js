@@ -15,14 +15,35 @@ const RACE_3D={ready:false,loading:false,failed:false,on:false,trackKey:'',camer
   bindWheels(){this.wheels=[];const T=THREE,contract=RACE_SYSTEMS.CONTRACT;if(!this.asset.proxy){for(const [key,spec] of Object.entries(contract.wheels))this.wheels.push({key,node:this.car.getObjectByName(spec.node),steer:key.startsWith('front')});return;}
     this.car.updateMatrixWorld(true);for(const [key,spec] of Object.entries(contract.wheels)){const axle=key.startsWith('front')?'front':'rear',side=key.endsWith('Left')?'-1':'1',steer=new T.Group(),roll=new T.Group();steer.name=spec.node;steer.position.set(...spec.pivot);steer.add(roll);this.car.add(steer);const parts=[];this.car.traverse(node=>{if(node===steer||node===roll)return;if(node.isMesh&&['tire','rim','dark wheel center','spoke'].some(part=>node.name.startsWith(`${axle}_${part.replaceAll(' ','_')}_${side}`)))parts.push(node);});for(const part of parts)roll.attach(part);this.wheels.push({key,node:steer,roll,steer:key.startsWith('front')});}},
   initTelemetryEffects(){const T=THREE,glow=(color,x,y,z)=>{const mesh=new T.Mesh(new T.SphereGeometry(.16,8,6),new T.MeshBasicMaterial({color,transparent:true,opacity:0}));mesh.position.set(x,y,z);this.car.add(mesh);return mesh;};
-    this.telemetryFx={exhaust:[glow(0x60caff,-2.45,.43,-.62),glow(0x60caff,-2.45,.43,.62)],brakes:[glow(0xff482e,-2.25,.83,-.73),glow(0xff482e,-2.25,.83,.73)],frontBrakes:[glow(0xf9734e,1.25,.43,-1.02),glow(0xf9734e,1.25,.43,1.02)],grip:glow(0x9ae77b,-1.25,.4,0),smoke:[],streaks:[],shimmer:[],cursor:0,emission:0};
+    const lensShape=(width,height)=>{const shape=new T.Shape(),w=width/2,h=height/2,r=height*.34;shape.moveTo(-w+r,-h);shape.lineTo(w-r,-h);shape.quadraticCurveTo(w,-h,w,-h+r);shape.lineTo(w,h-r);shape.quadraticCurveTo(w,h,w-r,h);shape.lineTo(-w+r,h);shape.quadraticCurveTo(-w,h,-w,h-r);shape.lineTo(-w,-h+r);shape.quadraticCurveTo(-w,-h,-w+r,-h);return shape;};
+    const brakes=[],brakeHalos=[],frontBrakes=[];
+    for(const side of ['Left','Right']){
+      const marker=this.car.getObjectByName('Brake'+side);if(!marker)continue;
+      for(const [width,height,opacity,collection] of [[.42,.105,.62,brakes],[.51,.16,.11,brakeHalos]]){
+        const mesh=new T.Mesh(new T.ShapeGeometry(lensShape(width,height)),new T.MeshBasicMaterial({color:0xff3e33,transparent:true,opacity:0,depthWrite:false,side:T.DoubleSide,toneMapped:false}));
+        mesh.rotation.y=-Math.PI/2;mesh.position.copy(marker.position);mesh.position.x-=collection===brakes?.045:.043;mesh.renderOrder=5;this.car.add(mesh);mesh.userData.brakeOpacity=opacity;collection.push(mesh);
+      }
+    }
+    for(const name of ['WheelFrontLeft','WheelFrontRight','WheelRearLeft','WheelRearRight']){
+      const wheel=this.car.getObjectByName(name);if(!wheel)continue;const side=Math.sign(wheel.position.z)||1;
+      const rotor=new T.Mesh(new T.RingGeometry(.145,.205,20),new T.MeshBasicMaterial({color:0xc45939,transparent:true,opacity:0,depthWrite:false,side:T.DoubleSide,toneMapped:false}));
+      rotor.position.copy(wheel.position);rotor.position.z+=side*.022;rotor.renderOrder=4;this.car.add(rotor);frontBrakes.push(rotor);
+      const caliper=new T.Mesh(new T.BoxGeometry(.105,.14,.026),new T.MeshBasicMaterial({color:0xff7c4d,transparent:true,opacity:0,depthWrite:false,toneMapped:false}));
+      caliper.position.copy(rotor.position);caliper.position.x-=.15;caliper.position.y+=.115;caliper.renderOrder=5;this.car.add(caliper);frontBrakes.push(caliper);
+    }
+    this.telemetryFx={exhaust:[glow(0x60caff,-2.45,.43,-.62),glow(0x60caff,-2.45,.43,.62)],brakes,brakeHalos,frontBrakes,grip:glow(0x9ae77b,-1.25,.4,0),smoke:[],streaks:[],shimmer:[],cursor:0,emission:0};
     for(const side of [-1,1]){const geometry=new T.BufferGeometry().setFromPoints([new T.Vector3(-2.5,.4,side*.72),new T.Vector3(-4.4,.4,side*.72)]),line=new T.Line(geometry,new T.LineBasicMaterial({color:0x7fdcff,transparent:true,opacity:0,depthWrite:false}));this.car.add(line);this.telemetryFx.streaks.push(line);}
     for(const side of [-1,1]){const geometry=new T.BufferGeometry().setFromPoints([new T.Vector3(-2.65,.43,side*.62),new T.Vector3(-3.45,.48,side*.62),new T.Vector3(-4.1,.53,side*.62)]),line=new T.Line(geometry,new T.LineBasicMaterial({color:0xffc791,transparent:true,opacity:0,depthWrite:false}));this.car.add(line);this.telemetryFx.shimmer.push(line);}
     for(let i=0;i<8;i++){const mesh=new T.Mesh(new T.SphereGeometry(.25,6,4),new T.MeshBasicMaterial({color:0xb5bfcc,transparent:true,opacity:0,depthWrite:false}));mesh.visible=false;this.scene.add(mesh);this.telemetryFx.smoke.push({mesh,age:2});}},
   renderTelemetryEffects(rdt){const fx=this.telemetryFx,t=Race.telemetry;if(!fx||!t)return;const s=Race.st,drive=Race.state==='run'&&!PAUSE.on,boost=drive&&s.nitroDelivered&&t.nosPulse>0,braking=drive&&t.braking>.15,stage=RACE_TELEMETRY.thermalStage(t),critical=stage==='critical',smoking=drive&&(s.driftMode==='drift'||s.slide||critical),heatMotion=drive&&!reduce&&t.heat>.76?Math.min(1,(t.heat-.76)/.24):0;
     this.car.position.y=.025+(reduce?0:(boost?-.07:t.torque>.55?-.035:braking?.055:0));this.car.rotation.z=reduce?0:braking?-.018:boost?.022:0;this.car.rotation.x=heatMotion*Math.sin(s.t*38)*.005;
-    fx.exhaust.forEach(mesh=>{mesh.material.opacity=0;mesh.visible=false;});fx.streaks.forEach(line=>{line.material.opacity=boost&&!reduce?.3:0;});fx.shimmer.forEach((line,index)=>{line.visible=drive&&t.heat>.58&&!reduce;line.material.opacity=line.visible?Math.min(.16,(t.heat-.58)*.35):0;line.scale.y=1+Math.sin(s.t*19+index*2)*.1;});fx.brakes.forEach(mesh=>{mesh.material.opacity=braking?.65:0;mesh.scale.setScalar(braking?1.5:1);});fx.frontBrakes.forEach(mesh=>{mesh.material.opacity=braking?.45:0;});fx.grip.material.opacity=t.clock<t.gripRecoveryUntil?.48:0;
-    for(const effect of [...fx.exhaust,...fx.brakes,...fx.frontBrakes,fx.grip,...fx.streaks])effect.visible=effect.material.opacity>.05;
+    fx.exhaust.forEach(mesh=>{mesh.material.opacity=0;mesh.visible=false;});fx.streaks.forEach(line=>{line.material.opacity=boost&&!reduce?.3:0;});fx.shimmer.forEach((line,index)=>{line.visible=drive&&t.heat>.58&&!reduce;line.material.opacity=line.visible?Math.min(.16,(t.heat-.58)*.35):0;line.scale.y=1+Math.sin(s.t*19+index*2)*.1;});
+    for(const mesh of fx.brakes)mesh.material.opacity=braking?mesh.userData.brakeOpacity*Math.min(1,t.braking/.55):0;
+    for(const mesh of fx.brakeHalos)mesh.material.opacity=braking&&!reduce?mesh.userData.brakeOpacity*Math.min(1,t.braking/.55):0;
+    const rotorHeat=drive&&!reduce&&t.braking>.55&&t.brakeHeat>.65?Math.min(1,(t.brakeHeat-.65)*2.4)*Math.min(1,t.braking/.8):0;
+    for(const mesh of fx.frontBrakes)mesh.material.opacity=rotorHeat*(mesh.geometry.type==='RingGeometry'?.19:.31);
+    fx.grip.material.opacity=t.clock<t.gripRecoveryUntil?.48:0;
+    for(const effect of [...fx.exhaust,...fx.brakes,...fx.brakeHalos,...fx.frontBrakes,fx.grip,...fx.streaks])effect.visible=effect.material.opacity>.025;
     for(const item of fx.smoke)item.mesh.visible=false;
     RACE_CINEMATIC_FX.step(this,rdt);
   },
