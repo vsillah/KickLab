@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "runtimePayloadCeilingBytes": 768000,
+  "combinedNewAssetsBytes": 642298,
+  "assets": [
+    {
+      "path": "src/assets/effects/race/v1/nitrous-flame-atlas.webp",
+      "bytes": 71004,
+      "sha256": "c4f8c3b795a362905899600124d95311e17ed573ac0aaf1c288f0a50b408176b",
+      "source": "scripts/race-cinematic-art/source/nitrous-flame-atlas-generated-v1.webp",
+      "sourceSha256": "d2f54b5a04ccfde34d5ebc99999ded7ffa76072ad455bb17b2981e42d36fa9e4",
+      "origin": "OpenAI image generation candidate supplied by Integration Captain; local source WebP compressed from the original PNG, then eight alpha frames processed locally with scripts/race-cinematic-art/prepare-atlas.py. No runtime provider calls.",
+      "originalGeneratedPngSha256": "ab0c5ffa8e8163143260a6f913e0a99b1f57095c0eb220317f419c55fff8de45"
+    },
+    {
+      "path": "src/assets/effects/race/v1/soft-turbulent-smoke.png",
+      "bytes": 9374,
+      "sha256": "4c612453d0ff7b7b87aa7fef74d5f90f9daee4748a67a5011018e04d7fe25197",
+      "source": "scripts/race-cinematic-art/bake.py",
+      "origin": "Original Blender CLI procedural texture, local only."
+    },
+    {
+      "path": "src/assets/3d/kicklab-race-internals/v1/race-internals.glb",
+      "bytes": 561920,
+      "sha256": "b82b329071bf14a68f63588e00c0f002ba9b08dba0bf4d8500766a573609e505",
+      "source": "scripts/race-cinematic-art/bake.py",
+      "origin": "Original Blender CLI geometry, local only."
+    }
+  ],
+  "review": "qa-artifacts/race-cinematic-effects/blender-bakeoff/gate-report-v2.json",
+  "committedVisualAssetsBytes": 766348
+}

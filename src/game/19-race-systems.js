@@ -14,7 +14,7 @@ const RACE_SYSTEMS=(()=>{
   function venue(id){return VENUES[id]||VENUES.highland;}
   function path(x,y,P,v=VENUES.highland){if(P.expansionCourse==='straight')return{e:-y,phi:0,kp:0,zone:0};if(P.expansionCourse==='drift')return globalThis.KickLabRaceModes.driftPath(x,y);if(P.expansionCourse==='oval'){const theta=Math.atan2(y/38,(x-80)/70),px=80+70*Math.cos(theta),py=38*Math.sin(theta),phi=Math.atan2(38*Math.cos(theta),-70*Math.sin(theta)),normal=Math.hypot(x-px,y-py),cross=(-38*Math.cos(theta)*(x-px)-70*Math.sin(theta)*(y-py));return{e:-Math.sign(cross)*normal,phi,kp:70*38/Math.pow(70*70*Math.sin(theta)**2+38*38*Math.cos(theta)**2,1.5),zone:1};}const sign=v.turn;if(x<P.L)return{e:-y,phi:0,kp:0,zone:0};const yy=sign*y;if(yy<P.R){const rx=x-P.L,ry=yy-P.R,r=Math.hypot(rx,ry);return{e:sign*(r-P.R),phi:sign*(Math.atan2(ry,rx)+Math.PI/2),kp:sign/P.R,zone:1};}return{e:sign*(x-(P.L+P.R)),phi:sign*Math.PI/2,kp:0,zone:2};}
   function grip(s,P,v){const p=path(s.x,s.y,P,v),offset=Math.abs(p.e),zone=v.gripZones.find(z=>s.x>=z.from&&s.x<z.to)||v.gripZones.at(-1),edge=offset>v.roadHalfWidth?v.runoffGrip:offset>v.roadHalfWidth*.72?v.shoulderGrip:1;return clamp((P.tireMu??P.mu)*(1+(P.downforce||0)*Math.min(1,(Number(s.v)||0)/Math.max(P.top||1,1))**2)*v.baseGrip*(P.expansionCourse==='oval'||P.expansionCourse==='straight'?1:zone.multiplier)*edge,.15,2);}
-  function initial(){return{latV:0,slipAngle:0,driftMode:'none',driftHold:0,skidTime:0,nitro:1,nitroCooldown:0,nitroActive:false};}
+  function initial(){return{latV:0,slipAngle:0,driftMode:'none',driftHold:0,skidTime:0,nitro:1,nitroCooldown:0,nitroActive:false,nitroDelivered:false};}
   function cancelInput(input){input.gas=false;input.brake=false;input.left=false;input.right=false;input.drift=false;input.nitro=false;return input;}
   function autoWheel(s,P,v){const p=path(s.x,s.y,P,v),look=Math.max(8,.7*s.v);let error=p.phi-s.th;while(error>Math.PI)error-=2*Math.PI;while(error<-Math.PI)error+=2*Math.PI;const curvature=p.kp+2*Math.sin(error+Math.atan(p.e/look))/look;return clamp(P.ratio*Math.atan(curvature*P.Lwb)*180/Math.PI,-180,180);}
   function step(s,P,input,dt,v=VENUES.highland){
@@ -37,7 +37,7 @@ const RACE_SYSTEMS=(()=>{
     const slope=P.progressionGrade?globalThis.KickLabRaceProgression.grade(v,s.x)*Math.cos(s.th):0;
     const drag=(P.F/P.m)/(P.top*P.top)*(P.rolling??1),accel=longitudinal-drag*s.v*s.v-g*slope/Math.sqrt(1+slope*slope);
     s.v=Math.max(0,s.v+accel*h);s.th+=s.v*yawCurvature*h;s.x+=(s.v*Math.cos(s.th)-s.latV*Math.sin(s.th))*h;s.y+=(s.v*Math.sin(s.th)+s.latV*Math.cos(s.th))*h;s.t+=h;
-    s.nitroActive=boostAllowed;if(boostAllowed){s.nitro=Math.max(0,(s.nitro||0)-h/2.2);if(s.nitro===0)s.nitroCooldown=3.5;}else if((s.nitroCooldown||0)>0)s.nitroCooldown=Math.max(0,s.nitroCooldown-h);else s.nitro=Math.min(1,(s.nitro||0)+h/9);
+    s.nitroActive=boostAllowed;s.nitroDelivered=boost>.05;if(boostAllowed){s.nitro=Math.max(0,(s.nitro||0)-h/2.2);if(s.nitro===0)s.nitroCooldown=3.5;}else if((s.nitroCooldown||0)>0)s.nitroCooldown=Math.max(0,s.nitroCooldown-h);else s.nitro=Math.min(1,(s.nitro||0)+h/9);
     s.driftMode=mode;s.slide=mode==='skid';s.drift=mode==='drift';s.launchSlip=launchSlip;s.wheel=wheel;s.k=yawCurvature;s.kc=requested;s.alat=s.v*s.v*Math.abs(yawCurvature);s.need=requestedLat;s.muEffective=mu;
     const p=path(s.x,s.y,P,v);s.e=p.e;s.zone=p.zone;if(garage)garage.afterStep(s,P);return s;
   }

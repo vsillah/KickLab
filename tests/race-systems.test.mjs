@@ -59,10 +59,15 @@ test('excess corner demand becomes a skid and recovers after wheel release',()=>
 });
 
 test('nitro has finite activation, depletion, cooldown and later recharge',()=>{
-  const s=state({v:12});drive(s,{gas:1,brake:0,wheel:0,nitro:true},.4);assert.equal(s.nitroActive,true);assert.ok(s.nitro<1);
+  const s=state({v:12});drive(s,{gas:1,brake:0,wheel:0,nitro:true},.4);assert.equal(s.nitroActive,true);assert.equal(s.nitroDelivered,true);assert.ok(s.nitro<1);
   drive(s,{gas:1,brake:0,wheel:0,nitro:true},2.2);assert.equal(s.nitro,0);assert.equal(s.nitroActive,false);assert.ok(s.nitroCooldown>0);
   drive(s,{gas:0,brake:0,wheel:0,nitro:false},4);assert.equal(s.nitroCooldown,0);
   drive(s,{gas:0,brake:0,wheel:0,nitro:false},3);assert.ok(s.nitro>0);
+});
+
+test('visual boost signal stays off when traction leaves no delivered force',()=>{
+  const s=state({v:12});api.step(s,{...P,F:20000},{gas:1,brake:0,wheel:0,nitro:true},.01);
+  assert.equal(s.nitroActive,true);assert.equal(s.nitroDelivered,false);
 });
 
 test('camera framing stays bounded at target widths and reduced motion is instant',()=>{

@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "1.0.0",
+  "assetId": "kicklab-race-internals",
+  "version": "1",
+  "status": "evaluation-only",
+  "artifact": {
+    "path": "src/assets/3d/kicklab-race-internals/v1/race-internals.glb",
+    "mediaType": "model/gltf-binary",
+    "bytes": 561920,
+    "sha256": "b82b329071bf14a68f63588e00c0f002ba9b08dba0bf4d8500766a573609e505"
+  },
+  "provenance": {
+    "creator": "KickLab local Race cinematic art",
+    "sourceType": "self-authored-production",
+    "sourcePath": "scripts/race-cinematic-art/bake.py",
+    "sourceCommit": "8b2dfc92d352f3be9e2d1a1e5750be9de8810ff1",
+    "acquiredOn": "2026-10-22",
+    "externalInputs": false,
+    "likeness": false,
+    "cloudProcessing": false
+  },
+  "license": {
+    "owner": "KickLab",
+    "basis": "self-authored",
+    "permittedUse": "production-game",
+    "thirdPartyRestrictions": "none",
+    "proof": "Blender CLI generated original vehicle internals from analytic geometry aligned to the Race vehicle contract. No provider model or external geometry is included."
+  },
+  "runtime": {
+    "threeVersion": "0.186.1",
+    "loader": "GLTFLoader",
+    "requiredExtensions": []
+  },
+  "validation": {
+    "allowedIssues": [
+      {
+        "code": "UNUSED_OBJECT",
+        "severity": 2,
+        "count": 21,
+        "reason": "Blender emitted unused UV coordinates for original untextured PBR geometry."
+      }
+    ]
+  },
+  "network": {
+    "runtimeRequests": "same-origin-local-only",
+    "externalUrisAllowed": false
+  }
+}
