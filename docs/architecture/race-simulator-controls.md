@@ -1,0 +1,20 @@
+# Race simulator controls prototype
+
+This lane starts from `e19c63112d1c39417bb648eddc2cad05bb30ff9e`. It is available only on a trusted origin with both `raceExpansion=prototype` and `raceSimulator=prototype`. Classic remains the default. The Endurance extension point is unchanged.
+
+## Input ownership
+
+- `55a-race-simulator-controls.js` owns transient permission, calibration, touch, launch, and visual state. It sends pedal and handbrake actions through `gameInput` and `Race.press`. Device orientation changes only `Race.wheel` through the existing steering branch in `Race.update`.
+- `race-simulator.js` holds pure angle and gesture transforms for deterministic tests. Portrait uses gamma; landscape uses beta with orientation sign. The player can recenter and adjust a dead zone and sensitivity. These settings and raw readings are not persisted.
+- The existing `RACE_SYSTEMS.step` remains the only expanded vehicle physics step. Drag paddle timing extends the existing `RACE_MODES` gear state, efficiency curve, and shift power interruption. Simulator strict timing adds early and late penalties. Other control modes retain the prior shift timing.
+- A brake hold and three throttle taps arm launch. A held throttle and quick brake release near green send the ordinary gas input, which lets the canonical traction and launch-slip model decide wheelspin. A downward handbrake pull requests canonical drift; an upward NOS flick activates the canonical telemetry NOS pulse regardless of the selected gauge, subject to pressure, capacity, heat, and pulse guards. No pinch gesture is bound, to avoid conflict with page zoom and steering.
+- The panel has a setup phase while Race is on the grid. Tilt permission, recentering, dead zone, sensitivity, and direct fallback selection live there. Count and run use a short live cockpit with two pedal holds, contextual shift paddles, and a Drift handbrake lever. The NOS flick starts on the throttle pedal; an accessible Controls disclosure offers NOS and both fallbacks, and N triggers NOS from the keyboard. Space or Enter toggles the handbrake. Coach Nia's one-step cues appear only when the relevant speed and mode make the gesture useful, then disappear after the action succeeds. Mastery is transient and never saved.
+- Locally authored inline SVGs carry the Simulator, Classic, Analog, calibration, lights, pedal, shift, boost, and fallback actions. Short visible captions remain where an icon alone could be ambiguous; full button names, keyboard instructions, and Coach detail remain available to assistive technology. Reduced motion removes cue animation. No icon font, emoji, remote image, or external URI is loaded.
+
+## Fail closed behavior
+
+Permission is requested only when **Enable tilt** is pressed. Denial or missing orientation APIs leave the Classic and Analog buttons available in the simulator panel. Pause, background, focus loss, page hide, mode navigation, and orientation change clear held inputs and calibration. Re-enable tilt and recenter after interruption. The QA hook is exposed only under the two trusted-origin flags and accepts synthetic orientation events; it is evidence for mapping and lifecycle, not for iPhone or iPad hardware qualification.
+
+## Review gates
+
+`npm run check` covers the build and shared regressions. `scripts/qa-race-simulator.mjs` captures setup and live states at 360×780, 390×844, 768×1024, 1113×834, and 1440×900 in Canvas and 3D; it checks overflow, layout, runtime errors, and external requests. `scripts/qa-race-simulator-inputs.mjs` exercises actual touch events, keyboard actions, cancellation, storage-key bounds, and zero egress. The primary `scripts/record-race-simulator.mjs` walkthrough uses the designed 3D vehicle; `scripts/record-race-simulator-canvas.mjs` is a separate fallback artifact. Real-device Safari permission, orientation accuracy, touch coexistence, and haptics still require an iPhone and iPad run. This draft must not be merged or deployed before Captain review and the client-facing Human QA walkthrough.

@@ -4,7 +4,8 @@ const MOBILE_HAPTIC_STYLES=Object.freeze({target:'LIGHT',perfect:'MEDIUM',overch
 function reflectMobileState(){document.documentElement.dataset.kicklabMobileLifecycle=MOBILE_STATE.active?'active':'suspended';}
 
 function releaseMobileHeldInputs(reason='App interrupted'){
-  document.querySelectorAll('#pad button.on').forEach(button=>button.dispatchEvent(new Event('pointercancel')));
+  if(typeof simCancel==='function'&&reason!=='Race green light')simCancel(reason,true);
+  document.querySelectorAll('#pad button.on').forEach(button=>{if(reason==='Race green light'&&button.closest('#raceSimulator'))return;button.dispatchEvent(new Event('pointercancel'));});
   document.querySelectorAll('#raceAnalogActions [data-held="true"]').forEach(button=>{button.dispatchEvent(new Event('pointercancel'));button.dataset.held='false';button.classList.remove('on');});
   Object.entries(held).forEach(([code,id])=>{if(id){M.press(id,false);held[code]=false;padEls(id).forEach(button=>button.classList.remove('on'));}});
   if(canvasHeld){canvasHeld=false;M.press(primary(),false);}drag=null;
