@@ -1488,6 +1488,7 @@ html[data-race-telemetry="prototype"] .race-coach-vehicle[hidden]{display:none!i
 /* Explicit Race simulator prototype; scoped to the selected controller. */
 html:not([data-kicklab-mode="race"]) #simulatorControlsButton{display:none!important}
 .control-deck.simulator-active{z-index:36!important;pointer-events:auto!important}
+.control-deck.simulator-active .floating-control-head{display:none!important}
 .game-frame .stage:has(>.control-deck.simulator-active)>canvas#cv{pointer-events:none!important}
 .control-deck.simulator-active .pad{display:grid!important;grid-template-columns:minmax(0,1fr)!important;pointer-events:auto!important}
 html[data-kicklab-mode="race"] .game-frame .stage>.control-deck.simulator-active .pad{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;grid-template-rows:auto!important;align-items:stretch!important}

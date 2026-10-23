@@ -32,9 +32,10 @@ const RACE_TELEMETRY=(()=>{
   }
   function value(t,id){return{rpm:t.rpm,torque:t.torque,nos:t.pressure,temperature:t.heat,braking:t.braking,drift:t.angle,grip:t.grip}[id];}
   function canLock(t){const gauge=GAUGES.find(g=>g.id===t.selected),v=value(t,t.selected);return !t.overheat&&(t.selected!=='nos'||t.capacity>.1)&&v>=gauge.target[0]&&v<=gauge.target[1];}
+  function activateNos(t,minPressure=.25){if(!enabled||!t||t.overheat||t.capacity<=.1||t.pressure<minPressure||t.nosPulse>0)return false;t.lock='nos';t.lockUntil=t.clock+2;t.nosPulse=1.2;t.pressure=Math.max(0,t.pressure-.32);t.heat=clamp(t.heat+.09,0,1);return true;}
   function tune(t,action){if(!enabled)return false;if(action==='next'||action==='prev'){const index=GAUGES.findIndex(g=>g.id===t.selected);t.selected=GAUGES[(index+(action==='next'?1:GAUGES.length-1))%GAUGES.length].id;t.manualUntil=t.clock+7;return true;}
-    if(action==='apply'&&canLock(t)){t.lock=t.selected;t.lockUntil=t.clock+2;if(t.selected==='nos'){t.nosPulse=1.2;t.pressure=Math.max(0,t.pressure-.32);t.heat=clamp(t.heat+.09,0,1);}return true;}
+    if(action==='apply'&&canLock(t)){if(t.selected==='nos')return activateNos(t,.62);t.lock=t.selected;t.lockUntil=t.clock+2;return true;}
     return false;}
   function cancel(t){if(t){t.nosPulse=0;t.manualUntil=0;t.lock='';t.lockUntil=0;}}
-  return Object.freeze({enabled,GAUGES,initial,step,tune,recommend,canLock,cancel,thermalStage,powerFactor});
+  return Object.freeze({enabled,GAUGES,initial,step,tune,activateNos,recommend,canLock,cancel,thermalStage,powerFactor});
 })();
