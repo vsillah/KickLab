@@ -14,7 +14,7 @@ await context.addInitScript(()=>localStorage.setItem('impactlab.v1',JSON.stringi
 const page=await context.newPage(),recordingStart=Date.now(),samples=[],errors=[],external=[];
 page.on('pageerror',error=>errors.push(error.message));
 await page.route('**/*',route=>{const url=route.request().url();if(url.startsWith(new URL(base).origin)||url.startsWith('data:')||url.startsWith('blob:'))return route.continue();external.push(url);route.abort();});
-let clipStart=0,source;
+const arc=Math.PI*100,lap=440+2*arc;let clipStart=0,source;
 try{
   const url=new URL(base);for(const [key,value] of [['raceExpansion','prototype'],['raceSimulator','prototype'],['raceTelemetry','prototype'],['rev',head]])url.searchParams.set(key,value);
   await page.goto(url.toString(),{waitUntil:'domcontentloaded'});
@@ -29,23 +29,28 @@ try{
   await page.evaluate(()=>{const stage=document.querySelector('.stage');window.scrollTo(0,stage.getBoundingClientRect().top+window.scrollY);});
   clipStart=(Date.now()-recordingStart)/1000;
   await page.evaluate(()=>globalThis.__KICKLAB_RACE_SIMULATOR_QA__.input('gas',true));
-  const started=Date.now();let gas=true,brake=false;
-  while(Date.now()-started<15900){
-    const current=await page.evaluate(()=>{const state=globalThis.__KICKLAB_RACE_MODES_QA__.state();return {phase:state.phase,elapsed:state.elapsed,speedKmh:state.speedKmh,lineError:state.lineError,heat:state.heat,cinematic:state.cinematic,composition:globalThis.__KICKLAB_RACE_3D__?.composition};});
+  const started=Date.now(),marks=new Set([0,5,10,17,20]);let gas=true,brake=false;
+  while(Date.now()-started<20800){
+    const current=await page.evaluate(()=>{const state=globalThis.__KICKLAB_RACE_MODES_QA__.state();return {phase:state.phase,elapsed:state.elapsed,speedKmh:state.speedKmh,lineError:state.lineError,zone:state.zone,trackProgress:state.trackProgress,heat:state.heat,cinematic:state.cinematic,composition:globalThis.__KICKLAB_RACE_3D__?.composition};});
     const t=(Date.now()-started)/1000;samples.push({t,...current});
     if(current.phase!=='run')throw new Error(`run interrupted at ${t.toFixed(2)}s: ${current.phase}`);
-    if(t>3){const nextGas=current.speedKmh<46,nextBrake=current.speedKmh>53;if(nextGas!==gas){gas=nextGas;await page.evaluate(value=>globalThis.__KICKLAB_RACE_SIMULATOR_QA__.input('gas',value),gas);}if(nextBrake!==brake){brake=nextBrake;await page.evaluate(value=>globalThis.__KICKLAB_RACE_SIMULATOR_QA__.input('brake',value),brake);}}
-    if([0,3,8,14].some(mark=>Math.abs(t-mark)<.06))await page.locator('.stage').screenshot({path:join(out,`endurance-${Math.round(t)}s.png`)});
-    await page.waitForTimeout(110);
+    const p=current.trackProgress,boundary=p<110?110:p<330+arc?330+arc:lap+110,exit=p>=110+arc&&p<330+arc?p-(110+arc):p>=330+2*arc?p-(330+2*arc):Infinity,cornering=current.zone==='bend'||boundary-p<55||exit<35,targetKmh=(cornering?27:32)*3.6;
+    const nextBrake=current.speedKmh>targetKmh+1.5,nextGas=!nextBrake&&current.heat<.88&&current.speedKmh<targetKmh-1.5;
+    if(nextGas!==gas){gas=nextGas;await page.evaluate(value=>globalThis.__KICKLAB_RACE_SIMULATOR_QA__.input('gas',value),gas);}if(nextBrake!==brake){brake=nextBrake;await page.evaluate(value=>globalThis.__KICKLAB_RACE_SIMULATOR_QA__.input('brake',value),brake);}
+    for(const mark of [...marks])if(t>=mark){await page.locator('.stage').screenshot({path:join(out,`endurance-${mark}s.png`)});marks.delete(mark);}
+    await page.waitForTimeout(100);
   }
   await page.evaluate(()=>{globalThis.__KICKLAB_RACE_SIMULATOR_QA__.input('gas',false);globalThis.__KICKLAB_RACE_SIMULATOR_QA__.input('brake',false);});
 }catch(error){errors.push(error.stack||String(error));}
 const recording=page.video();await context.close();source=recording?await recording.path():null;await browser.close();
-let longest=0,run=0,last=null;for(const sample of samples){if(sample.speedKmh>=40&&sample.phase==='run'){run+=last===null?0:sample.t-last;longest=Math.max(longest,run);}else run=0;last=sample.t;}
-if(longest<10)errors.push(`sustained speed below 10s: ${longest.toFixed(2)}s`);
-if(samples.length&&samples.at(-1).t<15)errors.push('recording shorter than 15s');
-const output=join(out,'endurance-sustained-15s.mp4');let probe=null;
-if(source&&clipStart){const result=spawnSync('ffmpeg',['-y','-loglevel','error','-ss',clipStart.toFixed(2),'-i',source,'-t','15.3','-vf','crop=390:660:0:130,fps=30','-an','-c:v','libx264','-crf','20','-pix_fmt','yuv420p','-movflags','+faststart',output],{encoding:'utf8'});if(result.status)errors.push(result.stderr);else{const result=spawnSync('ffprobe',['-v','error','-show_entries','format=duration:stream=codec_name,width,height','-of','json',output],{encoding:'utf8'});if(result.status)errors.push(result.stderr);else probe=JSON.parse(result.stdout);}}
-const report={head,base,output,probe,longestSustainedSeconds:longest,samples,errors,external};writeFileSync(join(out,'report.json'),JSON.stringify(report,null,2)+'\n');
-console.log(JSON.stringify({head,output,probe,longestSustainedSeconds:longest,sampleCount:samples.length,minSpeedAfter5:Math.min(...samples.filter(x=>x.t>=5).map(x=>x.speedKmh)),maxSpeed:Math.max(...samples.map(x=>x.speedKmh)),errors,external},null,2));
+let longest=0,run=0,last=null;for(const sample of samples){if(sample.speedKmh>=90&&sample.phase==='run'){run+=last===null?0:sample.t-last;longest=Math.max(longest,run);}else run=0;last=sample.t;}
+const bendSeconds=samples.filter(sample=>sample.zone==='bend'&&sample.speedKmh>=90).length*.11,recovered=samples.some(sample=>sample.trackProgress>110+arc+8&&sample.zone==='straight'&&Math.abs(sample.lineError)<3),maxError=Math.max(...samples.map(sample=>Math.abs(sample.lineError)));
+if(longest<12)errors.push(`sustained speed below 12s: ${longest.toFixed(2)}s`);
+if(bendSeconds<5||!recovered)errors.push('credible bend or stable straight recovery absent');
+if(maxError>7)errors.push(`off-road line error ${maxError.toFixed(2)}m`);
+if(samples.length&&samples.at(-1).t<20.3)errors.push('recording shorter than 20.3s');
+const output=join(out,'endurance-race-speed-20s.mp4');let probe=null;
+if(source&&clipStart){const result=spawnSync('ffmpeg',['-y','-loglevel','error','-ss',clipStart.toFixed(2),'-i',source,'-t','20.3','-vf','crop=390:660:0:130,fps=30','-an','-c:v','libx264','-crf','20','-pix_fmt','yuv420p','-movflags','+faststart',output],{encoding:'utf8'});if(result.status)errors.push(result.stderr);else{const result=spawnSync('ffprobe',['-v','error','-show_entries','format=duration:stream=codec_name,width,height','-of','json',output],{encoding:'utf8'});if(result.status)errors.push(result.stderr);else probe=JSON.parse(result.stdout);}}
+const report={head,base,output,probe,longestSustainedSeconds:longest,bendSeconds,recovered,maxError,samples,errors,external};writeFileSync(join(out,'report.json'),JSON.stringify(report,null,2)+'\n');
+console.log(JSON.stringify({head,output,probe,longestSustainedSeconds:longest,bendSeconds,recovered,maxError,sampleCount:samples.length,minSpeedAfter5:Math.min(...samples.filter(x=>x.t>=5).map(x=>x.speedKmh)),maxSpeed:Math.max(...samples.map(x=>x.speedKmh)),errors,external},null,2));
 if(errors.length||external.length)process.exitCode=1;

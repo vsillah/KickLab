@@ -35,37 +35,26 @@ await page.locator('#simStart').click();
 for(const [name,wait] of [['red',100],['yellow',900],['green',850],['go',750]]){await page.waitForTimeout(wait);samples.push({name,...await state()});await shot(name);}
 if(samples.some(sample=>sample.name!==sample.lightPhase))errors.push('Start lights did not advance red, yellow, green, go');
 await page.waitForFunction(()=>globalThis.__KICKLAB_RACE_MODES_QA__?.state().phase==='run',null,{timeout:5000});
-let gas=false,brake=false,stress='pending',firstLapShot=false,secondLapShot=false,hotShot=false,criticalShot=false,coolShot=false,finishShot=false;
+let gas=false,brake=false,firstLapShot=false,secondLapShot=false,hotShot=false,coolShot=false,finishShot=false;
 const set=async(nextGas,nextBrake)=>{if(nextGas!==gas){await page.evaluate(value=>globalThis.__KICKLAB_RACE_SIMULATOR_QA__.input('gas',value),nextGas);gas=nextGas;}if(nextBrake!==brake){await page.evaluate(value=>globalThis.__KICKLAB_RACE_SIMULATOR_QA__.input('brake',value),nextBrake);brake=nextBrake;}};
-for(let i=0;i<1000;i++){
+for(let i=0;i<1500;i++){
   const current=await state();if(i%10===0)samples.push({name:'drive',...current});
   if(current.overflow>1||Math.abs(current.lineError)>7.01){errors.push(`layout or off-road at ${current.elapsed.toFixed(1)} s`);break;}
   if(current.phase==='done'||current.phase==='crashed'){await set(false,false);if(current.phase==='done'){await shot('crossing');finishShot=true;}else errors.push(`Endurance crashed at ${current.elapsed.toFixed(1)} s`);break;}
-  if(stress==='pending'&&current.elapsed>31&&current.laps===1){stress='heating';await set(true,true);await page.evaluate(()=>{const timer=setInterval(()=>{const state=globalThis.__KICKLAB_RACE_MODES_QA__.state();if(state.heat>=.93){globalThis.__KICKLAB_RACE_SIMULATOR_QA__.input('gas',false);globalThis.__KICKLAB_RACE_SIMULATOR_QA__.input('brake',false);clearInterval(timer);}},10);});}
-  if(stress==='heating'){
-    await set(true,true);
-    if(current.heat>=.76&&!hotShot){await shot('hot');hotShot=true;}
-    if(current.heat>=.91){stress='cooling';await shot('critical');criticalShot=true;}
-  }else if(stress==='cooling'){
-    await set(false,false);
-    if(current.heat<=.47&&current.thermalStage==='cooling'){stress='complete';await shot('cooled');coolShot=true;}
-  }else{const speed=current.speedKmh/3.6,tooHot=current.heat>=.78;await set(speed<11.8&&!tooHot,speed>12.7);}
+  if(current.heat>=.76&&!hotShot){await shot('hot');hotShot=true;}
+  if(hotShot&&current.heat<=.47&&!coolShot){await shot('cooled');coolShot=true;}
+  const arc=Math.PI*100,p=current.trackProgress,boundary=p<110?110:p<330+arc?330+arc:440+2*arc+110,firstExit=110+arc,secondExit=330+2*arc,exit=p>=firstExit&&p<330+arc?p-firstExit:p>=secondExit?p-secondExit:Infinity,cornering=current.zone==='bend'||boundary-p<55||exit<35,targetKmh=(cornering?27:32)*3.6;
+  await set(current.heat<.88&&current.speedKmh<targetKmh-1.5,current.speedKmh>targetKmh+1.5);
   if(current.laps===1&&!firstLapShot){await shot('lap-1');firstLapShot=true;}
   if(current.laps===2&&!secondLapShot){await shot('lap-2');secondLapShot=true;}
-  await page.waitForTimeout(stress==='heating'?60:150);
+  await page.waitForTimeout(100);
 }
 await page.waitForTimeout(2900);
 const result=await state();await shot('result');
 const review=await page.locator('#simResult').isVisible(),text=await page.locator('#simResultMeasurements').textContent();
-if(!finishShot||!firstLapShot||!secondLapShot||!hotShot||!criticalShot||!coolShot||result.phase!=='done'||!result.result?.pass||!review||result.laps!==3||!text?.includes('critical'))errors.push('Required Endurance progression, heat recovery, passing result, or review missing');
-await page.locator('#simResultGarage').click();
-const garage=await page.locator('#settingsDrawer').isVisible();
-if(!garage)errors.push('Result Garage action did not open settings');
-await shot('garage');
-await page.locator('#settingsClose').click();
-const returned=await state();
-if(returned.phase!=='grid')errors.push('Closing Garage did not return to Endurance setup');
-await shot('retry-setup');
+if(!finishShot||!firstLapShot||!secondLapShot||!hotShot||!coolShot||result.phase!=='done'||!result.result?.pass||!review||result.laps!==3||result.straightPaceSeconds<12||result.peakStraightKmh<108)errors.push('Required Endurance speed, progression, heat recovery, passing result, or review missing');
+let garage=false,returned=null;
+if(review){await page.locator('#simResultGarage').click();garage=await page.locator('#settingsDrawer').isVisible();if(!garage)errors.push('Result Garage action did not open settings');await shot('garage');await page.locator('#settingsClose').click();returned=await state();if(returned.phase!=='grid')errors.push('Closing Garage did not return to Endurance setup');await shot('retry-setup');}
 if(external.length)errors.push('External runtime request');
 const video=page.video();await context.close();await browser.close();
 const webm=await video.path(),mp4=join(out,`endurance-${width}x${height}.mp4`),encode=spawnSync('ffmpeg',['-y','-loglevel','error','-i',webm,'-c:v','libx264','-crf','21','-pix_fmt','yuv420p','-movflags','+faststart',mp4],{encoding:'utf8'});

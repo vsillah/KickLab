@@ -9,10 +9,11 @@ const speed=vm.runInNewContext(read('src/shared/race-speed-perception.js')+'\ngl
 test('speed cues rise with measured speed in every expansion mode',()=>{
   for(const mode of Object.keys(speed.TUNING)){
     const {onset,full}=speed.TUNING[mode],samples=[onset+1,(onset+full)/2,full].map(value=>speed.cues({speed:value,top:55,rpm:value/55,load:.7,roughness:.3,mode,active:true}));
-    for(const key of ['intensity','fieldOfView','wind','roadNoise','markerOpacity','peripheralOpacity','setback','lift'])assert.ok(samples[0][key]<samples[1][key]&&samples[1][key]<samples[2][key],`${mode}: ${key}`);
+    for(const key of ['intensity','fieldOfView','wind','roadNoise','markerOpacity','peripheralOpacity','setback'])assert.ok(samples[0][key]<samples[1][key]&&samples[1][key]<samples[2][key],`${mode}: ${key}`);
+    assert.ok(samples[0].heightDelta>samples[1].heightDelta&&samples[1].heightDelta>samples[2].heightDelta,`${mode}: camera lowers with speed`);
     assert.ok(samples[2].fieldOfView<=62);
   }
-  const endurance=speed.cues({speed:48/3.6,top:55,mode:'endurance',active:true});assert.ok(endurance.intensity>.55&&endurance.fieldOfView>58.5);
+  const endurance=speed.cues({speed:108/3.6,top:55,mode:'endurance',active:true});assert.ok(endurance.intensity>.75&&endurance.fieldOfView>60&&endurance.heightDelta<-.7);
 });
 
 test('camera follows acceleration and signed lateral G within restrained bounds',()=>{
@@ -27,7 +28,7 @@ test('camera follows acceleration and signed lateral G within restrained bounds'
 test('pause, results and reduced motion cancel moving camera cues while retaining cadence and audio map',()=>{
   const input={speed:35,top:55,accel:5,lateral:8,rpm:.75,load:.9,roughness:.6,slip:.2,mode:'endurance'};
   const live=speed.cues({...input,active:true}),reduced=speed.cues({...input,active:true,reduced:true}),inactive=speed.cues({...input,active:false});
-  assert.equal(reduced.fieldOfView,55);assert.equal(reduced.foreAft,0);assert.equal(reduced.roll,0);assert.equal(reduced.heave,0);assert.equal(reduced.setback,0);assert.equal(reduced.lift,0);
+  assert.equal(reduced.fieldOfView,55);assert.equal(reduced.foreAft,0);assert.equal(reduced.roll,0);assert.equal(reduced.heave,0);assert.equal(reduced.setback,0);assert.equal(reduced.heightDelta,0);
   assert.equal(reduced.wind,live.wind);assert.equal(reduced.markerOpacity,live.markerOpacity);
   assert.equal(inactive.intensity,0);assert.equal(inactive.wind,0);assert.equal(inactive.tireNoise,0);assert.equal(inactive.harmonic,0);
 });

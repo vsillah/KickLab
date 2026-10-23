@@ -24,7 +24,7 @@ async function run(width,height,mode='endurance',reduced=false,canvas=false,vide
     await capture('setup');await page.locator('#simStart').click();await page.waitForFunction(()=>globalThis.__KICKLAB_RACE_MODES_QA__.state().phase==='run',null,{timeout:10000});
     await page.evaluate(()=>{const stage=document.querySelector('.stage');window.scrollTo(0,stage.getBoundingClientRect().top+window.scrollY);});
     await capture('low');clipStart=Math.max(0,(Date.now()-recordingStart)/1000-.45);await page.evaluate(()=>globalThis.__KICKLAB_RACE_SIMULATOR_QA__.input('gas',true));
-    for(const [label,target] of [['medium',25],['high',48]]){await page.waitForFunction(kmh=>globalThis.__KICKLAB_RACE_MODES_QA__.state().speedKmh>=kmh,target,{timeout:18000});await capture(label);if(label==='high')clipEnd=(Date.now()-recordingStart)/1000+1;}
+    for(const [label,target] of mode==='endurance'?[['medium',60],['high',108]]:[['medium',25],['high',48]]){await page.waitForFunction(kmh=>globalThis.__KICKLAB_RACE_MODES_QA__.state().speedKmh>=kmh,target,{timeout:18000});const sample=await capture(label);if(label==='high'){clipEnd=(Date.now()-recordingStart)/1000+1;if(mode==='endurance'&&!canvas){sample.p95Ms=await page.evaluate(()=>new Promise(resolve=>{let last=performance.now();const frames=[];function tick(now){frames.push(now-last);last=now;if(frames.length<80)requestAnimationFrame(tick);else{frames.sort((a,b)=>a-b);resolve(frames[Math.floor(frames.length*.95)]);}}requestAnimationFrame(tick);}));if(sample.p95Ms>(width<=480?40:33.3))throw new Error(`Endurance frame budget exceeded: ${sample.p95Ms.toFixed(1)} ms`);}}}
     await page.evaluate(()=>globalThis.__KICKLAB_RACE_SIMULATOR_QA__.input('gas',false));
     if(mode==='endurance'){await page.evaluate(()=>globalThis.__KICKLAB_RACE_SIMULATOR_QA__.pause());if(!canvas)await page.waitForFunction(()=>globalThis.__KICKLAB_RACE_CINEMATIC__?.audioActive===false,null,{timeout:3000});else await page.waitForTimeout(80);await capture('paused');}
     const [low,medium,high]=samples.filter(x=>['low','medium','high'].includes(x.label));
@@ -32,7 +32,8 @@ async function run(width,height,mode='endurance',reduced=false,canvas=false,vide
     if(!canvas&&[low,medium,high].some(x=>x.render!=='rendering'))throw new Error('3D renderer unavailable');
     if(!canvas&&!reduced&&!(low.cinematic.intensity<medium.cinematic.intensity&&medium.cinematic.intensity<high.cinematic.intensity&&low.cinematic.fieldOfView<medium.cinematic.fieldOfView&&medium.cinematic.fieldOfView<high.cinematic.fieldOfView))throw new Error('speed presentation is not monotonic');
     if(!canvas&&reduced&&[low,medium,high].some(x=>x.cinematic.fieldOfView!==55||x.cinematic.roll||x.cinematic.heave||x.cinematic.streakOpacity))throw new Error('reduced motion has camera movement');
-    if(!canvas&&mode==='endurance'&&high.cinematic.roadsideReflectors<20)throw new Error('oval lacks reflectors');
+    if(mode==='endurance'&&(high.phase!=='run'||Math.abs(high.lineError)>3.5))throw new Error('Endurance high-speed line is unstable');
+    if(!canvas&&mode==='endurance'&&(high.cinematic.roadsideReflectors<20||high.cinematic.fieldOfView>62||!reduced&&high.cinematic.heightDelta>=0))throw new Error('Endurance road markers or chase framing failed');
     if(!canvas&&mode==='endurance'&&samples.at(-1).cinematic.audioActive)throw new Error('audio continued on pause');
   }catch(error){report.errors.push(`${name}: ${error.stack||error}`);}
   const recording=page.video();await context.close();const source=recording?await recording.path():null;report.cases.push({name,samples,source,clipStart,clipEnd});

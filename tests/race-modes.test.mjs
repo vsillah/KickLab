@@ -108,31 +108,28 @@ test('Drag trap and result coast remain on paved centerline',()=>{
   assert.ok(Math.abs(s.y)<.01);
 });
 
-test('Endurance counts only armed forward paved crossings and coasts on the oval',()=>{
-  const a=modes.initial('endurance');a.phase='run';
-  const point=(theta,e=0,reverse=false)=>({x:80+(70+e)*Math.cos(theta),y:(38+e)*Math.sin(theta),e,v:12,th:Math.atan2(38*Math.cos(theta),-70*Math.sin(theta))+(reverse?Math.PI:0)});
-  const observe=(before,after,dt=.02)=>{const angle=Math.atan2(before.y/38,(before.x-80)/70);modes.observe(a,after,{...before,angle},dt,{gas:1,heat:.62},{});};
-  observe(point(-.1),point(.1));
-  a.elapsed=29.9;observe(point(2.8),point(2.9));
-  assert.equal(a.laps,0,'crossing before the gate does not count');
-  observe(point(Math.PI-.15),point(Math.PI-.1,8));
-  assert.equal(a.laps,0,'off-road finish does not count');
-  observe(point(Math.PI-.15),point(Math.PI-.1,0,true));
-  assert.equal(a.laps,0,'reverse finish does not count');
-  observe(point(Math.PI-.15),point(Math.PI-.1));
-  assert.equal(a.laps,1);
-  const s=point(Math.PI-.1);s.v=12;for(let i=0;i<120;i++){s.v=Math.max(0,s.v-.12);modes.coast(a,s,.02);assert.ok(Math.abs(s.e)<.01);}
-  assert.ok(s.y<0,'coast follows the next curve after the line');
+test('Endurance capsule has 100 m bends and counts only armed forward paved crossings',()=>{
+  const track=modes.ENDURANCE_TRACK;assert.equal(track.radius,100);assert.ok(track.lapLength>1000);
+  for(const d of [0,55,110,200,500,700,1000,track.lapLength-2]){const point=modes.endurancePoint(d),path=modes.endurancePath(point.x,point.y);assert.ok(Math.abs(path.e)<.01,`centerline at ${d}`);}
+  const a=modes.initial('endurance');a.phase='run';a.elapsed=44;a.routeArmed=true;
+  const point=(d,offset=0,reverse=false)=>{const p=modes.endurancePoint(d);return{x:p.x+p.ty*offset,y:p.y-p.tx*offset,e:offset,v:30,th:Math.atan2(p.ty,p.tx)+(reverse?Math.PI:0)};};
+  const before=point(track.lapLength-2),after=point(2);
+  modes.observe(a,point(2,8),before,.02,{gas:1,heat:.62},{});assert.equal(a.laps,0,'off-road crossing does not count');
+  a.lastProgress=track.lapLength-2;a.routeArmed=true;modes.observe(a,point(2,0,true),before,.02,{gas:1,heat:.62},{});assert.equal(a.laps,0,'reverse crossing does not count');
+  a.lastProgress=track.lapLength-2;a.routeArmed=true;modes.observe(a,after,before,.02,{gas:1,heat:.62},{});assert.equal(a.laps,1);
+  const s=point(2);for(let i=0;i<120;i++){s.v=Math.max(0,s.v-.12);modes.coast(a,s,.02);assert.ok(Math.abs(modes.endurancePath(s.x,s.y).e)<.01);}
+  assert.ok(s.y<0,'coast follows the first straight after the line');
 });
 
 test('Endurance score uses completed lap time, spread and actual heat exposure',()=>{
-  const a={...modes.initial('endurance'),laps:3,elapsed:91,lapTimes:[30,30.5,30.5],peakEngineHeat:.82,criticalSeconds:0};
+  const a={...modes.initial('endurance'),laps:3,elapsed:143,lapTimes:[49,47,47],straightPaceSeconds:25,peakStraightKmh:115,peakEngineHeat:.82,criticalSeconds:0};
   const clean=modes.result(a,true,0);
   assert.equal(clean.pass,true);
-  for(const changed of [{laps:2},{elapsed:151},{lapTimes:[25,30,36]},{peakEngineHeat:.96},{criticalSeconds:3.1}])assert.equal(modes.result({...a,...changed},true,0).pass,false);
+  for(const changed of [{laps:2},{elapsed:146},{lapTimes:[43,47,53]},{straightPaceSeconds:11},{peakEngineHeat:.96},{criticalSeconds:3.1}])assert.equal(modes.result({...a,...changed},true,0).pass,false);
+  assert.equal(modes.result(a,true,2.1).pass,false);
   assert.equal(modes.result(a,false,0).pass,false);
   assert.ok(modes.result({...a,criticalSeconds:2},true,0).score<clean.score);
-  assert.ok(modes.result({...a,lapTimes:[25,30,36]},true,0).score<clean.score);
+  assert.ok(modes.result({...a,lapTimes:[43,47,53]},true,0).score<clean.score);
 });
 
 test('canonical physics can finish each route without a vehicle lock',()=>{
@@ -157,24 +154,28 @@ test('canonical physics can finish each route without a vehicle lock',()=>{
   }
 });
 
-test('each roster car can complete three continuous Endurance laps with the shared heat model',()=>{
+test('each roster car sustains 90–120 km/h straights and recovers through the 100 m bends',()=>{
   const physics=raceContext(local('?raceExpansion=prototype'));
   for(const path of ['src/shared/race-garage.js','src/shared/race-vehicle-catalog.js','src/shared/race-modes.js','src/game/19-race-systems.js','src/game/19a-race-telemetry.js'])vm.runInNewContext(read(path),physics);
   const systems=vm.runInNewContext('RACE_SYSTEMS',physics),telemetry=vm.runInNewContext('RACE_TELEMETRY',physics),garage=physics.KickLabRaceGarage,vehicles=physics.KickLabRaceVehicleCatalog,api=physics.KickLabRaceModes;
-  for(const [id,limit,tires] of [['kestrel',10,'wide'],['cobalt',12,'balanced'],['aegis',12,'balanced']]){
-    const car=vehicles.get(id),build={...garage.DEFAULT,body:car.legacyBodyId,tires},P=garage.parameters({L:120,R:32,m:car.massKg,F:car.driveForceN,top:car.topMps,mu:.9*car.grip,tireMu:.9*car.grip,Lwb:car.wheels.wheelbaseM,ratio:15,expansionCourse:'oval',progressionHeat:true},build);
-    Object.assign(P,{garageStock:false,rolling:P.rolling*car.rollingLoss,stability:P.stability*car.steeringResponse,response:P.response*car.steeringResponse,recovery:P.recovery*car.slideRecovery,brakeHeat:P.brakeHeat*car.brakeHeat,brakeRecovery:car.brakeRecovery,downforce:car.downforce,engineHeatLoad:2});
-    const s={x:10,y:0,th:-Math.PI/2,v:0,t:0,...systems.initial()},a=api.initial('endurance'),t=telemetry.initial(),crossingHeat=[];a.phase='run';let previousLaps=0;
+  for(const [id,tires] of [['kestrel','wide'],['cobalt','balanced'],['aegis','balanced']]){
+    const car=vehicles.get(id),build={...garage.DEFAULT,body:car.legacyBodyId,tires},track=api.ENDURANCE_TRACK,P=garage.parameters({L:120,R:track.radius,m:car.massKg,F:car.driveForceN,top:car.topMps,mu:.9*car.grip,tireMu:.9*car.grip,Lwb:car.wheels.wheelbaseM,ratio:15,expansionCourse:'oval',enduranceCourse:true,progressionHeat:true},build);
+    Object.assign(P,{garageStock:false,rolling:P.rolling*car.rollingLoss,stability:P.stability*car.steeringResponse,response:P.response*car.steeringResponse,recovery:P.recovery*car.slideRecovery,brakeHeat:P.brakeHeat*car.brakeHeat,brakeRecovery:car.brakeRecovery,downforce:car.downforce,engineHeatLoad:1.05});
+    const s={x:10,y:0,th:-Math.PI/2,v:0,t:0,...systems.initial()},a=api.initial('endurance'),t=telemetry.initial(),crossingHeat=[];a.phase='run';let previousLaps=0,slideSeconds=0;
     for(let i=0;i<9000&&a.laps<3;i++){
-      const before={x:s.x,y:s.y,angle:a.lastAngle,mode:s.driftMode},heatBefore=t.heat,gas=s.v<limit&&t.heat<.78?1:0,brake=s.v>limit+1?1:0;
+      const path=api.endurancePath(s.x,s.y),arc=Math.PI*track.radius,boundary=path.progress<track.halfStraight?track.halfStraight:path.progress<track.halfStraight+arc+track.straight?track.halfStraight+arc+track.straight:track.lapLength+track.halfStraight,exit=path.progress>=track.halfStraight+arc&&path.progress<track.halfStraight+arc+track.straight?path.progress-(track.halfStraight+arc):path.progress>=track.halfStraight+arc+track.straight+arc?path.progress-(track.halfStraight+arc+track.straight+arc):Infinity,cornering=path.zone==='bend'||boundary-path.progress<55||exit<35,target=cornering?27:32;
+      const before={x:s.x,y:s.y,mode:s.driftMode},heatBefore=t.heat,gas=s.v<target-.2&&t.heat<.8?(cornering?.42:1):0,brake=s.v>target+.3?1:0;
       systems.step(s,P,{gas:gas*telemetry.powerFactor(t),brake,auto:true},.02,systems.venue('highland'));
       telemetry.step(t,s,{gas,brake,nitro:false},P,.02);api.observe(a,s,before,.02,{gas,heat:t.heat},P);
+      if(s.slide)slideSeconds+=.02;
       assert.ok(Math.abs(s.e)<7,`${id} left pavement at ${a.elapsed.toFixed(1)} s`);
       if(a.laps>previousLaps){crossingHeat.push(t.heat);assert.ok(Math.abs(t.heat-heatBefore)<.02,`${id} heat jumped at crossing`);previousLaps=a.laps;}
     }
     assert.equal(a.laps,3,`${id} did not finish`);
     assert.equal(a.lapTimes.length,3);
-    assert.equal(api.result(a,true,0).pass,true,`${id} controlled strategy did not pass`);
+    assert.equal(api.result(a,true,slideSeconds).pass,true,`${id} controlled strategy did not pass`);
+    assert.ok(a.peakStraightKmh>=108&&a.peakStraightKmh<=120&&a.straightPaceSeconds>=30,`${id} straight speed was not sustained`);
+    assert.ok(slideSeconds<.1,`${id} did not recover cleanly from the bends`);
     assert.equal(crossingHeat.length,3);
     assert.ok(a.peakEngineHeat>=Math.max(...crossingHeat));
   }
