@@ -372,10 +372,11 @@ test('keeps the controller permanently in Play and moves detailed math outside i
   assert.doesNotMatch(html,/Manual Physics|>Manual<|>Play</);
 });
 
-test('uses compact accessible icon buttons for Classic and Analog control styles',()=>{
+test('uses compact accessible icon buttons for Classic, Analog, and Simulator control styles',()=>{
   assert.match(html,/class="control-style-switch" id="controlStyleOptions" role="group" aria-label="Controller style"/);
   assert.match(html,/id="classicControlsButton" aria-pressed="true" aria-label="Classic controls" title="Classic controls" data-tooltip="Classic controls"[^>]*><svg/);
   assert.match(html,/id="analogControlsButton" aria-pressed="false" aria-label="Analog controls" title="Analog controls" data-tooltip="Analog controls"[^>]*><svg/);
+  assert.match(html,/id="simulatorControlsButton" aria-pressed="false" aria-label="Simulator tilt controls" title="Simulator tilt controls" data-tooltip="Simulator tilt controls"[^>]*><svg/);
   assert.doesNotMatch(html,/id="(?:classicControlsButton|analogControlsButton)"[^>]*>(?:Classic|Analog)<\/button>/);
   assert.doesNotMatch(html,/Prototype · classic stays available|Try analog controls|Use classic controls/);
   assert.match(analog,/classicControlsButton\.setAttribute\('aria-pressed',String\(!ANALOG_CONTROL\.enabled\)\)/);
@@ -385,7 +386,7 @@ test('uses compact accessible icon buttons for Classic and Analog control styles
   assert.match(css,/\.control-style-button\{[^}]*width:44px;height:44px/);
   assert.match(css,/\.control-style-button\[aria-pressed="true"\]/);
   assert.match(css,/\.control-style-button:focus-visible\{outline:3px solid var\(--hot\)/);
-  assert.equal((html.match(/class="control-style-tooltip"/g)||[]).length,2);
+  assert.equal((html.match(/class="control-style-tooltip"/g)||[]).length,3);
   assert.match(css,/\.control-style-tooltip\{position:absolute;right:calc\(100% \+ 57px\);top:50%/);
   assert.match(css,/\.control-style-button:is\(:hover,:focus-visible\) \.control-style-tooltip\{visibility:visible;opacity:1\}/);
   assert.match(css,/\.control-style-switch:has\(\.control-style-button:focus-visible\) \.control-style-button:hover:not\(:focus-visible\) \.control-style-tooltip\{visibility:hidden;opacity:0\}/);

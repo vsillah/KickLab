@@ -5,19 +5,19 @@ const simFlag=RACE_MODES.enabled()&&new URLSearchParams(location.search).get('ra
 const simButton=$('#simulatorControlsButton'),simPanel=$('#raceSimulator'),simStatus=$('#simStatus');
 simButton.hidden=!simFlag;
 function simAllowed(){return simFlag&&M===Race&&!PAUSE.on&&!RP.on&&!CINE.on&&!document.hidden&&!$('#game-cockpit').hidden;}
-function simMessage(message){simStatus.textContent=message;}
+function simMessage(message){$('#simStatusDetail').textContent=message;simStatus.textContent=/NOS fired/.test(message)?'NOS fired':/Handbrake pulled/.test(message)?'Drift on':/Handbrake released/.test(message)?'Drift off':/denied/.test(message)?'Tilt denied':/unavailable/.test(message)?'Tilt unavailable':/recenter|Recenter|Orientation changed/.test(message)?'Recenter':/Lights running/.test(message)?'Lights':/paused|Paused/.test(message)?'Paused':/resumed/.test(message)?'Resumed':/Tilt steering/.test(message)?`Tilt ${Math.round(RACE_SIMULATOR.steer*100)}%`:/Enable tilt/.test(message)?'Tilt off':message.split(/[.·]/)[0].trim().slice(0,20);}
 function simGuide(){
   const s=RACE_SIMULATOR,mode=Race.mode().id,phase=Race.state;
-  let key='',message='',icon='';
-  if(phase==='count'&&!s.mastered.launch){key='launch';message='Hold brake · tap throttle 3× · release at green';icon='↓';}
-  else if(phase==='run'&&mode==='drag'&&!s.mastered.shift&&Race.modeAttempt&&Race.st.v/Math.max(1,Race.P().top)>=[.27,.49,.73][Math.min(2,Race.modeAttempt.gear-1)]-.12){key='shift';message='Tap a paddle in the shift band';icon='↔';}
-  else if(phase==='run'&&mode==='drift'&&!s.mastered.drift&&Race.st.v>8){key='drift';message='Pull the lever down to drift';icon='↓';}
-  else if(phase==='run'&&!s.mastered.nos&&Race.st.v>8&&Race.telemetry?.pressure>=.25){key='nos';message='Flick up from throttle for NOS';icon='↑';}
-  const coach=$('#simCoach');coach.hidden=!key;coach.dataset.guide=key;$('#simCoachText').textContent=message;coach.querySelector('.sim-coach-motion').textContent=icon;
+  let key='',message='',detail='',icon='';
+  if(phase==='count'&&!s.mastered.launch){key='launch';message='Hold · tap · release';detail='Hold brake, tap throttle three times, then release brake at green while holding throttle.';icon='brake';}
+  else if(phase==='run'&&mode==='drag'&&!s.mastered.shift&&Race.modeAttempt&&Race.st.v/Math.max(1,Race.P().top)>=[.27,.49,.73][Math.min(2,Race.modeAttempt.gear-1)]-.12){key='shift';message='Shift in band';detail='Tap a shift paddle when RPM reaches the shift band.';icon='paddle';}
+  else if(phase==='run'&&mode==='drift'&&!s.mastered.drift&&Race.st.v>8){key='drift';message='Pull to drift';detail='Pull the handbrake lever down to begin a controlled drift.';icon='lever';}
+  else if(phase==='run'&&!s.mastered.nos&&Race.st.v>8&&Race.telemetry?.pressure>=.25){key='nos';message='Flick up';detail='Flick upward from the throttle pedal to fire NOS.';icon='boost';}
+  const coach=$('#simCoach');coach.hidden=!key;coach.dataset.guide=key;$('#simCoachText').textContent=message;$('#simCoachDetail').textContent=detail;coach.querySelector('.sim-coach-motion use').setAttribute('href',`#sim-ico-${icon||'boost'}`);
 }
 function simPaint(){
   if(!simFlag)return;
-  const phase=Race.state==='grid'?'setup':'live';simPanel.dataset.phase=phase;simPanel.dataset.mode=Race.mode().id;$('#simTitle').textContent=phase==='setup'?'Simulator setup':'SIM · '+Race.mode().name;
+  const phase=Race.state==='grid'?'setup':'live';simPanel.dataset.phase=phase;simPanel.dataset.mode=Race.mode().id;$('#simTitle').textContent=phase==='setup'?'SIM · Setup':'SIM · '+Race.mode().name;
   if(RACE_SIMULATOR.active&&Race.state==='run'&&RACE_SIMULATOR.lastPhase!=='run')simMessage(RACE_SIMULATOR.sensorReady?'Tilt steering live.':'Tilt inactive · Controls offers Classic or Analog.');
   RACE_SIMULATOR.lastPhase=Race.state;
   simGuide();
@@ -25,8 +25,8 @@ function simPaint(){
   $('#simWheel').style.setProperty('--sim-turn',`${Math.round(RACE_SIMULATOR.steer*70)}deg`);
   const a=Race.modeAttempt,drag=Race.expansionActive()&&Race.mode().id==='drag',ratio=a?Race.st.v/Math.max(1,Race.P().top):0;
   const band=a&&a.gear<4?[.27,.49,.73][a.gear-1]:1;
-  $('#simGear').textContent=drag&&a?`GEAR ${a.gear} · ${Math.round(ratio*100)}% RPM · ${ratio<band-.1?'wait':ratio>band+.07?'late':'SHIFT'}`:`TILT ${Math.round(RACE_SIMULATOR.steer*100)}%`;
-  $('#simLaunch').textContent=Race.state==='run'?(drag?'Hold throttle · shift in band · flick up for NOS':Race.mode().id==='drift'?'Steer through the curve · pull the lever to drift':'Hold throttle · steer by tilt · flick up for NOS'):RACE_SIMULATOR.revTaps>=3?'Launch armed · release brake while holding throttle at green':`Hold brake · tap throttle ${Math.max(0,3-RACE_SIMULATOR.revTaps)}× · release at green`;
+  $('#simGear').textContent=drag&&a?`G${a.gear} · ${Math.round(ratio*100)}% · ${ratio<band-.1?'wait':ratio>band+.07?'late':'shift'}`:`Tilt ${Math.round(RACE_SIMULATOR.steer*100)}%`;
+  const launch=$('#simLaunch');launch.textContent=Race.state==='run'?(drag?'Shift · flick ↑':Race.mode().id==='drift'?'Steer · pull ↓':'Tilt · flick ↑'):RACE_SIMULATOR.revTaps>=3?'Release at green':`Brake · tap ×${Math.max(0,3-RACE_SIMULATOR.revTaps)} · release`;launch.setAttribute('aria-label',Race.state==='run'?(drag?'Hold throttle, shift in the band, flick up from throttle for NOS':Race.mode().id==='drift'?'Steer through the curve and pull the handbrake to drift':'Hold throttle, steer by tilt, flick up from throttle for NOS'):'Hold brake, tap throttle three times, then release brake at green while holding throttle');
 }
 function simCancel(reason='Input cancelled',stopSensor=false){
   if(!simFlag)return;
