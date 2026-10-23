@@ -43,6 +43,21 @@ test('all modes have different measured pass rules and safe profile migration',(
   assert.equal(modes.result(hill,true,.7).pass,false);
 });
 
+test('simulator Drag paddles distinguish early, optimal, late, and missed shifts',()=>{
+  const early=modes.initial('drag');early.phase='run';
+  assert.equal(modes.shift(early,1,55,true),true);
+  assert.equal(early.lastShift,'early');assert.equal(early.badShifts,1);assert.equal(modes.gearEfficiency(early,1,55),0);
+  const optimal=modes.initial('drag');optimal.phase='run';
+  assert.equal(modes.shift(optimal,55*.25,55,true),true);
+  assert.equal(optimal.lastShift,'optimal');assert.equal(optimal.badShifts,0);
+  const late=modes.initial('drag');late.phase='run';
+  assert.equal(modes.shift(late,55*.38,55,true),true);
+  assert.equal(late.lastShift,'late');assert.equal(late.badShifts,1);
+  late.shiftCooldown=0;
+  assert.equal(modes.downshift(late,55*.5,55),true);
+  assert.equal(late.lastShift,'missed');assert.equal(late.badShifts,2);
+});
+
 test('Drift route has an acceleration lead-in, two opposite curves, and recovery room',()=>{
   const route=modes.DRIFT_ROUTE,points=modes.driftPoints();
   assert.ok(route.leadEnd>=80);

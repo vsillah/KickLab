@@ -1485,3 +1485,35 @@ html[data-race-telemetry="prototype"] .race-coach-vehicle[hidden]{display:none!i
 @media(max-width:480px){.race-garage .garage-roster-card[data-garage-part="body"]{grid-template-columns:88px minmax(0,1fr)!important;padding:5px}.race-garage .garage-roster-card .garage-body-thumb{height:65px}.race-garage .garage-roster-card .choice-copy small{font-size:9px}}
 @media(max-width:480px){.race-garage[data-roster="true"] .garage-preview{display:grid;grid-template-columns:90px minmax(0,1fr);align-items:center;min-height:0;gap:5px;padding:5px}.race-garage[data-roster="true"] .garage-vehicle-preview{height:85px}.race-garage[data-roster="true"] .garage-preview h3{font-size:13px}.race-garage[data-roster="true"] .garage-preview p{font-size:9px}.race-garage[data-roster="true"] .garage-preview small{font-size:8px}.race-garage .garage-roster-card .choice-copy{gap:2px}.race-garage .garage-roster-card .choice-copy b{font-size:12px}}
 .race-garage .garage-roster-locked{margin:0;padding:7px 9px;color:#ffd9a4;font:700 10px/1.3 var(--f-body)}
+/* Explicit Race simulator prototype; scoped to the selected controller. */
+html:not([data-kicklab-mode="race"]) #simulatorControlsButton{display:none!important}
+.control-deck.simulator-active{z-index:36!important;pointer-events:auto!important}
+.game-frame .stage:has(>.control-deck.simulator-active)>canvas#cv{pointer-events:none!important}
+.control-deck.simulator-active .pad{display:grid!important;grid-template-columns:minmax(0,1fr)!important;pointer-events:auto!important}
+html[data-kicklab-mode="race"] .game-frame .stage>.control-deck.simulator-active .pad{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;grid-template-rows:auto!important;align-items:stretch!important}
+.control-deck.simulator-active.race-setup-preview .floating-control-head{display:grid!important}
+.control-deck.simulator-active.race-setup-preview .pad{display:grid!important;grid-template-columns:minmax(0,1fr)!important}
+.control-deck.simulator-active.race-setup-preview .control-center-slot{display:none!important}
+html[data-race-telemetry="prototype"] .game-frame .stage>.control-deck.simulator-active.race-setup-preview .control-center-slot{display:none!important}
+html[data-race-telemetry="prototype"] .game-frame .stage>.control-deck.simulator-active.race-setup-preview .pad{display:grid!important;grid-template-columns:minmax(0,1fr)!important}
+html[data-race-telemetry="prototype"] .game-frame .stage>.control-deck.simulator-active .control-center-slot{display:none!important;pointer-events:none!important}
+.control-deck.simulator-active :is(.control-left-slot,#padR,.touch-controller,.wide-manual-controller){display:none!important}
+.control-deck.simulator-active .race-simulator{display:grid;grid-column:1/-1;grid-template-columns:minmax(0,1fr);gap:6px;width:min(100%,760px);justify-self:center;padding:8px;border:1px solid #6389b4;border-radius:12px;background:#08172acb;color:#f3f8ff;touch-action:none;overscroll-behavior:contain}
+.race-simulator[hidden],#simulatorControlsButton[hidden]{display:none!important}
+.race-simulator button[hidden]{display:none!important}
+.race-simulator button{min-height:44px;border:1px solid #6f9dcc;border-radius:9px;background:#183657;color:#fff;font:700 11px var(--f-mono);touch-action:none}
+.race-simulator button.on{background:#ad593d;border-color:#ffd291}
+.race-simulator button:focus-visible,.race-simulator input:focus-visible{outline:3px solid #ffd291;outline-offset:2px}
+.race-simulator output,.race-simulator small{font:600 10px var(--f-mono);color:#c5def4}
+.sim-status{display:flex;justify-content:space-between;gap:8px;align-items:center;font:700 12px var(--f-display)}
+.sim-status output{max-width:65%;text-align:right}
+.sim-setup{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;align-items:center}.sim-setup label{display:flex;gap:3px;align-items:center;font:600 9px var(--f-mono)}.sim-setup input{min-width:0;width:100%;touch-action:auto}
+.sim-drive{display:grid;grid-template-columns:64px 76px 64px minmax(0,1fr);gap:5px;align-items:center;justify-content:center}.sim-drive button{display:flex;flex-direction:column;align-items:center;justify-content:center}.sim-drive small,.sim-pedals small{display:block;font-size:8px}.sim-wheel{position:relative;width:70px;height:70px;line-height:64px;text-align:center;font-size:70px;color:#b8d9ff;transform:rotate(var(--sim-turn,0deg))}.sim-wheel span{position:absolute;inset:0;font-size:35px;line-height:27px;color:#f6bd71}
+.sim-pedals{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}.sim-pedals button{min-width:0}.sim-launch{display:flex;gap:8px;align-items:center;justify-content:space-between}.sim-launch button{min-width:95px}
+@media(max-width:480px){.control-deck.simulator-active .race-simulator{padding:4px;gap:3px}.sim-status{font-size:10px}.sim-status output{font-size:8px}.sim-setup{grid-template-columns:repeat(4,minmax(0,1fr))}.sim-setup button{font-size:8px;padding:2px}.sim-setup label{grid-column:span 2;font-size:8px}.sim-drive{grid-template-columns:48px 54px 48px minmax(0,1fr)}.sim-wheel{width:52px;height:52px;line-height:46px;font-size:52px}.sim-wheel span{font-size:25px;line-height:21px}.sim-pedals button{font-size:9px;padding:2px}.sim-pedals small{font-size:6px}.sim-launch output{font-size:8px}}
+@media(max-width:480px){
+  html[data-kicklab-mode="race"] .game-frame .stage:has(>.control-deck.simulator-active){height:650px!important;min-height:0!important;overflow:hidden!important;margin-bottom:0}
+  html[data-kicklab-mode="race"] .game-frame .stage>.control-deck.simulator-active,
+  html[data-race-telemetry="prototype"][data-kicklab-mode="race"] .game-frame .stage>.control-deck.simulator-active:not(.controller-collapsed){top:auto!important;bottom:4px!important;max-height:none!important;overflow:visible!important}
+  html[data-kicklab-mode="race"] .game-frame .stage>.control-deck.simulator-active .floating-control-head{position:absolute;bottom:calc(100% + 5px);right:0}
+}

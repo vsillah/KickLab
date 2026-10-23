@@ -1,0 +1,29 @@
+import {createRequire} from 'node:module';
+import {existsSync,mkdirSync,writeFileSync} from 'node:fs';
+import {resolve} from 'node:path';
+const {chromium}=createRequire(import.meta.url)('playwright');
+const base=process.argv[2]||'http://127.0.0.1:5879/kicklab.html';
+const out=resolve(process.argv[3]||'qa-artifacts/race-simulator');mkdirSync(out,{recursive:true});
+const executablePath=[process.env.KICKLAB_CHROMIUM_PATH,chromium.executablePath(),'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find(path=>path&&existsSync(path));
+const browser=await chromium.launch({headless:true,executablePath});
+const report={base,views:[],errors:[],external:[]};
+for(const [width,height] of (process.env.QA_ONE?[[360,780]]:[[360,780],[390,844],[768,1024],[1113,988],[1440,900]])){
+  const context=await browser.newContext({viewport:{width,height},deviceScaleFactor:1,reducedMotion:'reduce'});
+  await context.addInitScript(gfx=>localStorage.setItem('impactlab.v1',JSON.stringify({gfx,ch:{fight:0,race:0,kick:0},play:{fight:'ch',race:'ch',kick:'ch'}})),process.env.QA_GFX||'2d');
+  await context.addInitScript(mode=>{if(mode==='denied')Object.defineProperty(window,'DeviceOrientationEvent',{configurable:true,value:class{static requestPermission(){return Promise.resolve('denied');}}});if(mode==='unavailable')Object.defineProperty(window,'DeviceOrientationEvent',{configurable:true,value:undefined});},process.env.QA_PERMISSION||'');
+  const page=await context.newPage();page.on('pageerror',error=>report.errors.push(`${width}: ${error}`));page.on('request',request=>{if(!request.url().startsWith('http://127.0.0.1:5879/')&&!request.url().startsWith('blob:http://127.0.0.1:5879/'))report.external.push(request.url());});
+  const url=new URL(base);url.searchParams.set('raceExpansion','prototype');url.searchParams.set('raceSimulator','prototype');url.searchParams.set('raceTelemetry','prototype');url.searchParams.set('rev','sim-local');
+  await page.goto(url.toString(),{waitUntil:'networkidle'});
+  if(await page.locator('#profileClose').isVisible())await page.locator('#profileClose').click();
+  await page.locator('#lab-tab-race').click();await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});
+  if(process.env.QA_GFX==='3d'){const orbit=page.locator('.race-orbit-panel button');await orbit.waitFor({state:'visible',timeout:6000}).catch(()=>{});if(await orbit.isVisible())await orbit.click();await page.waitForTimeout(600);}
+  await page.locator('#raceCoachSetupSimulator').click();
+  const state=await page.evaluate(()=>({button:document.querySelector('#simulatorControlsButton').getAttribute('aria-pressed'),panel:!document.querySelector('#raceSimulator').hidden,overflow:document.documentElement.scrollWidth-innerWidth,panelRect:(()=>{const r=document.querySelector('#raceSimulator').getBoundingClientRect();return{x:r.x,y:r.y,w:r.width,h:r.height}})(),renderer:window.__KICKLAB_RACE_3D__?.status||'canvas',storage:Object.keys(localStorage).sort(),qa:window.__KICKLAB_RACE_SIMULATOR_QA__?.state()}));
+  if(process.env.QA_FRAME){const sample=()=>page.evaluate(()=>new Promise(resolve=>{const frames=[];let last=0;function tick(now){if(last)frames.push(now-last);last=now;if(frames.length<120)requestAnimationFrame(tick);else{frames.sort((a,b)=>a-b);resolve({p50:frames[60],p95:frames[114],max:frames[119]});}}requestAnimationFrame(tick);}));state.frame={simulator:await sample()};await page.locator('#simFallbackClassic').click();state.frame.classic=await sample();}
+  if(process.env.QA_PERMISSION){await page.locator('#simEnable').click();const permission=await page.evaluate(()=>window.__KICKLAB_RACE_SIMULATOR_QA__.state().permission);await page.locator('#simFallbackAnalog').click();state.permission={permission,fallback:await page.evaluate(()=>window.__KICKLAB_RACE_SIMULATOR_QA__.state())};if(permission!==process.env.QA_PERMISSION||state.permission.fallback.active)report.errors.push(`${width}: permission fallback failed`);}
+  if(process.env.QA_LIFECYCLE){await page.locator('#simEnable').click();await page.evaluate(()=>{window.__KICKLAB_RACE_SIMULATOR_QA__.orientation(0,0,0);window.__KICKLAB_RACE_SIMULATOR_QA__.orientation(0,24,0);});const tilted=await page.evaluate(()=>window.__KICKLAB_RACE_SIMULATOR_QA__.state());await page.locator('#simRecenter').click();await page.locator('#simStart').click();await page.waitForTimeout(2800);await page.locator('#simShiftUp').click();const running=await page.evaluate(()=>({phase:window.__KICKLAB_RACE_SIMULATOR_QA__.state(),race:window.__KICKLAB_RACE_MODES_QA__?.state?.()}));await page.evaluate(()=>window.__KICKLAB_RACE_SIMULATOR_QA__.pause());await page.locator('#simResume').waitFor({state:'visible',timeout:3000});const paused=await page.evaluate(()=>window.__KICKLAB_RACE_SIMULATOR_QA__.state());await page.locator('#simResume').click();await page.locator('#simFallbackClassic').click();state.lifecycle={tilted,running,paused,fallback:await page.evaluate(()=>window.__KICKLAB_RACE_SIMULATOR_QA__.state())};if(!(tilted.steer>0)||state.lifecycle.fallback.active||paused.sensorReady)report.errors.push(`${width}: lifecycle assertion failed`);}
+  await page.screenshot({path:resolve(out,`${width}x${height}.png`),fullPage:true});
+  report.views.push({width,height,state});await context.close();
+}
+await browser.close();writeFileSync(resolve(out,'report.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));
+if(report.errors.length||report.external.length||report.views.some(v=>!v.state.panel||v.state.overflow>2))process.exitCode=1;
