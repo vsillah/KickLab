@@ -55,6 +55,13 @@
     <p class="fb-source-note" id="fbSourceNote">Ranks players saved in this browser. Nothing is uploaded.</p>
     <div class="fb-me"><span>Your nickname</span><input id="fbNick" maxlength="16" placeholder="Make up a nickname" autocomplete="off"><button type="button" id="fbPost">Post my bests</button><div class="fb-msg" id="fbMsg"></div></div>
     <div class="fb-week" id="fbWeek"></div>
+    <section class="race-competition" id="raceCompetition" hidden aria-label="Race competition on this device">
+      <div class="race-competition-head"><span>RACE COMPETITION · DEVICE ONLY</span><h3>Earn your place on the grid</h3><p>Coach Nia tracks completed runs for each local player. Names below are made-up racer aliases. Nothing is posted or uploaded.</p></div>
+      <div class="race-competition-cats" id="raceCompetitionCats" role="group" aria-label="Race category"></div>
+      <div class="race-competition-stats" id="raceCompetitionStats"></div>
+      <ul class="race-competition-list" id="raceCompetitionList"></ul>
+      <div class="race-competition-awards" id="raceCompetitionAwards"></div>
+    </section>
     <div class="fb-cats" id="fbCats"></div>
     <p class="fb-eq" id="fbEq"></p>
     <ul class="fb-list" id="fbList"></ul>
@@ -88,7 +95,7 @@
             <span id="goalCelebrationStatus" role="status" aria-live="polite">Goal replay</span>
             <button type="button" id="goalCelebrationSkip">Skip replay</button>
           </div>
-          <div class="results" id="results" hidden><div class="rc" id="rc"><div class="grade" id="rGrade">A<small>GRADE</small></div><div class="rmain"><div class="rlvl" id="rLvl" hidden></div><div class="rtitle" id="rTitle"></div><div class="rsub" id="rSub"></div><ul class="rrows" id="rRows"></ul><div class="rtotal"><span>XP earned</span><b id="rTotal">+0</b></div><div class="rhint" id="rHint"></div><div class="rboard" id="rBoard" hidden></div><div class="rgo"><div class="racts" id="racts" hidden><button type="button" id="rReview">Coach review</button><button type="button" id="rReplay">Replay</button></div><button type="button" class="rnext" id="rNext">Next round <span aria-hidden="true">▶</span> <kbd>Space</kbd></button></div></div></div></div>
+          <div class="results" id="results" hidden><div class="rc" id="rc"><div class="grade" id="rGrade">A<small>GRADE</small></div><div class="rmain"><div class="rlvl" id="rLvl" hidden></div><div class="rtitle" id="rTitle"></div><div class="rsub" id="rSub"></div><ul class="rrows" id="rRows"></ul><div class="rtotal"><span>XP earned</span><b id="rTotal">+0</b></div><div class="rhint" id="rHint"></div><div class="rboard" id="rBoard" hidden></div><div class="rgo"><div class="racts" id="racts" hidden><button type="button" id="rReview">Coach review</button><button type="button" id="rReplay">Replay</button><button type="button" id="rRaceBoard" hidden>Race awards &amp; board</button><button type="button" id="rRaceRecord" hidden>Record / Share</button></div><button type="button" class="rnext" id="rNext">Next round <span aria-hidden="true">▶</span> <kbd>Space</kbd></button></div></div></div></div>
           <div class="lvlup" id="lvlup" hidden><div class="lu"><span class="lu-k">LEVEL UP</span><div class="lu-n" id="luNum">2</div><div class="lu-t" id="luTitle"></div><div class="lu-u" id="luUnlock"></div></div></div>
           <div class="feed" id="feed" aria-hidden="true"></div>
           <div class="toasts" id="toasts"></div>
@@ -291,6 +298,7 @@
   </div>
 
   <div class="rv-back" id="rvBack" hidden><div class="review" id="review" role="dialog" aria-modal="true" aria-label="Coach review"><div class="rv-h"><div class="av" id="rvAv">DR</div><div class="tt"><span id="rvKick">COACH REVIEW</span><b id="rvTitle"></b></div><div class="gr" id="rvGrade"></div><button type="button" id="rvClose">Close ✕</button></div><div class="rv-b" id="rvBody"></div></div></div>
+  <div class="race-share" id="raceShare" hidden role="dialog" aria-modal="true" aria-labelledby="raceShareTitle"><section class="race-share-panel"><header><div><span>LOCAL RACE HIGHLIGHT</span><h2 id="raceShareTitle">Your finish, your file</h2></div><button type="button" id="raceShareClose">Close ✕</button></header><p id="raceShareStatus" role="status" aria-live="polite"></p><div class="race-share-preview" id="raceSharePreview"></div><div class="race-share-actions"><button type="button" id="raceShareDownload" hidden>Download file</button><button type="button" id="raceShareNative" hidden>Share file</button></div><small>Created on this device. No account name, upload, or public link.</small></section></div>
 
 </main>
 
