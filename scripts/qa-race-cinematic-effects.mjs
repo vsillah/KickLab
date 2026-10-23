@@ -17,7 +17,7 @@ async function open(width,height,{analog=false,reduced=false,canvas=false,mode='
   await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});
   await page.evaluate(({mode,vehicle})=>window.__KICKLAB_RACE_ENGINE_QA__.select(mode,vehicle),{mode,vehicle});
   if(!canvas)await page.waitForFunction(vehicle=>window.__KICKLAB_RACE_3D__?.status==='rendering'&&window.__KICKLAB_RACE_3D__?.vehicleId===vehicle&&window.__KICKLAB_RACE_FX__?.vehicle===vehicle,vehicle,{timeout:15000});
-  await page.evaluate(()=>window.__KICKLAB_RACE_ENGINE_QA__.run());if(analog)await page.locator('#analogControlsButton').click();
+  await page.evaluate(()=>{window.__KICKLAB_RACE_ENGINE_QA__.holdPresentation(true);window.__KICKLAB_RACE_ENGINE_QA__.run();});if(analog)await page.locator('#analogControlsButton').click();
   return{context,page};
 }
 async function stage(page,label,fixture,{capture=false}={}){
