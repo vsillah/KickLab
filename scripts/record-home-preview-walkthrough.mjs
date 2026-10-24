@@ -30,11 +30,12 @@ try {
       const card = page.locator(`#lab-tab-${lab}`), video = card.locator('video');
       if (label === 'phone') await card.scrollIntoViewIfNeeded();
       await page.waitForFunction(id => { const v = document.querySelector(`#lab-tab-${id} video`); return v && !v.paused && v.currentTime > 0 && v.readyState >= 2; }, lab, { timeout: 10000 });
-      const before = await video.evaluate(v => v.currentTime);
+      const before = await video.evaluate(v => ({ time: v.currentTime, duration: v.duration }));
       await page.waitForTimeout(label === 'phone' ? 1800 : 1500);
       const after = await video.evaluate(v => v.currentTime);
-      if (after <= before + 0.4) throw new Error(`${label} ${lab}: video did not advance`);
-      checks.push({ label, lab, before, after, previewState: await card.getAttribute('data-preview-state') });
+      const advance = (after - before.time + before.duration) % before.duration;
+      if (advance <= 0.4) throw new Error(`${label} ${lab}: video did not advance`);
+      checks.push({ label, lab, before: before.time, after, advance, previewState: await card.getAttribute('data-preview-state') });
     }
     if (label === 'desktop') await page.waitForTimeout(900);
     const video = page.video();
