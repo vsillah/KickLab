@@ -198,6 +198,7 @@ const viewports = [
   ['w768', { width: 768, height: 1024 }],
   ['w520', { width: 520, height: 900 }],
   ['w390', { width: 390, height: 844 }],
+  ['w360', { width: 360, height: 780 }],
   ['w320', { width: 320, height: 800 }],
 ];
 

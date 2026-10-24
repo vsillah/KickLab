@@ -1,15 +1,17 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "privacy": "local renderer only; no external requests; no audio",
   "clips": [
     {
       "lab": "Fight",
-      "revision": "30fac409da7f8c3695cec7dcb4fa0690c91699b7",
-      "source": "Current local KickLab renderer",
+      "revision": "db08f39641a8c8c1daa70bd1f3b967296cc5792a",
+      "source": "Current local KickLab Canvas renderer",
+      "captureFlags": [],
       "mp4": "media/home-previews/fight.mp4",
       "poster": "media/home-previews/fight-poster.png",
-      "bytes": 59747,
-      "uniqueFrames": 11,
+      "bytes": 61117,
+      "posterBytes": 79498,
+      "uniqueFrames": 17,
       "programs": [],
       "stream_groups": [],
       "streams": [
@@ -20,17 +22,21 @@
         }
       ],
       "format": {
-        "duration": "3.800000"
+        "duration": "5.800000"
       }
     },
     {
       "lab": "Race",
-      "revision": "30fac409da7f8c3695cec7dcb4fa0690c91699b7",
-      "source": "Current local KickLab renderer",
+      "revision": "db08f39641a8c8c1daa70bd1f3b967296cc5792a",
+      "source": "Current local KickLab 3D renderer",
+      "captureFlags": [
+        "raceSystems=proxy"
+      ],
       "mp4": "media/home-previews/race.mp4",
       "poster": "media/home-previews/race-poster.png",
-      "bytes": 29946,
-      "uniqueFrames": 11,
+      "bytes": 242398,
+      "posterBytes": 148901,
+      "uniqueFrames": 17,
       "programs": [],
       "stream_groups": [],
       "streams": [
@@ -41,17 +47,19 @@
         }
       ],
       "format": {
-        "duration": "3.800000"
+        "duration": "5.800000"
       }
     },
     {
       "lab": "Kick",
-      "revision": "30fac409da7f8c3695cec7dcb4fa0690c91699b7",
-      "source": "Current local KickLab renderer",
+      "revision": "db08f39641a8c8c1daa70bd1f3b967296cc5792a",
+      "source": "Current local KickLab 3D renderer",
+      "captureFlags": [],
       "mp4": "media/home-previews/kick.mp4",
       "poster": "media/home-previews/kick-poster.png",
-      "bytes": 238532,
-      "uniqueFrames": 11,
+      "bytes": 300651,
+      "posterBytes": 133469,
+      "uniqueFrames": 17,
       "programs": [],
       "stream_groups": [],
       "streams": [
@@ -62,7 +70,7 @@
         }
       ],
       "format": {
-        "duration": "3.800000"
+        "duration": "5.800000"
       }
     }
   ]

@@ -63,10 +63,13 @@ test('uses muted looping local video with reduced-motion, constrained-device, an
   assert.equal(manifest.privacy,'local renderer only; no external requests; no audio');
   assert.equal(manifest.clips.length,3);
   for(const clip of manifest.clips){
-    assert.equal(clip.revision,'30fac409da7f8c3695cec7dcb4fa0690c91699b7');
-    assert.equal(clip.source,'Current local KickLab renderer');
+    assert.equal(clip.revision,'db08f39641a8c8c1daa70bd1f3b967296cc5792a');
+    assert.equal(clip.source,clip.lab==='Fight'?'Current local KickLab Canvas renderer':'Current local KickLab 3D renderer');
+    assert.deepEqual(clip.captureFlags,clip.lab==='Race'?['raceSystems=proxy']:[]);
     assert.equal(clip.streams[0].codec_name,'h264');
     assert.equal(clip.streams[0].width,640);assert.equal(clip.streams[0].height,360);
+    assert.ok(Number(clip.format.duration)>=5&&Number(clip.format.duration)<=7);
+    assert.ok(clip.bytes<400_000);
     assert.ok(clip.uniqueFrames>=4);
     for(const path of [clip.mp4,clip.poster]){const local=join(root,'src',path);assert.ok(existsSync(local),path);assert.ok(statSync(local).size>4_000,path);}
   }
@@ -93,6 +96,7 @@ test('labels progress as overall, three-lab, and device-local without claiming a
 
 test('copies the reviewed local preview package into web, Pages, and mobile artifacts',()=>{
   for(const script of ['scripts/build.mjs','scripts/prepare-pages.mjs','scripts/prepare-mobile.mjs'])assert.match(read(script),/media/);
-  assert.match(read('scripts/capture-home-preview-media.mjs'),/Current local KickLab renderer/);
-  assert.match(read('scripts/capture-home-preview-media.mjs'),/hostname!=='127\.0\.0\.1'/);
+  assert.match(read('scripts/capture-home-preview-media.mjs'),/Current local KickLab Canvas renderer/);
+  assert.match(read('scripts/capture-home-preview-media.mjs'),/Current local KickLab 3D renderer/);
+  assert.match(read('scripts/capture-home-preview-media.mjs'),/origin!==new URL\(baseUrl\)\.origin/);
 });
