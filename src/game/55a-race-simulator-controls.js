@@ -100,11 +100,14 @@ $('#raceCoachSetupSimulator').addEventListener('click',()=>simSelect(true));
 classicControlsButton.addEventListener('click',()=>{if(RACE_SIMULATOR.active)simSelect(false);});
 analogControlsButton.addEventListener('click',()=>{if(RACE_SIMULATOR.active)simSelect(false);});
 $('#simEnable').addEventListener('click',simEnable);
+$('#simLiveEnable').addEventListener('click',simEnable);
 $('#simFallbackClassic').addEventListener('click',()=>simSelect(false));
 $('#simFallbackAnalog').addEventListener('click',()=>{simSelect(false);setPrototypeControls(true);});
 $('#simLiveClassic').addEventListener('click',()=>simSelect(false));
 $('#simLiveAnalog').addEventListener('click',()=>{simSelect(false);setPrototypeControls(true);});
-$('#simRecenter').addEventListener('click',()=>{RACE_SIMULATOR.center=RACE_SIMULATOR.lastAngle;RACE_SIMULATOR.steer=0;simMessage(RACE_SIMULATOR.center===null?'Enable tilt first.':'Steering recentered.');simPaint();});
+function simRecenter(){RACE_SIMULATOR.center=RACE_SIMULATOR.lastAngle;RACE_SIMULATOR.steer=0;simMessage(RACE_SIMULATOR.center===null?RACE_SIMULATOR.permission==='granted'?'Waiting for tilt reading; first reading sets center.':'Enable tilt first.':'Steering recentered.');simPaint();}
+$('#simRecenter').addEventListener('click',simRecenter);
+$('#simLiveRecenter').addEventListener('click',simRecenter);
 for(const [id,suffix] of [['simDeadZone','°'],['simSensitivity','×']])$('#'+id).addEventListener('input',event=>{$('#'+id+'Value').textContent=event.target.value+suffix;});
 $('#simStart').addEventListener('click',()=>{if(!simAllowed()||Race.state!=='grid')return;Race.coachStartRequested=true;Race.press('gas',true);Race.press('gas',false);simMessage('Lights running · hold brake, tap throttle 3×, release at green.');simPaint();});
 $('#simResume').addEventListener('click',()=>{if(resumeGame())simMessage('Play resumed. Enable tilt and recenter.');else simMessage('Close the active panel, then resume play.');});
@@ -132,9 +135,9 @@ handbrake.addEventListener('keydown',event=>{if(![' ','Enter'].includes(event.ke
 $('#simNos').addEventListener('click',()=>simInput('nitro',true));
 for(const [element,direction] of [['simShiftDown',-1],['simShiftUp',1]])$('#'+element).addEventListener('click',()=>{if(!simAllowed()||!RACE_SIMULATOR.active)return;const changed=direction>0?Race.shiftGear():Race.downshiftGear();if(changed){RACE_SIMULATOR.mastered.shift=true;simGuide();requestMobileHaptic('tick');simPaint();}else simMessage(direction>0?'Shift unavailable until the gearbox recovers or the next run.':'Downshift unavailable in first gear or during gearbox recovery.');});
 window.addEventListener('keydown',event=>{if(!RACE_SIMULATOR.active||!simAllowed()||event.repeat||!['Comma','Period','KeyN'].includes(event.code)||/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName||''))return;event.preventDefault();if(event.code==='Period')$('#simShiftUp').click();else if(event.code==='Comma')$('#simShiftDown').click();else simInput('nitro',true);});
-window.addEventListener('resize',()=>{if(RACE_SIMULATOR.active&&(RACE_SIMULATOR.permission==='granted'||RACE_SIMULATOR.sensorReady||RACE_SIMULATOR.pointers.size))simCancel('Orientation changed. Recenter to steer.',true);});
+window.addEventListener('resize',()=>{if(RACE_SIMULATOR.active&&(RACE_SIMULATOR.permission==='granted'||RACE_SIMULATOR.sensorReady||RACE_SIMULATOR.pointers.size))simCancel('Orientation changed. Tap Tilt, then Center.',true);});
 window.addEventListener('orientationchange',()=>{if(RACE_SIMULATOR.active)simCancel('Orientation changed. Enable tilt and recenter.',true);});
-window.addEventListener('blur',()=>simCancel('Focus lost',true));window.addEventListener('pagehide',()=>simCancel('Page hidden',true));
-document.addEventListener('visibilitychange',()=>{if(document.hidden)simCancel('Page hidden',true);});
+window.addEventListener('blur',()=>simCancel('Focus lost. Tap Tilt, then Center.',true));window.addEventListener('pagehide',()=>simCancel('Page hidden. Tap Tilt, then Center.',true));
+document.addEventListener('visibilitychange',()=>{if(document.hidden)simCancel('Page hidden. Tap Tilt, then Center.',true);});
 new MutationObserver(()=>{if(RACE_SIMULATOR.active&&M!==Race)simSelect(false);}).observe(document.documentElement,{attributes:true,attributeFilter:['data-kicklab-mode']});
 globalThis.__KICKLAB_RACE_SIMULATOR_QA__=simFlag?Object.freeze({state:()=>({active:RACE_SIMULATOR.active,permission:RACE_SIMULATOR.permission,sensorReady:RACE_SIMULATOR.sensorReady,steer:RACE_SIMULATOR.steer,revTaps:RACE_SIMULATOR.revTaps,inputs:{...Race.inp},gear:Race.modeAttempt?.gear,phase:simPanel.dataset.phase,guide:$('#simCoach').dataset.guide,mastered:{...RACE_SIMULATOR.mastered},nosPulse:Race.telemetry?.nosPulse,selectedGauge:Race.telemetry?.selected,driftMode:Race.st?.driftMode}),orientation:(beta,gamma,angle=0)=>simOrientation({beta,gamma,angle}),input:simInput,selectGauge:id=>{if(!RACE_TELEMETRY.GAUGES.some(g=>g.id===id)||!Race.telemetry)return false;Race.telemetry.selected=id;Race.telemetry.manualUntil=Race.telemetry.clock+7;renderRaceTelemetry();return true;},reset:()=>{hideResults();Race.reset();RACE_3D.orbit.phase='done';RACE_3D.orbit.done=true;renderActions();renderRaceTelemetry();},selectMode:id=>Race.selectMode(id),pause:()=>pauseGame('stage'),cancel:simCancel}):undefined;
