@@ -30,5 +30,5 @@ function frame(now){const rdt=Math.min(0.05,(now-last)/1000);last=now;
     const cw=ch.clientWidth;if(cw&&ch.width!==Math.round(cw*dpr))resize();cctx.setTransform(1,0,0,1,0,0);cctx.clearRect(0,0,ch.width,ch.height);cctx.setTransform(dpr,0,0,dpr,0,0);$('#chartCap').textContent=M.chart(cctx,cw||300,160);}
   if(RACE_COMPETITION_ON)raceCompetitionCaptureFrame();if(RACE_MULTI_ON)raceMultiplayerGhostTick();
   requestAnimationFrame(frame);}
-resize();renderScores();renderXP();placeTicker();setMode('fight');showModeHome({focus:false});maybeOpenFirstRunProfile();requestAnimationFrame(frame);
+resize();renderScores();renderXP();placeTicker();setMode('fight');showModeHome({focus:false});const homeRaceEntry=globalThis.KickLabRaceOrigin.consumeHomeEntry();if(!homeRaceEntry)maybeOpenFirstRunProfile();if(homeRaceEntry)requestAnimationFrame(()=>setMode('race'));requestAnimationFrame(frame);
 })();
