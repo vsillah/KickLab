@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KickLab local 3D pipeline evaluation</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main>
+    <header class="masthead">
+      <div>
+        <p class="eyebrow">Direction C · Kinetic Anatomy</p>
+        <h1>Local athlete pipeline proof</h1>
+        <p class="lede">A self-authored GLB, shared skeleton, exact contact marker, procedural stadium and deterministic crowd. No account. No remote asset.</p>
+      </div>
+      <div class="status-stack" aria-live="polite">
+        <span class="status-chip" id="load-status">Loading local GLB…</span>
+        <span class="status-chip muted" id="revision">revision: working-tree</span>
+      </div>
+    </header>
+
+    <section class="stage-card" aria-label="Interactive 3D pipeline test">
+      <div class="canvas-shell">
+        <canvas id="webgl-stage" aria-label="Three-dimensional athlete and stadium preview"></canvas>
+        <canvas id="fallback-stage" aria-label="Two-dimensional fallback athlete and stadium"></canvas>
+        <div class="contact-readout" id="contact-readout">Contact drift: pending</div>
+        <div class="mode-badge" id="mode-badge">FULL 3D</div>
+      </div>
+
+      <div class="controls" aria-label="Evaluation controls">
+        <button type="button" id="play-kick">Play kick</button>
+        <button type="button" id="play-idle">Idle</button>
+        <button type="button" id="toggle-anatomy" aria-pressed="false">Anatomy off</button>
+        <button type="button" id="toggle-reduced" aria-pressed="false">Reduced off</button>
+        <button type="button" id="toggle-fallback" aria-pressed="false">2D fallback off</button>
+      </div>
+    </section>
+
+    <section class="metrics" aria-label="Runtime metrics">
+      <article><strong id="metric-bytes">—</strong><span>GLB bytes</span></article>
+      <article><strong id="metric-triangles">—</strong><span>triangles</span></article>
+      <article><strong id="metric-bones">—</strong><span>bones</span></article>
+      <article><strong id="metric-draws">—</strong><span>draw calls</span></article>
+      <article><strong id="metric-render">—</strong><span>p95 frame ms</span></article>
+      <article><strong id="metric-network">0</strong><span>remote requests</span></article>
+    </section>
+
+    <section class="notes">
+      <h2>What this isolates</h2>
+      <p>The character surface and anatomy overlay use the same exported skin. The marker is authored on the kicking foot and checked against the ball at the named contact frame. Crowd figures are repeated with GPU instancing; the stadium has two local LOD levels.</p>
+    </section>
+  </main>
+  <script src="../../../src/vendor/three.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

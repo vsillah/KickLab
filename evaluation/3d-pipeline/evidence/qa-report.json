@@ -1,0 +1,49 @@
+{
+  "capturedAt": "2026-10-18T12:40:46.521Z",
+  "revision": "d02c93d",
+  "url": "http://127.0.0.1:4176/evaluation/3d-pipeline/harness/?rev=d02c93d&clip=kick",
+  "errors": [],
+  "responsive": [
+    {
+      "width": 768,
+      "height": 1024,
+      "documentWidth": 768,
+      "bodyWidth": 768
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "documentWidth": 390,
+      "bodyWidth": 390
+    }
+  ],
+  "requestCount": 5,
+  "offOriginRequests": [],
+  "metrics": {
+    "ready": true,
+    "remoteRequests": 0,
+    "assetUrl": "../assets/kicklab-placeholder-athlete.glb",
+    "renderer": "Three.js r128 local vendor",
+    "drawCalls": 22,
+    "assetBytes": 301592,
+    "triangles": 1668,
+    "geometryBytes": 181592,
+    "bones": 23,
+    "materials": 10,
+    "animations": [
+      "Idle",
+      "KickContact"
+    ],
+    "lodLevels": 2,
+    "crowdInstances": 480,
+    "loadMs": 12.300000011920929,
+    "contactDriftMeters": 1.361337867767724e-7,
+    "totalReadyMs": 72.39999997615814,
+    "renderP95Ms": 0.7000000178813934,
+    "renderAverageMs": 0.758333333581686
+  },
+  "video": {
+    "file": "kicklab-3d-pipeline-walkthrough.mp4",
+    "bytes": 950807
+  }
+}
