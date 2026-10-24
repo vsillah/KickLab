@@ -304,14 +304,23 @@
     });
   }
 
-  function fallbackEnvironment(id = 'home', pitchId = 'grass') {
+  const KICK_TIMES = freezeMap({
+    day: { name: 'Day', skyTop: '#4c9dd2', skyBottom: '#a9d8ef', haze: '#d8e9e3', stand: '#344e68', tier: '#486885', rail: '#e1e9e9', field: '#27804a', band: '#319052', atmosphere: 'sunlit stadium', floodlights: false },
+    dusk: { name: 'Dusk', skyTop: '#344778', skyBottom: '#e49d76', haze: '#f2c2a1', stand: '#273451', tier: '#394761', rail: '#d8c7c2', field: '#246b42', band: '#2b7948', atmosphere: 'golden-hour stadium', floodlights: true },
+    night: { name: 'Night', skyTop: '#07101f', skyBottom: '#20365c', haze: '#88a5d1', stand: '#111d3b', tier: '#1b2a4d', rail: '#a9bedf', field: '#174b31', band: '#1d5b39', atmosphere: 'floodlit stadium', floodlights: true }
+  });
+  function normalizeKickTime(value) { return Object.hasOwn(KICK_TIMES, value) ? value : 'day'; }
+
+  function fallbackEnvironment(id = 'home', pitchId = 'grass', time = 'day') {
     const base = FALLBACK_ENVIRONMENTS[id] || FALLBACK_ENVIRONMENTS.home;
+    const lighting = KICK_TIMES[normalizeKickTime(time)];
+    const worldSky = id === 'mars' ? { day: ['#9d4f37','#e5a46c','#f0c294'], dusk: ['#492535','#b95a3b','#da8863'], night: ['#190806','#6b2e1c','#92523b'] }[normalizeKickTime(time)] : id === 'moon' ? { day: ['#273a56','#7d95a7','#b7c5db'], dusk: ['#172039','#515976','#8494af'], night: ['#000000','#101522','#b7c5db'] }[normalizeKickTime(time)] : null;
     const pitchTone = pitchId === 'turf'
       ? { field: id === 'mars' ? '#985034' : id === 'moon' ? '#636b77' : '#216846', band: id === 'mars' ? '#aa5b3b' : id === 'moon' ? '#727b87' : '#287a50' }
       : pitchId === 'wet'
         ? { field: id === 'mars' ? '#68362c' : id === 'moon' ? '#454c57' : '#123c2d', band: id === 'mars' ? '#7b4032' : id === 'moon' ? '#555d69' : '#184b37' }
         : {};
-    return Object.freeze({ ...base, ...pitchTone, id: FALLBACK_ENVIRONMENTS[id] ? id : 'home', pitchId });
+    return Object.freeze({ ...base, ...lighting, ...(id === 'home' ? {} : { field: base.field, band: base.band, stand: base.stand, tier: base.tier, rail: base.rail, atmosphere: base.atmosphere }), ...(worldSky ? { skyTop: worldSky[0], skyBottom: worldSky[1], haze: worldSky[2] } : {}), ...pitchTone, id: FALLBACK_ENVIRONMENTS[id] ? id : 'home', pitchId, time: normalizeKickTime(time) });
   }
 
   function kitAppearance(selection = KIT_DEFAULTS) {
@@ -412,6 +421,8 @@
     CONTROL_MAPPINGS,
     PLAYER_APPEARANCES,
     FALLBACK_ENVIRONMENTS,
+    KICK_TIMES,
+    normalizeKickTime,
     KIT_DEFAULTS,
     KIT_CATALOG,
     normalizeKit,
