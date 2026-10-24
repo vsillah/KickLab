@@ -25,6 +25,7 @@ function racePhoneNotice(message,mood='tip'){
 }
 function syncRacePhoneTools(){
   const active=racePhoneToolsActive(),expanded=active&&racePhoneTools.getAttribute('aria-expanded')==='true';
+  if(!active&&racePhoneTools.getAttribute('aria-expanded')==='true')setFloatingControllerCollapsed(false);
   if(active&&racePhoneControlHead.parentElement!==gameStage)gameStage.appendChild(racePhoneControlHead);
   if(active&&racePhoneStyleGroup.parentElement!==racePhoneRail)racePhoneRail.appendChild(racePhoneStyleGroup);
   if(active&&racePhoneCalibration.parentElement!==racePhoneRail)racePhoneRail.appendChild(racePhoneCalibration);
@@ -36,17 +37,19 @@ function syncRacePhoneTools(){
   if(!active&&racePhoneControlHead.parentElement!==racePhoneControlHome)racePhoneControlHome.insertBefore(racePhoneControlHead,racePhoneControlHome.firstChild);
   racePhoneRail.inert=active&&!expanded;
   if(!active)clearRacePhoneNotices();
-  racePhoneTools.setAttribute('aria-label',expanded?'Close Race tools':'Open Race tools');
+  racePhoneTools.setAttribute('aria-label',expanded?'Close Race tools and restore game controls':'Open Race tools and collapse game controls');
   if(!active)racePhoneTools.setAttribute('aria-expanded','false');
 }
 racePhoneTools.addEventListener('click',()=>{
-  racePhoneTools.setAttribute('aria-expanded',String(racePhoneTools.getAttribute('aria-expanded')!=='true'));
+  const expanded=racePhoneTools.getAttribute('aria-expanded')!=='true';
+  racePhoneTools.setAttribute('aria-expanded',String(expanded));
+  if(racePhoneToolsActive())setFloatingControllerCollapsed(expanded);
   syncRacePhoneTools();
   if(racePhoneTools.getAttribute('aria-expanded')==='true')racePhoneRail.querySelector('button')?.focus();
   else racePhoneTools.focus();
 });
 racePhoneRail.addEventListener('keydown',event=>{
-  if(event.key==='Escape'&&racePhoneToolsActive()&&!CONTEXT_DETAILS.open){event.preventDefault();event.stopPropagation();racePhoneTools.setAttribute('aria-expanded','false');syncRacePhoneTools();racePhoneTools.focus();}
+  if(event.key==='Escape'&&racePhoneToolsActive()&&!CONTEXT_DETAILS.open){event.preventDefault();event.stopPropagation();racePhoneTools.setAttribute('aria-expanded','false');setFloatingControllerCollapsed(false);syncRacePhoneTools();racePhoneTools.focus();}
 },true);
 racePhoneControlHead.addEventListener('keydown',event=>{
   if(event.key==='Escape'&&racePhoneToolsActive()&&event.target===$('#controllerCollapseButton')&&!racePhoneControlHome.classList.contains('controller-collapsed')){event.preventDefault();setFloatingControllerCollapsed(true,{focus:true});}
@@ -54,7 +57,7 @@ racePhoneControlHead.addEventListener('keydown',event=>{
 new MutationObserver(syncRacePhoneTools).observe(document.documentElement,{attributes:true,attributeFilter:['data-kicklab-mode']});
 addEventListener('resize',syncRacePhoneTools);
 syncRacePhoneTools();
-racePhoneProgress.addEventListener('click',()=>{if(!racePhoneToolsActive())return;racePhoneTools.setAttribute('aria-expanded','false');syncRacePhoneTools();setContextDetail('orientation',{trigger:racePhoneProgress,focus:true});});
+racePhoneProgress.addEventListener('click',()=>{if(!racePhoneToolsActive())return;racePhoneTools.setAttribute('aria-expanded','false');setFloatingControllerCollapsed(false);syncRacePhoneTools();setContextDetail('orientation',{trigger:racePhoneProgress,focus:true});});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)clearRacePhoneNotices();});
 
 function contextPanel(name){return $(`#${name==='math'?'physics':name}Detail`);}
