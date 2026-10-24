@@ -49,7 +49,7 @@ report.failed=report.states.filter(row=>{
   if(row.renderer==='canvas')return row.fixture==='spinout'&&(!row.canvasTires||row.canvasTires.event!=='spinout'||row.canvasTires.marks<2||row.canvasTires.puffs<1);
   if(row.renderer!=='rendering')return false;
   if(row.fixture==='exhaust'||row.fixture==='normal-exhaust')return row.fx?.vapor<1;
-  if(row.fixture==='nos'||row.fixture==='nos-ignition')return !row.fx?.boost||row.fx.flameEnergy<.1||(!row.fx.reducedMotion&&!row.flamesVisible)||row.fx.reducedMotion&&row.flamesVisible;
+  if(row.fixture==='nos'||row.fixture==='nos-ignition')return !row.fx?.boost||row.fx.flameEnergy<.1||!row.flamesVisible;
   if(['launch','brake','brake-hot','brake-lock','drift','spinout'].includes(row.fixture))return row.fx?.markCount<2||(!row.fx.reducedMotion&&row.fx.tireSmoke<1)||row.fx?.tireEvent!==(row.fixture==='brake'||row.fixture==='brake-hot'?'brake-lock':row.fixture);
   if(row.fixture.startsWith('cutaway'))return !row.fx?.cutaway||!row.captionShown||row.fixture!=='cutaway'&&row.fx.cutaway.system!==row.fixture.slice('cutaway-'.length);
   return false;
