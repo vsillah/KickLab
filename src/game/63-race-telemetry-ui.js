@@ -7,6 +7,15 @@ const RACE_PHONE_SETUP_CUES={
   hill:'Climb the switchback on a clean line without sliding.',
   endurance:'Hold target speed on the straights; brake before each bend.'
 };
+function racePhoneLiveCue(mode,level,thermal,fallback){
+  if(['hot','critical','power-loss','cooling'].includes(thermal))return fallback;
+  if(!mode)return level?RACE_PROGRESSION.live(level,{slide:Race.st.slide,zone:Race.st.zone,distance:Race.P().L-Race.st.x}):fallback;
+  if(mode.id==='drag')return `Gear ${Race.modeAttempt?.gear||1}: shift in the bright band.`;
+  if(mode.id==='drift')return'Hold a controlled slide through each curve.';
+  if(mode.id==='hill')return'Brake before the switchback.';
+  if(mode.id==='circuit')return`Lap ${Math.min(2,(Race.modeAttempt?.laps||0)+1)}/2: repeat your braking point.`;
+  return'Hold steady speed; brake before each bend.';
+}
 function renderRaceTemperature(t){
   const stage=RACE_TELEMETRY.thermalStage(t),celsius=Math.round(65+t.heat*90),color={normal:'#70eac0',warming:'#f0cc72',hot:'#ffab63',critical:'#ff7478','power-loss':'#ff9b75',cooling:'#8ed9ec'}[stage];
   for(const id of ['raceTelemetryTemp','raceNavigationTemp','simTemp']){const arc=$('#'+id);arc.style.setProperty('--temp-angle',`${Math.round(t.heat*240)}deg`);arc.style.setProperty('--temp-color',color);arc.dataset.stage=stage;arc.querySelector('b').textContent=`${celsius}°`;arc.setAttribute('aria-label',`Engine temperature ${celsius} degrees Celsius, ${stage.replace('-',' ')}${t.overheat?', reduced power':''}`);}
@@ -29,6 +38,7 @@ function renderRaceTelemetry(){
   $('#raceCoachSetupSteering').hidden=!Race.expansionActive();if(Race.expansionActive())$('#raceCoachSetupSteering').textContent=Race.opt.steer==='auto'?'You steer':'Autopilot steering';
   if(setupPreview){if(Race.expansionActive()){const mode=Race.mode(),car=Race.vehicle();$('#raceCoachSetupTitle').textContent=`Coach Nia · ${mode.name}`;$('#raceCoachSetupTargets').textContent=matchMedia('(max-width:480px)').matches?RACE_PHONE_SETUP_CUES[mode.id]:`${mode.description} ${mode.target}`;$('#raceCoachSetupRecommendation').textContent=mode.id==='endurance'?`Choose your approach: ${RACE_MODES.endurancePlan()}`:`${car.name}: ${car.coach} ${car.modeSuitability[mode.id]} ${mode.garage}`;$('#raceCoachSetupStart').textContent='Start run';}else{const level=Race.progressionLevel();$('#raceCoachSetupTitle').textContent=`Coach Nia · ${level.name}`;$('#raceCoachSetupTargets').textContent=matchMedia('(max-width:480px)').matches?'Brake early, steer through the corner, then recover the exit line.':`Pass: ≤${level.time} s · slide ≤${level.slide} s · entry ≥${level.entry} km/h · brakes ≥${Math.round(level.brakeFactor*100)}%`;$('#raceCoachSetupRecommendation').textContent=`Try: ${RACE_PROGRESSION.setup(level)}.`;$('#raceCoachSetupStart').textContent='Start heat';}}
   if(setupPreview&&typeof RACE_CHAMP_UI!=='undefined'&&RACE_CHAMP_UI.active)raceChampionshipApplySetup();
+  if(resultReview)clearRacePhoneNotices();
   $('#raceCoachResult').hidden=!resultReview;
   if(resultReview){$('#raceCoachResultTitle').textContent=`Coach Nia · ${Race.expansionActive()?Race.mode().name:Race.progressionLevel().name} review`;$('#raceCoachResultMeasurements').textContent=Race.progressionComparison;$('#raceCoachResultRecommendation').textContent=Race.progressionReviewNote;const category=Race.expansionActive()?Race.mode().preferred:RACE_PROGRESSION.category(Race.progressionOutcome.failed);$('#raceCoachResultGarage').textContent=category?`Garage · ${category}`:'Garage & tuning';$('#raceCoachResultRetry').textContent=Race.expansionActive()?'Retry run':'Retry heat';}
   if(resultReview&&typeof RACE_CHAMP_UI!=='undefined'&&RACE_CHAMP_UI.active)raceChampionshipApplyResult();
@@ -51,6 +61,7 @@ function renderRaceTelemetry(){
   const thermalCue=mode?.id==='endurance'?coachCue:['hot','critical','power-loss','cooling'].includes(thermal)?cue:coachCue;
   const visibleCue=matchMedia('(max-width:480px)').matches?cue:thermalCue;
   const coachText=`Nia: ${visibleCue}`,coachButton=$('#raceTelemetryCue');
+  if(Race.state==='run')racePhoneNotice(racePhoneLiveCue(mode,level,thermal,cue),['hot','critical','power-loss'].includes(thermal)?'warn':'tip');
   if(coachButton.textContent!==coachText)coachButton.textContent=coachText;
   coachButton.title=thermalCue;
   coachButton.setAttribute('aria-label',`Coach Nia. ${thermalCue}${level||mode?' Activate for the full mode plan and Garage link.':''}`);
@@ -80,6 +91,7 @@ raceTelemetryEl.addEventListener('pointerdown',event=>event.stopPropagation());
 function raceCoachCueAction(trigger){
   if(M!==Race||!(Race.progressionActive()||Race.expansionActive()))return;
   if(typeof RACE_CHAMP_UI!=='undefined'&&RACE_CHAMP_UI.active){raceChampionshipOpenNotebook(trigger);return;}
+  if(racePhoneToolsActive()){setContextDetail('learn',{trigger,focus:true});return;}
   const level=Race.progressionActive()?Race.progressionLevel():null;
   const message=Race.expansionActive()?Race.progressionComparison||`${Race.mode().description} ${Race.mode().target} ${Race.mode().id==='endurance'?RACE_MODES.endurancePlan():Race.mode().garage}`:Race.progressionComparison||RACE_PROGRESSION.preview(level);
   document.querySelectorAll('#toasts .toast[aria-label="Coach Nia"]').forEach(note=>note.remove());
