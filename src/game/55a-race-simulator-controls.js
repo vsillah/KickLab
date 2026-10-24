@@ -23,10 +23,18 @@ function simPaint(){
   RACE_SIMULATOR.lastPhase=Race.state;
   simGuide();
   const now=performance.now();if(now-RACE_SIMULATOR.lastPaint<125)return;RACE_SIMULATOR.lastPaint=now;
-  $('#simWheel').style.setProperty('--sim-turn',`${Math.round(RACE_SIMULATOR.steer*70)}deg`);
+  const tilt=$('#simTilt'),reading=RACE_SIMULATOR.sensorReady&&RACE_SIMULATOR.permission==='granted';
+  const amount=Math.round(Math.abs(RACE_SIMULATOR.steer)*100),direction=!reading?'off':amount<5?'center':RACE_SIMULATOR.steer<0?'left':'right';
+  tilt.dataset.direction=direction;
+  tilt.style.setProperty('--sim-lean',`${Math.round(RACE_SIMULATOR.steer*24)}deg`);
+  tilt.style.setProperty('--sim-slide',`${Math.round(RACE_SIMULATOR.steer*9)}px`);
+  const tiltText=!RACE_SIMULATOR.active||RACE_SIMULATOR.permission==='idle'?'TILT OFF':RACE_SIMULATOR.permission==='denied'?'TILT DENIED':RACE_SIMULATOR.permission==='unavailable'?'NO SENSOR':!reading?'WAITING FOR TILT':direction==='center'?'TILT CENTERED':`TILT ${direction.toUpperCase()} ${amount}%`;
+  $('#simTiltReadout').textContent=tiltText;
+  tilt.setAttribute('aria-label',`Phone steering: ${tiltText.toLowerCase()}`);
+  if(reading&&simStatus.textContent.startsWith('Tilt '))simStatus.textContent=direction==='center'?'Tilt centered':`Tilt ${direction} ${amount}%`;
   const a=Race.modeAttempt,drag=Race.expansionActive()&&Race.mode().id==='drag',ratio=a?Race.st.v/Math.max(1,Race.P().top):0;
   const band=a&&a.gear<4?[.27,.49,.73][a.gear-1]:1;
-  $('#simGear').textContent=drag&&a?`G${a.gear} · ${Math.round(ratio*100)}% · ${ratio<band-.1?'wait':ratio>band+.07?'late':'shift'}`:Race.mode().id==='endurance'&&a?`L${Math.min(3,a.laps+1)}/3`:`Tilt ${Math.round(RACE_SIMULATOR.steer*100)}%`;
+  $('#simGear').textContent=drag&&a?`G${a.gear} · ${Math.round(ratio*100)}% · ${ratio<band-.1?'wait':ratio>band+.07?'late':'shift'}`:Race.mode().id==='endurance'&&a?`L${Math.min(3,a.laps+1)}/3`:'PHONE STEERING';
   const launch=$('#simLaunch');launch.textContent=Race.state==='run'?(drag?'Shift · flick ↑':Race.mode().id==='drift'?'Steer · pull ↓':'Tilt · flick ↑'):RACE_SIMULATOR.revTaps>=3?'Release at green':`Brake · tap ×${Math.max(0,3-RACE_SIMULATOR.revTaps)} · release`;launch.setAttribute('aria-label',Race.state==='run'?(drag?'Hold throttle, shift in the band, flick up from throttle for NOS':Race.mode().id==='drift'?'Steer through the curve and pull the handbrake to drift':'Hold throttle, steer by tilt, flick up from throttle for NOS'):'Hold brake, tap throttle three times, then release brake at green while holding throttle');
 }
 function simCancel(reason='Input cancelled',stopSensor=false){
@@ -36,7 +44,7 @@ function simCancel(reason='Input cancelled',stopSensor=false){
   RACE_SIMULATOR.pointers.clear();RACE_SIMULATOR.brake=false;RACE_SIMULATOR.gas=false;RACE_SIMULATOR.revTaps=0;RACE_SIMULATOR.launchQueued=false;RACE_SIMULATOR.releaseAt=0;RACE_SIMULATOR.steer=0;
   simPanel.querySelectorAll('.on').forEach(node=>node.classList.remove('on'));
   if(stopSensor){window.removeEventListener('deviceorientation',simOrientation);RACE_SIMULATOR.sensorReady=false;RACE_SIMULATOR.center=null;RACE_SIMULATOR.lastAngle=null;}
-  simMessage(reason);simPaint();
+  RACE_SIMULATOR.lastPaint=0;simMessage(reason);simPaint();
 }
 function simSelect(on){
   if(!simFlag)return;
@@ -58,12 +66,12 @@ function simOrientation(event){
 }
 async function simEnable(){
   if(!simAllowed()||!RACE_SIMULATOR.active)return;
-  if(typeof DeviceOrientationEvent==='undefined'){RACE_SIMULATOR.permission='unavailable';simMessage('Tilt unavailable. Use Classic or Analog controls.');return;}
+  if(typeof DeviceOrientationEvent==='undefined'){RACE_SIMULATOR.permission='unavailable';simMessage('Tilt unavailable. Use Classic or Analog controls.');RACE_SIMULATOR.lastPaint=0;simPaint();return;}
   try{
     const permission=typeof DeviceOrientationEvent.requestPermission==='function'?await DeviceOrientationEvent.requestPermission():'granted';
-    if(permission!=='granted'){RACE_SIMULATOR.permission='denied';simMessage('Tilt denied. Use Classic or Analog controls.');return;}
-    RACE_SIMULATOR.permission='granted';window.removeEventListener('deviceorientation',simOrientation);window.addEventListener('deviceorientation',simOrientation,{passive:true});simMessage('Hold the device naturally; first reading sets center.');
-  }catch(_){RACE_SIMULATOR.permission='denied';simMessage('Tilt permission unavailable. Use Classic or Analog controls.');}
+    if(permission!=='granted'){RACE_SIMULATOR.permission='denied';simMessage('Tilt denied. Use Classic or Analog controls.');RACE_SIMULATOR.lastPaint=0;simPaint();return;}
+    RACE_SIMULATOR.permission='granted';window.removeEventListener('deviceorientation',simOrientation);window.addEventListener('deviceorientation',simOrientation,{passive:true});simMessage('Hold the device naturally; first reading sets center.');RACE_SIMULATOR.lastPaint=0;simPaint();
+  }catch(_){RACE_SIMULATOR.permission='denied';simMessage('Tilt permission unavailable. Use Classic or Analog controls.');RACE_SIMULATOR.lastPaint=0;simPaint();}
 }
 function simInput(id,down){if(!simAllowed()||!RACE_SIMULATOR.active)return;
   const s=RACE_SIMULATOR,now=performance.now();
