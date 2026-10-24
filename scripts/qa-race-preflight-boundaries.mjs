@@ -17,6 +17,7 @@ try{
   {
     const context=await browser.newContext({viewport:{width:390,height:844},reducedMotion:'reduce'}),{page,errors}=await enter(context,base+'&racePreflight=prototype&raceChampionship=prototype');
     await page.waitForFunction(()=>globalThis.__KICKLAB_RACE_PREFLIGHT_QA__?.state().open,{timeout:10000});
+    if(await page.locator('#racePreflight video').count())throw Error('Reduced-motion route started video');
     const before=await page.evaluate(()=>({saved:globalThis.__KICKLAB_RACE_PREFLIGHT_QA__.state().saved,storage:localStorage.getItem('kicklab.profiles.v1')}));
     await page.locator('[data-preflight-mode="hill"]').click();
     await page.waitForFunction(()=>document.activeElement?.dataset.preflightMode==='hill',{timeout:1500}).catch(()=>{});
@@ -40,9 +41,30 @@ try{
     const context=await browser.newContext({viewport:{width:390,height:844}});await context.addInitScript(()=>{const original=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(kind,...args){return kind==='webgl'||kind==='webgl2'?null:original.call(this,kind,...args);};});
     const {page,errors}=await enter(context,base+'&racePreflight=prototype');
     await page.waitForFunction(()=>globalThis.__KICKLAB_RACE_PREFLIGHT_QA__?.state().open,{timeout:5000});
+    if(await page.locator('#racePreflight video').count())throw Error('Canvas fallback route started video');
     const fallback=await page.evaluate(()=>({status:globalThis.__KICKLAB_RACE_3D__?.status,canvas:getComputedStyle(document.querySelector('#cv')).display}));
     if(fallback.status!=='canvas-fallback'||fallback.canvas!=='block'||errors.length)throw Error(`Canvas fallback failed: ${JSON.stringify({fallback,errors})}`);
     results.push({case:'canvas-fallback',pass:true});await context.close();
+  }
+  {
+    const context=await browser.newContext({viewport:{width:390,height:844}}),page=await context.newPage(),errors=[];
+    page.on('pageerror',error=>errors.push(error.message));
+    await page.route('**/media/race-preflight/*.mp4',route=>route.abort());
+    await page.goto(base+'&racePreflight=prototype',{waitUntil:'domcontentloaded'});
+    if(await page.locator('#profileFormSave').isVisible())await page.click('#profileFormSave');
+    if(await page.locator('#profileClose').isVisible())await page.click('#profileClose');
+    await page.click('#lab-tab-race');
+    if(await page.locator('.race-orbit-panel button').isVisible())await page.locator('.race-orbit-panel button').click();
+    await page.waitForFunction(()=>globalThis.__KICKLAB_RACE_PREFLIGHT_QA__?.state().open,{timeout:20000});
+    await page.locator('[data-preflight-mode="drag"] .race-preflight-media-fallback').waitFor({state:'visible',timeout:10000});
+    for(let phase=0;phase<3;phase++)await page.click('#racePreflightNext');
+    await page.locator('.race-preflight-grid-car .race-preflight-media-fallback').waitFor({state:'visible',timeout:10000});
+    await page.click('#racePreflightNext');
+    await page.waitForFunction(()=>!globalThis.__KICKLAB_RACE_PREFLIGHT_QA__?.state().open,{timeout:10000});
+    if(await page.locator('.race-orbit-panel button').isVisible())await page.locator('.race-orbit-panel button').click();
+    await page.waitForFunction(()=>['count','run'].includes(globalThis.__KICKLAB_RACE_MODES_QA__?.state().phase),{timeout:20000});
+    if(errors.length)throw Error(`Local clip fallback errors: ${errors.join('; ')}`);
+    results.push({case:'local-video-unavailable',pass:true});await context.close();
   }
   console.log(JSON.stringify(results,null,2));
 }finally{await browser.close();}

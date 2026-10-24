@@ -1757,7 +1757,7 @@ html[data-race-champ-active="true"] .race-coach-setup{border-color:rgba(127,220,
 html[data-race-preflight="prototype"] #raceCoachSetup .race-coach-setup-actions{display:none!important}
 .race-preflight[hidden]{display:none!important}
 .race-preflight{position:fixed;inset:0;z-index:1200;background:radial-gradient(circle at 75% 5%,#28495b 0,transparent 38%),#08121f;color:#eef7f7;overflow:auto;overscroll-behavior:contain}
-.race-preflight-shell{width:min(1380px,100%);min-height:100dvh;margin:auto;padding:clamp(15px,2vw,32px);display:flex;flex-direction:column;gap:16px}
+.race-preflight-shell{box-sizing:border-box;width:min(1380px,100%);min-height:100dvh;margin:auto;padding:clamp(15px,2vw,32px);display:flex;flex-direction:column;gap:16px}
 .race-preflight button{font:inherit;color:inherit;cursor:pointer}
 .race-preflight button:focus-visible{outline:3px solid #f6d26c;outline-offset:3px}
 .race-preflight-header,.race-preflight-footer{display:flex;align-items:center;justify-content:space-between;gap:16px}
@@ -1781,21 +1781,28 @@ html[data-race-preflight="prototype"] #raceCoachSetup .race-coach-setup-actions{
 .race-preflight-route{min-width:0;min-height:270px;display:flex;flex-direction:column;text-align:left;border:1px solid #456774;border-radius:18px;padding:0;overflow:hidden;background:#102933}
 .race-preflight-route[aria-pressed=true],.race-preflight-roster button[aria-pressed=true],.race-preflight-part-options button[aria-pressed=true],.race-preflight-control-options button[aria-pressed=true]{border-color:#b9f3df;box-shadow:inset 0 0 0 2px #7bd9c1}
 .race-preflight-route:disabled{opacity:.48;cursor:default}
-.race-preflight-route-art{height:115px;position:relative;display:block;overflow:hidden;background:linear-gradient(120deg,#213c4d99,#274c4899),url('media/home-previews/race-poster.png') center/cover}
-.race-preflight-route-art:after{content:"";position:absolute;inset:21px 20%;border:6px dashed #e8f1d3;border-radius:45%;transform:rotate(-14deg)}
-.race-preflight-route-art.route-drag:after{inset:55px 10% auto;border:0;border-top:6px dashed #e8f1d3;border-radius:0;transform:rotate(-7deg)}
-.race-preflight-route-art.route-drift:after{border-radius:50% 10% 50% 10%;transform:rotate(24deg)}
-.race-preflight-route-art.route-hill:after{border-radius:10% 60% 10% 60%;transform:rotate(-26deg)}
-.race-preflight-route-art.route-endurance:after{inset:14px 28%;border-radius:50%}
-.race-preflight-route-art b{position:absolute;z-index:1;top:12px;left:14px;font-size:22px;text-shadow:0 2px 8px #000}
-.race-preflight-route-copy{display:flex;flex-direction:column;gap:5px;padding:13px 15px}
+.race-preflight-route-art{height:145px;position:relative;display:block;overflow:hidden;background:#24414a}
+.race-preflight-route-art:after{content:"";position:absolute;inset:35% 0 0;background:linear-gradient(transparent,#071725bd);pointer-events:none}
+.race-preflight-route-art b,.race-preflight-route-art em{position:absolute;z-index:1;text-shadow:0 2px 8px #000}
+.race-preflight-route-art b{top:12px;left:14px;font-size:22px}
+.race-preflight-route-art em{bottom:10px;left:14px;font-size:11px;font-style:normal;letter-spacing:.08em;text-transform:uppercase;color:#dbf5ef}
+.race-preflight-route-copy{display:flex;flex-direction:column;gap:5px;padding:13px 15px;background:linear-gradient(180deg,#152f3e,#0a1c2d)}
 .race-preflight-route-copy small{color:#84e2c8;font-size:11px;text-transform:uppercase;letter-spacing:.08em}
 .race-preflight-route-copy strong{font-size:21px;line-height:1.1}
 .race-preflight-route-copy span{color:#cadbdc;font-size:13px}
 .race-preflight-route-copy em{color:#f3d891;font-size:12px;font-style:normal;line-height:1.4}
+.race-preflight-route-copy .race-preflight-route-enter{margin-top:auto;padding-top:11px;color:#a8ead6;font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}
 .race-preflight-showroom{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(300px,.7fr);gap:20px}
 .race-preflight-feature,.race-preflight-tune-preview,.race-preflight-grid-car{border:1px solid #4e7175;background:linear-gradient(145deg,#1e3b44,#0d2431);border-radius:20px;overflow:hidden}
-.race-preflight-feature img,.race-preflight-tune-preview img,.race-preflight-grid-car img{display:block;width:100%;max-height:420px;object-fit:contain}
+.race-preflight-media{display:block;position:relative;aspect-ratio:16/10;overflow:hidden;background:#122833}
+.race-preflight-media video,.race-preflight-media img{display:block;width:100%;height:100%;object-fit:cover}
+.race-preflight-media img[hidden]{display:none}
+.race-preflight-media-fallback{position:absolute;bottom:12px;left:12px;z-index:2;background:#061925d9;border:1px solid #9bcac5;border-radius:6px;padding:5px 8px;color:#e5f3ef;font-size:11px}
+.race-preflight-media-fallback[hidden]{display:none}
+.race-preflight-feature .race-preflight-media{aspect-ratio:16/9}
+.race-preflight-tune-preview .race-preflight-media{aspect-ratio:16/9}
+.race-preflight-grid-car .race-preflight-media{aspect-ratio:16/9}
+.race-preflight-route-art .race-preflight-media{height:100%;aspect-ratio:auto}
 .race-preflight-feature>div{padding:14px 20px 20px}
 .race-preflight-feature h3,.race-preflight-grid h3{font:800 clamp(30px,4vw,56px)/1 var(--f-display);margin:8px 0}
 .race-preflight-feature p{margin:6px 0}
@@ -1811,6 +1818,11 @@ html[data-race-preflight="prototype"] #raceCoachSetup .race-coach-setup-actions{
 .race-preflight-tune-layout{display:grid;grid-template-columns:minmax(280px,.85fr) minmax(0,1.15fr);gap:18px}
 .race-preflight-deltas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:13px}
 .race-preflight-deltas b{font-size:13px}.race-preflight-deltas em{font-size:11px;font-style:normal;color:#ffdc8f}
+.race-preflight-tune-focus{display:flex;gap:10px;align-items:center;padding:12px 15px;background:#0a202ce8;border-top:1px solid #5d8884;color:#dff4ed;font-size:12px;line-height:1.35}
+.race-preflight-tune-focus b{flex:0 0 auto;color:#ffd990;text-transform:uppercase;letter-spacing:.06em}
+.race-preflight-tune-preview:has([data-focus="tires"]) .race-preflight-media video{transform:scale(1.16);transform-origin:50% 75%}
+.race-preflight-tune-preview:has([data-focus="brakes"]) .race-preflight-media video{transform:scale(1.23);transform-origin:43% 76%}
+.race-preflight-tune-preview:has([data-focus="suspension"]) .race-preflight-media video{transform:scale(1.1);transform-origin:50% 56%}
 .race-preflight-parts{display:flex;flex-direction:column;gap:10px}
 .race-preflight-parts fieldset{min-width:0;border:1px solid #4b6d73;border-radius:14px;padding:11px;background:#122d38}
 .race-preflight-parts legend{font-weight:800;padding:0 8px;color:#eaf8f2}
@@ -1820,7 +1832,17 @@ html[data-race-preflight="prototype"] #raceCoachSetup .race-coach-setup-actions{
 .race-preflight-parts fieldset p{font-size:12px;color:#d6e7df;margin:9px 0 0}
 .race-preflight-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(300px,.85fr);gap:22px}
 .race-preflight-grid-car{display:flex;flex-direction:column;justify-content:center;position:relative}
-.race-preflight-grid-car span{padding:15px 20px;font-size:12px;letter-spacing:.15em;color:#ffd587}
+.race-preflight-grid-caption{padding:15px 20px;font-size:12px;letter-spacing:.15em;color:#ffd587}
+.race-preflight-grid-rev{position:absolute;z-index:2;left:18px;top:18px;display:none;align-items:end;gap:4px;padding:8px 10px;background:#071c28db;border:1px solid #8fc7bf;border-radius:9px}
+.race-preflight-grid-rev small{margin-right:6px;color:#ffe2a6;font:700 10px var(--f-mono);letter-spacing:.08em}
+.race-preflight-grid-rev i{display:block;width:5px;height:8px;background:#70d8bc;border-radius:2px}
+html[data-race-preflight-arriving="true"] .race-preflight-grid-rev{display:flex}
+html[data-race-preflight-arriving="true"] .race-preflight-grid-rev i{animation:racePreflightRev 5.4s ease-in-out once}
+html[data-race-preflight-arriving="true"] .race-preflight-grid-rev i:nth-of-type(2){animation-delay:.06s}
+html[data-race-preflight-arriving="true"] .race-preflight-grid-rev i:nth-of-type(3){animation-delay:.12s}
+html[data-race-preflight-arriving="true"] .race-preflight-grid-rev i:nth-of-type(4){animation-delay:.18s}
+html[data-race-preflight-arriving="true"] .race-preflight-grid-rev i:nth-of-type(5){animation-delay:.24s}
+@keyframes racePreflightRev{0%,55%,100%{height:8px;background:#70d8bc}72%{height:22px;background:#ffe290}82%{height:31px;background:#ff805d}}
 .race-preflight-grid-brief{display:flex;flex-direction:column;gap:12px;padding:18px;border:1px solid #4e7175;border-radius:20px;background:#122c37}
 .race-preflight-grid-brief p{margin:0;color:#d8e8e6}
 .race-preflight-grid-brief dl{margin:0;display:grid;gap:8px}
