@@ -34,8 +34,9 @@ async function scene(width,height,graphics='3d',motion='no-preference'){
     for(const time of ['day','dusk','night']){
       if(time!=='day'||shot==='dribble')await choose(page,'time',time);
       await page.waitForTimeout(400);
-      const audit=await page.evaluate(()=>({lighting:window.__KICKLAB_LIGHTING_AUDIT__||null,fallback:window.__KICKLAB_FALLBACK_ENV__||null,stage:document.querySelector('.stage')?.getBoundingClientRect().toJSON(),canvas3:getComputedStyle(document.querySelector('#cv3')||document.querySelector('#cv')).display,overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,context:document.querySelector('#environmentContextLabel')?.textContent||'',reduced:matchMedia('(prefers-reduced-motion: reduce)').matches}));
+      const audit=await page.evaluate(()=>({lighting:window.__KICKLAB_LIGHTING_AUDIT__||null,stands:window.__KICKLAB_STAND_LIGHTING__||null,fallback:window.__KICKLAB_FALLBACK_ENV__||null,stage:document.querySelector('.stage')?.getBoundingClientRect().toJSON(),canvas3:getComputedStyle(document.querySelector('#cv3')||document.querySelector('#cv')).display,overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,context:document.querySelector('#environmentContextLabel')?.textContent||'',reduced:matchMedia('(prefers-reduced-motion: reduce)').matches}));
       if(graphics==='3d'&&audit.lighting?.time!==time)throw new Error(`${label} ${shot} ${time}: 3D lighting missing`);
+      if(graphics==='3d'&&(audit.stands?.time!==time||audit.stands.standLights!==2||!audit.stands.canopyShadows||audit.stands.pool!==(time==='night'?520:time==='dusk'?45:0)))throw new Error(`${label} ${shot} ${time}: stand lighting missing`);
       if(graphics==='2d'&&audit.fallback?.time!==time)throw new Error(`${label} ${shot} ${time}: Canvas palette missing`);
       if(!audit.context.includes(time[0].toUpperCase()+time.slice(1)))throw new Error(`${label} ${shot} ${time}: context missing time`);
       await page.locator('.stage').scrollIntoViewIfNeeded();const file=join(out,`${label}-${shot}-${time}.png`);await page.screenshot({path:file});
