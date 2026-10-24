@@ -1,12 +1,22 @@
 /* The same telemetry surface lives inside the shared Classic/Analog controller. */
 const raceTelemetryEl=$('#raceTelemetry');
-const RACE_PHONE_SETUP_CUES={
-  drag:'Shift at the bright RPM band, then carry speed through the trap.',
-  drift:'Build speed, then hold a controlled slide through each curve.',
-  circuit:'Complete two laps. Brake before turns and keep the car settled.',
-  hill:'Climb the switchback on a clean line without sliding.',
-  endurance:'Hold target speed on the straights; brake before each bend.'
+$('.stage').tabIndex=-1;
+const RACE_SETUP_RECOMMENDATIONS={
+  drag:'narrow tires for speed, wide tires for grip',
+  drift:'soft suspension for recovery',
+  circuit:'endurance brakes for repeated stops',
+  hill:'lighter body and grippy tires for the climb',
+  endurance:'balanced tires and cooling brakes'
 };
+let raceStartKeyboardFocus=false;
+let raceStartFocusAttempts=0;
+function focusRaceControllerAfterStart(){
+  if(!raceStartKeyboardFocus||M!==Race||Race.state!=='run'||PAUSE.on)return;
+  const target=RACE_SIMULATOR.active?$('#simBrake'):$('#analogControlsButton').getAttribute('aria-pressed')==='true'?$('#analogStick'):$('#padR [data-id="gas"]');
+  if(target&&target.getClientRects().length&&getComputedStyle(target).visibility==='visible'){raceStartKeyboardFocus=false;raceStartFocusAttempts=0;target.focus({preventScroll:true});return;}
+  if(++raceStartFocusAttempts<20){requestAnimationFrame(focusRaceControllerAfterStart);return;}
+  raceStartKeyboardFocus=false;raceStartFocusAttempts=0;$('.stage').focus({preventScroll:true});
+}
 function racePhoneLiveCue(mode,level,thermal,fallback){
   if(['hot','critical','power-loss','cooling'].includes(thermal))return fallback;
   if(!mode)return level?RACE_PROGRESSION.live(level,{slide:Race.st.slide,zone:Race.st.zone,distance:Race.P().L-Race.st.x}):fallback;
@@ -25,6 +35,10 @@ function renderRaceTelemetry(){
   const coachActive=Race.progressionActive()||Race.expansionActive();
   const setupPreview=active&&coachActive&&Race.state==='grid'&&(!RACE_3D.on||RACE_3D.orbit.done);
   const resultReview=active&&coachActive&&!!Race.progressionComparison&&['done','crashed'].includes(Race.state);
+  const stageStart=$('#raceStageStart'),simulatorStart=setupPreview&&typeof RACE_SIMULATOR!=='undefined'&&RACE_SIMULATOR.active;
+  stageStart.hidden=!setupPreview||PAUSE.on||$('#racePhoneToolsToggle').getAttribute('aria-expanded')==='true'||$('.stage').classList.contains('has-game-overlay');
+  $('#raceCoachSetupStart').hidden=!setupPreview||simulatorStart;
+  $('#simStart').hidden=!simulatorStart;
   floatingControlDeck.classList.toggle('race-setup-preview',setupPreview);
   floatingControlDeck.classList.toggle('race-awaiting-coach',active&&coachActive&&Race.state==='grid'&&!setupPreview);
   floatingControlDeck.classList.toggle('race-result-review',resultReview);
@@ -42,8 +56,9 @@ function renderRaceTelemetry(){
     $('#raceCoachSetupSimulator').setAttribute('aria-pressed',String(simulator));
   }
   $('#raceCoachSetupSteering').hidden=!Race.expansionActive();if(Race.expansionActive())$('#raceCoachSetupSteering').textContent=Race.opt.steer==='auto'?'You steer':'Autopilot steering';
-  if(setupPreview){if(Race.expansionActive()){const mode=Race.mode(),car=Race.vehicle();$('#raceCoachSetupTitle').textContent=`Coach Nia · ${mode.name}`;$('#raceCoachSetupTargets').textContent=matchMedia('(max-width:480px)').matches?RACE_PHONE_SETUP_CUES[mode.id]:`${mode.description} ${mode.target}`;$('#raceCoachSetupRecommendation').textContent=mode.id==='endurance'?`Choose your approach: ${RACE_MODES.endurancePlan()}`:`${car.name}: ${car.coach} ${car.modeSuitability[mode.id]} ${mode.garage}`;$('#raceCoachSetupStart').textContent='Start run';}else{const level=Race.progressionLevel();$('#raceCoachSetupTitle').textContent=`Coach Nia · ${level.name}`;$('#raceCoachSetupTargets').textContent=matchMedia('(max-width:480px)').matches?'Brake early, steer through the corner, then recover the exit line.':`Pass: ≤${level.time} s · slide ≤${level.slide} s · entry ≥${level.entry} km/h · brakes ≥${Math.round(level.brakeFactor*100)}%`;$('#raceCoachSetupRecommendation').textContent=`Try: ${RACE_PROGRESSION.setup(level)}.`;$('#raceCoachSetupStart').textContent='Start heat';}}
+  if(setupPreview){if(Race.expansionActive()){const mode=Race.mode(),car=Race.vehicle();$('#raceCoachSetupTitle').textContent=mode.name;$('#raceCoachSetupTargets').textContent=mode.target;$('#raceCoachSetupRecommendation').textContent=`Suggested: ${car.name} · ${RACE_SETUP_RECOMMENDATIONS[mode.id]}.`;$('#raceCoachSetupStart').textContent='Start heat';$('#simStart span').textContent='Start heat';}else{const level=Race.progressionLevel();$('#raceCoachSetupTitle').textContent=level.name;$('#raceCoachSetupTargets').textContent=`Pass: ≤${level.time} s · slide ≤${level.slide} s · entry ≥${level.entry} km/h`;$('#raceCoachSetupRecommendation').textContent=`Suggested: ${RACE_PROGRESSION.setup(level)}.`;$('#raceCoachSetupStart').textContent='Start heat';$('#simStart span').textContent='Start heat';}}
   if(setupPreview&&typeof RACE_CHAMP_UI!=='undefined'&&RACE_CHAMP_UI.active)raceChampionshipApplySetup();
+  if(setupPreview&&$('#raceCoachSetupTitle').textContent.startsWith('Coach Nia · '))$('#raceCoachSetupTitle').textContent=$('#raceCoachSetupTitle').textContent.slice(12);
   if(resultReview)clearRacePhoneNotices();
   $('#raceCoachResult').hidden=!resultReview;
   if(resultReview){$('#raceCoachResultTitle').textContent=`Coach Nia · ${Race.expansionActive()?Race.mode().name:Race.progressionLevel().name} review`;$('#raceCoachResultMeasurements').textContent=Race.progressionComparison;$('#raceCoachResultRecommendation').textContent=Race.progressionReviewNote;const category=Race.expansionActive()?Race.mode().preferred:RACE_PROGRESSION.category(Race.progressionOutcome.failed);$('#raceCoachResultGarage').textContent=category?`Garage · ${category}`:'Garage & tuning';$('#raceCoachResultRetry').textContent=Race.expansionActive()?'Retry run':'Retry heat';}
@@ -77,13 +92,13 @@ function renderRaceTelemetry(){
   globalThis.__KICKLAB_RACE_TELEMETRY__={enabled:true,selected:t.selected,recommended:t.recommended,manual:t.manualUntil>t.clock,phase:t.phase,thermalStage:thermal,powerFactor:RACE_TELEMETRY.powerFactor(t),overheat:t.overheat,heat:t.heat,pressure:t.pressure,nosPulse:t.nosPulse,lock:t.lock,clock:t.clock,collapsed:FLOATING_CONTROLLER.collapsed};
 }
 function raceTelemetryAction(action){if(!RACE_TELEMETRY.enabled||M!==Race||!Race.telemetry||PAUSE.on||RP.on)return;const changed=RACE_TELEMETRY.tune(Race.telemetry,action);if(changed){renderRaceTelemetry();if(action==='apply'){requestMobileHaptic('tick');}else SND.click();}}
-$('#raceCoachSetupStart').addEventListener('click',()=>{if(M!==Race||!(Race.progressionActive()||Race.expansionActive())||Race.state!=='grid'||RACE_3D.shouldBlockInput()||PAUSE.on)return;Race.coachStartRequested=true;Race.press('gas',true);Race.press('gas',false);renderRaceTelemetry();});
+$('#raceCoachSetupStart').addEventListener('click',event=>{if(M!==Race||!(Race.progressionActive()||Race.expansionActive())||Race.state!=='grid'||RACE_3D.shouldBlockInput()||PAUSE.on)return;raceStartKeyboardFocus=event.detail===0;Race.coachStartRequested=true;Race.press('gas',true);Race.press('gas',false);renderRaceTelemetry();$('#gamePacingA11y').textContent='Race lights started. Wait for green.';if(raceStartKeyboardFocus)($('#gamePacingOverlay').hidden?$('.stage'):$('#gamePacingOverlay')).focus({preventScroll:true});});
 $('#raceCoachSetupClassic').addEventListener('click',()=>{if(M!==Race||!Race.expansionActive()||Race.state!=='grid')return;if(RACE_SIMULATOR.active)simSelect(false);setPrototypeControls(false);renderRaceTelemetry();});
 $('#raceCoachSetupControls').addEventListener('click',()=>{if(M!==Race||!Race.expansionActive()||Race.state!=='grid')return;if(RACE_SIMULATOR.active)simSelect(false);setPrototypeControls(true);renderRaceTelemetry();});
 $('#raceCoachSetupSteering').addEventListener('click',()=>{if(typeof raceMultiplayerLocked==='function'&&raceMultiplayerLocked()){COACH.say('Coach Nia: Steering assist is frozen for both seats. Abandon to change it.','tip',5);return;}if(M!==Race||!Race.expansionActive()||Race.state!=='grid')return;Race.opt.steer=Race.opt.steer==='auto'?'you':'auto';renderRaceTelemetry();});
 $('#raceCoachSetupVehicle').addEventListener('click',event=>{if(M!==Race||!Race.expansionActive()||Race.state!=='grid')return;GARAGE_UI.active='body';openSettings('garage',event.currentTarget);});
 $('#raceCoachSetupGarage').addEventListener('click',event=>{if(M!==Race||!(Race.progressionActive()||Race.expansionActive())||Race.state!=='grid')return;GARAGE_UI.active=typeof RACE_CHAMP_UI!=='undefined'&&RACE_CHAMP_UI.active?RACE_CHAMP.EVENTS[RACE_CHAMP_UI.selected].category:Race.expansionActive()?Race.mode().preferred:'tires';openSettings('garage',event.currentTarget);});
-function prepareRaceCoachRetry(){if(M!==Race||!(Race.progressionActive()||Race.expansionActive())||!['done','crashed'].includes(Race.state))return;hideResults();Race.reset();if(RACE_3D.ready&&!RACE_3D.failed){RACE_3D.orbit.phase='done';RACE_3D.orbit.done=true;}renderActions();renderRaceTelemetry();requestAnimationFrame(() => $('#raceCoachSetupStart').focus());}
+function prepareRaceCoachRetry(){if(M!==Race||!(Race.progressionActive()||Race.expansionActive())||!['done','crashed'].includes(Race.state))return;hideResults();Race.reset();if(RACE_3D.ready&&!RACE_3D.failed){RACE_3D.orbit.phase='done';RACE_3D.orbit.done=true;}renderActions();renderRaceTelemetry();requestAnimationFrame(() => (RACE_SIMULATOR.active?$('#simStart'):$('#raceCoachSetupStart')).focus());}
 $('#raceCoachResultGarage').addEventListener('click',event=>{if(M!==Race||!(Race.progressionActive()||Race.expansionActive())||!Race.progressionOutcome)return;GARAGE_UI.active=typeof RACE_CHAMP_UI!=='undefined'&&RACE_CHAMP_UI.active?RACE_CHAMP.EVENTS[RACE_CHAMP_UI.selected].category:Race.expansionActive()?Race.mode().preferred:RACE_PROGRESSION.category(Race.progressionOutcome.failed)||'body';GARAGE_UI.returnToRaceRetry=true;openSettings('garage',event.currentTarget);});
 $('#raceCoachResultRetry').addEventListener('click',prepareRaceCoachRetry);
 $('#simResultGarage').addEventListener('click',()=>$('#raceCoachResultGarage').click());

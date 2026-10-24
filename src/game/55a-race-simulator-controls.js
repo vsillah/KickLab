@@ -53,6 +53,7 @@ function simSelect(on){
   if(on){setPrototypeControls(false);RACE_SIMULATOR.active=true;floatingControlDeck.classList.add('simulator-active');simPanel.hidden=false;simButton.setAttribute('aria-pressed','true');classicControlsButton.setAttribute('aria-pressed','false');simMessage('Enable tilt, then recenter at a comfortable hold.');}
   else{RACE_SIMULATOR.active=false;floatingControlDeck.classList.remove('simulator-active');simPanel.hidden=true;simButton.setAttribute('aria-pressed','false');classicControlsButton.setAttribute('aria-pressed','true');}
   simPaint();
+  renderRaceTelemetry();
 }
 function simOrientation(event){
   if(!simAllowed()||!RACE_SIMULATOR.active)return;
@@ -117,7 +118,7 @@ function simRecenter(){RACE_SIMULATOR.center=RACE_SIMULATOR.lastAngle;RACE_SIMUL
 $('#simRecenter').addEventListener('click',simRecenter);
 $('#simLiveRecenter').addEventListener('click',simRecenter);
 for(const [id,suffix] of [['simDeadZone','°'],['simSensitivity','×']])$('#'+id).addEventListener('input',event=>{$('#'+id+'Value').textContent=event.target.value+suffix;});
-$('#simStart').addEventListener('click',()=>{if(!simAllowed()||Race.state!=='grid')return;Race.coachStartRequested=true;Race.press('gas',true);Race.press('gas',false);simMessage('Lights running · hold brake, tap throttle 3×, release at green.');simPaint();});
+$('#simStart').addEventListener('click',event=>{if(!simAllowed()||Race.state!=='grid'||RACE_3D.shouldBlockInput())return;raceStartKeyboardFocus=event.detail===0;Race.coachStartRequested=true;Race.press('gas',true);Race.press('gas',false);simMessage('Lights running · hold brake, tap throttle 3×, release at green.');simPaint();renderRaceTelemetry();$('#gamePacingA11y').textContent='Race lights started. Wait for green.';if(raceStartKeyboardFocus)($('#gamePacingOverlay').hidden?$('.stage'):$('#gamePacingOverlay')).focus({preventScroll:true});});
 $('#simResume').addEventListener('click',()=>{if(resumeGame())simMessage('Play resumed. Enable tilt and recenter.');else simMessage('Close the active panel, then resume play.');});
 for(const [element,id] of [['simBrake','brake'],['simGas','gas']]){
   const button=$('#'+element),up=(event,cancelled=false)=>{

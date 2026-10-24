@@ -24,6 +24,9 @@ const assert3d=async step=>{
   if(state.graphics!=='3d'||state.renderer!=='rendering'||!state.vehicle||!state.canvas||state.visible==='none')throw new Error(`${step}: ${JSON.stringify(state)}`);
   return {step,...state};
 };
+const assertStageStart=async selector=>{
+  if(!await page.locator('#raceStageStart').isVisible()||!await page.locator(selector).isVisible())throw new Error(`Stage Start missing: ${selector}`);
+};
 const states=[];
 try{
   await page.goto(url,{waitUntil:'networkidle'});
@@ -36,14 +39,17 @@ try{
   await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.orbit?.done===true,null,{timeout:10000});
   await page.evaluate(()=>window.scrollTo(0,220));
   states.push(await assert3d('Classic setup'));
+  await assertStageStart('#raceCoachSetupStart');
   await page.screenshot({path:resolve(output,'classic-3d.png')});
   await page.waitForTimeout(1000);
   await page.locator('#raceCoachSetupControls').click();
   states.push(await assert3d('Analog setup'));
+  await assertStageStart('#raceCoachSetupStart');
   await page.screenshot({path:resolve(output,'analog-3d.png')});
   await page.waitForTimeout(1000);
   await page.locator('#raceCoachSetupSimulator').click();
   states.push(await assert3d('Simulator setup'));
+  await assertStageStart('#simStart');
   await page.screenshot({path:resolve(output,'simulator-3d.png')});
   await page.waitForTimeout(1000);
   await page.locator('#simFallbackClassic').click();
@@ -58,6 +64,7 @@ try{
   await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.orbit?.done===true,null,{timeout:10000});
   await page.evaluate(()=>window.scrollTo(0,220));
   states.push(await assert3d('After reload'));
+  await assertStageStart('#raceCoachSetupStart');
   await page.screenshot({path:resolve(output,'after-reload-3d.png')});
   await page.waitForTimeout(1000);
   await page.locator('#raceCoachSetupStart').click();
