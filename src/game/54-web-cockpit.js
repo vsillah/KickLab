@@ -4,6 +4,38 @@ const SETTINGS={level:'categories',category:null,trigger:null,restoreCategory:nu
 const MATH_CONSOLE={sig:''};
 const settingsDrawer=$('#settingsDrawer'),settingsToggle=$('#settingsToggle');
 const gameOverlayBackdrop=$('#gameOverlayBackdrop'),gameStage=$('.stage'),gamePlayShell=$('.play'),profileDialog=$('#profileDialog');
+const racePhoneTools=$('#racePhoneToolsToggle'),racePhoneRail=$('#gameGuidanceHud');
+const racePhoneControlHead=$('.control-deck .floating-control-head'),racePhoneControlHome=racePhoneControlHead.parentElement;
+const racePhoneStyleGroup=$('#controlStyleOptions');
+const racePhoneCalibration=$('#raceSimulator .sim-calibration'),racePhoneCalibrationHome=racePhoneCalibration.parentElement;
+function racePhoneToolsActive(){return document.documentElement.dataset.kicklabMode==='race'&&matchMedia('(max-width:480px)').matches;}
+function syncRacePhoneTools(){
+  const active=racePhoneToolsActive(),expanded=active&&racePhoneTools.getAttribute('aria-expanded')==='true';
+  if(active&&racePhoneControlHead.parentElement!==gameStage)gameStage.appendChild(racePhoneControlHead);
+  if(active&&racePhoneStyleGroup.parentElement!==racePhoneRail)racePhoneRail.appendChild(racePhoneStyleGroup);
+  if(active&&racePhoneCalibration.parentElement!==racePhoneRail)racePhoneRail.appendChild(racePhoneCalibration);
+  if(!active&&racePhoneCalibration.parentElement!==racePhoneCalibrationHome)racePhoneCalibrationHome.insertBefore(racePhoneCalibration,racePhoneCalibrationHome.querySelector('.sim-fallbacks'));
+  if(!active&&racePhoneStyleGroup.parentElement!==racePhoneControlHead)racePhoneControlHead.insertBefore(racePhoneStyleGroup,racePhoneControlHead.firstChild);
+  if(!active&&racePhoneControlHead.parentElement!==racePhoneControlHome)racePhoneControlHome.insertBefore(racePhoneControlHead,racePhoneControlHome.firstChild);
+  racePhoneRail.inert=active&&!expanded;
+  racePhoneTools.setAttribute('aria-label',expanded?'Close Race tools':'Open Race tools');
+  if(!active)racePhoneTools.setAttribute('aria-expanded','false');
+}
+racePhoneTools.addEventListener('click',()=>{
+  racePhoneTools.setAttribute('aria-expanded',String(racePhoneTools.getAttribute('aria-expanded')!=='true'));
+  syncRacePhoneTools();
+  if(racePhoneTools.getAttribute('aria-expanded')==='true')racePhoneRail.querySelector('button')?.focus();
+  else racePhoneTools.focus();
+});
+racePhoneRail.addEventListener('keydown',event=>{
+  if(event.key==='Escape'&&racePhoneToolsActive()&&!CONTEXT_DETAILS.open){event.preventDefault();event.stopPropagation();racePhoneTools.setAttribute('aria-expanded','false');syncRacePhoneTools();racePhoneTools.focus();}
+},true);
+racePhoneControlHead.addEventListener('keydown',event=>{
+  if(event.key==='Escape'&&racePhoneToolsActive()&&event.target===$('#controllerCollapseButton')&&!racePhoneControlHome.classList.contains('controller-collapsed')){event.preventDefault();setFloatingControllerCollapsed(true,{focus:true});}
+});
+new MutationObserver(syncRacePhoneTools).observe(document.documentElement,{attributes:true,attributeFilter:['data-kicklab-mode']});
+addEventListener('resize',syncRacePhoneTools);
+syncRacePhoneTools();
 
 function contextPanel(name){return $(`#${name==='math'?'physics':name}Detail`);}
 function contextTriggers(name){return(name==='math'?[$('#physicsDetailsHud')]:[$(`#${name}DetailToggle`)]).filter(Boolean);}

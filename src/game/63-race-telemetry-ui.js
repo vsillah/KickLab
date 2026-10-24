@@ -1,5 +1,12 @@
 /* The same telemetry surface lives inside the shared Classic/Analog controller. */
 const raceTelemetryEl=$('#raceTelemetry');
+const RACE_PHONE_SETUP_CUES={
+  drag:'Shift at the bright RPM band, then carry speed through the trap.',
+  drift:'Build speed, then hold a controlled slide through each curve.',
+  circuit:'Complete two laps. Brake before turns and keep the car settled.',
+  hill:'Climb the switchback on a clean line without sliding.',
+  endurance:'Hold target speed on the straights; brake before each bend.'
+};
 function renderRaceTemperature(t){
   const stage=RACE_TELEMETRY.thermalStage(t),celsius=Math.round(65+t.heat*90),color={normal:'#70eac0',warming:'#f0cc72',hot:'#ffab63',critical:'#ff7478','power-loss':'#ff9b75',cooling:'#8ed9ec'}[stage];
   for(const id of ['raceTelemetryTemp','raceNavigationTemp','simTemp']){const arc=$('#'+id);arc.style.setProperty('--temp-angle',`${Math.round(t.heat*240)}deg`);arc.style.setProperty('--temp-color',color);arc.dataset.stage=stage;arc.querySelector('b').textContent=`${celsius}°`;arc.setAttribute('aria-label',`Engine temperature ${celsius} degrees Celsius, ${stage.replace('-',' ')}${t.overheat?', reduced power':''}`);}
@@ -10,6 +17,7 @@ function renderRaceTelemetry(){
   const setupPreview=active&&coachActive&&Race.state==='grid'&&(!RACE_3D.on||RACE_3D.orbit.done);
   const resultReview=active&&coachActive&&!!Race.progressionComparison&&['done','crashed'].includes(Race.state);
   floatingControlDeck.classList.toggle('race-setup-preview',setupPreview);
+  floatingControlDeck.classList.toggle('race-awaiting-coach',active&&coachActive&&Race.state==='grid'&&!setupPreview);
   floatingControlDeck.classList.toggle('race-result-review',resultReview);
   floatingControlDeck.classList.toggle('race-coach-live',active&&coachActive&&Race.state==='run');
   floatingControlDeck.classList.toggle('race-endurance-card',(setupPreview||resultReview)&&Race.expansionActive()&&Race.mode().id==='endurance');
@@ -19,7 +27,7 @@ function renderRaceTelemetry(){
   const setup=$('#raceCoachSetup');setup.hidden=!setupPreview;const vehicleButton=$('#raceCoachSetupVehicle');vehicleButton.hidden=!setupPreview||!Race.expansionActive();if(setupPreview&&Race.expansionActive()){const car=Race.vehicle();$('#raceCoachSetupVehicleImage').src=car.thumbnailUrl;$('#raceCoachSetupVehicleName').textContent=car.name;$('#raceCoachSetupVehicleRole').textContent=`${car.role} · ${car.modeSuitability[Race.mode().id]}`;vehicleButton.setAttribute('aria-label',`Current car ${car.name}, ${car.role}. Choose car in Garage.`);}
   $('#raceCoachSetupControls').hidden=!Race.expansionActive();if(Race.expansionActive())$('#raceCoachSetupControls').textContent=$('#analogControlsButton').getAttribute('aria-pressed')==='true'?'Classic controls':'Analog controls';
   $('#raceCoachSetupSteering').hidden=!Race.expansionActive();if(Race.expansionActive())$('#raceCoachSetupSteering').textContent=Race.opt.steer==='auto'?'You steer':'Autopilot steering';
-  if(setupPreview){if(Race.expansionActive()){const mode=Race.mode(),car=Race.vehicle();$('#raceCoachSetupTitle').textContent=`Coach Nia · ${mode.name}`;$('#raceCoachSetupTargets').textContent=`${mode.description} ${mode.target}`;$('#raceCoachSetupRecommendation').textContent=mode.id==='endurance'?`Choose your approach: ${RACE_MODES.endurancePlan()}`:`${car.name}: ${car.coach} ${car.modeSuitability[mode.id]} ${mode.garage}`;$('#raceCoachSetupStart').textContent='Start run';}else{const level=Race.progressionLevel();$('#raceCoachSetupTitle').textContent=`Coach Nia · ${level.name}`;$('#raceCoachSetupTargets').textContent=`Pass: ≤${level.time} s · slide ≤${level.slide} s · entry ≥${level.entry} km/h · brakes ≥${Math.round(level.brakeFactor*100)}%`;$('#raceCoachSetupRecommendation').textContent=`Try: ${RACE_PROGRESSION.setup(level)}.`;$('#raceCoachSetupStart').textContent='Start heat';}}
+  if(setupPreview){if(Race.expansionActive()){const mode=Race.mode(),car=Race.vehicle();$('#raceCoachSetupTitle').textContent=`Coach Nia · ${mode.name}`;$('#raceCoachSetupTargets').textContent=matchMedia('(max-width:480px)').matches?RACE_PHONE_SETUP_CUES[mode.id]:`${mode.description} ${mode.target}`;$('#raceCoachSetupRecommendation').textContent=mode.id==='endurance'?`Choose your approach: ${RACE_MODES.endurancePlan()}`:`${car.name}: ${car.coach} ${car.modeSuitability[mode.id]} ${mode.garage}`;$('#raceCoachSetupStart').textContent='Start run';}else{const level=Race.progressionLevel();$('#raceCoachSetupTitle').textContent=`Coach Nia · ${level.name}`;$('#raceCoachSetupTargets').textContent=matchMedia('(max-width:480px)').matches?'Brake early, steer through the corner, then recover the exit line.':`Pass: ≤${level.time} s · slide ≤${level.slide} s · entry ≥${level.entry} km/h · brakes ≥${Math.round(level.brakeFactor*100)}%`;$('#raceCoachSetupRecommendation').textContent=`Try: ${RACE_PROGRESSION.setup(level)}.`;$('#raceCoachSetupStart').textContent='Start heat';}}
   if(setupPreview&&typeof RACE_CHAMP_UI!=='undefined'&&RACE_CHAMP_UI.active)raceChampionshipApplySetup();
   $('#raceCoachResult').hidden=!resultReview;
   if(resultReview){$('#raceCoachResultTitle').textContent=`Coach Nia · ${Race.expansionActive()?Race.mode().name:Race.progressionLevel().name} review`;$('#raceCoachResultMeasurements').textContent=Race.progressionComparison;$('#raceCoachResultRecommendation').textContent=Race.progressionReviewNote;const category=Race.expansionActive()?Race.mode().preferred:RACE_PROGRESSION.category(Race.progressionOutcome.failed);$('#raceCoachResultGarage').textContent=category?`Garage · ${category}`:'Garage & tuning';$('#raceCoachResultRetry').textContent=Race.expansionActive()?'Retry run':'Retry heat';}
@@ -40,7 +48,9 @@ function renderRaceTelemetry(){
   const shortCue={rpm:'Hold the bright RPM band.',torque:'Feed throttle into the band.',nos:`Tank ${Math.round(t.capacity*100)}%. Release a pulse.`,temperature:'Lift; airflow cools the engine.',braking:`Need ${Math.round(t.brakeDistance)} m to stop. Brake early.`,drift:'Hold a modest angle.',grip:'Unwind to regain grip.'}[g.id];
   const cue={warming:'Watch the temperature arc.',hot:'Lift; power is fading.',critical:'Lift now; power is reduced.','power-loss':'Keep lifting until power returns.',cooling:t.phase==='recovered'?'Cooled. Power is back.':'Airflow is cooling the engine.'}[thermal]||shortCue;
   const level=Race.progressionActive()?Race.progressionLevel():null,mode=Race.expansionActive()?Race.mode():null,coachCue=mode?(typeof RACE_CHAMP_UI!=='undefined'&&RACE_CHAMP_UI.active?raceChampionshipLiveCue():Race.state==='run'?RACE_MODES.live(Race.modeAttempt,Race.st,Race.telemetry):Race.progressionComparison||mode.description):level?(Race.progressionComparison&&['done','crashed'].includes(Race.state)?Race.progressionComparison:Race.state==='run'?RACE_PROGRESSION.live(level,{slide:Race.st.slide,zone:Race.st.zone,distance:Race.P().L-Race.st.x}):RACE_PROGRESSION.preview(level)):cue;
-  const thermalCue=mode?.id==='endurance'?coachCue:['hot','critical','power-loss','cooling'].includes(thermal)?cue:coachCue,coachText=`Nia: ${thermalCue}`,coachButton=$('#raceTelemetryCue');
+  const thermalCue=mode?.id==='endurance'?coachCue:['hot','critical','power-loss','cooling'].includes(thermal)?cue:coachCue;
+  const visibleCue=matchMedia('(max-width:480px)').matches?cue:thermalCue;
+  const coachText=`Nia: ${visibleCue}`,coachButton=$('#raceTelemetryCue');
   if(coachButton.textContent!==coachText)coachButton.textContent=coachText;
   coachButton.title=thermalCue;
   coachButton.setAttribute('aria-label',`Coach Nia. ${thermalCue}${level||mode?' Activate for the full mode plan and Garage link.':''}`);
