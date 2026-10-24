@@ -1468,6 +1468,7 @@ html[data-race-telemetry="prototype"] .race-stage-start-kicker{font:800 9px/1.2 
 html[data-race-telemetry="prototype"] .race-stage-start h2{margin:0;font:800 clamp(16px,2vw,21px)/1.1 var(--f-display);color:#fff}
 html[data-race-telemetry="prototype"] .race-stage-start p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;margin:0;max-width:32ch;font:650 11px/1.3 var(--f-body);color:#e9f7ff}
 html[data-race-telemetry="prototype"] .race-stage-start #raceCoachSetupRecommendation{font-size:10px;color:#bfe5e6}
+html[data-race-telemetry="prototype"] .race-stage-start #raceCoachSetupRecommendation[hidden]{display:none!important}
 html[data-race-telemetry="prototype"] .race-stage-start button{display:flex;align-items:center;justify-content:center;gap:7px;width:min(220px,100%);min-height:48px;margin-top:4px;padding:8px 16px;border:1px solid #b2f4b6;border-radius:10px;background:linear-gradient(180deg,#55ab78,#247654);color:#fff;font:800 14px/1.1 var(--f-body);box-shadow:0 5px 18px rgba(15,78,44,.4);cursor:pointer}
 html[data-race-telemetry="prototype"] .race-stage-start button:focus-visible{outline:3px solid #ffd27d;outline-offset:3px}
 html[data-race-telemetry="prototype"] #raceCoachSetup .race-coach-support-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
