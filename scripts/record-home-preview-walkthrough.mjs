@@ -15,9 +15,14 @@ const browser = await chromium.launch({ headless: true, executablePath });
 const raw = [], checks = [], external = [], errors = [];
 const origin = new URL(base).origin;
 try {
-  for (const [label, width, height] of [['phone', 390, 844], ['desktop', 1440, 1000]]) {
-    const context = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: 1, reducedMotion: 'no-preference', recordVideo: { dir: out, size: { width, height } } });
-    await context.addInitScript(() => { localStorage.setItem('impactlab.nick', 'Preview Player'); localStorage.setItem('impactlab.v1', '{}'); });
+  for (const [label, width, height, capability] of [['phone', 390, 844, null], ['tablet', 768, 1024, null], ['desktop', 1440, 900, null], ['low-memory', 390, 844, 'memory'], ['low-cpu', 768, 1024, 'cpu'], ['save-data', 1440, 900, 'saveData']]) {
+    const context = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: 1, reducedMotion: 'no-preference', ...(label === 'phone' || label === 'desktop' ? { recordVideo: { dir: out, size: { width, height } } } : {}) });
+    await context.addInitScript(capability => {
+      localStorage.setItem('impactlab.nick', 'Preview Player'); localStorage.setItem('impactlab.v1', '{}');
+      if (capability === 'memory') Object.defineProperty(navigator, 'deviceMemory', { configurable: true, get: () => 2 });
+      if (capability === 'cpu') Object.defineProperty(navigator, 'hardwareConcurrency', { configurable: true, get: () => 2 });
+      if (capability === 'saveData') Object.defineProperty(navigator, 'connection', { configurable: true, get: () => ({ saveData: true }) });
+    }, capability);
     const page = await context.newPage();
     page.on('pageerror', error => errors.push(`${label}: ${error}`));
     page.on('request', request => { if (new URL(request.url()).origin !== origin) external.push(`${label}: ${request.url()}`); });
@@ -28,19 +33,42 @@ try {
     await page.waitForTimeout(500);
     for (const lab of ['fight', 'race', 'kick']) {
       const card = page.locator(`#lab-tab-${lab}`), video = card.locator('video');
-      if (label === 'phone') await card.scrollIntoViewIfNeeded();
+      await card.scrollIntoViewIfNeeded();
       await page.waitForFunction(id => { const v = document.querySelector(`#lab-tab-${id} video`); return v && !v.paused && v.currentTime > 0 && v.readyState >= 2; }, lab, { timeout: 10000 });
       const before = await video.evaluate(v => ({ time: v.currentTime, duration: v.duration }));
-      await page.waitForTimeout(label === 'phone' ? 1800 : 1500);
+      await page.waitForTimeout(label === 'phone' || label === 'desktop' ? 1800 : 600);
       const after = await video.evaluate(v => v.currentTime);
       const advance = (after - before.time + before.duration) % before.duration;
-      if (advance <= 0.4) throw new Error(`${label} ${lab}: video did not advance`);
+      if (advance <= (label === 'phone' || label === 'desktop' ? 0.4 : 0.2)) throw new Error(`${label} ${lab}: video did not advance`);
+      if (['phone', 'tablet', 'desktop'].includes(label)) await page.screenshot({ path: join(out, `${label}-${lab}-motion.png`) });
       checks.push({ label, lab, before: before.time, after, advance, previewState: await card.getAttribute('data-preview-state') });
     }
     if (label === 'desktop') await page.waitForTimeout(900);
     const video = page.video();
     await page.close(); await context.close();
-    raw.push(await video.path());
+    if (video) raw.push(await video.path());
+  }
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
+    const page = await context.newPage();
+    await page.goto(base, { waitUntil: 'domcontentloaded' });
+    const state = await page.locator('.lab-showcase').evaluateAll(cards => cards.map(card => ({ state: card.dataset.previewState, paused: card.querySelector('video').paused })));
+    if (state.some(item => item.state !== 'poster' || !item.paused)) throw new Error(`reduced motion fallback ${JSON.stringify(state)}`);
+    checks.push({ label: 'reduced-motion', state });
+    await context.close();
+  }
+  {
+    const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    await context.addInitScript(() => { HTMLMediaElement.prototype.play = () => Promise.reject(new Error('media blocked')); });
+    const page = await context.newPage();
+    await page.goto(base, { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(300);
+    const rejected = await page.locator('.lab-showcase').evaluateAll(cards => cards.map(card => card.dataset.previewState));
+    if (rejected.some(state => state !== 'fallback')) throw new Error(`play rejection fallback ${JSON.stringify(rejected)}`);
+    await page.locator('#lab-tab-fight video').dispatchEvent('error');
+    if (await page.locator('#lab-tab-fight').getAttribute('data-preview-state') !== 'fallback') throw new Error('media error fallback failed');
+    checks.push({ label: 'play-rejection-and-media-error', rejected });
+    await context.close();
   }
 } finally { await browser.close(); }
 if (external.length || errors.length) throw new Error(JSON.stringify({ external, errors }));

@@ -54,11 +54,12 @@ test('keeps the hero geometry bounded through desktop, mid-width, tablet, and mo
   for(const guard of ['heroGeometry.collision','heroGeometry.contained','progressOverlap','cardText.some'])assert.ok(read('scripts/qa-home-showcase.mjs').includes(guard),guard);
 });
 
-test('uses muted looping local video with reduced-motion, constrained-device, and error fallback',()=>{
+test('uses muted looping local video with reduced-motion and error fallback',()=>{
   assert.equal((html.match(/<video muted loop playsinline preload="metadata"/g)||[]).length,3);
   assert.doesNotMatch(html,/<video[^>]+controls/);
   assert.doesNotMatch(html,/<(?:video|source|img)[^>]+(?:src|poster)="https?:/i);
-  for(const marker of ['prefers-reduced-motion: reduce','navigator.connection&&navigator.connection.saveData','navigator.deviceMemory','navigator.hardwareConcurrency',"previewState='fallback'",'.video.pause()'])assert.ok(showcase.includes(marker),marker);
+  for(const marker of ['prefers-reduced-motion: reduce',"previewState='fallback'",'.video.pause()'])assert.ok(showcase.includes(marker),marker);
+  for(const guard of ['navigator.connection','navigator.deviceMemory','navigator.hardwareConcurrency'])assert.ok(!showcase.includes(guard),guard);
   assert.match(css,/@media \(prefers-reduced-motion:reduce\)\{\.lab-preview video\{display:none\}/);
   assert.equal(manifest.privacy,'local renderer only; no external requests; no audio');
   assert.equal(manifest.clips.length,3);
