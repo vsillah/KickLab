@@ -34,7 +34,7 @@ try{
     await page.screenshot({path:join(out,`${name}-vehicle.png`)});
     await page.click('#racePreflightNext');
     await page.locator('[data-preflight-part="tires"][data-preflight-value="wide"]').click();
-    await page.waitForFunction(()=>document.querySelector('.race-preflight-tune-preview video')?.readyState>=2,{timeout:12000});
+    await page.waitForFunction(()=>globalThis.__KICKLAB_RACE_PREFLIGHT_QA__?.state().inspection.loaded,undefined,{timeout:12000});
     await page.evaluate(()=>document.querySelector('#racePreflight').scrollTop=0);
     await page.screenshot({path:join(out,`${name}-tuning.png`)});
     await page.click('#racePreflightBack');
