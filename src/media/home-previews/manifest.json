@@ -52,13 +52,15 @@
     },
     {
       "lab": "Kick",
-      "revision": "db08f39641a8c8c1daa70bd1f3b967296cc5792a",
+      "revision": "46c12064e6dd571ca30bec639373cfac054c60ba",
       "source": "Current local KickLab 3D renderer",
-      "captureFlags": [],
+      "captureFlags": [
+        "kickTime=day"
+      ],
       "mp4": "media/home-previews/kick.mp4",
       "poster": "media/home-previews/kick-poster.png",
-      "bytes": 300651,
-      "posterBytes": 133469,
+      "bytes": 334430,
+      "posterBytes": 149646,
       "uniqueFrames": 17,
       "programs": [],
       "stream_groups": [],

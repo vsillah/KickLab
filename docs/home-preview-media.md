@@ -1,21 +1,21 @@
 # Welcome gameplay previews
 
-The three welcome cards use muted local MP4 loops and PNG posters captured from KickLab at `db08f39641a8c8c1daa70bd1f3b967296cc5792a`. Fight uses the released Canvas renderer. Kick uses the released 3D stadium. Race uses its reviewed 3D vehicle scene with `raceSystems=proxy` only in the capture URL; the normal unflagged Race entry is unchanged.
+The welcome cards use silent, local H.264 MP4 loops and PNG posters. Fight and Race remain byte-for-byte identical to the `db08f39641a8c8c1daa70bd1f3b967296cc5792a` release. Kick was recaptured from the Day scene at `46c12064e6dd571ca30bec639373cfac054c60ba`; it shows the free kick, ball flight, goal, and replay. No game rendering or physics was changed for the capture.
 
 | Lab | MP4 bytes | Poster bytes | Duration |
 | --- | ---: | ---: | ---: |
 | Fight | 61,117 | 79,498 | 5.8 s |
 | Race | 242,398 | 148,901 | 5.8 s |
-| Kick | 300,651 | 133,469 | 5.8 s |
+| Kick | 334,430 | 149,646 | 5.8 s |
 
-The six files total 966,034 bytes. The exact values and codec details are also recorded in `src/media/home-previews/manifest.json`. All three videos are H.264, 640×360, silent, and local to the web, Pages, and mobile packages. The Kick encode crops the local 3D stage for a closer view of the shot and goal; it does not change game rendering.
+The six files total 1,015,990 bytes. Codec details and per-clip source revisions are recorded in `src/media/home-previews/manifest.json`. The Kick encode crops the local 3D stage to 640×360 for a closer view of play. Every media file is packaged with the web, Pages, and mobile builds; there are no external media URLs.
 
-To reproduce from the recorded source revision, build that checkout, serve `dist` on a free loopback port, then run:
+To reproduce Kick without touching the Fight or Race files, build the source commit, serve `dist` on a free loopback port, and run:
 
 ```sh
 npm run build
-python3 -m http.server 48231 --bind 127.0.0.1 --directory dist
-node scripts/capture-home-preview-media.mjs http://127.0.0.1:48231/kicklab.html db08f39641a8c8c1daa70bd1f3b967296cc5792a
+python3 -m http.server 48271 --bind 127.0.0.1 --directory dist
+node scripts/capture-home-preview-media.mjs http://127.0.0.1:48271/kicklab.html 46c12064e6dd571ca30bec639373cfac054c60ba --kick-only
 ```
 
-The capture script requires the supplied revision to equal `HEAD`, waits for each lab's renderer and game state, performs visible gameplay actions, rejects external requests and browser errors, validates the encodes, and removes raw browser video. `npm run check` verifies the web, Pages, and mobile copies. `scripts/qa-home-showcase.mjs` checks responsive playback and reduced-motion fallback in Chromium.
+The capture script requires the supplied revision to equal `HEAD`, selects the Day presentation, waits for the 3D renderer, performs the Kick action, rejects external requests and browser errors, probes the encoded video, and removes raw browser video. `npm run check` verifies web, Pages, and mobile copies. `scripts/qa-home-showcase.mjs` checks responsive playback and reduced-motion fallback in Chromium.
