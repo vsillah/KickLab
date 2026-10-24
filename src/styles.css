@@ -1454,6 +1454,12 @@ html[data-race-telemetry="prototype"] .race-coach-setup button:focus-visible{out
  html[data-race-telemetry="prototype"] #raceCoachSetup>p{order:2}
  html[data-race-telemetry="prototype"] .race-coach-setup button{min-height:36px}
 }
+html[data-race-telemetry="prototype"] #raceCoachSetup>.race-coach-setup-actions{display:grid;grid-template-columns:minmax(0,1fr);gap:6px;margin-top:2px}
+html[data-race-telemetry="prototype"] #raceCoachSetup .race-coach-control-types,
+html[data-race-telemetry="prototype"] #raceCoachSetup .race-coach-support-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;min-width:0}
+html[data-race-telemetry="prototype"] #raceCoachSetup .race-coach-control-types:not(:has(#raceCoachSetupSimulator:not([hidden]))),
+html[data-race-telemetry="prototype"] #raceCoachSetup .race-coach-support-actions:not(:has(#raceCoachSetupSteering:not([hidden]))){grid-template-columns:repeat(2,minmax(0,1fr))}
+html[data-race-telemetry="prototype"] #raceCoachSetup .race-coach-control-types button[aria-pressed="true"]{border-color:#a8f1ef;background:#246274;box-shadow:inset 0 0 0 1px rgba(255,255,255,.16)}
 @media(prefers-reduced-motion:reduce){html[data-race-telemetry="prototype"] .control-deck:is(.race-setup-preview,.race-result-review){transition:none}}
 /* Remove every normal controller track from the setup card layout. */
 html[data-race-telemetry="prototype"] .game-frame .stage>.control-deck:is(.race-setup-preview,.race-result-review){display:block!important;height:auto!important;min-height:0!important;max-height:none!important;gap:0!important;overflow:visible!important}
@@ -1714,9 +1720,11 @@ html[data-race-champ-active="true"] .race-coach-setup{border-color:rgba(127,220,
  html[data-kicklab-mode="race"] #raceCoachSetupVehicle{display:none!important}
  html[data-kicklab-mode="race"] #raceCoachSetup button{min-height:44px}
  html[data-kicklab-mode="race"] .stage>.floating-control-head{display:none!important}
+ html[data-kicklab-mode="race"] .stage:has(>.race-phone-tools-toggle[aria-expanded="true"])>.control-deck{visibility:hidden!important;pointer-events:none!important}
  html[data-kicklab-mode="race"] .game-frame .stage>.control-deck.controller-collapsed .pad{display:none!important}
  html[data-kicklab-mode="race"] .stage>.floating-control-head #controllerCollapseButton{grid-column:1}
- html[data-kicklab-mode="race"] #gameGuidanceHud #controlStyleOptions{grid-column:1/-1;justify-self:center;grid-template-columns:repeat(2,44px);gap:8px;min-width:0;padding:5px 8px;border:1px solid rgba(153,202,228,.44);border-radius:13px;background:rgba(30,69,96,.7)}
+ html[data-kicklab-mode="race"] #gameGuidanceHud{grid-template-rows:repeat(3,minmax(88px,auto)) minmax(56px,auto);grid-auto-rows:auto}
+ html[data-kicklab-mode="race"] #gameGuidanceHud #controlStyleOptions{grid-column:1/-1;align-self:start;justify-self:center;grid-template-columns:repeat(2,44px);grid-template-rows:44px;gap:8px;min-width:0;padding:5px 8px;border:1px solid rgba(153,202,228,.44);border-radius:13px;background:rgba(30,69,96,.7)}
  html[data-kicklab-mode="race"] #gameGuidanceHud #controlStyleOptions:has(#simulatorControlsButton:not([hidden])){grid-template-columns:repeat(3,44px)}
  html[data-kicklab-mode="race"] #gameGuidanceHud>.sim-calibration{display:none;grid-column:1/-1;grid-template-columns:1fr;gap:9px;padding:10px;border:1px solid rgba(153,202,228,.44);border-radius:13px;background:rgba(30,69,96,.7);color:#effaff}
  html[data-kicklab-mode="race"] .stage:has(>.control-deck.simulator-active #raceSimulator[data-phase="setup"]) #gameGuidanceHud>.sim-calibration{display:grid}
