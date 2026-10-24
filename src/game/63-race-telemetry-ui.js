@@ -67,12 +67,19 @@ $('#raceTelemetryShift').addEventListener('click',()=>{if(M!==Race||PAUSE.on||RP
 for(const [id,direction] of [['raceTracePrev',-1],['raceTraceNext',1]])$('#'+id).addEventListener('click',()=>{if(!RACE_CORNER_TRACE.enabled||M!==Race||PAUSE.on)return;RACE_CORNER_TRACE.select(direction);renderRaceTelemetry();SND.click();});
 raceTelemetryEl.addEventListener('keydown',event=>{if(event.key==='ArrowLeft'||event.key==='ArrowRight'){event.preventDefault();event.stopPropagation();raceTelemetryAction(event.key==='ArrowLeft'?'prev':'next');}else if(event.key==='Escape'){event.preventDefault();event.stopPropagation();setFloatingControllerCollapsed(true);}});
 raceTelemetryEl.addEventListener('pointerdown',event=>event.stopPropagation());
-$('#raceTelemetryCue').addEventListener('click',()=>{if(M!==Race||!(Race.progressionActive()||Race.expansionActive()))return;if(typeof RACE_CHAMP_UI!=='undefined'&&RACE_CHAMP_UI.active){raceChampionshipOpenNotebook($('#raceTelemetryCue'));return;}const level=Race.progressionActive()?Race.progressionLevel():null,message=Race.expansionActive()?Race.progressionComparison||`${Race.mode().description} ${Race.mode().target} ${Race.mode().id==='endurance'?RACE_MODES.endurancePlan():Race.mode().garage}`:Race.progressionComparison||RACE_PROGRESSION.preview(level);document.querySelectorAll('#toasts .toast[aria-label="Coach Nia"]').forEach(note=>note.remove());toast('Coach Nia',message,{action:'Garage & tuning',hold:30000,onAction:()=>{GARAGE_UI.active=Race.expansionActive()?Race.mode().preferred:RACE_PROGRESSION.category(Race.progressionOutcome?.failed||[])||'tires';GARAGE_UI.returnToRaceRetry=['done','crashed'].includes(Race.state);openSettings('garage',$('#raceTelemetryCue'));}});});
-
+function raceCoachCueAction(trigger){
+  if(M!==Race||!(Race.progressionActive()||Race.expansionActive()))return;
+  if(typeof RACE_CHAMP_UI!=='undefined'&&RACE_CHAMP_UI.active){raceChampionshipOpenNotebook(trigger);return;}
+  const level=Race.progressionActive()?Race.progressionLevel():null;
+  const message=Race.expansionActive()?Race.progressionComparison||`${Race.mode().description} ${Race.mode().target} ${Race.mode().id==='endurance'?RACE_MODES.endurancePlan():Race.mode().garage}`:Race.progressionComparison||RACE_PROGRESSION.preview(level);
+  document.querySelectorAll('#toasts .toast[aria-label="Coach Nia"]').forEach(note=>note.remove());
+  toast('Coach Nia',message,{action:'Garage & tuning',hold:30000,onAction:()=>{GARAGE_UI.active=Race.expansionActive()?Race.mode().preferred:RACE_PROGRESSION.category(Race.progressionOutcome?.failed||[])||'tires';GARAGE_UI.returnToRaceRetry=['done','crashed'].includes(Race.state);openSettings('garage',trigger);}});
+}
+for(const id of ['raceTelemetryCue','raceNavigationCue'])$('#'+id).addEventListener('click',event=>raceCoachCueAction(event.currentTarget));
 let raceNavigationAt=0,raceNavigationGauge='';
 function raceVisorPath(width,height,contentHeight,wingRight,phone){
   const w=width,h=height,r=14;
-  if(phone)return `path("M 0 ${r} Q 0 0 ${r} 0 L ${w-r} 0 Q ${w} 0 ${w} ${r} L ${w} ${h-r} Q ${w} ${h} ${w-r} ${h} L ${r} ${h} Q 0 ${h} 0 ${h-r} Z")`;
+  if(phone){const shoulder=Math.min(contentHeight-8,h-29),tip=Math.max(86,wingRight-8);return `path("M 0 ${r} Q 0 0 ${r} 0 L ${w-r} 0 Q ${w} 0 ${w} ${r} L ${w} ${shoulder} C ${w} ${shoulder+14}, ${w-11} ${h} ${w-27} ${h} L ${tip+12} ${h} Q ${tip} ${h} ${tip} ${h-12} Q ${tip-16} ${h-23} 0 ${h-23} Z")`;}
   const shoulder=Math.min(contentHeight-5,h-36),tip=wingRight-15;
   return `path("M 0 ${r} Q 0 0 ${r} 0 L ${w-r} 0 Q ${w} 0 ${w} ${r} L ${w} ${shoulder} C ${w} ${shoulder+22}, ${wingRight+8} ${h-30}, ${wingRight+14} ${h-14} Q ${wingRight+3} ${h} ${tip} ${h} L ${r} ${h} Q 0 ${h} 0 ${h-r} Z")`;
 }
@@ -80,7 +87,7 @@ function renderRaceNavigation({gauge,value,unit,fraction,phase,cue}){
   const panel=$('#raceNavigation'),cockpit=$('#raceCockpit');panel.hidden=!(RACE_CORNER_TRACE.enabled&&Race.state==='run'&&!RP.on&&!RACE_3D.shouldBlockInput());cockpit.hidden=panel.hidden;if(panel.hidden){if(globalThis.__KICKLAB_RACE_NAVIGATION__)globalThis.__KICKLAB_RACE_NAVIGATION__.visible=false;return;}
   const now=performance.now();if(now-raceNavigationAt<90&&gauge===raceNavigationGauge)return;raceNavigationAt=now;raceNavigationGauge=gauge;
   const navScale=(cv.clientWidth||960)/960,phone=cv.clientWidth<=480,left=8;
-  const width=Math.round(Math.min(390,Math.max(205,215+(cv.clientWidth-356)*.18)));
+  const width=phone?238:Math.round(Math.min(390,Math.max(205,215+(cv.clientWidth-356)*.18)));
   const contentHeight=phone?118:Math.max(88,Math.round((Race.WH.y-Race.WH.r)*navScale));
   const wheelX=Race.WH.x*navScale,wheelY=Race.WH.y*navScale,wheelRadius=Race.WH.r*(phone?1.5:1)*navScale;
   const height=Math.max(contentHeight,Math.round(wheelY+wheelRadius*.55-4));
@@ -102,7 +109,7 @@ function renderRaceNavigation({gauge,value,unit,fraction,phase,cue}){
   $('#raceNavigationGaugePhase').textContent=phase;
   $('#raceNavigationGaugeFill').style.width=`${Math.round(fraction*100)}%`;
   const compactCue={RPM:'Hold RPM band.',Torque:'Feed throttle.',NOS:'Release a pulse.','Engine heat':'Watch temperature.',Brakes:'Brake early.','Drift angle':'Hold modest angle.','Grip recovery':'Unwind to recover.'},thermal=RACE_TELEMETRY.thermalStage(Race.telemetry),thermalCue={warming:'Engine warming.',hot:'Hot. Ease off.',critical:'Critical. Lift now.','power-loss':'Power low. Keep lifting.',cooling:Race.telemetry.phase==='recovered'?'Cooled. Power back.':'Cooling. Keep airflow.'};
-  $('#raceNavigationCue').textContent=`Nia: ${matchMedia('(max-width:980px)').matches?(thermalCue[thermal]||compactCue[gauge]||cue):cue}`;
+  const navigationCue=$('#raceNavigationCue');navigationCue.textContent=`Nia: ${matchMedia('(max-width:980px)').matches?(thermalCue[thermal]||compactCue[gauge]||cue):cue}`;navigationCue.disabled=!(Race.progressionActive()||Race.expansionActive());navigationCue.title=navigationCue.disabled?'Coach details open with Race progression or expansion.':cue;navigationCue.setAttribute('aria-label',navigationCue.disabled?`${navigationCue.textContent}. Details unavailable in this Race mode.`:$('#raceTelemetryCue').getAttribute('aria-label'));
   const prediction=Race.cornerTracePrediction||RACE_CORNER_TRACE.predict();if(!prediction)return;
   const P=Race.P(),venue=RACE_SYSTEMS.venue(Race.opt.venue),car=Race.st,heading=car.th||0;
   const local=p=>{const dx=p.x-car.x,dy=p.y-car.y;return{forward:dx*Math.cos(heading)+dy*Math.sin(heading),side:-dx*Math.sin(heading)+dy*Math.cos(heading)};};
