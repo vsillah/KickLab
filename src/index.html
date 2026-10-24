@@ -323,6 +323,16 @@
   <div class="rv-back" id="rvBack" hidden><div class="review" id="review" role="dialog" aria-modal="true" aria-label="Coach review"><div class="rv-h"><div class="av" id="rvAv">DR</div><div class="tt"><span id="rvKick">COACH REVIEW</span><b id="rvTitle"></b></div><div class="gr" id="rvGrade"></div><button type="button" id="rvClose">Close ✕</button></div><div class="rv-b" id="rvBody"></div></div></div>
   <div class="race-share" id="raceShare" hidden role="dialog" aria-modal="true" aria-labelledby="raceShareTitle"><section class="race-share-panel"><header><div><span>LOCAL RACE HIGHLIGHT</span><h2 id="raceShareTitle">Your finish, your file</h2></div><button type="button" id="raceShareClose">Close ✕</button></header><p id="raceShareStatus" role="status" aria-live="polite"></p><div class="race-share-preview" id="raceSharePreview"></div><div class="race-share-actions"><button type="button" id="raceShareDownload" hidden>Download file</button><button type="button" id="raceShareNative" hidden>Share file</button></div><small>Created on this device. No account name, upload, or public link.</small></section></div>
 
+  <section class="race-preflight" id="racePreflight" hidden role="dialog" aria-modal="true" aria-labelledby="racePreflightTitle" aria-describedby="racePreflightStatus">
+    <div class="race-preflight-shell">
+      <header class="race-preflight-header"><div><span>RACE LAB · PREPARE</span><h2 id="racePreflightTitle">Choose your route</h2></div><button type="button" id="racePreflightClose" aria-label="Close Race preparation">Close ✕</button></header>
+      <nav class="race-preflight-steps" id="racePreflightSteps" aria-label="Race preparation phases"></nav>
+      <p class="race-preflight-status" id="racePreflightStatus" role="status" aria-live="polite"></p>
+      <div class="race-preflight-content" id="racePreflightContent"></div>
+      <footer class="race-preflight-footer"><button type="button" id="racePreflightBack">Back</button><button type="button" id="racePreflightNext">Continue</button></footer>
+    </div>
+  </section>
+
 </main>
 
 {{VENDOR}}

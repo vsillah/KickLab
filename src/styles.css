@@ -1753,3 +1753,82 @@ html[data-race-champ-active="true"] .race-coach-setup{border-color:rgba(127,220,
  html[data-kicklab-mode="race"] .control-deck.race-coach-live .race-trace-readout :is(#raceTraceBand,#raceTraceEquation){display:none}
  html[data-kicklab-mode="race"] .control-deck.race-coach-live .race-trace-readout{align-items:center}
 }
+/* Optional Race preparation journey. The fixed shell keeps setup away from the driving controls. */
+html[data-race-preflight="prototype"] #raceCoachSetup .race-coach-setup-actions{display:none!important}
+.race-preflight[hidden]{display:none!important}
+.race-preflight{position:fixed;inset:0;z-index:1200;background:radial-gradient(circle at 75% 5%,#28495b 0,transparent 38%),#08121f;color:#eef7f7;overflow:auto;overscroll-behavior:contain}
+.race-preflight-shell{width:min(1380px,100%);min-height:100dvh;margin:auto;padding:clamp(15px,2vw,32px);display:flex;flex-direction:column;gap:16px}
+.race-preflight button{font:inherit;color:inherit;cursor:pointer}
+.race-preflight button:focus-visible{outline:3px solid #f6d26c;outline-offset:3px}
+.race-preflight-header,.race-preflight-footer{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.race-preflight-header{border-bottom:1px solid #526c70;padding-bottom:12px}
+.race-preflight-header span,.race-preflight-feature small,.race-preflight-grid-brief>small{font:700 12px/1.4 var(--f-body);letter-spacing:.12em;color:#87d9cf}
+.race-preflight h2{margin:4px 0 0;font:800 clamp(28px,4vw,52px)/1.05 var(--f-display)}
+.race-preflight-header button,.race-preflight-footer button,.race-preflight-control-options button,#racePreflightSteer{min-height:46px;border:1px solid #678b8c;background:#17323d;border-radius:12px;padding:10px 18px}
+.race-preflight-header button:hover,.race-preflight-footer button:hover,.race-preflight-control-options button:hover,#racePreflightSteer:hover{background:#255564}
+.race-preflight-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.race-preflight-steps button{border:1px solid #456369;background:#11252f;border-radius:12px;min-height:55px;display:flex;align-items:center;gap:10px;padding:8px 12px;text-align:left}
+.race-preflight-steps button[aria-current=step]{background:#1f5a60;border-color:#a6efe0}
+.race-preflight-steps button:disabled{opacity:.6;cursor:default}
+.race-preflight-steps b{display:grid;place-items:center;flex:none;width:28px;height:28px;border-radius:50%;background:#2c5960}
+.race-preflight-status{margin:0;min-height:22px;color:#b6e3da;font-size:13px}
+.race-preflight-content{flex:1;min-height:0}
+.race-preflight-intro{display:flex;align-items:stretch;justify-content:space-between;gap:18px;margin-bottom:16px}
+.race-preflight-intro p{max-width:65ch;margin:4px 0;color:#c9d8da}
+.race-preflight aside{display:flex;gap:10px;align-items:flex-start;max-width:50ch;border-left:4px solid #f4c46d;background:#18313c;padding:12px 15px;border-radius:0 12px 12px 0}
+.race-preflight aside b{white-space:nowrap;color:#ffd986}
+.race-preflight-route-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.race-preflight-route{min-width:0;min-height:270px;display:flex;flex-direction:column;text-align:left;border:1px solid #456774;border-radius:18px;padding:0;overflow:hidden;background:#102933}
+.race-preflight-route[aria-pressed=true],.race-preflight-roster button[aria-pressed=true],.race-preflight-part-options button[aria-pressed=true],.race-preflight-control-options button[aria-pressed=true]{border-color:#b9f3df;box-shadow:inset 0 0 0 2px #7bd9c1}
+.race-preflight-route:disabled{opacity:.48;cursor:default}
+.race-preflight-route-art{height:115px;position:relative;display:block;overflow:hidden;background:linear-gradient(120deg,#213c4d99,#274c4899),url('media/home-previews/race-poster.png') center/cover}
+.race-preflight-route-art:after{content:"";position:absolute;inset:21px 20%;border:6px dashed #e8f1d3;border-radius:45%;transform:rotate(-14deg)}
+.race-preflight-route-art.route-drag:after{inset:55px 10% auto;border:0;border-top:6px dashed #e8f1d3;border-radius:0;transform:rotate(-7deg)}
+.race-preflight-route-art.route-drift:after{border-radius:50% 10% 50% 10%;transform:rotate(24deg)}
+.race-preflight-route-art.route-hill:after{border-radius:10% 60% 10% 60%;transform:rotate(-26deg)}
+.race-preflight-route-art.route-endurance:after{inset:14px 28%;border-radius:50%}
+.race-preflight-route-art b{position:absolute;z-index:1;top:12px;left:14px;font-size:22px;text-shadow:0 2px 8px #000}
+.race-preflight-route-copy{display:flex;flex-direction:column;gap:5px;padding:13px 15px}
+.race-preflight-route-copy small{color:#84e2c8;font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+.race-preflight-route-copy strong{font-size:21px;line-height:1.1}
+.race-preflight-route-copy span{color:#cadbdc;font-size:13px}
+.race-preflight-route-copy em{color:#f3d891;font-size:12px;font-style:normal;line-height:1.4}
+.race-preflight-showroom{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(300px,.7fr);gap:20px}
+.race-preflight-feature,.race-preflight-tune-preview,.race-preflight-grid-car{border:1px solid #4e7175;background:linear-gradient(145deg,#1e3b44,#0d2431);border-radius:20px;overflow:hidden}
+.race-preflight-feature img,.race-preflight-tune-preview img,.race-preflight-grid-car img{display:block;width:100%;max-height:420px;object-fit:contain}
+.race-preflight-feature>div{padding:14px 20px 20px}
+.race-preflight-feature h3,.race-preflight-grid h3{font:800 clamp(30px,4vw,56px)/1 var(--f-display);margin:8px 0}
+.race-preflight-feature p{margin:6px 0}
+.race-preflight-specs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;align-content:start}
+.race-preflight-specs span,.race-preflight-deltas span{display:flex;flex-direction:column;gap:5px;padding:13px;border:1px solid #3d5e63;border-radius:12px;background:#132d38}
+.race-preflight-specs small,.race-preflight-deltas small{color:#9ed9cf;text-transform:uppercase;font-size:11px;letter-spacing:.06em}
+.race-preflight-specs b{font-size:14px;line-height:1.35}
+.race-preflight-roster{display:flex;gap:12px;margin-top:16px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:thin;padding:3px 2px 10px}
+.race-preflight-roster button{flex:0 0 60%;min-width:0;display:flex;align-items:center;gap:12px;text-align:left;padding:8px;border:1px solid #476a70;border-radius:14px;background:#142e39;scroll-snap-align:center}
+.race-preflight-roster img{width:90px;max-width:40%;height:70px;object-fit:contain}
+.race-preflight-roster small{color:#b3d5d0}
+.race-preflight-footnote{color:#b6d2d2;font-size:12px;line-height:1.5}
+.race-preflight-tune-layout{display:grid;grid-template-columns:minmax(280px,.85fr) minmax(0,1.15fr);gap:18px}
+.race-preflight-deltas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:13px}
+.race-preflight-deltas b{font-size:13px}.race-preflight-deltas em{font-size:11px;font-style:normal;color:#ffdc8f}
+.race-preflight-parts{display:flex;flex-direction:column;gap:10px}
+.race-preflight-parts fieldset{min-width:0;border:1px solid #4b6d73;border-radius:14px;padding:11px;background:#122d38}
+.race-preflight-parts legend{font-weight:800;padding:0 8px;color:#eaf8f2}
+.race-preflight-part-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.race-preflight-part-options button{min-width:0;min-height:76px;display:flex;flex-direction:column;gap:4px;text-align:left;padding:9px;border:1px solid #517477;border-radius:10px;background:#1a3c45}
+.race-preflight-part-options small{font-size:11px;color:#c8dcda;line-height:1.25}
+.race-preflight-parts fieldset p{font-size:12px;color:#d6e7df;margin:9px 0 0}
+.race-preflight-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(300px,.85fr);gap:22px}
+.race-preflight-grid-car{display:flex;flex-direction:column;justify-content:center;position:relative}
+.race-preflight-grid-car span{padding:15px 20px;font-size:12px;letter-spacing:.15em;color:#ffd587}
+.race-preflight-grid-brief{display:flex;flex-direction:column;gap:12px;padding:18px;border:1px solid #4e7175;border-radius:20px;background:#122c37}
+.race-preflight-grid-brief p{margin:0;color:#d8e8e6}
+.race-preflight-grid-brief dl{margin:0;display:grid;gap:8px}
+.race-preflight-grid-brief dl div{display:grid;grid-template-columns:75px 1fr;gap:8px;padding:9px;background:#1a3942;border-radius:8px}
+.race-preflight-grid-brief dt{color:#8ed7cb}.race-preflight-grid-brief dd{margin:0}
+.race-preflight-control-options{display:flex;flex-wrap:wrap;gap:8px}
+.race-preflight-footer{position:sticky;bottom:0;padding:12px 0 calc(12px + env(safe-area-inset-bottom));background:#08121f;border-top:1px solid #50696c}
+.race-preflight-footer #racePreflightNext{background:#2b705f;border-color:#a6edc6;font-weight:800;min-width:160px}
+@media(max-width:850px){.race-preflight-route-list{grid-template-columns:repeat(2,minmax(0,1fr))}.race-preflight-showroom,.race-preflight-tune-layout,.race-preflight-grid{grid-template-columns:1fr}.race-preflight-feature img,.race-preflight-tune-preview img,.race-preflight-grid-car img{max-height:280px}}
+@media(max-width:520px){.race-preflight-shell{gap:10px;padding:12px}.race-preflight h2{font-size:28px}.race-preflight-header button{padding:8px 10px}.race-preflight-steps{gap:4px}.race-preflight-steps button{min-height:50px;justify-content:center;padding:4px}.race-preflight-intro{flex-direction:column;gap:8px}.race-preflight-route-list{grid-template-columns:1fr}.race-preflight-route{min-height:0;display:grid;grid-template-columns:110px 1fr}.race-preflight-route-art{height:100%}.race-preflight-route-copy strong{font-size:18px}.race-preflight-route-copy{padding:10px}.race-preflight-specs{grid-template-columns:1fr 1fr}.race-preflight-roster button{flex-basis:82%;min-height:78px}.race-preflight-part-options{grid-template-columns:1fr 1fr}.race-preflight-grid-brief{padding:13px}.race-preflight-footer button{flex:1}}
+@media(prefers-reduced-motion:reduce){.race-preflight *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
