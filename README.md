@@ -69,6 +69,10 @@ Open `dist/kicklab.html` in a browser to play. Local player profiles and the Loc
 
 Saved progress and the weekly challenge seed still use the old `impactlab` keys on purpose, so nobody's XP, kit or leaderboard history resets after the rename. Multi-profile builds store their versioned envelope in `kicklab.profiles.v1` and mirror the active player back to `impactlab.v1` and `impactlab.nick` for compatibility. See [`docs/architecture/local-player-profiles.md`](docs/architecture/local-player-profiles.md).
 
+## In-game Coach guidance
+
+Across Fight, Race, and Kick, use the game's established styled Coach components for guidance. During active play, show one concise instruction, a few scannable facts with visual cues where useful, and one clear next action. Put explanations, calculations, tradeoffs, and history behind the existing notebook or detail controls so players can open them when ready. A wall of text on an active gameplay surface fails UI review, even when its advice is correct. Check the rendered guidance on phone, tablet, and desktop, including setup, live, blocked, and result states.
+
 Cross-platform work starts with the [architecture contract](docs/architecture/cross-platform-contract.md). The current HTML artifact remains supported while deterministic game rules move behind shared interfaces and Capacitor shells are introduced in separately owned platform lanes.
 
 The shared Capacitor foundation is local-first and generates no `ios/` or `android/` project. Platform lanes consume the same `dist/mobile` artifact and follow the [seven-gate native qualification roadmap](docs/release/mobile-qualification-roadmap.md). Native launch does not create an account, cloud identity, or sync relationship.
