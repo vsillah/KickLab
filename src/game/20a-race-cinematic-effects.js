@@ -19,13 +19,13 @@ const RACE_CINEMATIC_FX={
     const flames=[];
     for(const side of ['Left','Right']){
       const marker=car.getObjectByName('Exhaust'+side);if(!marker)continue;
-      const material=new T.SpriteMaterial({color:0xffffff,transparent:true,opacity:0,depthWrite:false,alphaTest:.01,toneMapped:false}),sprite=new T.Sprite(material);
-      const core=new T.Sprite(new T.SpriteMaterial({map:coreTexture,color:0xd5f4ff,transparent:true,opacity:0,depthWrite:false,alphaTest:.01,toneMapped:false}));
-      const wisp=new T.Sprite(new T.SpriteMaterial({map:smokeTexture,color:0xffa965,transparent:true,opacity:0,depthWrite:false,alphaTest:.01,toneMapped:false}));
+      const material=new T.SpriteMaterial({color:0xffffff,transparent:true,opacity:0,depthWrite:false,depthTest:false,alphaTest:.01,toneMapped:false}),sprite=new T.Sprite(material);
+      const core=new T.Sprite(new T.SpriteMaterial({map:coreTexture,color:0xd5f4ff,transparent:true,opacity:0,depthWrite:false,depthTest:false,alphaTest:.01,toneMapped:false}));
+      const wisp=new T.Sprite(new T.SpriteMaterial({map:smokeTexture,color:0xffa965,transparent:true,opacity:0,depthWrite:false,depthTest:false,alphaTest:.01,toneMapped:false}));
       for(const layer of [sprite,core,wisp]){layer.visible=false;layer.renderOrder=9;car.add(layer);}
       flames.push({sprite,core,wisp,marker,map:null,side:side==='Left'?0:1,frame:-1});
     }
-    const fx={particles,smokeTexture,tireFrames,particleCursor:0,particleTick:0,coreTexture,flameAtlas:null,flames,flameEnergy:0,visualClock:0,marks,markGeometry,markMaterial,markEntries:[],lastContact:new Map(),markCursor:0,markTick:0,tireTick:0,tireEvent:'none',internals:null,assetReady:false,assetError:null,pendingSuccess:null,cutaway:null,materials:[],lastBoost:false,counts:{vapor:0,tire:0,marks:0}};
+    const fx={particles,smokeTexture,tireFrames,particleCursor:0,particleTick:0,coreTexture,flameAtlas:null,flames,flameEnergy:0,visualClock:0,marks,markGeometry,markMaterial,markEntries:[],lastContact:new Map(),markCursor:0,markTick:0,tireTick:0,tireEvent:'none',internals:null,assetReady:false,assetError:null,pendingSuccess:null,cutaway:null,materials:[],lastBoost:false,lastNitro:Race.st?.nitro??1,launch:null,shiftTriggered:false,audit:{boost:{reason:'waiting',starts:0,ends:0},launch:{reason:'waiting',starts:0,ends:0},shift:{reason:'waiting',starts:0,ends:0},cutaway:{reason:'waiting',starts:0,ends:0}},counts:{vapor:0,tire:0,marks:0}};
     fx.flameAtlas=new T.TextureLoader().load('assets/effects/race/v1/nitrous-flame-atlas.webp',atlas=>{if(view.cinematicFx!==fx)return;atlas.colorSpace=T.SRGBColorSpace;for(const flame of flames){const map=atlas.clone();map.repeat.set(.25,.5);map.offset.set(0,.5);map.needsUpdate=true;flame.map=map;flame.sprite.material.map=map;flame.sprite.material.needsUpdate=true;}});
     view.cinematicFx=fx;this.loadInternals(view,fx);
   },
@@ -42,7 +42,7 @@ const RACE_CINEMATIC_FX={
       const sweep=new T.Mesh(new T.BoxGeometry(.035,1.05,vehicle.widthM*.96),new T.MeshBasicMaterial({color:0x9ceaff,transparent:true,opacity:0,depthWrite:false,depthTest:false,blending:T.AdditiveBlending,toneMapped:false}));
       sweep.renderOrder=13;sweep.position.y=.7;group.add(sweep);view.car.add(group);
       fx.internals={group,parts,sweep};fx.assetReady=true;
-      if(fx.pendingSuccess&&Race.state==='done'){const system=fx.pendingSuccess;fx.pendingSuccess=null;this.success(view,system);}
+      if(fx.pendingSuccess){const pending=fx.pendingSuccess;fx.pendingSuccess=null;if(Race.state==='done'||pending.allowRun&&Race.state==='run')this.success(view,pending.system,pending.allowRun);}
     },undefined,error=>{if(view.cinematicFx===fx)fx.assetError=String(error?.message||error);});
   },
   emit(view,kind,origin,life,scale,color,velocity){
@@ -56,9 +56,9 @@ const RACE_CINEMATIC_FX={
     if(!node)return null;const p=node.getWorldPosition(new THREE.Vector3()),path=RACE_SYSTEMS.path(p.x,p.z,Race.P(),RACE_SYSTEMS.venue(Race.opt.venue));
     return Math.abs(path.e)<Race.HW-.35?new THREE.Vector3(p.x,.05,p.z):null;
   },
-  tireState(){
+  tireState(launchState=null){
     const s=Race.st,t=Race.telemetry,slip=Math.abs(s.slipAngle||0);
-    if(s.launchSlip>.03&&s.v<8)return 'launch';
+    if((launchState||RACE_3D.cinematicFx?.launch)?.phase==='active')return 'launch';
     if(s.driftMode==='skid'&&t.braking>.55)return 'brake-lock';
     if(s.driftMode==='skid'&&s.skidTime>.12&&slip>.16)return 'spinout';
     if(s.driftMode==='drift'&&slip>.06)return 'drift';
@@ -80,10 +80,12 @@ const RACE_CINEMATIC_FX={
   },
   drawCanvasTires(c,race){
     const s=race.st,now=performance.now(),state=this.canvasTires||(this.canvasTires={clock:0,lastNow:now,lastRaceTime:s.t,lastSample:0,event:'none',previous:new Map(),marks:[],puffs:[]});
-    if(s.t<state.lastRaceTime||race.state==='grid'){state.clock=0;state.lastSample=0;state.previous.clear();state.marks.length=0;state.puffs.length=0;state.event='none';}
+    if(s.t<state.lastRaceTime||race.state==='grid'){state.clock=0;state.lastSample=0;state.previous.clear();state.marks.length=0;state.puffs.length=0;state.event='none';state.launch=null;}
     const elapsed=Math.min(.05,Math.max(0,(now-state.lastNow)/1000));state.lastNow=now;state.lastRaceTime=s.t;
     if(!PAUSE.on&&!document.hidden)state.clock+=elapsed;
-    const event=race.state==='run'&&!PAUSE.on&&!document.hidden?this.tireState():'none';
+    const analog=race.analogControl?.active?race.analogControl:null,gas=Math.max(Number(race.inp.gas)||0,analog?Math.max(0,-Number(analog.y||0)):0),brake=Math.max(Number(race.inp.brake)||0,analog?Math.max(0,Number(analog.y||0)):0);
+    state.launch=globalThis.KickLabRaceEffectsContracts.launch(state.launch,{mode:race.mode().id,running:race.state==='run',paused:PAUSE.on,hidden:document.hidden,time:s.t,brake,gas,speed:s.v,slip:s.launchSlip||0});
+    const event=race.state==='run'&&!PAUSE.on&&!document.hidden?this.tireState(state.launch):'none';
     if(event!==state.event){state.previous.clear();state.event=event;}
     if(event!=='none'&&state.clock-state.lastSample>=(reduce?.16:.09)){
       state.lastSample=state.clock;
@@ -125,32 +127,37 @@ const RACE_CINEMATIC_FX={
       if(fx.uiRects.some(rect=>x>rect.left-20&&x<rect.right+20&&y>rect.top-20&&y<rect.bottom+20))particle.mesh.material.opacity=0;
     }
   },
-  success(view,system){
+  success(view,system,allowRun=false){
     const fx=view.cinematicFx;if(!fx||!view.on||view.failed||fx.cutaway)return;
     const chosen=['chassis','drivetrain','suspension','brakes','cooling'].includes(system)?system:'chassis';
-    if(!fx.assetReady){fx.pendingSuccess=chosen;return;}
-    fx.cutaway={system:chosen,elapsed:0,duration:reduce?2.4:3};fx.internals.group.visible=true;
+    if(!fx.assetReady){fx.pendingSuccess={system:chosen,allowRun};return;}
+    fx.cutaway={system:chosen,elapsed:0,duration:reduce?2.4:3,allowRun};fx.audit.cutaway={reason:'started',starts:fx.audit.cutaway.starts+1,ends:fx.audit.cutaway.ends,system:chosen};fx.internals.group.visible=true;
     if(view.cutawayCaption){view.cutawayCaption.textContent={chassis:'CHASSIS · the car’s load path',drivetrain:'DRIVETRAIN · power to the wheels',suspension:'SUSPENSION · grip through the turn',brakes:'BRAKES · energy into heat',cooling:'COOLING · airflow restores power'}[chosen];view.cutawayCaption.hidden=false;}
     view.car.traverse(node=>{if(!node.isMesh||fx.internals.group.getObjectById(node.id))return;for(const material of [node.material].flat())if(material&&!fx.materials.some(entry=>entry.material===material)){fx.materials.push({material,opacity:material.opacity,transparent:material.transparent,depthWrite:material.depthWrite});material.transparent=true;material.opacity=Math.min(material.opacity,.18);material.depthWrite=false;}});
     const colors={chassis:0x84d5dc,drivetrain:0xffb95e,suspension:0x77dea1,brakes:0xff6d52,cooling:0x78caff};
     for(const [key,part] of Object.entries(fx.internals.parts))part.traverse(mesh=>{if(!mesh.isMesh)return;for(const material of [mesh.material].flat()){material.opacity=key===chosen?.92:.12;material.emissive?.setHex(key===chosen?colors[key]:0x000000);if(material.emissiveIntensity!==undefined)material.emissiveIntensity=key===chosen?.42:0;}});
   },
-  endCutaway(view){const fx=view.cinematicFx;if(!fx)return;for(const entry of fx.materials){entry.material.opacity=entry.opacity;entry.material.transparent=entry.transparent;entry.material.depthWrite=entry.depthWrite;}fx.materials.length=0;if(fx.internals){fx.internals.group.visible=false;fx.internals.sweep.material.opacity=0;for(const mesh of Object.values(fx.internals.parts))mesh.position.copy(mesh.userData.basePosition);}fx.cutaway=null;fx.pendingSuccess=null;if(view.cutawayCaption)view.cutawayCaption.hidden=true;},
+  endCutaway(view,reason='completed'){const fx=view.cinematicFx;if(!fx)return;if(fx.cutaway){fx.audit.cutaway={...fx.audit.cutaway,reason,ends:fx.audit.cutaway.ends+1};if(fx.cutaway.allowRun)fx.audit.shift={...fx.audit.shift,reason,ends:fx.audit.shift.ends+1};}for(const entry of fx.materials){entry.material.opacity=entry.opacity;entry.material.transparent=entry.transparent;entry.material.depthWrite=entry.depthWrite;}fx.materials.length=0;if(fx.internals){fx.internals.group.visible=false;fx.internals.sweep.material.opacity=0;for(const mesh of Object.values(fx.internals.parts))mesh.position.copy(mesh.userData.basePosition);}fx.cutaway=null;fx.pendingSuccess=null;if(view.cutawayCaption)view.cutawayCaption.hidden=true;},
+  shift(view,event){const fx=view.cinematicFx;if(!fx)return;const reason=globalThis.KickLabRaceEffectsContracts.shift({...event,alreadyTriggered:fx.shiftTriggered});fx.audit.shift={...fx.audit.shift,reason,beforeGear:event.beforeGear,afterGear:event.afterGear};if(reason==='perfect-upshift'){fx.shiftTriggered=true;fx.audit.shift.starts++;this.success(view,'drivetrain',true);}},
   step(view,dt){
     const fx=view.cinematicFx,t=Race.telemetry,s=Race.st;if(!fx||!t)return;
-    const visualStep=!PAUSE.on&&!document.hidden?Math.min(.05,Math.max(0,dt)):0,active=Race.state==='run'&&!PAUSE.on&&!document.hidden,step=active?visualStep:0,boost=active&&s.nitroDelivered&&t.nosPulse>0&&!t.overheat;
-    fx.visualClock+=visualStep;fx.flameEnergy=!active?0:boost?Math.min(1,fx.flameEnergy+step*9):Math.max(0,fx.flameEnergy-step*7);
+    const analog=Race.analogControl?.active?Race.analogControl:null,gas=Math.max(Number(Race.inp.gas)||0,analog?Math.max(0,-Number(analog.y||0)):0),brake=Math.max(Number(Race.inp.brake)||0,analog?Math.max(0,Number(analog.y||0)):0),visualStep=!PAUSE.on&&!document.hidden?Math.min(.05,Math.max(0,dt)):0,active=Race.state==='run'&&!PAUSE.on&&!document.hidden,step=active?visualStep:0,draining=(fx.lastNitro??s.nitro)>s.nitro+1e-6,boostReason=globalThis.KickLabRaceEffectsContracts.boost({running:Race.state==='run',paused:PAUSE.on,hidden:document.hidden,delivered:!!s.nitroDelivered,pulse:t.nosPulse,overheat:!!t.overheat,active:!!s.nitroActive,throttle:gas>.1,draining,traction:s.driftMode!=='skid'}),boost=boostReason==='delivered-draining';
+    fx.lastNitro=s.nitro;fx.audit.boost.reason=boostReason;if(boost&&!fx.lastBoost)fx.audit.boost.starts++;if(!boost&&fx.lastBoost)fx.audit.boost.ends++;
+    const priorLaunch=fx.launch;
+    fx.launch=globalThis.KickLabRaceEffectsContracts.launch(fx.launch,{mode:Race.mode().id,running:Race.state==='run',paused:PAUSE.on,hidden:document.hidden,time:s.t,brake,gas,speed:s.v,slip:s.launchSlip||0});fx.audit.launch.reason=fx.launch.reason;if(fx.launch.phase==='active'&&priorLaunch?.phase!=='active')fx.audit.launch.starts++;if(priorLaunch?.phase==='active'&&fx.launch.phase!=='active')fx.audit.launch.ends++;
+    if(fx.cutaway&&(PAUSE.on||document.hidden||Race.state!=='done'&&!(fx.cutaway.allowRun&&Race.state==='run')))this.endCutaway(view,PAUSE.on?'paused':document.hidden?'hidden':'race-state-changed');
+    fx.visualClock+=visualStep;fx.flameEnergy=boost?Math.min(1,fx.flameEnergy+step*9):0;
     for(const flame of fx.flames){
-      const {sprite,core,wisp,marker,map}=flame;sprite.visible=core.visible=wisp.visible=boost&&!reduce&&!!map;
+      const {sprite,core,wisp,marker,map}=flame;sprite.visible=core.visible=boost&&!!map;wisp.visible=boost&&!reduce&&!!map;
       if(!sprite.visible)continue;
       marker.updateWorldMatrix(true,false);const nozzle=marker.getWorldPosition(new THREE.Vector3()),localNozzle=view.car.worldToLocal(nozzle.clone()),back=new THREE.Vector3(Math.cos(s.th),0,Math.sin(s.th)),time=fx.visualClock+flame.side*.043;
-      const surge=Math.max(.55,Math.min(1.38,.91+.24*Math.sin(time*38+flame.side*2.1)+.16*Math.sin(time*67+flame.side*.7))),length=(.61+Math.min(1,t.nosPulse/1.2)*.19)*surge,width=length*(.48+.1*Math.sin(time*53+flame.side*1.9));
-      sprite.position.copy(localNozzle).x-=length*.58;sprite.position.y+=.025*Math.sin(time*71+flame.side);sprite.scale.set(length,width,1);sprite.material.opacity=(.4+.22*Math.sin(time*47+flame.side*2.7)**2)*fx.flameEnergy;
-      const coreLength=length*(.26+.08*Math.sin(time*59+flame.side)),coreWidth=width*.47;core.position.copy(localNozzle).x-=coreLength*.45;core.scale.set(coreLength,coreWidth,1);core.material.opacity=(.56+.2*Math.sin(time*61+flame.side*2)**2)*fx.flameEnergy;
+      const surge=reduce?.9:Math.max(.55,Math.min(1.38,.91+.24*Math.sin(time*38+flame.side*2.1)+.16*Math.sin(time*67+flame.side*.7))),length=(.61+Math.min(1,t.nosPulse/1.2)*.19)*surge,width=length*(reduce?.49:.48+.1*Math.sin(time*53+flame.side*1.9));
+      sprite.position.copy(localNozzle).x-=length*.58;if(!reduce)sprite.position.y+=.025*Math.sin(time*71+flame.side);sprite.scale.set(length,width,1);sprite.material.opacity=(reduce?.52:.4+.22*Math.sin(time*47+flame.side*2.7)**2)*fx.flameEnergy;
+      const coreLength=length*(reduce?.3:.26+.08*Math.sin(time*59+flame.side)),coreWidth=width*.47;core.position.copy(localNozzle).x-=coreLength*.45;core.scale.set(coreLength,coreWidth,1);core.material.opacity=(reduce?.66:.56+.2*Math.sin(time*61+flame.side*2)**2)*fx.flameEnergy;
       const breakup=.5+.5*Math.sin(time*43+flame.side*2.4);wisp.position.copy(localNozzle).x-=length*(.66+.2*breakup);wisp.position.y+=(breakup-.5)*.11;wisp.scale.set(width*(.68+.25*breakup),width*(.55+.2*breakup),1);wisp.material.opacity=.12*(1-breakup*.45)*fx.flameEnergy;
       const a=nozzle.clone().project(view.camera),b=nozzle.clone().addScaledVector(back,-1).project(view.camera);
       if(Math.hypot(b.x-a.x,b.y-a.y)>.006){const angle=Math.atan2(b.y-a.y,b.x-a.x);sprite.material.rotation=angle;core.material.rotation=angle;wisp.material.rotation=angle+.28*Math.sin(time*37);}
-      const frame=Math.floor((time*23+flame.side*2.8)%8);if(frame!==flame.frame){flame.frame=frame;map.offset.set((frame%4)*.25,frame<4?.5:0);}
+      const frame=reduce?0:Math.floor((time*23+flame.side*2.8)%8);if(frame!==flame.frame){flame.frame=frame;map.offset.set((frame%4)*.25,frame<4?.5:0);}
     }
     const heat=t.heat,load=t.torque,stage=RACE_TELEMETRY.thermalStage(t),vaporRate=active&&!reduce&&stage!=='normal'?(stage==='critical'?4:stage==='hot'?2.5:1.1):active&&!reduce&&load>.62?1.2:0;
     fx.particleTick+=step*vaporRate;
@@ -204,7 +211,7 @@ const RACE_CINEMATIC_FX={
       dummy.updateMatrix();fx.marks.setMatrixAt(i,dummy.matrix);
     }
     fx.marks.instanceMatrix.needsUpdate=true;if(fx.marks.instanceColor)fx.marks.instanceColor.needsUpdate=true;
-    if(fx.cutaway&&Race.state==='done'&&!PAUSE.on&&!document.hidden){
+    if(fx.cutaway&&(Race.state==='done'||fx.cutaway.allowRun&&Race.state==='run')&&!PAUSE.on&&!document.hidden){
       fx.cutaway.elapsed+=visualStep;const p=Math.min(1,fx.cutaway.elapsed/fx.cutaway.duration),pulse=Math.sin(Math.PI*p),selected=fx.internals.parts[fx.cutaway.system];
       selected.position.copy(selected.userData.basePosition);if(!reduce){selected.position.y+=pulse*.13;selected.position.x+=fx.cutaway.system==='cooling'?pulse*.12:0;}
       fx.internals.sweep.position.x=-Race.vehicle().lengthM*.5+Race.vehicle().lengthM*Math.min(1,p*2.25);fx.internals.sweep.material.opacity=reduce?0:Math.max(0,1-p*2.3)*.23;
@@ -212,13 +219,13 @@ const RACE_CINEMATIC_FX={
       if(fx.cutaway.elapsed>=fx.cutaway.duration)this.endCutaway(view);
     }
     fx.lastBoost=boost;fx.counts.vapor=fx.particles.filter(p=>p.mesh.visible&&p.kind==='vapor').length;fx.counts.tire=fx.particles.filter(p=>p.mesh.visible&&p.kind==='tire').length;
-    globalThis.__KICKLAB_RACE_FX__={vehicle:Race.vehicle().id,boost,flameEnergy:fx.flameEnergy,flameFrame:fx.flames[0]?.frame??-1,vapor:fx.counts.vapor,tireSmoke:fx.counts.tire,tireEvent:fx.tireEvent,markPool:256,markCount:fx.marks.count,visibleMarks:fx.markEntries.filter(mark=>mark&&mark.age<5.5).length,markEmissions:fx.counts.marks,assetReady:fx.assetReady,assetError:fx.assetError,cutaway:fx.cutaway?{system:fx.cutaway.system,elapsed:fx.cutaway.elapsed,duration:fx.cutaway.duration}:null,reducedMotion:!!reduce};
+    globalThis.__KICKLAB_RACE_FX__={vehicle:Race.vehicle().id,boost,flameEnergy:fx.flameEnergy,flameFrame:fx.flames[0]?.frame??-1,vapor:fx.counts.vapor,tireSmoke:fx.counts.tire,tireEvent:fx.tireEvent,markPool:256,markCount:fx.marks.count,visibleMarks:fx.markEntries.filter(mark=>mark&&mark.age<5.5).length,markEmissions:fx.counts.marks,assetReady:fx.assetReady,assetError:fx.assetError,cutaway:fx.cutaway?{system:fx.cutaway.system,elapsed:fx.cutaway.elapsed,duration:fx.cutaway.duration}:null,reducedMotion:!!reduce,audit:structuredClone(fx.audit)};
   },
   clear(view,dispose=false){
-    const fx=view.cinematicFx;if(!fx)return;globalThis.__KICKLAB_RACE_FX__=null;globalThis.__KICKLAB_RACE_SPIN__=null;this.endCutaway(view);
+    const fx=view.cinematicFx;if(!fx)return;if(fx.lastBoost)fx.audit.boost={...fx.audit.boost,reason:'lifecycle-cancelled',ends:fx.audit.boost.ends+1};if(fx.launch?.phase==='active')fx.audit.launch={...fx.audit.launch,reason:'lifecycle-cancelled',ends:fx.audit.launch.ends+1};if(fx.pendingSuccess?.allowRun)fx.audit.shift={...fx.audit.shift,reason:'lifecycle-cancelled',ends:fx.audit.shift.ends+1};this.endCutaway(view,'lifecycle-cancelled');globalThis.__KICKLAB_RACE_FX_LAST__={vehicle:Race.vehicle().id,audit:structuredClone(fx.audit)};globalThis.__KICKLAB_RACE_FX__=null;globalThis.__KICKLAB_RACE_SPIN__=null;
     if(view.spinPresentation){const spin=view.spinPresentation;spin.energy=spin.whip=0;spin.wasSpinning=spin.countersteer=false;if(spin.body)spin.body.position.y=spin.bodyRestY;}
     for(const particle of fx.particles)particle.mesh.visible=false;
-    fx.markEntries.length=0;fx.lastContact.clear();fx.marks.count=0;fx.markCursor=fx.particleCursor=0;fx.markTick=fx.tireTick=fx.particleTick=fx.flameEnergy=fx.visualClock=0;fx.tireEvent='none';fx.counts={vapor:0,tire:0,marks:0};
+    fx.markEntries.length=0;fx.lastContact.clear();fx.marks.count=0;fx.markCursor=fx.particleCursor=0;fx.markTick=fx.tireTick=fx.particleTick=fx.flameEnergy=fx.visualClock=0;fx.tireEvent='none';fx.lastNitro=Race.st?.nitro??1;fx.launch=null;fx.shiftTriggered=false;fx.audit={boost:{reason:'waiting',starts:0,ends:0},launch:{reason:'waiting',starts:0,ends:0},shift:{reason:'waiting',starts:0,ends:0},cutaway:{reason:'waiting',starts:0,ends:0}};fx.counts={vapor:0,tire:0,marks:0};
     for(const {sprite,core,wisp} of fx.flames)for(const layer of [sprite,core,wisp]){layer.visible=false;layer.material.opacity=0;}
     if(!dispose)return;
     for(const particle of fx.particles){view.scene.remove(particle.mesh);particle.mesh.material.dispose();}fx.smokeTexture.dispose();for(const frame of fx.tireFrames)frame.dispose();
