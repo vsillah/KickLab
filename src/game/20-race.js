@@ -249,7 +249,9 @@ const Race={
     c.fillStyle='#132b40';c.beginPath();c.arc(0,2,15,0,Math.PI*2);c.fill();c.strokeStyle='#b1d9e8';c.lineWidth=2;c.stroke();c.fillStyle='#78e8ff';c.beginPath();c.moveTo(-5,5);c.lineTo(0,-4);c.lineTo(5,5);c.lineTo(1,5);c.lineTo(0,2);c.lineTo(-1,5);c.closePath();c.fill();
     c.fillStyle='#78e8ff';c.fillRect(-3,-r-3,6,8);c.restore();},
   hud(c){const s=this.st;
-    const preview=RACE_3D.shouldBlockInput()&&!RACE_3D.awaitingPacing,msg=preview?'Vehicle view · Skip to countdown.':{grid:this.expansionActive()?`${this.mode().name} · Start with Coach Nia below.`:'Hold GAS to start. Steer into the corner, brake if the path turns red.',count:'Get ready…',run:'',done:'',crashed:''}[this.state];text(c,msg,24,54,'500 13px '+BODY,C.muted);
+    const preview=RACE_3D.shouldBlockInput()&&!RACE_3D.awaitingPacing,msg=preview?'Vehicle view · Skip to countdown.':{grid:this.expansionActive()?`${this.mode().name} · Start with Coach Nia below.`:'Hold GAS to start. Steer into the corner, brake if the path turns red.',count:'Get ready…',run:'',done:'',crashed:''}[this.state];
+    const phone=matchMedia('(max-width:480px)').matches;
+    if(!phone)text(c,msg,24,54,'500 13px '+BODY,C.muted);
     const cockpit=$('#raceCockpit');
     if(RACE_CORNER_TRACE.enabled){
       if(cockpit)cockpit.hidden=!(this.state==='run'&&!RP.on&&!RACE_3D.shouldBlockInput());
@@ -263,7 +265,7 @@ const Race={
         wheelContext.setTransform(dpr*sc,0,0,dpr*sc,0,0);this.drawWheel(wheelContext);
       }
     }else this.drawWheel(c);
-    text(c,fmt(s.t,2)+' s',W-24,40,'22px '+DISP,C.ink,'right');
+    if(!phone)text(c,fmt(s.t,2)+' s',W-24,40,'22px '+DISP,C.ink,'right');
     if(!RACE_3D.on&&!preview&&(this.state==='count'||this.state==='grid')){const lit=this.state==='count'?Math.min(3,Math.floor((2.4-this.cd)/0.8)+1):0,phase=this.expansionActive()&&this.state==='count'?RACE_MODES.lightPhase(this.cd):null,colors=['#ff4f46','#ffcb47','#62ff9e'];
       c.save();c.fillStyle='rgba(6,11,24,0.85)';rr(c,W/2-74,74,148,46,23);c.fill();for(let i=0;i<3;i++){c.fillStyle=phase?phase===['red','yellow','green'][i]?colors[i]:'#2a3552':i<lit?C.bad:'#2a3552';c.beginPath();c.arc(W/2-44+i*44,97,14,0,Math.PI*2);c.fill();}c.restore();}
     if(this.state==='run'&&s.t<0.8){c.save();c.globalAlpha=1-s.t/0.8;text(c,'GO!',W/2,112,'34px '+DISP,C.good,'center');c.restore();}
