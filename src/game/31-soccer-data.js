@@ -22,6 +22,12 @@ function PLY(){return PLAYERS[Kick.opt.pl]||PLAYERS.you;}
 function playerLook(id=Kick.opt.pl,overrides={}){const P=PLAYERS[id]||PLAYERS.you,A=GAME_CORE.playerAppearance(id,overrides);return Object.assign({},A,{kit:overrides.kit||P.kit||A.kit,hs:P.h/1.8,ws:Math.sqrt(P.m/75)*1.8/P.h});}
 function applyPlayer(){const P=PLY();if(Kick.opt.pl==='you')return;const set=(k,v)=>{if(!isLocked('kick',k))Kick.V[k]=v;};set('run',+(Math.min(9,P.top/1.22)).toFixed(1));set('vs',P.shot);set('jv',P.jump);}
 const STADIUMS={home:{n:'Home ground',d:'sea level',g:9.81,rho:1.2,sky:['#070d1d','#1a2a4a']},alt:{n:'High altitude',d:'2,240 m up · thin air',g:9.78,rho:0.96,sky:['#0b1430','#2a4370']},mars:{n:'Mars dome',d:'g 3.71 · almost no air',g:3.71,rho:0.02,sky:['#1f0c08','#6b2e1c']},moon:{n:'Moon',d:'g 1.62 · no air at all',g:1.62,rho:0,sky:['#000000','#0b0f1a']}};
+// Presentation only. These values never enter stadium, weather, or ball equations.
+const KICK_LIGHTING={
+  day:{sky:['#4c9dd2','#a9d8ef','#d8e9e3'],fog:'#bed8d8',fogNear:115,fogFar:300,hemiSky:0xe8f5ff,hemiGround:0x526d50,hemi:1.12,ambient:.24,sun:0xfff1d5,sunPower:2.05,sunOffset:[-25,48,30],lamp:.04,exposure:1.01},
+  dusk:{sky:['#344778','#e49d76','#f2c2a1'],fog:'#b99191',fogNear:88,fogFar:245,hemiSky:0xffdcc7,hemiGround:0x435063,hemi:.79,ambient:.18,sun:0xffb778,sunPower:1.48,sunOffset:[-36,23,25],lamp:.72,exposure:1.04},
+  night:{sky:['#07101f','#20365c','#364a71'],fog:'#304667',fogNear:82,fogFar:230,hemiSky:0xcfe0ff,hemiGround:0x1b3322,hemi:.55,ambient:.12,sun:0xd6e4ff,sunPower:1.15,sunOffset:[-18,38,22],lamp:1.35,exposure:1.08}
+};
 const PITCHES={grass:{n:'Grass',e:0.55,f:0.22,roll:0.35,d:'e 0.55 · grips'},turf:{n:'Turf',e:0.7,f:0.1,roll:0.18,d:'e 0.70 · bouncy'},wet:{n:'Wet pitch',e:0.4,f:0.04,roll:0.08,d:'e 0.40 · skids fast'}};
 const WEATHER={calm:{n:'Calm',base:0,gust:0,d:'no wind'},breezy:{n:'Breezy',base:1.5,gust:0.8,d:'steady crosswind'},gusty:{n:'Gusty',base:1.0,gust:3.0,d:'changes mid-flight'}};
 function stad(){return STADIUMS[Kick.opt.stad]||STADIUMS.home;}function pitch(){return PITCHES[Kick.opt.pitch]||PITCHES.grass;}function wx(){return WEATHER[Kick.opt.wx]||WEATHER.calm;}

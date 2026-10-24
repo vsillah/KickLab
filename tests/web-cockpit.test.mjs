@@ -327,7 +327,7 @@ test('shows adjustment math temporarily while keeping environment context persis
   assert.match(ui,/if\(!stageAdjustmentVisible\(\)\|\|PAUSE\.on\|\|RP\.on\|\|CINE\.on\|\|resOpen\(\)\)return/);
   assert.match(ui,/hideStageAdjustment\(\);gameInput\(a\.id,true,'classic-pointer'\)/);
   assert.match(ui,/const set=x=>\{[^}]*showStageAdjustment\(v\.id\)/);
-  assert.ok(games.includes('parts=[`${S.n} · g ${fmt(S.g,2)} m/s²`]'));
+  assert.ok(games.includes('parts=[`${S.n} · ${GAME_CORE.KICK_TIMES[GAME_CORE.normalizeKickTime(Kick.opt.time)].name} · g ${fmt(S.g,2)} m/s²`]'));
   assert.match(html,/class="game-context-header"[^>]+aria-label="Current game context"[\s\S]*id="gameBar"[\s\S]*id="environmentContext"[^>]+role="status"[^>]+aria-label="Environment for the selected Kick experience"[^>]+aria-live="polite"[^>]+hidden/);
   assert.ok(html.indexOf('id="gameBar"')<html.indexOf('id="environmentContext"'));
   assert.ok(html.indexOf('id="environmentContext"')<html.indexOf('<div class="stage">'));
