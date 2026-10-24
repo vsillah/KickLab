@@ -1635,14 +1635,15 @@ html[data-race-champ-active="true"] .race-coach-setup{border-color:rgba(127,220,
  html[data-kicklab-mode="race"] .race-phone-progress-node[data-state="current"]{width:27px;height:27px;border:2px solid #ffd377;background:#76511d;color:#fff;box-shadow:0 0 0 2px rgba(255,211,119,.22)}
  html[data-kicklab-mode="race"] .race-phone-progress-finish{flex:none;color:#ffd377;font:800 18px/1 var(--f-body)}
  html[data-kicklab-mode="race"] .stage.has-game-overlay .race-phone-progress{display:none}
+ html[data-kicklab-mode="race"] .stage.race-phone-notice-active .race-phone-progress{visibility:hidden;pointer-events:none}
  html[data-kicklab-mode="race"] #racePhoneStatusContent{display:grid;gap:8px;margin:8px 0}
  html[data-kicklab-mode="race"] #racePhoneStatusContent .race-championship,
  html[data-kicklab-mode="race"] #racePhoneStatusContent .race-multiplayer{min-width:0}
  html[data-kicklab-mode="race"] #racePhoneStatusContent .race-championship-top{flex-wrap:wrap}
  html[data-kicklab-mode="race"] #racePhoneStatusContent .race-championship-events{max-width:100%}
  html[data-kicklab-mode="race"] #raceNavigation{display:none!important}
- html[data-kicklab-mode="race"] .stage .toasts{top:max(56px,calc(env(safe-area-inset-top) + 56px));left:max(7px,env(safe-area-inset-left));right:auto;bottom:auto;display:block;width:min(244px,calc(100% - 72px));max-width:none}
- html[data-kicklab-mode="race"] .stage .toast{grid-template-columns:22px minmax(0,1fr) auto;gap:6px;padding:6px 7px;border-radius:11px;animation:racePhoneNoticeIn .25s ease-out both}
+ html[data-kicklab-mode="race"] .stage .toasts{top:max(6px,env(safe-area-inset-top));left:max(6px,env(safe-area-inset-left));right:auto;bottom:auto;display:block;width:min(244px,calc(100% - 70px));max-width:none}
+ html[data-kicklab-mode="race"] .stage .toast{box-sizing:border-box;grid-template-columns:22px minmax(0,1fr) auto;gap:6px;height:44px;padding:4px 6px;border-radius:11px;animation:racePhoneNoticeIn .25s ease-out both}
  html[data-kicklab-mode="race"] .stage .toast.out{animation:racePhoneNoticeOut .25s ease-in forwards}
  html[data-kicklab-mode="race"] .stage .toast .ic{width:22px;height:22px;font-size:12px}
  html[data-kicklab-mode="race"] .stage .toast b{font-size:9px;letter-spacing:.06em}

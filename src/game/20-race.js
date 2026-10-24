@@ -237,7 +237,7 @@ const Race={
     c.restore();},
   callouts(c){const s=this.st,P=this.P(),a=toS(this.sx(s.x),this.sy(s.y)),Rt=this.turnR(s.wheel);
     callout(c,a,W-340,64,['GRIP: NEED vs HAVE',`need v²÷R_turn = ${fmt(s.need)} m/s²`,`have μ·g = ${fmt(P.mu*G0)} m/s²`,s.slide?'need > have: SLIDING':'need ≤ have: holding'],s.slide?C.bad:C.hot);},
-  drawWheel(c){const {x,y}=this.WH,r=this.WH.r*(cv.clientWidth<=480?1.5:1),w=this.curWheel(),need=this.needW()*(RACE_SYSTEMS.enabled()?RACE_SYSTEMS.venue(this.opt.venue).turn:1);
+  drawWheel(c){const {x}=this.WH,y=this.WH.y+(matchMedia('(max-width:480px)').matches?104:0),r=this.WH.r*(cv.clientWidth<=480?1.5:1),w=this.curWheel(),need=this.needW()*(RACE_SYSTEMS.enabled()?RACE_SYSTEMS.venue(this.opt.venue).turn:1);
     c.save();
     for(const [angle,color,length] of [[need,C.yellow,13],[w,'#78e8ff',8]]){c.save();c.translate(x,y);c.rotate(-angle*DEG);c.fillStyle=color;c.beginPath();c.moveTo(0,-r-6);c.lineTo(-6,-r-6-length);c.lineTo(6,-r-6-length);c.closePath();c.fill();c.restore();}
     c.translate(x,y);c.rotate(-w*DEG);

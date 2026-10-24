@@ -12,9 +12,9 @@ const racePhoneStyleGroup=$('#controlStyleOptions');
 const racePhoneCalibration=$('#raceSimulator .sim-calibration'),racePhoneCalibrationHome=racePhoneCalibration.parentElement;
 function racePhoneToolsActive(){return document.documentElement.dataset.kicklabMode==='race'&&matchMedia('(max-width:480px)').matches;}
 const RACE_PHONE_NOTICE={text:'',at:0};
-function clearRacePhoneNotices(reset=true){document.querySelectorAll('#toasts .race-phone-notice').forEach(note=>note.remove());if(reset){RACE_PHONE_NOTICE.text='';RACE_PHONE_NOTICE.at=0;}}
+function clearRacePhoneNotices(reset=true){document.querySelectorAll('#toasts .race-phone-notice').forEach(note=>note.remove());syncRacePhoneNoticeSlot();if(reset){RACE_PHONE_NOTICE.text='';RACE_PHONE_NOTICE.at=0;}}
 function racePhoneNotice(message,mood='tip'){
-  if(!racePhoneToolsActive()||M!==Race||document.hidden||RP.on||gameStage.classList.contains('has-game-overlay'))return;
+  if(!racePhoneToolsActive()||M!==Race||document.hidden||RP.on||gameStage.classList.contains('has-game-overlay')||document.activeElement===racePhoneProgress)return;
   const text=String(message).replace(/^Coach Nia:\s*/i,'').trim().split(/(?<=[.!?])\s+/)[0].slice(0,96);
   if(!text||text==='Coach Nia on the radio.')return;
   const now=performance.now();
