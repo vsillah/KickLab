@@ -1,7 +1,7 @@
 /* Optional, device-local Race preparation. Draft choices never touch profile progress. */
 const RACE_PREFLIGHT_ON=Race.expansionActive()&&globalThis.KickLabRaceOrigin.trusted()&&new URLSearchParams(location.search).get('racePreflight')==='prototype';
 if(RACE_PREFLIGHT_ON)document.documentElement.dataset.racePreflight='prototype';
-const RACE_PREFLIGHT={phase:0,draft:null,profileId:null,lastEpoch:-1,committing:false,committed:false,arriving:false,pendingStart:false,lastRaceState:null,returnFocus:null,notice:'',focusPart:'tires'};
+const RACE_PREFLIGHT={phase:0,lastRenderedPhase:null,draft:null,profileId:null,lastEpoch:-1,committing:false,committed:false,arriving:false,pendingStart:false,lastRaceState:null,returnFocus:null,notice:'',focusPart:'tires'};
 const RACE_PREFLIGHT_PHASES=['Location','Vehicle','Garage tuning','Starting grid'];
 const RACE_ROUTE_TRAITS={
   drag:['Straight · 240 m','Highland road · weather fixed','Launch, shifts and heat','Intro'],
@@ -18,7 +18,7 @@ function racePreflightDraft(){
 function racePreflightCanOpen(){return RACE_PREFLIGHT_ON&&M===Race&&Race.state==='grid'&&!PAUSE.on&&!RP.on&&!$('#game-cockpit').hidden&&$('#settingsDrawer').hidden&&$('#profileDialog').hidden&&!(typeof RACE_MULTI_UI!=='undefined'&&RACE_MULTI_UI.match);}
 function racePreflightOpen(trigger=null){
   if(!racePreflightCanOpen())return false;
-  if(RACE_PREFLIGHT.profileId!==profileManager.active().id||!RACE_PREFLIGHT.draft){RACE_PREFLIGHT.draft=racePreflightDraft();RACE_PREFLIGHT.phase=0;RACE_PREFLIGHT.focusPart='tires';RACE_PREFLIGHT.profileId=profileManager.active().id;}
+  if(RACE_PREFLIGHT.profileId!==profileManager.active().id||!RACE_PREFLIGHT.draft){RACE_PREFLIGHT.draft=racePreflightDraft();RACE_PREFLIGHT.phase=0;RACE_PREFLIGHT.lastRenderedPhase=null;RACE_PREFLIGHT.focusPart='tires';RACE_PREFLIGHT.profileId=profileManager.active().id;}
   RACE_PREFLIGHT.returnFocus=trigger&&trigger.isConnected?trigger:document.activeElement;
   RACE_PREFLIGHT.lastEpoch=Race.preflightEpoch||0;
   RACE_PREFLIGHT.notice='Your choices stay on this device. Nothing changes until Start heat.';
@@ -85,6 +85,7 @@ function racePreflightRender(){if($('#racePreflight').hidden)return;const phase=
   $('#racePreflightSteps').innerHTML=RACE_PREFLIGHT_PHASES.map((name,index)=>`<button type="button" data-preflight-step="${index}" ${index>phase?'disabled':''} aria-current="${index===phase?'step':'false'}"><b>${index+1}</b><span>${name}</span></button>`).join('');
   $('#racePreflightStatus').textContent=RACE_PREFLIGHT.notice;
   $('#racePreflightContent').innerHTML=[racePreflightLocation,racePreflightVehicle,racePreflightTuning,racePreflightGrid][phase]();
+  if(RACE_PREFLIGHT.lastRenderedPhase!==phase){$('#racePreflight').scrollTop=0;RACE_PREFLIGHT.lastRenderedPhase=phase;}
   requestAnimationFrame(racePreflightSyncMedia);
   $('#racePreflightBack').textContent=phase?'Back':'Cancel';$('#racePreflightNext').textContent=phase===3?'Start heat':'Continue';
   if(phase===1)requestAnimationFrame(()=>{const roster=$('#racePreflight .race-preflight-roster'),selected=roster?.querySelector('[aria-pressed=\"true\"]');if(roster&&selected)roster.scrollLeft=selected.offsetLeft-roster.offsetLeft-(roster.clientWidth-selected.clientWidth)/2;});
@@ -95,6 +96,7 @@ function racePreflightCommit(){
   if(!mode||!vehicle||!RACE_GARAGE.fields.every(field=>RACE_GARAGE.option(field,d.garage[field])))return;
   if(typeof RACE_CHAMP_UI!=='undefined'&&RACE_CHAMP_UI.active&&RACE_CHAMP.EVENTS[RACE_CHAMP_UI.selected].mode!==mode.id)return;
   RACE_PREFLIGHT.committing=true;RACE_PREFLIGHT.arriving=true;RACE_PREFLIGHT.startControl=d.control;
+  $('#racePreflight').scrollTop=0;
   document.documentElement.dataset.racePreflightArriving='true';
   unlock();tone(92,.55,'sawtooth',.025,170);setTimeout(()=>{if(RACE_PREFLIGHT.arriving)tone(115,.65,'sawtooth',.025,215);},3700);
   $('#racePreflightTitle').textContent='Arriving at the grid';
@@ -113,7 +115,7 @@ function racePreflightCommit(){
   RACE_PREFLIGHT.lastEpoch=Race.preflightEpoch||0;
   RACE_PREFLIGHT.committed=true;
   renderAll(false);renderRaceTelemetry();
-  const handoff=()=>{if(!RACE_PREFLIGHT.arriving)return;RACE_PREFLIGHT.arriving=false;RACE_PREFLIGHT.committing=false;RACE_PREFLIGHT.pendingStart=true;RACE_PREFLIGHT.draft=null;$('#racePreflight').hidden=true;document.documentElement.dataset.racePreflightOpen='false';document.documentElement.dataset.racePreflightArriving='false';if(RACE_3D.ready&&!RACE_3D.failed)RACE_3D.startOrbit();racePreflightMaybeOpen();};
+  const handoff=()=>{if(!RACE_PREFLIGHT.arriving)return;RACE_PREFLIGHT.arriving=false;RACE_PREFLIGHT.committing=false;RACE_PREFLIGHT.pendingStart=true;RACE_PREFLIGHT.draft=null;$('#racePreflight').hidden=true;document.documentElement.dataset.racePreflightOpen='false';document.documentElement.dataset.racePreflightArriving='false';requestAnimationFrame(()=>{$('.stage').scrollIntoView({block:'center',behavior:'auto'});$('.stage').focus({preventScroll:true});});if(RACE_3D.ready&&!RACE_3D.failed)RACE_3D.startOrbit();racePreflightMaybeOpen();};
   if(arrival&&!reduce&&best.gfx!=='2d'&&!RACE_3D.failed){arrival.loop=false;arrival.currentTime=0;arrival.addEventListener('ended',handoff,{once:true});arrival.addEventListener('error',handoff,{once:true});arrival.play().catch(handoff);setTimeout(handoff,6800);}else setTimeout(handoff,reduce?350:700);
 }
 $('#racePreflight').addEventListener('click',event=>{const mode=event.target.closest('[data-preflight-mode]'),car=event.target.closest('[data-preflight-vehicle]'),part=event.target.closest('[data-preflight-part]'),control=event.target.closest('[data-preflight-control]'),step=event.target.closest('[data-preflight-step]');if(mode&&!mode.disabled){RACE_PREFLIGHT.draft.mode=mode.dataset.preflightMode;RACE_PREFLIGHT.notice=`Coach Nia: ${racePreflightMode().recommend}`;racePreflightRender();racePreflightFocus(`[data-preflight-mode=\"${mode.dataset.preflightMode}\"]`);}else if(car){const previous=RACE_PREFLIGHT.draft.vehicle;RACE_PREFLIGHT.draft.vehicle=car.dataset.preflightVehicle;RACE_PREFLIGHT.draft.garage.body=globalThis.KickLabRaceVehicleCatalog.get(RACE_PREFLIGHT.draft.vehicle).legacyBodyId;RACE_PREFLIGHT.notice=previous===RACE_PREFLIGHT.draft.vehicle?'Current car retained.':'Vehicle changed. Suspension, tires and brakes remain compatible and were kept.';racePreflightRender();racePreflightFocus(`[data-preflight-vehicle=\"${car.dataset.preflightVehicle}\"]`);}else if(part){RACE_PREFLIGHT.draft.garage[part.dataset.preflightPart]=part.dataset.preflightValue;RACE_PREFLIGHT.focusPart=part.dataset.preflightPart;RACE_PREFLIGHT.notice=RACE_GARAGE.option(part.dataset.preflightPart,part.dataset.preflightValue).coach;racePreflightRender();racePreflightFocus(`[data-preflight-part=\"${part.dataset.preflightPart}\"][data-preflight-value=\"${part.dataset.preflightValue}\"]`);}else if(control){RACE_PREFLIGHT.draft.control=control.dataset.preflightControl;RACE_PREFLIGHT.notice=`${control.textContent} controls selected for this heat.`;racePreflightRender();racePreflightFocus(`[data-preflight-control="${control.dataset.preflightControl}"]`);}else if(step&&!step.disabled){RACE_PREFLIGHT.phase=Number(step.dataset.preflightStep);racePreflightRender();racePreflightFocus(`[data-preflight-step=\"${step.dataset.preflightStep}\"]`);}else if(event.target.id==='racePreflightSteer'){RACE_PREFLIGHT.draft.steer=RACE_PREFLIGHT.draft.steer==='auto'?'you':'auto';racePreflightRender();racePreflightFocus('#racePreflightSteer');}});

@@ -44,7 +44,10 @@ try{
     await moving(page,'.race-preflight-grid-car video');
     await page.click('#racePreflightNext');
     await page.waitForFunction(()=>globalThis.__KICKLAB_RACE_PREFLIGHT_QA__?.state().arriving,{timeout:3000});
+    const arrivalVisible=await page.locator('.race-preflight-grid-car video').evaluate(video=>{const rect=video.getBoundingClientRect();return rect.width>100&&rect.height>100&&rect.top<innerHeight-80&&rect.bottom>80;});
+    if(!arrivalVisible)throw Error(`${name} arrival video is outside the viewport`);
     await page.waitForFunction(()=>!globalThis.__KICKLAB_RACE_PREFLIGHT_QA__?.state().open,{timeout:12000});
+    await page.waitForFunction(()=>{const rect=document.querySelector('.stage')?.getBoundingClientRect();return rect&&rect.width>100&&rect.height>100&&rect.top<innerHeight-100&&rect.bottom>100;},undefined,{timeout:3000});
     const orbit=await page.evaluate(()=>globalThis.__KICKLAB_RACE_3D__?.orbit?.phase);
     if(!['orbit','transition','done'].includes(orbit))throw Error(`${name} missing orbit after arrival: ${orbit}`);
     await page.waitForFunction(()=>['count','run'].includes(globalThis.__KICKLAB_RACE_MODES_QA__?.state().phase),{timeout:25000});
