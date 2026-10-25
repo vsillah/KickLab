@@ -26,7 +26,7 @@ async function run({name,vehicle='kestrel',width=390,height=844,reduced=false,ca
    if(mode!=='drag'&&d.state==='run'){const limit=mode==='drift'?10.5:15,wantGas=d.v<limit,wantBrake=d.v>limit+1;if(wantGas!==gasHeld){if(wantGas)await page.keyboard.down('Space');else await page.keyboard.up('Space');gasHeld=wantGas;}if(wantBrake!==brakeHeld){if(wantBrake)await page.keyboard.down('b');else await page.keyboard.up('b');brakeHeld=wantBrake;}}
    if(mode==='drag'&&!canvas&&gear<4&&d.v/top>=[.25,.47,.71][gear-1]){await page.locator('#raceTelemetryShift').click();gear++;}
    if(kind==='precision-hero'&&d.x>229&&d.state==='run')await page.keyboard.up('Space');if(kind==='handbrake-360'&&d.state==='run'){if(!steering&&d.x>211){await page.keyboard.down('ArrowRight');steering=true;}if(!handbraking&&d.x>226){await page.keyboard.down('Shift');handbraking=true;}}
-   if(d.state==='done'){finish=v;if(kind==='power-stop')await page.keyboard.down('b');break;}if(d.state==='crashed')throw new Error(`crashed at ${d.x.toFixed(1)}m`);
+   if(d.state==='done'){finish=v;if(kind==='power-stop'){await page.keyboard.up('Space');await page.keyboard.down('b');}break;}if(d.state==='crashed')throw new Error(`crashed at ${d.x.toFixed(1)}m`);
   }
   if(!finish)throw new Error(`no finish: ${JSON.stringify((await read(page)).race?.dynamics)}`);
   const post=[];for(let j=0;j<(reduced?32:44);j++){await page.waitForTimeout(100);const state=await read(page);post.push({t:Date.now()-start,phase:state.signature?.phase,kind:state.signature?.kind,pose:state.signature?.pose,vehicle:state.race?.vehicleId||state.mode?.car,result:state.result});}await page.keyboard.up('b').catch(()=>{});await page.keyboard.up('Space').catch(()=>{});const end=await read(page);

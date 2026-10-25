@@ -24,9 +24,9 @@
     else{q.phase='complete';q.reason='no-earned-contract';return null;}
     q.used=true;q.elapsed=0;q.reason='earned';return q.kind;
   }
-  function tick(q,dt,{brake,paused,hidden,mode,vehicle,venue,reduced}){if(!enabled||!q||q.phase==='run'||q.phase==='complete'||q.phase==='cancelled')return q?.phase||'complete';if(paused||hidden||mode!==q.anchor?.mode||vehicle!==q.anchor?.vehicle||venue!==q.anchor?.venue){q.phase='cancelled';q.reason='lifecycle';return q.phase;}
+  function tick(q,dt,{brake,throttle,paused,hidden,mode,vehicle,venue,reduced}){if(!enabled||!q||q.phase==='run'||q.phase==='complete'||q.phase==='cancelled')return q?.phase||'complete';if(paused||hidden||mode!==q.anchor?.mode||vehicle!==q.anchor?.vehicle||venue!==q.anchor?.venue){q.phase='cancelled';q.reason='lifecycle';return q.phase;}
     q.elapsed+=clamp(dt,0,.06);
-    if(q.phase==='await-brake'){if(brake>=.85&&q.elapsed<=.5){q.phase='cinematic';q.elapsed=0;q.shown=true;}else if(q.elapsed>.5){q.phase='complete';q.reason='brake-missed';}}
+    if(q.phase==='await-brake'){if(brake>=.85&&throttle<=.2&&q.elapsed<=.5){q.phase='cinematic';q.elapsed=0;q.shown=true;}else if(q.elapsed>.5){q.phase='complete';q.reason='brake-missed';}}
     else if(q.phase==='cinematic'&&q.elapsed>=(reduced?.9:q.kind==='handbrake-360'?2.25:q.kind==='power-stop'?2.05:3.1))q.phase='complete';return q.phase;
   }
   function cancel(q,reason){if(q&&['await-brake','cinematic'].includes(q.phase)){q.phase='cancelled';q.reason=reason;}return q?.phase;}
