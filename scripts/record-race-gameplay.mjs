@@ -52,8 +52,8 @@ async function drift(width,height){
   await page.locator('.stage').scrollIntoViewIfNeeded();const startedAt=Date.now();await page.locator('#simStart').click();await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.dynamics?.state==='run',null,{timeout:12000});if(width<500)await page.evaluate(()=>window.scrollTo(0,210));
   const gas=await page.locator('#simGas').boundingBox();await page.mouse.move(gas.x+gas.width/2,gas.y+gas.height/2);await page.mouse.down();
   let stage='accelerate',peakEnergy=0,peakSmoke=0,peakMarks=0,countersteered=false,recovered=false,peakDriftTime=0,everDriftArmed=false;
-  for(let i=0;i<150;i++){
-    await page.waitForTimeout(140);const row=await sample(page),d=row.dynamics;peakEnergy=Math.max(peakEnergy,row.fx?.driftEnergy||0);peakSmoke=Math.max(peakSmoke,row.fx?.tireSmoke||0);peakMarks=Math.max(peakMarks,row.fx?.markEmissions||0);peakDriftTime=Math.max(peakDriftTime,row.milestones?.driftTime||0);everDriftArmed ||= !!row.milestones?.driftArmed;
+  for(let i=0;i<300;i++){
+    await page.waitForTimeout(70);const row=await sample(page),d=row.dynamics;peakEnergy=Math.max(peakEnergy,row.fx?.driftEnergy||0);peakSmoke=Math.max(peakSmoke,row.fx?.tireSmoke||0);peakMarks=Math.max(peakMarks,row.fx?.markEmissions||0);peakDriftTime=Math.max(peakDriftTime,row.milestones?.driftTime||0);everDriftArmed ||= !!row.milestones?.driftArmed;
     if(stage==='accelerate'&&d.x>40){await page.mouse.up();const brake=await page.locator('#simBrake').boundingBox();await page.mouse.move(brake.x+brake.width/2,brake.y+brake.height/2);await page.mouse.down();stage='brake';}
     if(stage==='brake'&&d.v<14){await page.mouse.up();stage='coast';}
     if(stage==='coast'&&d.x>86){await page.keyboard.down('ArrowRight');await page.waitForTimeout(550);await page.keyboard.up('ArrowRight');stage='steer';}
