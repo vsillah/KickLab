@@ -68,7 +68,7 @@ test('handbrake changes axle grip and yaw only with enough speed and steering',(
 test('short handbrake rotation holds a readable angle and countersteer recovers',()=>{
   const s=state({x:0}),physics={...P,expansionCourse:'straight',stability:1,recovery:1};
   const advance=(input,seconds)=>{for(let i=0;i<seconds/.004;i++)api.step(s,physics,input,.004);};
-  advance({gas:.3,wheel:55,handbrake:true},.68);
+  advance({gas:.3,wheel:55,handbrake:true},.72);
   assert.ok(s.slipAngle>=15*Math.PI/180&&s.slipAngle<=35*Math.PI/180,`controlled slip ${s.slipAngle}`);
   const peak=s.slipAngle;advance({gas:.3,wheel:-35,handbrake:false},.55);
   assert.ok(Math.abs(s.slipAngle)<peak*.5,`countersteer reduced slip ${s.slipAngle}`);
@@ -79,7 +79,7 @@ test('short handbrake rotation holds a readable angle and countersteer recovers'
 
 test('prolonged handbrake misuse can spin without unbounded per-step yaw',()=>{
   const s=state({x:0}),physics={...P,expansionCourse:'straight'};let previous=s.th,maxStep=0;
-  for(let i=0;i<750;i++){api.step(s,physics,{gas:.3,wheel:90,handbrake:true},.004);maxStep=Math.max(maxStep,Math.abs(s.th-previous));previous=s.th;}
+  for(let i=0;i<800;i++){api.step(s,physics,{gas:.3,wheel:90,handbrake:true},.004);maxStep=Math.max(maxStep,Math.abs(s.th-previous));previous=s.th;}
   assert.ok(s.th>Math.PI,`spin heading ${s.th}`);
   assert.equal(s.driftMode,'skid');assert.ok(maxStep<.006&&Number.isFinite(s.slipAngle));
 });

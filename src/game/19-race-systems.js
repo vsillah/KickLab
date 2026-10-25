@@ -22,15 +22,15 @@ const RACE_SYSTEMS=(()=>{
   function axleStep(s,P,{steer,mu,wheel,handbrake,h,baselineYaw}){
     const speed=Math.max(s.v,2),wheelbase=P.Lwb,frontArm=wheelbase*.48,rearArm=wheelbase*.52,mass=P.m;
     const recovery=clamp(P.recovery??1,.65,1.4),stability=clamp(P.stability??1,.7,1.3);
-    const rearGrip=handbrake?clamp(.39+(recovery-1)*.09,.32,.46):1;
+    const rearGrip=handbrake?clamp(.45+(recovery-1)*.09,.38,.52):1;
     const frontCap=mass*mu*9.81*.53,rearCap=mass*mu*9.81*.47*rearGrip;
     const frontAngle=steer-Math.atan2(s.latV+frontArm*s.yawRate,speed);
     const rearAngle=-Math.atan2(s.latV-rearArm*s.yawRate,speed);
     const frontForce=clamp(frontAngle*mass*9.81*3.5*stability,-frontCap,frontCap);
     const rearForce=clamp(rearAngle*mass*9.81*3.5*recovery*rearGrip,-rearCap,rearCap);
     const inertia=mass*wheelbase*wheelbase*(.31+(1-recovery)*.045);
-    const yawAccel=clamp((frontArm*frontForce-rearArm*rearForce)/inertia-(s.yawRate-baselineYaw)*(handbrake?.55:3.8*recovery),-2.1,2.1);
-    s.yawRate=clamp(s.yawRate+yawAccel*h,-1.35,1.35);
+    const yawAccel=clamp((frontArm*frontForce-rearArm*rearForce)/inertia-(s.yawRate-baselineYaw)*(handbrake?.75:3.8*recovery),-1.7,1.7);
+    s.yawRate=clamp(s.yawRate+yawAccel*h,-1.1,1.1);
     s.latV=clamp(s.latV+((frontForce+rearForce)/mass-speed*s.yawRate-(handbrake?0:3.2*recovery)*s.latV)*h,-speed*1.75,speed*1.75);
     s.slipAngle=clamp(-Math.atan2(s.latV,speed),-1.05,1.05);
     s.k=s.yawRate/Math.max(s.v,1);
