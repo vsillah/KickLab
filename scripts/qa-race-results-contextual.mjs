@@ -15,7 +15,9 @@ const cases=[
   {outcome:'fail',achievement:'none',replay:'both',context:'standalone',progress:'Retry'},
   {outcome:'pass',achievement:'season',replay:'both',context:'mid',progress:'Continue to next'},
   {outcome:'pass',achievement:'season',replay:'both',context:'final',progress:'View season results'},
-  {outcome:'fail',achievement:'none',replay:'none',context:'mid',progress:'Retry'}
+  {outcome:'fail',achievement:'none',replay:'none',context:'mid',progress:'Retry'},
+  {outcome:'pass',achievement:'none',replay:'both',context:'standalone',coach:'error-heavy',progress:'Finish run'},
+  {outcome:'fail',achievement:'none',replay:'both',context:'standalone',coach:'error-heavy',progress:'Retry'}
 ];
 for(const viewport of [{width:390,height:844},{width:768,height:1024},{width:1440,height:900}].filter(v=>!process.env.KICKLAB_QA_WIDTH||v.width===Number(process.env.KICKLAB_QA_WIDTH))){
   const label=`${viewport.width}x${viewport.height}`,context=await browser.newContext({viewport,deviceScaleFactor:1,reducedMotion:process.env.KICKLAB_QA_MOTION||'reduce'});await context.addInitScript(()=>localStorage.setItem('impactlab.v1',JSON.stringify({gfx:'2d'})));
@@ -26,11 +28,19 @@ for(const viewport of [{width:390,height:844},{width:768,height:1024},{width:144
     for(const sample of cases){
       const fixture=await page.evaluate(value=>window.__KICKLAB_RACE_RESULTS_QA__.scenario(value),sample);
       await page.waitForTimeout(500);
-      const state=await page.evaluate(()=>{const visible=id=>!document.querySelector(id).hidden;const rc=document.querySelector('#rc'),award=document.querySelector('#raceResultAwards');return{summary:visible('#results'),coachEnabled:!document.querySelector('#raceResultCoach').disabled,awards:award.querySelectorAll('[data-award-kind]').length,replay:visible('#raceReplayBlock'),progress:document.querySelector('#rNext').textContent.trim(),garage:visible('#rRaceGarage'),footerActions:visible('#racts')||visible('#rRaceNext'),notices:document.querySelectorAll('#toasts .toast,.stage .race-award-toast').length,overflow:rc.scrollWidth>rc.clientWidth+2,scrollWidth:rc.scrollWidth,clientWidth:rc.clientWidth};});
+      const state=await page.evaluate(()=>{const visible=id=>!document.querySelector(id).hidden;const rc=document.querySelector('#rc'),award=document.querySelector('#raceResultAwards'),coach=document.querySelector('#raceResultCoach');return{summary:visible('#results'),coachEnabled:!coach.disabled,coachRows:coach.querySelectorAll('p').length,positive:document.querySelector('#raceResultCoachPositive').textContent.trim(),focus:document.querySelector('#raceResultCoachFocus').textContent.trim(),coachText:coach.textContent.trim(),awards:award.querySelectorAll('[data-award-kind]').length,replay:visible('#raceReplayBlock'),progress:document.querySelector('#rNext').textContent.trim(),garage:visible('#rRaceGarage'),footerActions:visible('#racts')||visible('#rRaceNext'),notices:document.querySelectorAll('#toasts .toast,.stage .race-award-toast').length,overflow:rc.scrollWidth>rc.clientWidth+2,scrollWidth:rc.scrollWidth,clientWidth:rc.clientWidth};});
       report.states.push({label,sample,fixture,state});
       const expectedAward=sample.achievement==='none'?0:1,expectedReplay=sample.replay==='frames'||sample.replay==='both',expectedCoach=sample.replay==='moves'||sample.replay==='both';
       if(!fixture||!state.summary||state.coachEnabled!==expectedCoach||state.awards!==expectedAward||state.replay!==expectedReplay||state.progress!==sample.progress||state.garage!==(sample.outcome==='fail')||state.footerActions||state.notices||state.overflow)report.errors.push(`${label} ${JSON.stringify(sample)}: ${JSON.stringify(state)}`);
-      if(viewport.width===390)await page.locator('#results').screenshot({path:join(out,`${sample.outcome}-${sample.achievement}-${sample.replay}-${sample.context}.png`)});
+      if(state.coachRows!==2||!/^What worked\s/i.test(state.coachText.replace('COACH NIA · RUN ASSESSMENT','').trim())||!state.positive||!state.focus||[state.positive,state.focus].some(line=>!/^[^.!?]+[.!?]$/.test(line))||/run messages|Lift now: power is reduced|Brake before the switchback/.test(state.coachText))report.errors.push(`${label}: Coach summary hierarchy ${JSON.stringify({sample,state})}`);
+      if(sample.coach==='error-heavy'&&(!state.focus.includes('Brake earlier')||state.positive.includes('braking was on target')))report.errors.push(`${label}: error-heavy run did not prioritize actual entry error ${JSON.stringify({sample,state})}`);
+      if(sample.outcome==='fail'&&state.positive.includes('finish'))report.errors.push(`${label}: failed run claimed a finish ${JSON.stringify({sample,state})}`);
+      if(sample.outcome==='pass'&&sample.achievement==='collectible'&&sample.replay==='both'){
+        const before=await page.locator('#raceReplayCanvas').evaluate(canvas=>canvas.toDataURL());await page.waitForTimeout(1600);
+        const after=await page.locator('#raceReplayCanvas').evaluate(canvas=>canvas.toDataURL());
+        if((before!==after)!==((process.env.KICKLAB_QA_MOTION||'reduce')==='no-preference'))report.errors.push(`${label}: recorded preview motion does not match preference`);
+      }
+      if(viewport.width===390)await page.locator('#results').screenshot({path:join(out,`${sample.outcome}-${sample.achievement}-${sample.replay}-${sample.context}-${sample.coach||'clean'}.png`)});
       if(sample.achievement!=='none'){
         await page.locator('#raceResultAwards [data-award-kind]').first().click();
         if(sample.achievement==='season'){

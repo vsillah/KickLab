@@ -47,11 +47,28 @@ function award(mode,items,success,meta={}){if(mode==='kick'&&MATCH.on&&!meta.aut
   clearTimeout(resultsDelay);resultsDelay=setTimeout(wait,60);}
 const AFTER_SLOW=1600;
 const GRADE_TONE={S:'#f3e36b',A:'#5fe3a1',B:'#7fdcff',C:'#ffb04a',D:'#ff6b73'};
+function raceResultCoachSummary(record,passed,result){
+  const moves=record?.moves||[],entry=moves.find(move=>move.kind==='entry'),brake=moves.find(move=>move.kind==='brake'),finish=moves.find(move=>move.kind==='finish'),crash=moves.find(move=>move.kind==='crash'),slide=moves.find(move=>move.kind==='slide');
+  const safeEntry=entry&&Number.isFinite(entry.v)&&Number.isFinite(entry.vmax)&&entry.vmax>0&&entry.v<=entry.vmax*1.02;
+  const mode=Race.expansionActive()?Race.mode():null;
+  let positive=brake?.tone==='good'?'Your braking was on target before the corner.':safeEntry?'You entered the corner within its speed limit.':passed&&finish?'You reached the finish.':entry?'You reached the corner entry.':brake?'You made a braking attempt before the corner.':passed?'You completed the run.':'You started the run.';
+  let focus;
+  if(entry&&Number.isFinite(entry.v)&&Number.isFinite(entry.vmax)&&entry.vmax>0&&entry.v>entry.vmax*1.02)focus='Brake earlier to enter below the corner limit.';
+  else if(brake?.tone==='bad')focus=brake.d2c<brake.dN?'Start braking earlier on the straight.':'Brake later while keeping the corner entry controlled.';
+  else if(crash&&!brake)focus='Brake on the straight before the corner.';
+  else if(slide)focus='Ease the wheel or speed to stay within tire grip.';
+  else if(entry&&Number.isFinite(entry.v)&&Number.isFinite(entry.vmax)&&entry.vmax>0&&entry.v<entry.vmax*.85)focus='Carry more speed into the corner without exceeding its limit.';
+  else if(!passed){const category=Race.progressionOutcome?.failed?.[0];focus=category?`Adjust ${category} in Garage before retrying.`:/off the track/i.test(result.title)?'Keep the car inside the track boundary on the retry.':mode?.id==='endurance'?'Set a steadier lap pace before retrying.':mode?.course==='straight'?'Hold the center line through the next run.':'Hold the racing line through the next corner.';}
+  else if(entry)focus='Brake later while keeping entry speed below the corner limit.';
+  else if(mode?.id==='endurance')focus='Keep your lap times closer together on the next run.';
+  else if(mode?.course==='straight')focus='Hold launch traction longer before the next shift.';
+  else focus='Brake later while keeping entry speed below the corner limit.';
+  return{positive,focus};
+}
 function showResults(m){hideResults();const el=$('#results'),rc=$('#rc');const rr0=RECS[M.key];if(rr0)LASTG[M.key+rr0.id]=m.grade;$('#racts').hidden=!(rr0&&rr0.frames.length&&rr0.moves.length);if(RACE_COMPETITION.enabled())raceCompetitionResultActions();rc.style.setProperty('--tone',GRADE_TONE[m.grade]||C.good);
   const race=M===Race&&!m.auto;el.classList.toggle('race-summary',race);$('#raceResultCoach').hidden=!race;$('#raceResultAwards').hidden=true;$('#raceResultAwards').replaceChildren();$('#raceReplayBlock').hidden=true;$('#rRaceGarage').hidden=true;$('#rRaceNext').hidden=true;
-  if(race){const passed=m.grade!=='D',raw=m.coach||Race.progressionReviewNote||'';
-    let coach=raw.replace(/^Coach Nia:\s*/,'').split(/(?<=[.!?])\s+/).slice(0,2).join(' ');if(coach.length>180)coach=coach.slice(0,177).replace(/\s+\S*$/,'')+'…';
-    $('#raceResultCoachText').textContent=coach|| (passed?'Good finish. Review your line, then choose the next run.':'Review your entry speed and setup before retrying.');
+  if(race){const passed=m.grade!=='D',raw=m.coach||Race.progressionReviewNote||'',summary=raceResultCoachSummary(rr0,passed,m);
+    $('#raceResultCoachPositive').textContent=summary.positive;$('#raceResultCoachFocus').textContent=summary.focus;
     const coachReview=!!(rr0?.moves?.length&&Race.review);$('#raceResultCoach').disabled=!coachReview;$('#raceResultCoachAction').hidden=!coachReview;$('#raceResultCoach').title=coachReview?'Open detailed Coach review':'Detailed review requires recorded moves';
     const awards=$('#raceResultAwards'),earned=RACE_COMP_UI.last?.profileId===profileManager.active().id?RACE_COMP_UI.last.earned:null;
     const badges=[...(Race.resultBadges||[])],sameName=(a,b)=>String(a||'').trim().replace(/\s+/g,' ').toLocaleLowerCase('en-US')===String(b||'').trim().replace(/\s+/g,' ').toLocaleLowerCase('en-US');
@@ -87,15 +104,18 @@ function drawRaceReplayPreview(){
   const frames=RACE_REPLAY_PREVIEW.frames;if(!frames?.length)return;
   const canvas=$('#raceReplayCanvas'),c=canvas.getContext('2d'),w=canvas.width,h=canvas.height;
   const phase=matchMedia('(prefers-reduced-motion:reduce)').matches?0.5:(performance.now()-RACE_REPLAY_PREVIEW.started)%3000/3000;
-  const frame=frames[Math.min(frames.length-1,Math.floor(phase*(frames.length-1)))],st=frame.s?.st||{};
+  const index=Math.min(frames.length-1,Math.floor(phase*(frames.length-1))),frame=frames[index],st=frame.s?.st||{};
   const min=frames[0].s?.st?.x||0,max=frames.at(-1).s?.st?.x||min+1,span=Math.max(1,max-min);
   const carX=36+Math.max(0,Math.min(1,((st.x||min)-min)/span))*(w-72),carY=h/2+Math.max(-20,Math.min(20,(st.y||0)*2));
-  c.fillStyle='#102338';c.fillRect(0,0,w,h);c.fillStyle='#46525a';c.fillRect(12,25,w-24,h-50);
-  c.strokeStyle='#e4e7c4';c.lineWidth=2;c.setLineDash([14,10]);c.beginPath();c.moveTo(18,h/2);c.lineTo(w-18,h/2);c.stroke();c.setLineDash([]);
+  c.fillStyle='#172d29';c.fillRect(0,0,w,h);c.fillStyle='#8b7153';c.fillRect(0,20,w,h-38);c.fillStyle='#344450';c.fillRect(0,26,w,h-50);
+  c.fillStyle='#f6e8c5';c.fillRect(0,27,w,2);c.fillRect(0,h-26,w,2);
+  c.strokeStyle='#e4e7c4';c.lineWidth=2;c.setLineDash([14,10]);c.beginPath();c.moveTo(0,h/2);c.lineTo(w,h/2);c.stroke();c.setLineDash([]);
+  c.strokeStyle='#69e7e1';c.lineWidth=2;c.beginPath();frames.slice(0,index+1).forEach((sample,i)=>{const pos=sample.s?.st||{},x=36+Math.max(0,Math.min(1,((pos.x||min)-min)/span))*(w-72),y=h/2+Math.max(-20,Math.min(20,(pos.y||0)*2));if(i)c.lineTo(x,y);else c.moveTo(x,y);});c.stroke();
+  c.fillStyle='#f5f7eb';for(let y=28;y<h-25;y+=7)c.fillRect(w-28,y,4,4);
   c.fillStyle='#5fe3a1';c.fillRect(12,h-8,(w-24)*phase,4);
-  c.fillStyle='#9ff1ff';c.fillRect(carX-12,carY-7,24,14);c.fillStyle='#123148';c.fillRect(carX+3,carY-4,6,8);
-  c.fillStyle='#f5fbff';c.font='700 11px system-ui';c.fillText(`${Math.round((st.v||0)*3.6)} km/h`,18,17);
-  c.textAlign='right';c.fillText(`${Math.min(frames.length,Math.floor(phase*frames.length)+1)} / ${frames.length} frames`,w-18,17);c.textAlign='left';
+  c.save();c.translate(carX,carY);c.rotate(-(st.th||0));c.fillStyle='#101c27';c.fillRect(-10,-10,6,3);c.fillRect(4,-10,6,3);c.fillRect(-10,7,6,3);c.fillRect(4,7,6,3);c.fillStyle='#9ff1ff';c.fillRect(-13,-7,26,14);c.fillStyle='#244863';c.fillRect(2,-5,7,10);c.fillStyle='#f3bd75';c.fillRect(10,-5,3,3);c.fillRect(10,2,3,3);c.restore();
+  c.fillStyle='#f5fbff';c.font='700 11px system-ui';c.fillText(`${Math.round((st.v||0)*3.6)} km/h`,18,16);
+  c.textAlign='right';c.fillText(`${(frame.t||0).toFixed(1)}s / ${(frames.at(-1).t||0).toFixed(1)}s`,w-18,16);c.textAlign='left';
 }
 function startRaceReplayPreview(record){stopRaceReplayPreview();RACE_REPLAY_PREVIEW.frames=record.frames;RACE_REPLAY_PREVIEW.started=performance.now();drawRaceReplayPreview();if(!matchMedia('(prefers-reduced-motion:reduce)').matches)RACE_REPLAY_PREVIEW.timer=setInterval(()=>{if(!document.hidden&&!$('#results').hidden)drawRaceReplayPreview();},120);}
 

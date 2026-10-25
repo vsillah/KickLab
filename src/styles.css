@@ -516,8 +516,9 @@ html:has(.results.race-summary:not([hidden])) .game-context-header{visibility:hi
 .race-result-coach small[hidden]{display:none}
 .results.race-summary .race-result-coach:not(:disabled):is(:hover,:focus-visible),.race-result-awards button:is(:hover,:focus-visible),.race-replay-preview:is(:hover,:focus-visible){outline:2px solid #b4f4f3;outline-offset:2px;filter:brightness(1.08)}
 .race-result-coach[hidden],.race-result-awards[hidden]{display:none!important}
-.race-result-coach span,.race-result-award span,.race-result-badge span{font:800 10px var(--f-mono);letter-spacing:.1em;color:#9be5f2}
+.race-result-coach>span,.race-result-award span,.race-result-badge span{font:800 10px var(--f-mono);letter-spacing:.1em;color:#9be5f2}
 .race-result-coach p{margin:5px 0 0;color:#f3fbff;font:600 clamp(14px,2vw,17px)/1.4 var(--f-body);overflow-wrap:anywhere}
+.race-result-coach p strong{display:block;color:#9be5f2;font:800 10px var(--f-mono);letter-spacing:.08em;text-transform:uppercase}
 .results.race-summary .rsub,.results.race-summary .rhint{display:block;color:#c9dce5;font-size:13px;text-align:left}
 .results.race-summary .rrows{display:grid}
 .results.race-summary .rtotal{border-top:1px solid #466477;padding-top:10px}
