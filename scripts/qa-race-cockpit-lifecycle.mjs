@@ -65,10 +65,12 @@ async function runCase(name, reduced) {
     await page.locator('#gamePacingOverlay').waitFor({ state: 'hidden', timeout: 5000 });
     await snapshot(page, `${name}-resumed`, true, 'run', false);
     if (!reduced) {
+      await page.click('#racePhoneToolsToggle');
       await page.click('#orientationDetailToggle');
       await page.click('#modeHomeButton');
       await enterRace(page);
       await snapshot(page, `${name}-restart-orbit`, false, 'grid');
+      if (await page.locator('#racePhoneToolsToggle').getAttribute('aria-expanded') !== 'true') await page.click('#racePhoneToolsToggle');
       await page.click('#reviewDetailToggle');
       if (!(await page.locator('#mlReplay').isEnabled())) throw new Error('Recorded Race run did not expose replay after restart');
       await page.click('#mlReplay');
