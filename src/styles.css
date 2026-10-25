@@ -2012,6 +2012,7 @@ html[data-kicklab-mode="race"] .settings-categories{gap:8px}
 html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] #raceTelemetryCue{display:none!important}
 html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .race-telemetry-actions :is(#raceTelemetryPrev,#raceTelemetryNext,#raceTelemetryIndex){display:none!important}
 html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .race-telemetry-actions{justify-content:center}
+@media(min-width:481px){html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .game-frame .stage>.control-deck .race-telemetry-actions{justify-self:end;transform:translateX(8px)}}
 html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .race-navigation-foot small:first-child{display:block;min-width:0;max-width:52%;font-size:8px}
 html[data-race-corner-trace="prototype"][data-race-telemetry="prototype"][data-kicklab-mode="race"] .game-frame .stage>.control-deck:not(.simulator-active,.race-setup-preview,.race-result-review) .control-center-slot{height:48px;min-height:0}
 html[data-race-corner-trace="prototype"][data-race-telemetry="prototype"][data-kicklab-mode="race"] .game-frame .stage>.control-deck:not(.simulator-active,.race-setup-preview,.race-result-review) .race-telemetry{height:48px;grid-template-rows:44px;gap:0;padding:0 4px}
