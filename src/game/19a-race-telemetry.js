@@ -1,4 +1,5 @@
 /* Default-off Race telemetry. This state is deliberately absent from records/storage. */
+const RACE_INSTRUMENTS_ON=globalThis.KickLabRaceOrigin.trusted()&&new URLSearchParams(location.search).get('raceExpansion')==='prototype'&&new URLSearchParams(location.search).get('raceInstruments')==='prototype';
 const RACE_TELEMETRY=(()=>{
   const enabled=globalThis.KickLabRaceOrigin.trusted()&&['raceTelemetry','raceCornerTrace','raceExpansion'].some(key=>new URLSearchParams(location.search).get(key)==='prototype');
   if(enabled&&typeof document!=='undefined')document.documentElement.dataset.raceTelemetry='prototype';

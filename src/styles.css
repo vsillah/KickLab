@@ -2158,3 +2158,29 @@ html[data-kicklab-mode="race"] #gameGuidanceHud #coach .coach-copy{padding-right
 @media(max-width:520px){html[data-kicklab-mode="race"] .stage{--race-progress-width:160px}html[data-kicklab-mode="race"] .race-phone-progress:not([hidden]){width:160px;gap:2px;padding:5px}html[data-kicklab-mode="race"] .race-phone-progress-node{width:15px;height:15px;font-size:8px}html[data-kicklab-mode="race"] .race-phone-progress-node[data-state="current"]{width:20px;height:20px}html[data-kicklab-mode="race"] .race-phone-progress-count{font-size:8px}html[data-kicklab-mode="race"] .race-phone-progress-finish{font-size:14px}html[data-kicklab-mode="race"] .race-coach-notice:not([hidden]){height:52px}.race-coach-notice-icon{width:14px;height:14px;font-size:9px}.race-coach-notice-text{font-size:9px;-webkit-line-clamp:3}#raceCoachNoticeDismiss{width:13px}}
 @media(max-width:360px){html[data-kicklab-mode="race"] .stage{--race-progress-width:120px}html[data-kicklab-mode="race"] .race-phone-progress:not([hidden]){width:120px;padding:3px}html[data-kicklab-mode="race"] .race-phone-progress-node{width:13px;height:13px}html[data-kicklab-mode="race"] .race-phone-progress-node[data-state="current"]{width:18px;height:18px}html[data-kicklab-mode="race"] .race-phone-progress-finish{display:none}}
 @media(prefers-reduced-motion:reduce){.race-coach-notice.is-entering{animation:raceCoachFadeIn .18s ease-out both}.race-coach-notice.is-leaving{animation:raceCoachFadeOut .18s ease-in both}@keyframes raceCoachFadeIn{from{opacity:0}to{opacity:1}}@keyframes raceCoachFadeOut{from{opacity:1}to{opacity:0}}}
+/* Race playable instruments live on the control the player's hand already uses. */
+.control-deck.race-instruments-live #padR .arcade{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:3px;align-items:center;justify-items:center;transform:none!important}
+.control-deck.race-instruments-live #padR .abtn{min-width:0;width:100%;min-height:60px}
+.control-deck.race-instruments-live #padR .abtn .cap{width:clamp(42px,4vw,48px);height:clamp(42px,4vw,48px);overflow:hidden}
+.control-deck.race-instruments-live #padR .abtn .action-label{max-width:48px;font-size:8px}
+.control-deck.race-instruments-live #padR .abtn .kk{display:none}
+.race-instrument{--instrument-color:#70eac0}
+.race-instrument[data-instrument-phase="prepare"],.race-instrument[data-instrument-phase="build"]{--instrument-color:#f0cc72}
+.race-instrument[data-instrument-phase="act"]{--instrument-color:#6ae8b5}
+.race-instrument[data-instrument-phase="danger"]{--instrument-color:#ff7478}
+.race-instrument .cap{outline:2px solid var(--instrument-color);outline-offset:1px}
+.race-instrument .cap::before{background:linear-gradient(180deg,#102537,#07121e)!important}
+.race-instrument .cap>svg,.race-instrument .cap>span:not(.race-instrument-face){position:absolute;top:2px;left:3px;width:17px!important;height:17px!important;opacity:.85}
+.race-instrument-face{position:absolute;z-index:2;inset:1px 2px 1px 19px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0;color:#fff;font:700 8px/1.08 var(--f-mono);text-align:center;pointer-events:none;white-space:nowrap}
+.race-instrument-face b{font-size:11px;letter-spacing:-.04em}.race-instrument-face small{font-size:6px}.race-instrument-face em{font-style:normal;color:var(--instrument-color);font-size:6px;letter-spacing:.02em}
+.race-instrument:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.race-instrument[aria-disabled="true"]{opacity:.72}
+.race-instrument[hidden]{display:none!important}
+#gestureAction.race-instrument,#raceAnalogActions .race-instrument,#simGas.race-instrument,#simNos.race-instrument,#simHandbrake.race-instrument{position:relative}
+#gestureAction.race-instrument #gesturePowerValue{visibility:hidden}
+#gestureAction .race-instrument-nos{position:absolute;z-index:3;left:2px;bottom:2px;padding:2px;border:1px solid #70eac0;border-radius:4px;background:rgba(3,10,22,.94);color:#fff;font:700 6px/1 var(--f-mono);pointer-events:none}
+#gestureAction .race-instrument-nos[data-phase="prepare"]{border-color:#f0cc72}#gestureAction .race-instrument-nos[data-phase="danger"]{border-color:#ff7478}
+#gestureAction.race-instrument .race-instrument-face,#raceAnalogActions .race-instrument .race-instrument-face,#simGas.race-instrument .race-instrument-face,#simNos.race-instrument .race-instrument-face,#simHandbrake.race-instrument .race-instrument-face{inset:auto 2px 2px auto;min-width:39px;border-radius:4px;background:rgba(3,10,22,.92);padding:2px}
+#raceAnalogActions .race-instrument{padding-right:42px;text-align:left}
+@media(max-width:480px){.control-deck.race-instruments-live #padR .arcade{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:2px}.control-deck.race-instruments-live #padR .abtn{min-height:54px}.control-deck.race-instruments-live #padR .abtn .cap{width:42px;height:42px}.race-instrument-face b{font-size:9px}.race-instrument-face small,.race-instrument-face em{font-size:5px}}
+@media(prefers-reduced-motion:reduce){.race-instrument .cap,.race-instrument-face{transition:none!important;animation:none!important}}
