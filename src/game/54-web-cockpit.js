@@ -11,18 +11,65 @@ const racePhoneControlHead=$('.control-deck .floating-control-head'),racePhoneCo
 const racePhoneStyleGroup=$('#controlStyleOptions');
 const racePhoneCalibration=$('#raceSimulator .sim-calibration'),racePhoneCalibrationHome=racePhoneCalibration.parentElement;
 function racePhoneToolsActive(){return document.documentElement.dataset.kicklabMode==='race';}
-const RACE_PHONE_NOTICE={text:'',at:0};
-function clearRacePhoneNotices(reset=true){document.querySelectorAll('#toasts .race-phone-notice').forEach(note=>note.remove());syncRacePhoneNoticeSlot();if(reset){RACE_PHONE_NOTICE.text='';RACE_PHONE_NOTICE.at=0;}}
+const RACE_PHONE_NOTICE={text:'',at:0,entries:[],seen:[],sequence:0,timer:0,exitTimer:0,epoch:0};
+function renderRaceCoachHistory(){
+  const list=$('#raceCoachHistoryList');list.replaceChildren();
+  for(const item of [...RACE_PHONE_NOTICE.entries].reverse()){
+    const row=document.createElement('li'),icon=document.createElement('span'),copy=document.createElement('span'),order=document.createElement('small');
+    icon.className='race-coach-history-icon';icon.textContent=item.mood==='warn'?'!':'✦';icon.setAttribute('aria-hidden','true');
+    copy.textContent=item.text;order.textContent=`Cue ${item.sequence}`;
+    row.append(icon,copy,order);list.append(row);
+  }
+  list.hidden=!RACE_PHONE_NOTICE.entries.length;$('#raceCoachHistoryEmpty').hidden=!!RACE_PHONE_NOTICE.entries.length;
+  $('#raceCoachHistoryCount').textContent=String(RACE_PHONE_NOTICE.entries.length);
+}
+function resetRaceCoachHistory(){clearRacePhoneNotices();RACE_PHONE_NOTICE.entries=[];RACE_PHONE_NOTICE.seen=[];RACE_PHONE_NOTICE.sequence=0;RACE_PHONE_NOTICE.at=0;$('#raceCoachHistory').open=false;renderRaceCoachHistory();}
+function clearRacePhoneNotices(){
+  RACE_PHONE_NOTICE.epoch++;clearTimeout(RACE_PHONE_NOTICE.timer);clearTimeout(RACE_PHONE_NOTICE.exitTimer);
+  $('#raceCoachNotice').hidden=true;$('#raceCoachNotice').classList.remove('is-entering','is-leaving');
+  document.querySelectorAll('#toasts .race-phone-notice').forEach(note=>note.remove());syncRacePhoneNoticeSlot();
+}
+function retractRaceCoachNotice(){
+  const note=$('#raceCoachNotice');if(note.hidden)return;
+  clearTimeout(RACE_PHONE_NOTICE.timer);note.classList.remove('is-entering');note.classList.add('is-leaving');
+  const epoch=++RACE_PHONE_NOTICE.epoch;
+  clearTimeout(RACE_PHONE_NOTICE.exitTimer);
+  RACE_PHONE_NOTICE.exitTimer=setTimeout(()=>{if(epoch===RACE_PHONE_NOTICE.epoch){note.hidden=true;note.classList.remove('is-leaving');}},280);
+}
+function showRaceCoachNotice(item){
+  if(document.hidden||gameStage.classList.contains('has-game-overlay')||racePhoneTools.getAttribute('aria-expanded')==='true')return;
+  const note=$('#raceCoachNotice');clearTimeout(RACE_PHONE_NOTICE.exitTimer);clearTimeout(RACE_PHONE_NOTICE.timer);
+  note.classList.remove('is-leaving');note.hidden=false;
+  $('#raceCoachNoticeIcon').textContent=item.mood==='warn'?'!':'✦';
+  $('#raceCoachNoticeText').textContent=item.text;note.title=item.text;
+  note.setAttribute('aria-label',`Coach Nia, cue ${item.sequence}: ${item.text}`);
+  note.dataset.mood=item.mood;note.classList.remove('is-entering');void note.offsetWidth;note.classList.add('is-entering');
+  const epoch=++RACE_PHONE_NOTICE.epoch;
+  RACE_PHONE_NOTICE.timer=setTimeout(()=>{if(epoch===RACE_PHONE_NOTICE.epoch)retractRaceCoachNotice();},3900);
+}
 function racePhoneNotice(message,mood='tip'){
-  if(!racePhoneToolsActive()||M!==Race||document.hidden||RP.on||gameStage.classList.contains('has-game-overlay')||document.activeElement===racePhoneProgress)return;
-  const text=String(message).replace(/^Coach Nia:\s*/i,'').trim().split(/(?<=[.!?])\s+/)[0].slice(0,96);
+  if(!racePhoneToolsActive()||M!==Race||Race.state!=='run'||RP.on)return;
+  const text=String(message).replace(/^Coach Nia:\s*/i,'').trim().split(/(?<=[.!?])\s+/)[0].slice(0,72);
   if(!text||text==='Coach Nia on the radio.')return;
   const now=performance.now();
-  if(text===RACE_PHONE_NOTICE.text||mood!=='warn'&&now-RACE_PHONE_NOTICE.at<3600)return;
-  RACE_PHONE_NOTICE.text=text;RACE_PHONE_NOTICE.at=now;
-  const note=toast(mood==='warn'?'Race warning':'Coach Nia',text,{hold:3900});
-  if(note)note.dataset.racePhoneMood=mood;
+  if(RACE_PHONE_NOTICE.seen.includes(text))return;
+  const present=mood==='warn'||now-RACE_PHONE_NOTICE.at>=3600;
+  RACE_PHONE_NOTICE.text=text;if(present)RACE_PHONE_NOTICE.at=now;
+  RACE_PHONE_NOTICE.seen.push(text);if(RACE_PHONE_NOTICE.seen.length>64)RACE_PHONE_NOTICE.seen.shift();
+  const item={text,mood,sequence:++RACE_PHONE_NOTICE.sequence};
+  RACE_PHONE_NOTICE.entries.push(item);if(RACE_PHONE_NOTICE.entries.length>12)RACE_PHONE_NOTICE.entries.shift();
+  renderRaceCoachHistory();
+  if(!present)return;
+  if(!$('#raceCoachNotice').hidden){retractRaceCoachNotice();const epoch=RACE_PHONE_NOTICE.epoch;setTimeout(()=>{if(epoch===RACE_PHONE_NOTICE.epoch)showRaceCoachNotice(item);},290);}
+  else showRaceCoachNotice(item);
 }
+$('#raceCoachNoticeDismiss').addEventListener('click',retractRaceCoachNotice);
+if(['localhost','127.0.0.1'].includes(location.hostname)&&new URLSearchParams(location.search).get('raceCoachQA')==='1')globalThis.__KICKLAB_RACE_COACH_QA__=Object.freeze({
+  start(){Race.reset();Race.state='run';return true;},
+  emit:(message,mood='tip')=>racePhoneNotice(message,mood),
+  finish(){Race.state='done';clearRacePhoneNotices();},
+  state:()=>({entries:RACE_PHONE_NOTICE.entries.map(item=>({...item})),visible:!$('#raceCoachNotice').hidden,sequence:RACE_PHONE_NOTICE.sequence,profileId:profileManager.active().id})
+});
 function syncRacePhoneTools(){
   const active=racePhoneToolsActive(),expanded=active&&racePhoneTools.getAttribute('aria-expanded')==='true';
   if(!active&&racePhoneTools.getAttribute('aria-expanded')==='true')setFloatingControllerCollapsed(false);
@@ -37,7 +84,7 @@ function syncRacePhoneTools(){
   if(!active&&racePhoneControlHead.parentElement!==racePhoneControlHome)racePhoneControlHome.insertBefore(racePhoneControlHead,racePhoneControlHome.firstChild);
   racePhoneRail.inert=active&&!expanded;
   if(active&&expanded&&M===Race)renderRaceToolTruth();
-  if(!active)clearRacePhoneNotices();
+  if(!active||expanded)clearRacePhoneNotices();
   racePhoneTools.setAttribute('aria-label',expanded?'Close Race tools and restore game controls':'Open Race tools and collapse game controls');
   if(!active)racePhoneTools.setAttribute('aria-expanded','false');
 }
@@ -65,7 +112,7 @@ function contextPanel(name){return $(`#${name==='math'?'physics':name}Detail`);}
 function contextTriggers(name){return(name==='math'?[$('#physicsDetailsHud')]:[$(`#${name}DetailToggle`)]).filter(Boolean);}
 function syncContextTrigger(button,expanded){const action=expanded?'Close':'Open',label=button.dataset.detailLabel||'details',name=`${action} ${label}`;button.setAttribute('aria-expanded',String(expanded));button.setAttribute('aria-label',name);button.title=name;}
 function releaseGameplayForOverlay(){if(typeof releaseMobileHeldInputs==='function')releaseMobileHeldInputs('Game overlay opened');ENGINE.off();RACE_SUPERCAR_AUDIO.stop();document.querySelectorAll('#pad .on').forEach(button=>button.classList.remove('on'));}
-function syncGameOverlayBackdrop(){const profileOpen=!profileDialog.hidden&&profileDialog.classList.contains('game-profile-overlay'),open=!!CONTEXT_DETAILS.open||!settingsDrawer.hidden||profileOpen;gameOverlayBackdrop.hidden=!open;gameStage.classList.toggle('has-game-overlay',open);gamePlayShell.classList.toggle('has-game-overlay',open);if(open)clearRacePhoneNotices(false);}
+function syncGameOverlayBackdrop(){const profileOpen=!profileDialog.hidden&&profileDialog.classList.contains('game-profile-overlay'),open=!!CONTEXT_DETAILS.open||!settingsDrawer.hidden||profileOpen;gameOverlayBackdrop.hidden=!open;gameStage.classList.toggle('has-game-overlay',open);gamePlayShell.classList.toggle('has-game-overlay',open);if(open)clearRacePhoneNotices();}
 function overlayFocusables(panel){return[...panel.querySelectorAll('button:not(:disabled),[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex]:not([tabindex="-1"])')].filter(node=>!node.hidden&&node.getAttribute('aria-hidden')!=='true'&&node.getClientRects().length>0);}
 function trapOverlayFocus(panel,e){if(e.key!=='Tab')return;const items=overlayFocusables(panel);if(!items.length)return;e.stopPropagation();const first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}
 function closeContextDetail({restore=true,restart=true}={}){

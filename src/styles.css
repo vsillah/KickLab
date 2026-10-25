@@ -2075,3 +2075,39 @@ html[data-kicklab-mode="race"] .stage .toast.race-award-toast span{font-size:12p
 .toast.race-award-toast .ic img{animation:raceCollectibleSettle .7s cubic-bezier(.18,.72,.28,1) both}
 @keyframes raceCollectibleSettle{from{transform:perspective(320px) rotateY(-22deg) scale(.92);opacity:.7}to{transform:none;opacity:1}}
 @media(prefers-reduced-motion:reduce){.race-journey-art img,.toast.race-award-toast .ic img{animation:none!important;transform:none!important}}
+
+/* Race radio: one compact cue in the gap between the event map and wrench. */
+html[data-kicklab-mode="race"] .stage{--race-progress-width:270px}
+html[data-kicklab-mode="race"] .race-phone-progress:not([hidden]){width:min(var(--race-progress-width),calc(100% - 70px))}
+html[data-kicklab-mode="race"] .stage.race-phone-notice-active .race-phone-progress{visibility:visible;pointer-events:auto}
+.race-coach-notice[hidden],.race-coach-history [hidden]{display:none!important}
+.race-coach-notice{display:none}
+html[data-kicklab-mode="race"] .race-coach-notice:not([hidden]){position:absolute;z-index:27;top:max(6px,env(safe-area-inset-top));right:max(56px,calc(env(safe-area-inset-right) + 56px));box-sizing:border-box;display:flex;align-items:center;gap:3px;width:min(220px,calc(100% - var(--race-progress-width) - 70px));height:44px;min-width:0;padding:3px 4px;border:1px solid #9fe6e8;border-radius:11px;background:rgba(7,31,48,.95);box-shadow:0 5px 15px rgba(0,0,0,.3);color:#e9faff;transform-origin:right center}
+html[data-kicklab-mode="race"] .stage.has-game-overlay .race-coach-notice{display:none!important}
+.race-coach-notice[data-mood="warn"]{border-color:#ffc178!important}
+.race-coach-notice-icon{flex:none;display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#28798a;color:#fff;font:900 11px/1 var(--f-body)}
+.race-coach-notice[data-mood="warn"] .race-coach-notice-icon{background:#b65e31}
+.race-coach-notice-text{min-width:0;flex:1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font:700 9px/1.14 var(--f-body)}
+#raceCoachNoticeDismiss{flex:none;width:18px;height:24px;padding:0;border:0;background:transparent;color:#fff;font:700 16px/1 var(--f-body);cursor:pointer}
+#raceCoachNoticeDismiss:focus-visible{outline:2px solid #ffcb79;outline-offset:1px}
+.race-coach-notice.is-entering{animation:raceCoachFlyOut .28s cubic-bezier(.18,.75,.32,1) both}
+.race-coach-notice.is-leaving{animation:raceCoachFlyIn .28s ease-in both}
+@keyframes raceCoachFlyOut{from{opacity:0;transform:translateX(50px) scale(.25)}to{opacity:1;transform:none}}
+@keyframes raceCoachFlyIn{from{opacity:1;transform:none}to{opacity:0;transform:translateX(50px) scale(.25)}}
+html[data-kicklab-mode="race"] #coach:has(.race-coach-history[open]){grid-column:1/-1!important}
+.race-coach-history{display:none}
+html[data-kicklab-mode="race"] #gameGuidanceHud .race-coach-history{display:block;grid-column:1/-1;width:100%;min-width:0;margin-top:5px;padding-top:5px;border-top:1px solid rgba(161,223,229,.35);font:700 10px/1.3 var(--f-body)}
+html[data-kicklab-mode="race"] #gameGuidanceHud #coach>.context-disclosure{inset:4px 5px auto auto;display:grid;place-items:center;width:34px;min-width:34px;height:21px;min-height:21px;border:1px solid rgba(155,220,231,.65);border-radius:6px;background:rgba(6,31,50,.8);color:#d8f4f7}
+html[data-kicklab-mode="race"] #gameGuidanceHud #coach>.context-disclosure::after{content:"Plan";font:800 8px/1 var(--f-body)}
+html[data-kicklab-mode="race"] #gameGuidanceHud #coach .coach-copy{padding-right:31px}
+.race-coach-history summary{cursor:pointer;color:#b8eff1;list-style:none}
+.race-coach-history summary::-webkit-details-marker{display:none}
+.race-coach-history summary::after{content:"⌄";float:right}
+.race-coach-history[open] summary::after{transform:rotate(180deg)}
+.race-coach-history p{margin:7px 0 0;color:#b9d8df;font-weight:500}
+.race-coach-history ol{display:grid;gap:5px;max-height:176px;overflow-y:auto;margin:7px 0 0;padding:0;list-style:none}
+.race-coach-history li{display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:5px;align-items:start;padding:5px;border-radius:7px;background:rgba(6,26,40,.75);font-weight:600;overflow-wrap:anywhere}
+.race-coach-history-icon{color:#8de8ee}.race-coach-history li small{color:#aad1dc;white-space:nowrap;font:700 8px var(--f-mono)}
+@media(max-width:520px){html[data-kicklab-mode="race"] .stage{--race-progress-width:160px}html[data-kicklab-mode="race"] .race-phone-progress:not([hidden]){width:160px;gap:2px;padding:5px}html[data-kicklab-mode="race"] .race-phone-progress-node{width:15px;height:15px;font-size:8px}html[data-kicklab-mode="race"] .race-phone-progress-node[data-state="current"]{width:20px;height:20px}html[data-kicklab-mode="race"] .race-phone-progress-count{font-size:8px}html[data-kicklab-mode="race"] .race-phone-progress-finish{font-size:14px}html[data-kicklab-mode="race"] .race-coach-notice:not([hidden]){height:52px}.race-coach-notice-icon{width:14px;height:14px;font-size:9px}.race-coach-notice-text{font-size:9px;-webkit-line-clamp:3}#raceCoachNoticeDismiss{width:13px}}
+@media(max-width:360px){html[data-kicklab-mode="race"] .stage{--race-progress-width:120px}html[data-kicklab-mode="race"] .race-phone-progress:not([hidden]){width:120px;padding:3px}html[data-kicklab-mode="race"] .race-phone-progress-node{width:13px;height:13px}html[data-kicklab-mode="race"] .race-phone-progress-node[data-state="current"]{width:18px;height:18px}html[data-kicklab-mode="race"] .race-phone-progress-finish{display:none}}
+@media(prefers-reduced-motion:reduce){.race-coach-notice.is-entering{animation:raceCoachFadeIn .18s ease-out both}.race-coach-notice.is-leaving{animation:raceCoachFadeOut .18s ease-in both}@keyframes raceCoachFadeIn{from{opacity:0}to{opacity:1}}@keyframes raceCoachFadeOut{from{opacity:1}to{opacity:0}}}
