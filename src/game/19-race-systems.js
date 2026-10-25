@@ -14,13 +14,36 @@ const RACE_SYSTEMS=(()=>{
   function venue(id){return VENUES[id]||VENUES.highland;}
   function path(x,y,P,v=VENUES.highland){if(P.enduranceCourse)return globalThis.KickLabRaceModes.endurancePath(x,y);if(P.expansionCourse==='straight')return{e:-y,phi:0,kp:0,zone:0};if(P.expansionCourse==='drift')return globalThis.KickLabRaceModes.driftPath(x,y);if(P.expansionCourse==='oval'){const theta=Math.atan2(y/38,(x-80)/70),px=80+70*Math.cos(theta),py=38*Math.sin(theta),phi=Math.atan2(38*Math.cos(theta),-70*Math.sin(theta)),normal=Math.hypot(x-px,y-py),cross=(-38*Math.cos(theta)*(x-px)-70*Math.sin(theta)*(y-py));return{e:-Math.sign(cross)*normal,phi,kp:70*38/Math.pow(70*70*Math.sin(theta)**2+38*38*Math.cos(theta)**2,1.5),zone:1};}const sign=v.turn;if(x<P.L)return{e:-y,phi:0,kp:0,zone:0};const yy=sign*y;if(yy<P.R){const rx=x-P.L,ry=yy-P.R,r=Math.hypot(rx,ry);return{e:sign*(r-P.R),phi:sign*(Math.atan2(ry,rx)+Math.PI/2),kp:sign/P.R,zone:1};}return{e:sign*(x-(P.L+P.R)),phi:sign*Math.PI/2,kp:0,zone:2};}
   function grip(s,P,v){const p=path(s.x,s.y,P,v),offset=Math.abs(p.e),zone=v.gripZones.find(z=>s.x>=z.from&&s.x<z.to)||v.gripZones.at(-1),edge=offset>v.roadHalfWidth?v.runoffGrip:offset>v.roadHalfWidth*.72?v.shoulderGrip:1;return clamp((P.tireMu??P.mu)*(1+(P.downforce||0)*Math.min(1,(Number(s.v)||0)/Math.max(P.top||1,1))**2)*v.baseGrip*(P.expansionCourse==='oval'||P.expansionCourse==='straight'?1:zone.multiplier)*edge,.15,2);}
-  function initial(){return{latV:0,slipAngle:0,driftMode:'none',driftHold:0,skidTime:0,nitro:1,nitroCooldown:0,nitroActive:false,nitroDelivered:false};}
+  function initial(){return{latV:0,slipAngle:0,yawRate:0,axleActive:false,driftMode:'none',driftHold:0,skidTime:0,nitro:1,nitroCooldown:0,nitroActive:false,nitroDelivered:false};}
   function cancelInput(input){input.gas=false;input.brake=false;input.left=false;input.right=false;input.drift=false;input.nitro=false;return input;}
   function autoWheel(s,P,v){const p=path(s.x,s.y,P,v),look=Math.max(8,.7*s.v);let error=p.phi-s.th;while(error>Math.PI)error-=2*Math.PI;while(error<-Math.PI)error+=2*Math.PI;const curvature=p.kp+(P.enduranceCourse?1.2:2)*Math.sin(error+Math.atan(p.e/look))/look;return clamp(P.ratio*Math.atan(curvature*P.Lwb)*180/Math.PI,-180,180);}
+  // A small bicycle model is used only during a committed handbrake slide and its recovery.
+  // Keeping the ordinary line model outside that window preserves the established corner lessons.
+  function axleStep(s,P,{steer,mu,wheel,handbrake,h,baselineYaw}){
+    const speed=Math.max(s.v,2),wheelbase=P.Lwb,frontArm=wheelbase*.48,rearArm=wheelbase*.52,mass=P.m;
+    const recovery=clamp(P.recovery??1,.65,1.4),stability=clamp(P.stability??1,.7,1.3);
+    const rearGrip=handbrake?clamp(.39+(recovery-1)*.09,.32,.46):1;
+    const frontCap=mass*mu*9.81*.53,rearCap=mass*mu*9.81*.47*rearGrip;
+    const frontAngle=steer-Math.atan2(s.latV+frontArm*s.yawRate,speed);
+    const rearAngle=-Math.atan2(s.latV-rearArm*s.yawRate,speed);
+    const frontForce=clamp(frontAngle*mass*9.81*3.5*stability,-frontCap,frontCap);
+    const rearForce=clamp(rearAngle*mass*9.81*3.5*recovery*rearGrip,-rearCap,rearCap);
+    const inertia=mass*wheelbase*wheelbase*(.31+(1-recovery)*.045);
+    const yawAccel=clamp((frontArm*frontForce-rearArm*rearForce)/inertia-(s.yawRate-baselineYaw)*(handbrake?.55:3.8*recovery),-2.1,2.1);
+    s.yawRate=clamp(s.yawRate+yawAccel*h,-1.35,1.35);
+    s.latV=clamp(s.latV+((frontForce+rearForce)/mass-speed*s.yawRate-(handbrake?0:3.2*recovery)*s.latV)*h,-speed*1.75,speed*1.75);
+    s.slipAngle=clamp(-Math.atan2(s.latV,speed),-1.05,1.05);
+    s.k=s.yawRate/Math.max(s.v,1);
+    const settled=!handbrake&&Math.abs(s.slipAngle)<.025&&Math.abs(s.yawRate-baselineYaw)<.06;
+    if(settled){s.axleActive=false;s.latV=0;s.slipAngle=0;s.yawRate=baselineYaw;s.k=baselineYaw/Math.max(s.v,1);}
+    else s.axleActive=true;
+    return {frontForce,rearForce,rearGrip,yawAccel};
+  }
   function step(s,P,input,dt,v=VENUES.highland){
     const h=clamp(dt,0,.02),gas=clamp(Number(input.gas)||0,0,1),brake=clamp(Number(input.brake)||0,0,1),g=9.81;
     const rawWheel=input.auto?autoWheel(s,P,v):clamp(Number(input.wheel)||0,-180,180),garage=globalThis.KickLabRaceGarage,tune=garage?garage.response(s,P,rawWheel,brake,h):{wheel:rawWheel,muFactor:1,brakeFactor:1},mu=grip(s,P,v)*tune.muFactor,wheel=tune.wheel,steer=wheel/P.ratio*Math.PI/180,requested=Math.tan(steer)/P.Lwb;
     const requestedLat=s.v*s.v*Math.abs(requested),was=s.driftMode||'none';
+    const committed=!!input.handbrake&&s.v>=9&&Math.abs(wheel)>=9&&brake<.3;
     const canDrift=!!input.drift&&s.v>=9&&Math.abs(wheel)>=9&&brake<.3&&Math.abs(s.slipAngle||0)<.48;
     let mode=was==='skid'&&s.skidTime>0?'skid':canDrift?'drift':'none';
     if(mode==='drift')s.driftHold=Math.min(5,(s.driftHold||0)+h);else s.driftHold=0;
@@ -33,17 +56,21 @@ const RACE_SYSTEMS=(()=>{
     if(mode==='skid')s.skidTime=Math.max(0,(s.skidTime||0)-h);else s.skidTime=0;
     const yawCap=(mode==='skid'?.62:1)*lateralBudget*(P.stability??1)/Math.max(s.v*s.v,.01),yawCurvature=clamp(requested,-yawCap,yawCap);
     const slipGoal=mode==='drift'?Math.sign(wheel)*clamp(.08+requestedLat/Math.max(cap,1)*.14,.08,.3):mode==='skid'?Math.sign(wheel||s.slipAngle||1)*.42:0;
-    s.slipAngle=(s.slipAngle||0)+(slipGoal-(s.slipAngle||0))*Math.min(1,h*(mode==='skid'?2.5:4.5*(P.recovery??1)));
-    s.latV=s.v*Math.sin(s.slipAngle);
+    if(!committed&&!s.axleActive){s.slipAngle=(s.slipAngle||0)+(slipGoal-(s.slipAngle||0))*Math.min(1,h*(mode==='skid'?2.5:4.5*(P.recovery??1)));s.latV=s.v*Math.sin(s.slipAngle);}
     const slope=P.progressionGrade?globalThis.KickLabRaceProgression.grade(v,s.x)*Math.cos(s.th):0;
     const drag=(P.F/P.m)/(P.top*P.top)*(P.rolling??1),accel=longitudinal-drag*s.v*s.v-g*slope/Math.sqrt(1+slope*slope);
-    s.longitudinalAccel=accel;s.deliveredBoostAccel=boost;s.yawRate=s.v*yawCurvature;s.handbrakeCommitted=!!input.handbrake;
-    s.v=Math.max(0,s.v+accel*h);s.th+=s.v*yawCurvature*h;s.x+=(s.v*Math.cos(s.th)-s.latV*Math.sin(s.th))*h;s.y+=(s.v*Math.sin(s.th)+s.latV*Math.cos(s.th))*h;s.t+=h;
+    s.longitudinalAccel=accel;s.deliveredBoostAccel=boost;s.handbrakeCommitted=!!input.handbrake;
+    s.v=Math.max(0,s.v+accel*h);
+    if(committed&&!s.axleActive){s.yawRate=s.v*yawCurvature;s.latV=0;s.slipAngle=0;s.axleActive=true;}
+    const forces=s.axleActive?axleStep(s,P,{steer,mu,wheel,handbrake:committed,h,baselineYaw:s.v*yawCurvature}):null;
+    if(!forces)s.yawRate=s.v*yawCurvature;
+    s.th+=s.yawRate*h;s.x+=(s.v*Math.cos(s.th)-s.latV*Math.sin(s.th))*h;s.y+=(s.v*Math.sin(s.th)+s.latV*Math.cos(s.th))*h;s.t+=h;
+    if(forces){const slip=Math.abs(s.slipAngle);mode=slip>.61?'skid':slip>.10?'drift':'none';s.driftHold=mode==='drift'?Math.min(5,(s.driftHold||0)+h):0;s.skidTime=mode==='skid'?Math.max(s.skidTime||0,.3):0;}
     s.nitroActive=boostAllowed;s.nitroDelivered=boost>.05;if(boostAllowed){s.nitro=Math.max(0,(s.nitro||0)-h/2.2);if(s.nitro===0)s.nitroCooldown=3.5;}else if((s.nitroCooldown||0)>0)s.nitroCooldown=Math.max(0,s.nitroCooldown-h);else s.nitro=Math.min(1,(s.nitro||0)+h/9);
-    s.driftMode=mode;s.slide=mode==='skid';s.drift=mode==='drift';s.launchSlip=launchSlip;s.wheel=wheel;s.k=yawCurvature;s.kc=requested;s.alat=s.v*s.v*Math.abs(yawCurvature);s.need=requestedLat;s.muEffective=mu;
+    s.driftMode=mode;s.slide=mode==='skid';s.drift=mode==='drift';s.launchSlip=launchSlip;s.wheel=wheel;if(!forces)s.k=yawCurvature;s.kc=requested;s.alat=s.v*Math.abs(s.yawRate);s.need=requestedLat;s.muEffective=mu;s.rearGrip=forces?.rearGrip??1;
     const p=path(s.x,s.y,P,v);s.e=p.e;s.zone=p.zone;if(garage)garage.afterStep(s,P);return s;
   }
-  function camera(s,width,{reduced=false}={}){const h=s.th||0,fx=Math.cos(h),fz=Math.sin(h),speed=clamp((s.v||0)/30,0,1),phone=width<500,back=(phone?13.6:width<850?12.6:width<1150?9.1:7.7)+speed,height=(phone?5.1:width<850?5.5:4.7)+speed*.35,ahead=(phone?3.8:3)+speed*2;return{position:[s.x-fx*back-fz*.6,height,s.y-fz*back+fx*.6],look:[s.x+fx*ahead,1.05,s.y+fz*ahead],back,height,lookAhead:ahead,instant:!!reduced};}
+  function camera(s,width,{reduced=false}={}){const slip=clamp(s.axleActive?(s.slipAngle||0):0,-.7,.7),h=(s.th||0)-slip*.72,fx=Math.cos(h),fz=Math.sin(h),speed=clamp((s.v||0)/30,0,1),phone=width<500,back=(phone?13.6:width<850?12.6:width<1150?9.1:7.7)+speed,height=(phone?5.1:width<850?5.5:4.7)+speed*.35,ahead=(phone?3.8:3)+speed*2;return{position:[s.x-fx*back-fz*.6,height,s.y-fz*back+fx*.6],look:[s.x+fx*ahead,1.05,s.y+fz*ahead],back,height,lookAhead:ahead,instant:!!reduced};}
   function validateVehicle(names,{proxy=false}={}){const set=new Set(names.map(name=>String(name).replace(/\s+/g,'_'))),missing=[];if(proxy){for(const key of ['front tire -1','front tire 1','rear tire -1','rear tire 1','sculpted blue body shell'])if(!set.has(key.replace(/\s+/g,'_')))missing.push(key);}else for(const key of [CONTRACT.root,CONTRACT.body,...Object.values(CONTRACT.wheels).map(w=>w.node)])if(!set.has(key))missing.push(key);return{ok:missing.length===0,missing,proxy,contractVersion:CONTRACT.version};}
   return Object.freeze({CONTRACT,VENUES,enabled,venue,path,grip,initial,cancelInput,autoWheel,step,camera,validateVehicle});
 })();

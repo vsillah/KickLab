@@ -53,6 +53,50 @@ test('controlled drift enters, holds and exits without becoming a skid',()=>{
   drive(s,{gas:0,brake:.2,wheel:0,drift:false},1.2);assert.equal(s.driftMode,'none');assert.ok(Math.abs(s.slipAngle)<.02);
 });
 
+test('handbrake changes axle grip and yaw only with enough speed and steering',()=>{
+  const run=(extra,input)=>drive(state({x:0,...extra}),{gas:.3,brake:0,wheel:42,drift:false,...input},.48);
+  const free=run({},{}),held=run({},{handbrake:true});
+  assert.ok(held.rearGrip<.5&&free.rearGrip===1);
+  assert.ok(held.yawRate>free.yawRate+.05);
+  assert.ok(held.slipAngle>.08);
+  for(const [extra,input] of [[{v:6},{wheel:42}],[{}, {wheel:0}],[{}, {brake:.5}]]){
+    const off=run(extra,input),on=run(extra,{...input,handbrake:true});
+    assert.equal(on.th,off.th);assert.equal(on.slipAngle,off.slipAngle);assert.equal(on.yawRate,off.yawRate);
+  }
+});
+
+test('short handbrake rotation holds a readable angle and countersteer recovers',()=>{
+  const s=state({x:0}),physics={...P,expansionCourse:'straight',stability:1,recovery:1};
+  const advance=(input,seconds)=>{for(let i=0;i<seconds/.004;i++)api.step(s,physics,input,.004);};
+  advance({gas:.3,wheel:55,handbrake:true},.68);
+  assert.ok(s.slipAngle>=15*Math.PI/180&&s.slipAngle<=35*Math.PI/180,`controlled slip ${s.slipAngle}`);
+  const peak=s.slipAngle;advance({gas:.3,wheel:-35,handbrake:false},.55);
+  assert.ok(Math.abs(s.slipAngle)<peak*.5,`countersteer reduced slip ${s.slipAngle}`);
+  assert.ok(Math.abs(s.yawRate)<.4,`yaw rate settled ${s.yawRate}`);
+  advance({gas:0,wheel:0,handbrake:false},.55);
+  assert.ok(Math.abs(s.slipAngle)<.06);
+});
+
+test('prolonged handbrake misuse can spin without unbounded per-step yaw',()=>{
+  const s=state({x:0}),physics={...P,expansionCourse:'straight'};let previous=s.th,maxStep=0;
+  for(let i=0;i<750;i++){api.step(s,physics,{gas:.3,wheel:90,handbrake:true},.004);maxStep=Math.max(maxStep,Math.abs(s.th-previous));previous=s.th;}
+  assert.ok(s.th>Math.PI,`spin heading ${s.th}`);
+  assert.equal(s.driftMode,'skid');assert.ok(maxStep<.006&&Number.isFinite(s.slipAngle));
+});
+
+test('vehicle stability and recovery tune rear axle response without breaking ordinary cornering',()=>{
+  const cars=[['kestrel',.94,1.14,.82],['cobalt',1,1,1],['aegis',1.1,.96,1.16]];
+  const results=cars.map(([id,grip,stability,recovery])=>{const s=state({x:0});const car={...P,tireMu:P.mu*grip,stability,recovery,expansionCourse:'straight'};for(let i=0;i<150;i++)api.step(s,car,{gas:.3,wheel:50,handbrake:true},.004);return{id,slip:s.slipAngle,yaw:s.yawRate};});
+  assert.ok(new Set(results.map(row=>row.slip.toFixed(3))).size===3);
+  assert.ok(results.every(row=>row.slip>0&&row.slip<.7&&row.yaw>0));
+  const normal=state({x:0});drive(normal,{gas:.3,wheel:30},.6);assert.equal(normal.axleActive,false);assert.ok(normal.slipAngle<.2);
+});
+
+test('chase camera follows the velocity vector enough to expose car rotation',()=>{
+  const s=state({x:0,th:.4,slipAngle:.35,axleActive:true});
+  for(const width of [390,768,1113,1440]){const normal=api.camera({...s,axleActive:false},width),sliding=api.camera(s,width,{reduced:true});assert.ok(Math.abs(sliding.position[2]-normal.position[2])>.5);assert.equal(sliding.instant,true);}
+});
+
 test('excess corner demand becomes a skid and recovers after wheel release',()=>{
   const s=state({v:32});drive(s,{gas:.4,brake:0,wheel:180},.3);assert.equal(s.driftMode,'skid');assert.equal(s.slide,true);
   drive(s,{gas:0,brake:.4,wheel:0},1.5);assert.equal(s.driftMode,'none');assert.equal(s.slide,false);
