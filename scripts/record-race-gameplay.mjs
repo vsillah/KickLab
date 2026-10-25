@@ -58,7 +58,7 @@ async function drift(width,height){
     if(stage==='brake'&&d.v<14){await page.mouse.up();stage='coast';}
     if(stage==='coast'&&d.x>86){await page.keyboard.down('ArrowRight');await page.waitForTimeout(550);await page.keyboard.up('ArrowRight');stage='steer';}
     if(stage==='steer'&&d.x>86){await page.locator('#simHandbrake').focus();await page.keyboard.press('Space');stage='drift';}
-    if(stage==='drift'&&d.y>5){await page.locator('#simHandbrake').focus();await page.keyboard.press('Space');await page.keyboard.down('ArrowLeft');await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.dynamics?.wheel< -5,null,{timeout:1500});await page.keyboard.up('ArrowLeft');countersteered=true;stage='counter';}
+    if(stage==='drift'&&(row.milestones?.driftArmed||d.y>5.5)){await page.locator('#simHandbrake').focus();await page.keyboard.press('Space');await page.keyboard.down('ArrowLeft');await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.dynamics?.wheel< -5,null,{timeout:1500});await page.keyboard.up('ArrowLeft');countersteered=true;stage='counter';}
     if(stage==='counter'&&d.y>8){stage='recover';}
     if(stage==='recover'&&row.modes?.zone===2&&d.x>117){await page.keyboard.down('ArrowRight');await page.waitForTimeout(550);await page.keyboard.up('ArrowRight');stage='follow';}
     if(stage==='follow'&&d.y>55&&d.state==='run'&&d.mode==='none'&&!d.inputs.drift){recovered=true;break;}
