@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "origin": "Original locally authored Blender geometry; no external source assets or brand marks.",
+  "generator": "scripts/render-race-awards.py",
+  "license": "KickLab project original asset",
+  "objects": ["core", "drag", "drift", "circuit", "hill", "endurance"],
+  "format": "640 x 640 transparent WebP, quality 82",
+  "runtime": "Local files only; no runtime network service or tracking"
+}
