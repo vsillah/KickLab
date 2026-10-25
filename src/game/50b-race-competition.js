@@ -16,12 +16,13 @@ function raceCompetitionResult(event){
   RACE_COMP_UI.last={profileId:profile.id,recId:rec?.id,category:event.category,score:event.score,vehicle,award:result.earned?.name||(result.state.awards[event.category]?RACE_COMPETITION.AWARDS[event.category].name:'Race result')};
   if(RACE_COMP_UI.storageWarning)toast('Race record is session-only','Device storage could not save this award. Clear space before leaving this page.');
   if(result.earned){
-    const announce=()=>{if(profileManager.active().id!==profile.id)return;COACH.say(`${result.earned.name} earned. See your next chapter in Race awards.`,'hype',7);const note=toast('Race collectible earned',result.earned.name,{hold:7000});if(note){note.classList.add('race-award-toast');note.querySelector('.ic').replaceChildren(RACE_AWARD_IMAGES[result.awardId].cloneNode());}};
+    const announce=()=>{if(profileManager.active().id!==profile.id)return;COACH.say(`${result.earned.name} earned. See your next chapter in Race awards.`,'hype',7);const note=toast('Race collectible earned',result.earned.name,{hold:7000});if(note){note.classList.add('race-award-toast');note.querySelector('.ic').replaceChildren(RACE_AWARD_IMAGES[result.awardId].cloneNode());if(note.classList.contains('race-phone-notice')){note.classList.remove('race-phone-notice');note.style.marginTop='52px';syncRacePhoneNoticeSlot();}}};
     if(Race.state==='done')setTimeout(announce,0);else announce();
   }else if(!result.state.awards[event.category])COACH.say(`Run recorded. ${RACE_COMPETITION.journey(result.state).find(item=>item.id===event.category).progress}.`,'tip',6);
 }
 function raceCompetitionClear(){
   RACE_COMP_UI.last=null;
+  document.querySelectorAll('#toasts .race-award-toast').forEach(note=>note.remove());syncRacePhoneNoticeSlot();
   if(RACE_COMP_UI.capture){RACE_COMP_UI.capture.cancelled=true;try{RACE_COMP_UI.capture.recorder.stop();}catch(_){}RACE_COMP_UI.capture.stream.getTracks().forEach(track=>track.stop());RACE_COMP_UI.capture=null;}
   if(RP.on)exitReplay();
   if(RACE_COMP_UI.url)URL.revokeObjectURL(RACE_COMP_UI.url);
