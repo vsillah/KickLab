@@ -1,7 +1,7 @@
 /* ---------- local, motion-aware home gameplay previews ---------- */
 const HOME_PREVIEW_MOTION=window.matchMedia('(prefers-reduced-motion: reduce)');
 const HOME_PREVIEWS=[...document.querySelectorAll('.lab-showcase')].map(card=>({card,video:card.querySelector('video'),visible:false,failed:false}));
-function homePreviewAllowed(){return!HOME_PREVIEW_MOTION.matches&&!document.hidden&&!$('#modeHome').hidden;}
+function homePreviewAllowed(){return!HOME_PREVIEW_MOTION.matches&&!document.hidden&&!$('#modeHome').hidden&&($('#fboard').hidden||$('#raceCompetition').hidden);}
 function homePreviewFailed(item){item.failed=true;item.video.pause();item.card.dataset.previewState='fallback';}
 function setHomePreview(item,visible=true){item.visible=visible;if(item.failed){item.card.dataset.previewState='fallback';return;}if(!homePreviewAllowed()||!visible){item.video.pause();item.card.dataset.previewState='poster';return;}try{const playing=item.video.play();if(playing&&typeof playing.then==='function')playing.then(()=>{if(item.visible&&homePreviewAllowed()&&!item.video.paused)item.card.dataset.previewState='motion';}).catch(()=>{if(item.visible&&homePreviewAllowed())homePreviewFailed(item);});}catch(_){homePreviewFailed(item);}}
 HOME_PREVIEWS.forEach(item=>{item.video.muted=true;item.video.loop=true;item.video.playsInline=true;item.video.addEventListener('canplay',()=>setHomePreview(item,item.visible));item.video.addEventListener('playing',()=>{if(item.visible&&homePreviewAllowed()&&!item.failed)item.card.dataset.previewState='motion';});item.video.addEventListener('error',()=>homePreviewFailed(item));});
@@ -9,3 +9,4 @@ const HOME_PREVIEW_OBSERVER='IntersectionObserver'in window?new IntersectionObse
 if(HOME_PREVIEW_OBSERVER)HOME_PREVIEWS.forEach(item=>HOME_PREVIEW_OBSERVER.observe(item.video));else HOME_PREVIEWS.forEach(item=>setHomePreview(item));
 const syncHomePreviews=()=>HOME_PREVIEWS.forEach(item=>{const rect=item.video.getBoundingClientRect();setHomePreview(item,rect.width>0&&rect.height>0&&rect.bottom>0&&rect.top<innerHeight&&rect.right>0&&rect.left<innerWidth);});
 document.addEventListener('visibilitychange',syncHomePreviews);HOME_PREVIEW_MOTION.addEventListener?.('change',syncHomePreviews);new MutationObserver(syncHomePreviews).observe($('#modeHome'),{attributes:true,attributeFilter:['hidden']});
+new MutationObserver(syncHomePreviews).observe($('#fboard'),{attributes:true,attributeFilter:['hidden']});
