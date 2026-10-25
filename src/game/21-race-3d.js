@@ -80,15 +80,15 @@ function raceMarineWaterMaterial(T){
         float ripple=sin(a*2.1+sin(b)*0.65)*0.5+0.5;
         vec3 normal=normalize(vec3(cos(a)*0.11+cos(b)*0.075,1.0,cos(a)*0.14-cos(b)*0.055));
         vec3 viewDir=normalize(cameraPosition-vWaterWorld);
-        float fresnel=pow(1.0-max(dot(normal,viewDir),0.0),2.2);
-        float skyMix=clamp(0.17+fresnel*0.48+broad*0.19+crossing*0.11,0.0,0.86);
-        vec3 deep=vec3(0.035,0.245,0.29);
-        vec3 sky=vec3(0.34,0.55,0.62);
+        float fresnel=pow(1.0-max(dot(normal,viewDir),0.0),3.4);
+        float skyMix=clamp(0.14+fresnel*0.19+broad*0.17+crossing*0.09,0.0,0.52);
+        vec3 deep=vec3(0.006,0.082,0.15);
+        vec3 sky=vec3(0.085,0.255,0.355);
         vec3 color=mix(deep,sky,skyMix);
-        float band=1.0-smoothstep(0.045,0.16,abs(ripple-0.83));
+        float band=1.0-smoothstep(0.012,0.055,abs(ripple-0.96));
         float glint=pow(max(dot(reflect(-normalize(vec3(-0.36,0.87,-0.34)),normal),viewDir),0.0),18.0);
-        float accent=clamp(band*(0.12+crossing*0.12)+glint*0.18,0.0,0.32);
-        color=mix(color,vec3(0.64,0.76,0.76),accent);
+        float accent=clamp(band*smoothstep(0.35,0.8,crossing)*0.16+glint*0.07,0.0,0.17);
+        color=mix(color,vec3(0.28,0.47,0.52),accent);
         gl_FragColor=vec4(color,1.0);
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
