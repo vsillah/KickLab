@@ -3,10 +3,11 @@
   const params=typeof location==='undefined'?null:new URLSearchParams(location.search);
   const enabled=!!(params?.get('raceFinishes')==='prototype'&&params.get('raceExpansion')==='prototype'&&root.KickLabRaceOrigin?.trusted());
   const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
-  function create(){return{phase:'run',kind:null,elapsed:0,used:false,throttleTime:0,steerTime:0,handbrakeTime:0,handbrakeArmed:false,shiftAt:-Infinity,driftRecoveredAt:-Infinity,lastDrift:false,lastHandbrake:false,finishTime:0,anchor:null,reason:'waiting'};}
+  function create(){return{phase:'run',kind:null,elapsed:0,used:false,throttleTime:0,nosTime:0,steerTime:0,handbrakeTime:0,handbrakeArmed:false,shiftAt:-Infinity,driftRecoveredAt:-Infinity,lastDrift:false,lastHandbrake:false,finishTime:0,anchor:null,reason:'waiting'};}
   function distance(mode,s){if(mode==='drag')return 240-s.x;if(mode==='drift')return 215-s.x;if(mode==='hill')return Math.max(0,72-s.y);return Infinity;}
-  function observe(q,input,dt){if(!enabled||q.phase!=='run')return q;const {mode,speed,remaining,throttle,brake,steer,handbrake,slip,stable,time,driftMode,steerOwned}=input,window=remaining>=0&&remaining<=Math.max(22,speed*2.1),clean=stable&&Math.abs(slip)<.14;
+  function observe(q,input,dt){if(!enabled||q.phase!=='run')return q;const {mode,speed,remaining,throttle,brake,nos,steer,handbrake,slip,stable,time,driftMode,steerOwned}=input,window=remaining>=0&&remaining<=Math.max(22,speed*2.1),clean=stable&&Math.abs(slip)<.14;
     q.throttleTime=throttle>=.9&&brake<.1?Math.min(3,q.throttleTime+dt):0;
+    q.nosTime=nos&&throttle>.1&&brake<.1?Math.min(3,q.nosTime+dt):0;
     q.steerTime=window&&speed>=13&&Math.abs(steer)>=35?Math.min(2,q.steerTime+dt):0;
     if(window&&speed>=13&&q.steerTime>=.16&&handbrake&&!q.lastHandbrake)q.handbrakeArmed=true;
     q.handbrakeTime=q.handbrakeArmed&&handbrake?Math.min(2,q.handbrakeTime+dt):q.handbrakeTime;
@@ -19,7 +20,7 @@
   function cross(q,input){if(!enabled||q.phase!=='run'||q.used||!input.passed||!input.legitimate||!input.render3d){q.reason='ineligible-finish';return null;}const {mode,speed,remaining,stable,slip,time,throttle,nos}=input;if(!['drag','drift','hill'].includes(mode)||remaining>2||speed<8){q.reason='unsafe-crossing';return null;}const handbrakeEligible=q.handbrakeArmed&&q.handbrakeTime>=.16&&speed>=13&&Math.abs(input.steer)>=22&&Math.abs(slip)<.9;if(!handbrakeEligible&&(!stable||Math.abs(slip)>.4)){q.reason='unsafe-crossing';return null;}
     q.anchor={x:input.x,y:input.y,heading:input.heading,speed,vehicle:input.vehicle,venue:input.venue,mode};q.finishTime=time;
     if(handbrakeEligible){q.kind='handbrake-360';q.phase='cinematic';q.shown=true;}
-    else if(q.throttleTime>=1.1&&throttle>=.9&&speed>=16){q.phase='await-brake';q.kind='power-stop';q.nos=!!nos;}
+    else if(((q.throttleTime>=1.1&&throttle>=.9)||(q.nosTime>=.6&&nos&&throttle>.1))&&speed>=16){q.phase='await-brake';q.kind='power-stop';q.nos=!!nos;}
     else if((mode==='drag'&&time-q.shiftAt<=7&&time-q.shiftAt>=0)||(mode==='drift'&&time-q.driftRecoveredAt<=4&&time-q.driftRecoveredAt>=0)){q.kind='precision-hero';q.phase='cinematic';q.shown=true;}
     else{q.phase='complete';q.reason='no-earned-contract';return null;}
     q.used=true;q.elapsed=0;q.reason='earned';return q.kind;
