@@ -1470,6 +1470,8 @@ html[data-race-telemetry="prototype"] .race-stage-start p{display:-webkit-box;-w
 html[data-race-telemetry="prototype"] .race-stage-start #raceCoachSetupRecommendation{font-size:10px;color:#bfe5e6}
 html[data-race-telemetry="prototype"] .race-stage-start #raceCoachSetupRecommendation[hidden]{display:none!important}
 html[data-race-telemetry="prototype"] .race-stage-start button{display:flex;align-items:center;justify-content:center;gap:7px;width:min(220px,100%);min-height:48px;margin-top:4px;padding:8px 16px;border:1px solid #b2f4b6;border-radius:10px;background:linear-gradient(180deg,#55ab78,#247654);color:#fff;font:800 14px/1.1 var(--f-body);box-shadow:0 5px 18px rgba(15,78,44,.4);cursor:pointer}
+html[data-race-telemetry="prototype"] .race-stage-start #raceAudioReduced{min-height:32px;margin-top:0;padding:5px 10px;border-color:#77b7c8;background:#12374b;color:#e7f7ff;font-size:11px;box-shadow:none}
+html[data-race-telemetry="prototype"] .race-stage-start #raceAudioReduced[aria-pressed="true"]{border-color:#a8f1ef;background:#246274;color:#fff}
 html[data-race-telemetry="prototype"] .race-stage-start button:focus-visible{outline:3px solid #ffd27d;outline-offset:3px}
 html[data-race-telemetry="prototype"] #raceCoachSetup .race-coach-support-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
 @media(min-width:801px){html[data-race-telemetry="prototype"] .game-frame .stage>.control-deck.race-setup-preview:not(.simulator-active){left:12px!important;right:auto!important;width:min(360px,calc(100% - 24px))!important;transform:none!important}}

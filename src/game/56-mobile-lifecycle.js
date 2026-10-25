@@ -14,7 +14,7 @@ function releaseMobileHeldInputs(reason='App interrupted'){
   if(typeof cancelGesture==='function')cancelGesture(reason);
   if(typeof RACE_SYSTEMS!=='undefined'&&RACE_SYSTEMS.enabled()&&M===Race){RACE_SYSTEMS.cancelInput(Race.inp);if(RACE_TELEMETRY.enabled)RACE_TELEMETRY.cancel(Race.telemetry);Race.gas=false;Race.brake=false;}
 }
-function suspendMobileAudio(){ENGINE.off();if(AC&&AC.state==='running'){try{const pending=AC.suspend();if(pending&&typeof pending.catch==='function')pending.catch(()=>{});}catch(_){}}}
+function suspendMobileAudio(){ENGINE.off();RACE_SUPERCAR_AUDIO.stop();if(AC&&AC.state==='running'){try{const pending=AC.suspend();if(pending&&typeof pending.catch==='function')pending.catch(()=>{});}catch(_){}}}
 function suspendMobileSession(reason='background'){
   releaseMobileHeldInputs(reason);suspendMobileAudio();MOBILE_STATE.active=false;MOBILE_STATE.lastReason=reason;
   claimPauseOwner('mobile-lifecycle');MOBILE_STATE.ownsPause=true;
