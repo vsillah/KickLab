@@ -16,13 +16,13 @@ function raceCompetitionResult(event){
   RACE_COMP_UI.last={profileId:profile.id,recId:rec?.id,category:event.category,score:event.score,vehicle,award:result.earned?.name||(result.state.awards[event.category]?RACE_COMPETITION.AWARDS[event.category].name:'Race result')};
   if(RACE_COMP_UI.storageWarning)toast('Race record is session-only','Device storage could not save this award. Clear space before leaving this page.');
   if(result.earned){
-    const announce=()=>{if(profileManager.active().id!==profile.id)return;COACH.say(`${result.earned.name} earned. See your next chapter in Race awards.`,'hype',7);const note=toast('Race collectible earned',result.earned.name,{hold:7000});if(note){note.classList.add('race-award-toast');note.querySelector('.ic').replaceChildren(RACE_AWARD_IMAGES[result.awardId].cloneNode());if(note.classList.contains('race-phone-notice')){note.classList.remove('race-phone-notice');note.style.marginTop='52px';syncRacePhoneNoticeSlot();}}};
+    const announce=()=>{if(profileManager.active().id!==profile.id)return;COACH.say(`${result.earned.name} earned. See your next chapter in Race awards.`,'hype',7);const note=toast('Race collectible earned',result.earned.name,{hold:7000});if(note){note.classList.add('race-award-toast');note.querySelector('.ic').replaceChildren(RACE_AWARD_IMAGES[result.awardId].cloneNode());if(note.classList.contains('race-phone-notice')){note.classList.remove('race-phone-notice');note.style.cssText='position:absolute;z-index:28;top:calc(max(6px,env(safe-area-inset-top)) + 52px);left:max(6px,env(safe-area-inset-left));width:min(270px,calc(100% - 70px))';const stage=$('.stage'),results=$('#results');stage.append(note);syncRacePhoneNoticeSlot();const place=()=>{if(results.hidden||results.classList.contains('mini')||!note.isConnected)return;const panel=results.querySelector('.rc')?.getBoundingClientRect();if(panel){note.style.top=`${Math.ceil(parseFloat(getComputedStyle(note).top)||0)+Math.ceil(panel.bottom+10-note.getBoundingClientRect().top)}px`;note.style.zIndex='36';}};const observer=new MutationObserver(()=>{place();setTimeout(place,400);});observer.observe(results,{attributes:true,attributeFilter:['hidden','class']});place();setTimeout(()=>observer.disconnect(),4600);}}};
     if(Race.state==='done')setTimeout(announce,0);else announce();
   }else if(!result.state.awards[event.category])COACH.say(`Run recorded. ${RACE_COMPETITION.journey(result.state).find(item=>item.id===event.category).progress}.`,'tip',6);
 }
 function raceCompetitionClear(){
   RACE_COMP_UI.last=null;
-  document.querySelectorAll('#toasts .race-award-toast').forEach(note=>note.remove());syncRacePhoneNoticeSlot();
+  document.querySelectorAll('.stage .race-award-toast').forEach(note=>note.remove());syncRacePhoneNoticeSlot();
   if(RACE_COMP_UI.capture){RACE_COMP_UI.capture.cancelled=true;try{RACE_COMP_UI.capture.recorder.stop();}catch(_){}RACE_COMP_UI.capture.stream.getTracks().forEach(track=>track.stop());RACE_COMP_UI.capture=null;}
   if(RP.on)exitReplay();
   if(RACE_COMP_UI.url)URL.revokeObjectURL(RACE_COMP_UI.url);
