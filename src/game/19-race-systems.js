@@ -37,6 +37,7 @@ const RACE_SYSTEMS=(()=>{
     s.latV=s.v*Math.sin(s.slipAngle);
     const slope=P.progressionGrade?globalThis.KickLabRaceProgression.grade(v,s.x)*Math.cos(s.th):0;
     const drag=(P.F/P.m)/(P.top*P.top)*(P.rolling??1),accel=longitudinal-drag*s.v*s.v-g*slope/Math.sqrt(1+slope*slope);
+    s.longitudinalAccel=accel;s.deliveredBoostAccel=boost;s.yawRate=s.v*yawCurvature;s.handbrakeCommitted=!!input.handbrake;
     s.v=Math.max(0,s.v+accel*h);s.th+=s.v*yawCurvature*h;s.x+=(s.v*Math.cos(s.th)-s.latV*Math.sin(s.th))*h;s.y+=(s.v*Math.sin(s.th)+s.latV*Math.cos(s.th))*h;s.t+=h;
     s.nitroActive=boostAllowed;s.nitroDelivered=boost>.05;if(boostAllowed){s.nitro=Math.max(0,(s.nitro||0)-h/2.2);if(s.nitro===0)s.nitroCooldown=3.5;}else if((s.nitroCooldown||0)>0)s.nitroCooldown=Math.max(0,s.nitroCooldown-h);else s.nitro=Math.min(1,(s.nitro||0)+h/9);
     s.driftMode=mode;s.slide=mode==='skid';s.drift=mode==='drift';s.launchSlip=launchSlip;s.wheel=wheel;s.k=yawCurvature;s.kc=requested;s.alat=s.v*s.v*Math.abs(yawCurvature);s.need=requestedLat;s.muEffective=mu;

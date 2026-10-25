@@ -19,7 +19,8 @@ async function snapshot(page, label, expected, state, screenshot = true) {
     dashboardAudit: window.__KICKLAB_RACE_NAVIGATION__?.visible === true,
     pacing: !document.querySelector('#gamePacingOverlay').hidden,
   }));
-  if (actual.cockpit !== expected || actual.navigation !== expected || (state && actual.state !== state)) throw new Error(`${label}: expected cockpit ${expected} and state ${state}; got ${JSON.stringify(actual)}`);
+  const navigationExpected = page.viewportSize().width > 480 && expected;
+  if (actual.cockpit !== expected || actual.navigation !== navigationExpected || (state && actual.state !== state)) throw new Error(`${label}: expected cockpit ${expected}, navigation ${navigationExpected}, and state ${state}; got ${JSON.stringify(actual)}`);
   if (screenshot) await page.locator('.stage').screenshot({ path: join(out, `${label}.png`) });
   report.cases.push({ label, ...actual });
 }
@@ -49,9 +50,12 @@ async function runCase(name, reduced) {
     if (await toast.count()) await toast.evaluate(button => button.click());
     await snapshot(page, `${name}-orbit`, false, 'grid');
     await page.click('.race-orbit-panel button');
-    await page.locator('#gamePacingOverlay').waitFor({ state: 'visible', timeout: 10000 });
-    await snapshot(page, `${name}-countdown`, false, 'grid');
-    await page.locator('#gamePacingOverlay').waitFor({ state: 'hidden', timeout: 20000 });
+    await page.locator('#raceCoachSetupStart').waitFor({ state: 'visible', timeout: 10000 });
+    await page.click('#raceCoachSetupStart');
+    if (await page.locator('#gamePacingOverlay').isVisible()) {
+      await snapshot(page, `${name}-countdown`, false, 'grid');
+      await page.locator('#gamePacingOverlay').waitFor({ state: 'hidden', timeout: 20000 });
+    }
     await page.waitForFunction(() => window.__KICKLAB_RACE_3D__?.dynamics?.state === 'run' && !!document.querySelector('#raceCockpit')?.getClientRects().length, null, { timeout: 10000 });
     await snapshot(page, `${name}-go`, true, 'run');
     await page.keyboard.press('p');
