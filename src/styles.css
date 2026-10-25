@@ -2002,6 +2002,21 @@ html[data-kicklab-mode="race"] .settings-categories{gap:8px}
 }
 @media(max-width:480px){html[data-kicklab-mode="race"] #gameGuidanceHud{top:max(104px,calc(env(safe-area-inset-top) + 104px));width:min(244px,calc(100% - 12px));max-height:calc(100% - 112px - env(safe-area-inset-bottom))}html[data-kicklab-mode="race"] .stage>.floating-control-head{left:6px;bottom:12px;transform:none}}
 @media(prefers-reduced-motion:reduce){html[data-kicklab-mode="race"] .stage .toast,html[data-kicklab-mode="race"] .stage .toast.out{animation:none}html[data-kicklab-mode="race"] .race-phone-tools-chevron{transition:none}}
+
+/* The physics selector stays in the controller; its canonical value lives in the cockpit. */
+html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .race-trace-readout{display:none}
+html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] #raceTelemetryCue{display:none!important}
+html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .race-trace-controls{grid-template-columns:44px 44px;justify-content:space-between;align-content:center}
+html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .race-navigation-foot small:first-child{display:block;min-width:0;max-width:52%;font-size:8px}
+@media(max-width:480px){
+ html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .game-frame .stage:has(>.control-deck:not(.simulator-active,.race-setup-preview,.race-result-review)){--race-controller-reserve:331px}
+ html[data-race-corner-trace="prototype"][data-race-telemetry="prototype"][data-kicklab-mode="race"] .game-frame .stage>.control-deck:not(.simulator-active,.race-setup-preview,.race-result-review) .pad{grid-template-rows:88px 148px}
+ html[data-race-corner-trace="prototype"][data-race-telemetry="prototype"][data-kicklab-mode="race"] .game-frame .stage>.control-deck:not(.simulator-active,.race-setup-preview,.race-result-review) .control-center-slot{height:88px}
+ html[data-race-corner-trace="prototype"][data-race-telemetry="prototype"][data-kicklab-mode="race"] .game-frame .stage>.control-deck:not(.simulator-active,.race-setup-preview,.race-result-review) :is(.control-left-slot,#padR){height:148px}
+ html[data-race-corner-trace="prototype"][data-race-telemetry="prototype"][data-kicklab-mode="race"] .control-deck:not(.simulator-active,.race-setup-preview,.race-result-review) .race-telemetry{height:88px;grid-template-rows:44px 44px;gap:0;padding:0 4px}
+ html[data-race-corner-trace="prototype"][data-race-telemetry="prototype"][data-kicklab-mode="race"] .control-deck:not(.simulator-active,.race-setup-preview,.race-result-review) .race-telemetry-actions{grid-row:1}
+ html[data-race-corner-trace="prototype"][data-race-telemetry="prototype"][data-kicklab-mode="race"] .control-deck:not(.simulator-active,.race-setup-preview,.race-result-review) .race-trace-controls{grid-row:2}
+}
 @media(min-width:481px){html[data-kicklab-mode="race"] .stage .toasts{top:max(312px,42%)} }
 @media(min-width:481px){html[data-kicklab-mode="race"] .stage>.floating-control-head{left:auto;right:max(8px,env(safe-area-inset-right));transform:none}}
 html[data-kicklab-mode="race"] .stage:has(>.control-deck.race-setup-preview)>.floating-control-head,html[data-kicklab-mode="race"] .stage:has(>.control-deck.race-awaiting-coach)>.floating-control-head,html[data-kicklab-mode="race"] .stage:has(>.control-deck.race-result-review)>.floating-control-head{display:none}
