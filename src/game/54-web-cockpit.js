@@ -4,12 +4,67 @@ const SETTINGS={level:'categories',category:null,trigger:null,restoreCategory:nu
 const MATH_CONSOLE={sig:''};
 const settingsDrawer=$('#settingsDrawer'),settingsToggle=$('#settingsToggle');
 const gameOverlayBackdrop=$('#gameOverlayBackdrop'),gameStage=$('.stage'),gamePlayShell=$('.play'),profileDialog=$('#profileDialog');
+const racePhoneTools=$('#racePhoneToolsToggle'),racePhoneRail=$('#gameGuidanceHud');
+const racePhoneProgress=$('#racePhoneProgress'),racePhoneStatusContent=$('#racePhoneStatusContent');
+const racePhoneChampionship=$('#raceChampionship'),racePhoneMultiplayer=$('#raceMultiplayer'),racePhoneStatusHome=racePhoneChampionship.parentElement;
+const racePhoneControlHead=$('.control-deck .floating-control-head'),racePhoneControlHome=racePhoneControlHead.parentElement;
+const racePhoneStyleGroup=$('#controlStyleOptions');
+const racePhoneCalibration=$('#raceSimulator .sim-calibration'),racePhoneCalibrationHome=racePhoneCalibration.parentElement;
+function racePhoneToolsActive(){return document.documentElement.dataset.kicklabMode==='race'&&matchMedia('(max-width:480px)').matches;}
+const RACE_PHONE_NOTICE={text:'',at:0};
+function clearRacePhoneNotices(reset=true){document.querySelectorAll('#toasts .race-phone-notice').forEach(note=>note.remove());syncRacePhoneNoticeSlot();if(reset){RACE_PHONE_NOTICE.text='';RACE_PHONE_NOTICE.at=0;}}
+function racePhoneNotice(message,mood='tip'){
+  if(!racePhoneToolsActive()||M!==Race||document.hidden||RP.on||gameStage.classList.contains('has-game-overlay')||document.activeElement===racePhoneProgress)return;
+  const text=String(message).replace(/^Coach Nia:\s*/i,'').trim().split(/(?<=[.!?])\s+/)[0].slice(0,96);
+  if(!text||text==='Coach Nia on the radio.')return;
+  const now=performance.now();
+  if(text===RACE_PHONE_NOTICE.text||mood!=='warn'&&now-RACE_PHONE_NOTICE.at<3600)return;
+  RACE_PHONE_NOTICE.text=text;RACE_PHONE_NOTICE.at=now;
+  const note=toast(mood==='warn'?'Race warning':'Coach Nia',text,{hold:3900});
+  if(note)note.dataset.racePhoneMood=mood;
+}
+function syncRacePhoneTools(){
+  const active=racePhoneToolsActive(),expanded=active&&racePhoneTools.getAttribute('aria-expanded')==='true';
+  if(!active&&racePhoneTools.getAttribute('aria-expanded')==='true')setFloatingControllerCollapsed(false);
+  if(active&&racePhoneControlHead.parentElement!==gameStage)gameStage.appendChild(racePhoneControlHead);
+  if(active&&racePhoneStyleGroup.parentElement!==racePhoneRail)racePhoneRail.appendChild(racePhoneStyleGroup);
+  if(active&&racePhoneCalibration.parentElement!==racePhoneRail)racePhoneRail.appendChild(racePhoneCalibration);
+  if(active&&racePhoneChampionship.parentElement!==racePhoneStatusContent)racePhoneStatusContent.append(racePhoneChampionship,racePhoneMultiplayer);
+  if(!active&&racePhoneCalibration.parentElement!==racePhoneCalibrationHome)racePhoneCalibrationHome.insertBefore(racePhoneCalibration,racePhoneCalibrationHome.querySelector('.sim-fallbacks'));
+  if(!active&&racePhoneChampionship.parentElement!==racePhoneStatusHome)racePhoneStatusHome.insertBefore(racePhoneChampionship,gameStage);
+  if(!active&&racePhoneMultiplayer.parentElement!==racePhoneStatusHome)racePhoneStatusHome.insertBefore(racePhoneMultiplayer,gameStage);
+  if(!active&&racePhoneStyleGroup.parentElement!==racePhoneControlHead)racePhoneControlHead.insertBefore(racePhoneStyleGroup,racePhoneControlHead.firstChild);
+  if(!active&&racePhoneControlHead.parentElement!==racePhoneControlHome)racePhoneControlHome.insertBefore(racePhoneControlHead,racePhoneControlHome.firstChild);
+  racePhoneRail.inert=active&&!expanded;
+  if(!active)clearRacePhoneNotices();
+  racePhoneTools.setAttribute('aria-label',expanded?'Close Race tools and restore game controls':'Open Race tools and collapse game controls');
+  if(!active)racePhoneTools.setAttribute('aria-expanded','false');
+}
+racePhoneTools.addEventListener('click',()=>{
+  const expanded=racePhoneTools.getAttribute('aria-expanded')!=='true';
+  racePhoneTools.setAttribute('aria-expanded',String(expanded));
+  if(racePhoneToolsActive())setFloatingControllerCollapsed(expanded);
+  syncRacePhoneTools();
+  if(racePhoneTools.getAttribute('aria-expanded')==='true')racePhoneRail.querySelector('button')?.focus();
+  else racePhoneTools.focus();
+});
+racePhoneRail.addEventListener('keydown',event=>{
+  if(event.key==='Escape'&&racePhoneToolsActive()&&!CONTEXT_DETAILS.open){event.preventDefault();event.stopPropagation();racePhoneTools.setAttribute('aria-expanded','false');setFloatingControllerCollapsed(false);syncRacePhoneTools();racePhoneTools.focus();}
+},true);
+racePhoneControlHead.addEventListener('keydown',event=>{
+  if(event.key==='Escape'&&racePhoneToolsActive()&&event.target===$('#controllerCollapseButton')&&!racePhoneControlHome.classList.contains('controller-collapsed')){event.preventDefault();setFloatingControllerCollapsed(true,{focus:true});}
+});
+new MutationObserver(syncRacePhoneTools).observe(document.documentElement,{attributes:true,attributeFilter:['data-kicklab-mode']});
+addEventListener('resize',syncRacePhoneTools);
+syncRacePhoneTools();
+racePhoneProgress.addEventListener('click',()=>{if(!racePhoneToolsActive())return;racePhoneTools.setAttribute('aria-expanded','false');setFloatingControllerCollapsed(false);syncRacePhoneTools();setContextDetail('orientation',{trigger:racePhoneProgress,focus:true});});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)clearRacePhoneNotices();});
 
 function contextPanel(name){return $(`#${name==='math'?'physics':name}Detail`);}
 function contextTriggers(name){return(name==='math'?[$('#physicsDetailsHud')]:[$(`#${name}DetailToggle`)]).filter(Boolean);}
 function syncContextTrigger(button,expanded){const action=expanded?'Close':'Open',label=button.dataset.detailLabel||'details',name=`${action} ${label}`;button.setAttribute('aria-expanded',String(expanded));button.setAttribute('aria-label',name);button.title=name;}
 function releaseGameplayForOverlay(){if(typeof releaseMobileHeldInputs==='function')releaseMobileHeldInputs('Game overlay opened');ENGINE.off();document.querySelectorAll('#pad .on').forEach(button=>button.classList.remove('on'));}
-function syncGameOverlayBackdrop(){const profileOpen=!profileDialog.hidden&&profileDialog.classList.contains('game-profile-overlay'),open=!!CONTEXT_DETAILS.open||!settingsDrawer.hidden||profileOpen;gameOverlayBackdrop.hidden=!open;gameStage.classList.toggle('has-game-overlay',open);gamePlayShell.classList.toggle('has-game-overlay',open);}
+function syncGameOverlayBackdrop(){const profileOpen=!profileDialog.hidden&&profileDialog.classList.contains('game-profile-overlay'),open=!!CONTEXT_DETAILS.open||!settingsDrawer.hidden||profileOpen;gameOverlayBackdrop.hidden=!open;gameStage.classList.toggle('has-game-overlay',open);gamePlayShell.classList.toggle('has-game-overlay',open);if(open)clearRacePhoneNotices(false);}
 function overlayFocusables(panel){return[...panel.querySelectorAll('button:not(:disabled),[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex]:not([tabindex="-1"])')].filter(node=>!node.hidden&&node.getAttribute('aria-hidden')!=='true'&&node.getClientRects().length>0);}
 function trapOverlayFocus(panel,e){if(e.key!=='Tab')return;const items=overlayFocusables(panel);if(!items.length)return;e.stopPropagation();const first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}
 function closeContextDetail({restore=true,restart=true}={}){

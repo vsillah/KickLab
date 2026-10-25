@@ -33,12 +33,12 @@ try{
   await page.evaluate(()=>window.dispatchEvent(new Event('blur')));await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.dynamics?.inputs?.gas===false,null,{timeout:5000});await page.keyboard.up('Space');
   const cancelled=await page.evaluate(()=>({inputs:window.__KICKLAB_RACE_3D__?.dynamics?.inputs,telemetry:window.__KICKLAB_RACE_TELEMETRY__}));
   check('focus loss cancels held drive',!cancelled.inputs.gas&&!cancelled.inputs.brake&&!cancelled.inputs.nitro&&cancelled.telemetry?.nosPulse===0,cancelled);
-  await page.click('#orientationDetailToggle');await page.locator('#orientationDetail').waitFor({state:'visible'});await page.click('#settingsToggle');
+  await page.click('#racePhoneToolsToggle');await page.click('#orientationDetailToggle');await page.locator('#orientationDetail').waitFor({state:'visible'});await page.click('#settingsToggle');
   const paused=await page.evaluate(()=>({drawer:!document.querySelector('#settingsDrawer').hidden,paused:globalThis.__KICKLAB_RACE_PROGRESSION_QA__.state().paused,inputs:window.__KICKLAB_RACE_3D__?.dynamics?.inputs,telemetry:window.__KICKLAB_RACE_TELEMETRY__}));
   check('settings pause cancels held systems',paused.drawer&&paused.paused&&!paused.inputs.gas&&!paused.inputs.brake&&paused.telemetry?.nosPulse===0,paused);
-  await page.click('#settingsClose');await page.waitForFunction(()=>!globalThis.__KICKLAB_RACE_PROGRESSION_QA__.state().paused,null,{timeout:5000});
-  const resumed=await page.evaluate(()=>({state:globalThis.__KICKLAB_RACE_PROGRESSION_QA__.state(),drawerHidden:document.querySelector('#settingsDrawer').hidden,coachVisible:!!document.querySelector('#raceTelemetryCue').getClientRects().length}));
-  check('settings close resumes live Race without stale overlay',resumed.state.raceState==='run'&&resumed.drawerHidden&&resumed.coachVisible,resumed);
+  await page.click('#settingsClose');await page.waitForFunction(()=>!globalThis.__KICKLAB_RACE_PROGRESSION_QA__.state().paused,null,{timeout:5000});await page.click('#racePhoneToolsToggle');
+  const resumed=await page.evaluate(()=>({state:globalThis.__KICKLAB_RACE_PROGRESSION_QA__.state(),drawerHidden:document.querySelector('#settingsDrawer').hidden,telemetryVisible:!!document.querySelector('#raceTelemetry').getClientRects().length}));
+  check('settings close resumes live Race without stale overlay',resumed.state.raceState==='run'&&resumed.drawerHidden&&resumed.telemetryVisible,resumed);
   const samples=await page.evaluate(()=>new Promise(resolve=>{const frames=[];let last=performance.now();function sample(now){frames.push(now-last);last=now;if(frames.length>=100)resolve(frames.slice(5));else requestAnimationFrame(sample);}requestAnimationFrame(sample);}));samples.sort((a,b)=>a-b);const p95=samples[Math.floor(samples.length*.95)];check('phone frame p95 within existing 42ms gate',p95<=42,{p95});
   const storage=await page.evaluate(()=>Object.keys(localStorage).sort());check('no new storage keys',storage.every(key=>keysBefore.includes(key)),{before:keysBefore,after:storage});
   await reduced.context.close();
