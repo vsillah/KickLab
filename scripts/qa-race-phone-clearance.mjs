@@ -35,7 +35,7 @@ async function capture(width, height, style, collapsed, options = {}) {
   }
   await page.locator('#gamePacingOverlay').waitFor({ state: 'hidden', timeout: 20000 });
   if (!options.fallback) await page.waitForFunction(() => window.__KICKLAB_RACE_3D__?.status === 'rendering', null, { timeout: 20000 });
-  if (style === 'Analog') await page.locator('#raceCoachSetupControls').click();
+  if (style === 'Analog') await page.locator(width > 480 ? '#analogControlsButton' : '#raceCoachSetupControls').click();
   if (!options.fallback) await page.locator('#raceCoachSetupStart').click();
   if (!options.fallback) await page.waitForFunction(() => window.__KICKLAB_RACE_3D__?.dynamics?.state === 'run', null, { timeout: 25000 });
   await page.locator('.stage').scrollIntoViewIfNeeded();
