@@ -29,13 +29,13 @@ function tickHUD(rdt){const now=performance.now();if(now>HUD.hold){const gap=bes
   const L=lvlOf(HUD.disp);if(L>HUD.lvl){HUD.lvl=L;showLevelUp(L);}}
 const STREAK={fight:0,race:0,kick:0};
 let resultsTimer=null,tallyTimers=[];
-function hideResults(){$('#results').hidden=true;$('#results').classList.remove('mini','race-summary');clearTimeout(resultsTimer);clearTimeout(resultsDelay);tallyTimers.forEach(clearTimeout);tallyTimers=[];if(typeof syncDialsAvailability==='function')syncDialsAvailability();}
+function hideResults(){stopRaceReplayPreview();$('#results').hidden=true;$('#results').classList.remove('mini','race-summary');clearTimeout(resultsTimer);clearTimeout(resultsDelay);tallyTimers.forEach(clearTimeout);tallyTimers=[];if(typeof syncDialsAvailability==='function')syncDialsAvailability();}
 let resultsDelay=null;
 function resOpen(){const el=$('#results');return!el.hidden&&!el.classList.contains('mini');}
 function roundOver(){if(M.key==='fight')return!!(M.bout&&M.bout.over);if(M.key==='kick'&&M.opt.shot==='dribble')return Drib.state==='done';return M.state==='done'||M.state==='crashed';}
 function ackResults(){if(!resOpen())return;SND.click();if(M===Race&&(RACE_MULTI_UI.match||RACE_CHAMP_UI.active&&RACE_CHAMP_UI.last?.passed)){hideResults();if(RACE_CHAMP_UI.active)$('#raceChampionshipEvents [aria-pressed="true"]')?.focus();return;}hideResults();if(MATCH.on)return;if(typeof CONTINUOUS!=='undefined'&&CONTINUOUS.on){CONTINUOUS.advance();return;}if(!roundOver())return;
   if(M.key==='fight'){M.reset();renderActions();COACH.say(M.introLine(),'tip',12);}else{M.reset();if(typeof setLabel==='function')setLabel();renderActions();}}
-$('#rNext').addEventListener('click',e=>{e.stopPropagation();unlock();ackResults();});
+$('#rNext').addEventListener('click',e=>{e.stopPropagation();unlock();if(M===Race&&resOpen()&&e.currentTarget.dataset.raceAction==='next'){hideResults();$('#raceChampionshipNext').click();return;}ackResults();});
 function award(mode,items,success,meta={}){if(mode==='kick'&&MATCH.on&&!meta.auto&&!MATCH.lock){MATCH.lock=true;const ok=success;meta=Object.assign({},meta,{auto:true,delay:0,after:()=>setTimeout(()=>MATCH.next(ok),1900)});}if(success)STREAK[mode]++;else STREAK[mode]=0;const mult=success?1+0.25*Math.min(Math.max(STREAK[mode]-1,0),4):1;
   const rows=items.filter(i=>i[1]>0).map(([l,x])=>[l,Math.round(x*mult)]);const tot=rows.reduce((a,r)=>a+r[1],0);
   best.xp+=tot;best.stats.plays[mode]=(best.stats.plays[mode]||0)+1;if(success)best.stats.wins[mode]=(best.stats.wins[mode]||0)+1;HUD.sess+=tot;saveBest();renderStreak();
@@ -48,22 +48,25 @@ function award(mode,items,success,meta={}){if(mode==='kick'&&MATCH.on&&!meta.aut
 const AFTER_SLOW=1600;
 const GRADE_TONE={S:'#f3e36b',A:'#5fe3a1',B:'#7fdcff',C:'#ffb04a',D:'#ff6b73'};
 function showResults(m){hideResults();const el=$('#results'),rc=$('#rc');const rr0=RECS[M.key];if(rr0)LASTG[M.key+rr0.id]=m.grade;$('#racts').hidden=!(rr0&&rr0.frames.length&&rr0.moves.length);if(RACE_COMPETITION.enabled())raceCompetitionResultActions();rc.style.setProperty('--tone',GRADE_TONE[m.grade]||C.good);
-  const race=M===Race&&!m.auto;el.classList.toggle('race-summary',race);$('#raceResultCoach').hidden=!race;$('#raceResultAwards').hidden=true;$('#raceResultAwards').replaceChildren();$('#rRaceGarage').hidden=!race||!!RACE_MULTI_UI.match;$('#rRaceNext').hidden=true;
+  const race=M===Race&&!m.auto;el.classList.toggle('race-summary',race);$('#raceResultCoach').hidden=!race;$('#raceResultAwards').hidden=true;$('#raceResultAwards').replaceChildren();$('#raceReplayBlock').hidden=true;$('#rRaceGarage').hidden=true;$('#rRaceNext').hidden=true;
   if(race){const passed=m.grade!=='D',raw=m.coach||Race.progressionReviewNote||'';
     let coach=raw.replace(/^Coach Nia:\s*/,'').split(/(?<=[.!?])\s+/).slice(0,2).join(' ');if(coach.length>180)coach=coach.slice(0,177).replace(/\s+\S*$/,'')+'…';
     $('#raceResultCoachText').textContent=coach|| (passed?'Good finish. Review your line, then choose the next run.':'Review your entry speed and setup before retrying.');
+    const coachReview=!!(rr0?.moves?.length&&Race.review);$('#raceResultCoach').disabled=!coachReview;$('#raceResultCoachAction').hidden=!coachReview;$('#raceResultCoach').title=coachReview?'Open detailed Coach review':'Detailed review requires recorded moves';
     const awards=$('#raceResultAwards'),earned=RACE_COMP_UI.last?.profileId===profileManager.active().id?RACE_COMP_UI.last.earned:null;
     const badges=[...(Race.resultBadges||[])],sameName=(a,b)=>String(a||'').trim().replace(/\s+/g,' ').toLocaleLowerCase('en-US')===String(b||'').trim().replace(/\s+/g,' ').toLocaleLowerCase('en-US');
     const matched=earned?badges.findIndex(name=>sameName(name,earned.name)):-1;
-    if(earned){const card=document.createElement('article');card.className='race-result-award';card.innerHTML=`<img src="assets/awards/race/v1/${earned.id}.webp" alt=""><div><span></span><b></b><small></small></div>`;card.querySelector('span').textContent=matched>=0?'NEW COLLECTIBLE + BADGE':'NEW RACE COLLECTIBLE';card.querySelector('b').textContent=earned.name;card.querySelector('small').textContent=matched>=0?'Collectible saved to this profile · cosmetic · Badge unlocked · +200 XP':'Saved to this profile · cosmetic';awards.append(card);}
+    if(earned){const card=document.createElement('button');card.type='button';card.className='race-result-award';card.dataset.awardKind='journey';card.innerHTML=`<img src="assets/awards/race/v1/${earned.id}.webp" alt=""><div><span></span><b></b><small></small><em>View award journey ›</em></div>`;card.querySelector('span').textContent=matched>=0?'NEW COLLECTIBLE + BADGE':'NEW RACE COLLECTIBLE';card.querySelector('b').textContent=earned.name;card.querySelector('small').textContent=matched>=0?'Collectible saved to this profile · cosmetic · Badge unlocked · +200 XP':'Saved to this profile · cosmetic';awards.append(card);}
     if(matched>=0)badges.splice(matched,1);
-    if(m.raceAward){const card=document.createElement('article');card.className='race-result-award';card.innerHTML=`<img src="assets/awards/race/v1/${m.raceAwardId||'core'}.webp" alt=""><div><span>SEASON AWARD</span><b></b><small>Saved to this profile</small></div>`;card.querySelector('b').textContent=m.raceAward;awards.append(card);}
-    for(const badge of badges){const card=document.createElement('article');card.className='race-result-badge';card.innerHTML='<img src="assets/awards/race/v1/core.webp" alt=""><div><span>BADGE UNLOCKED · +200 XP</span><b></b></div>';card.querySelector('b').textContent=badge;awards.append(card);}
+    if(m.raceAward){const card=document.createElement('button');card.type='button';card.className='race-result-award';card.dataset.awardKind='season';card.innerHTML=`<img src="assets/awards/race/v1/${m.raceAwardId||'core'}.webp" alt=""><div><span>SEASON AWARD</span><b></b><small>Saved to this profile</small><em>View season details ›</em></div>`;card.querySelector('b').textContent=m.raceAward;awards.append(card);}
+    for(const badge of badges){const card=document.createElement('button');card.type='button';card.className='race-result-badge';card.dataset.awardKind='journey';card.innerHTML='<img src="assets/awards/race/v1/core.webp" alt=""><div><span>BADGE UNLOCKED · +200 XP</span><b></b><em>View award journey ›</em></div>';card.querySelector('b').textContent=badge;awards.append(card);}
     awards.hidden=!awards.childElementCount;
-    $('#rRaceNext').hidden=!(RACE_CHAMP_UI.active&&RACE_CHAMP_UI.last?.passed&&RACE_CHAMP_UI.selected<RACE_CHAMP.EVENTS.length-1&&RACE_CHAMP.unlocked(best.raceChampionship,RACE_CHAMP_UI.selected+1));
-    if(RACE_CHAMP_UI.active)$('#rRaceNext').textContent=`Next · ${RACE_CHAMP.EVENTS[RACE_CHAMP_UI.selected+1]?.name||'event'}`;
+    const validNext=passed&&RACE_CHAMP_UI.active&&RACE_CHAMP_UI.last?.passed&&RACE_CHAMP_UI.last.next&&RACE_CHAMP_UI.selected<RACE_CHAMP.EVENTS.length-1&&RACE_CHAMP.unlocked(best.raceChampionship,RACE_CHAMP_UI.selected+1);
+    $('#rNext').dataset.raceAction=validNext?'next':passed?'complete':'retry';
+    $('#rRaceGarage').hidden=passed||!!RACE_MULTI_UI.match||!(/garage|tune|brake|grip|setup/i.test(`${raw} ${m.hint||''}`));
     $('#rRaceGarage').textContent=Race.expansionActive()?'Garage & tuning':'Garage';
-    $('#rReview').hidden=!(rr0?.moves?.length&&Race.review);$('#rReplay').hidden=!(rr0?.frames?.length);$('#racts').hidden=false;
+    $('#rReview').hidden=true;$('#rReplay').hidden=true;$('#rRaceBoard').hidden=true;$('#racts').hidden=true;
+    $('#raceReplayBlock').hidden=!rr0?.frames?.length;if(!$('#raceReplayBlock').hidden)startRaceReplayPreview(rr0);
     document.querySelectorAll('#toasts .toast').forEach(note=>note.remove());syncRacePhoneNoticeSlot();
   }else{$('#rReview').hidden=false;$('#rReplay').hidden=false;}
   $('#rGrade').innerHTML=`${m.grade}<small>GRADE</small>`;$('#rTitle').textContent=m.title;$('#rSub').textContent=m.sub||'';$('#rHint').textContent=m.hint||'';$('#results .rtotal span').textContent=m.seasonPoints?'Event points':'XP earned';
@@ -71,10 +74,30 @@ function showResults(m){hideResults();const el=$('#results'),rc=$('#rc');const r
   $('#rRows').innerHTML=rowsHTML;$('#rTotal').textContent='+0';el.classList.toggle('mini',!!m.auto);el.hidden=false;if(typeof syncDialsAvailability==='function')syncDialsAvailability();if(typeof renderMathConsole==='function')renderMathConsole();$('#rLvl').hidden=true;SND.grade(m.grade);if(!m.auto&&LVL_STASH){const n=LVL_STASH;LVL_STASH=0;setTimeout(()=>{if(resOpen())lvlRibbon(n);},500);}if(!m.auto){const next=typeof CONTINUOUS!=='undefined'&&CONTINUOUS.on?CONTINUOUS.nextLabel():(m.next||'Next round');$('#rNext').innerHTML=next+' <span aria-hidden="true">▶</span> <kbd>Space</kbd>';}setTimeout(refreshResBoard,0);
   const start=250+m.rows.length*130+(m.mult>1?130:0);for(let i=0;i<m.rows.length;i++)tallyTimers.push(setTimeout(()=>SND.tick(),250+i*130));
   const steps=14;for(let k=1;k<=steps;k++)tallyTimers.push(setTimeout(()=>{$('#rTotal').textContent='+'+fmt(Math.round(m.tot*k/steps),0);if(k%3===0)SND.tick();if(k===steps){SND.total();const md=$('#medal');md.classList.remove('bump');void md.offsetWidth;md.classList.add('bump');}},start+k*40));
-  if(race)$('#rNext').textContent=RACE_MULTI_UI.match?'Match controls':RACE_CHAMP_UI.active?'Back to season':'Retry run';
+  if(race)$('#rNext').textContent=RACE_MULTI_UI.match?'Match controls':$('#rNext').dataset.raceAction==='next'?'Continue to next':$('#rNext').dataset.raceAction==='retry'?'Retry':RACE_CHAMP_UI.active?'View season results':'Finish run';
   if(m.auto){$('#racts').hidden=true;resultsTimer=setTimeout(()=>{$('#results').hidden=true;$('#results').classList.remove('mini');},2100);}}
-$('#rRaceGarage').addEventListener('click',event=>{event.stopPropagation();if(M!==Race)return;GARAGE_UI.active=Race.expansionActive()?Race.mode().preferred:'body';hideResults();openSettings('garage',event.currentTarget);});
+$('#rRaceGarage').addEventListener('click',event=>{event.stopPropagation();if(M!==Race)return;GARAGE_UI.active=RACE_CHAMP_UI.active?RACE_CHAMP.EVENTS[RACE_CHAMP_UI.selected].category:Race.expansionActive()?Race.mode().preferred:RACE_PROGRESSION.category(Race.progressionOutcome?.failed||[])||'body';GARAGE_UI.returnToRaceRetry=$('#rNext').dataset.raceAction==='retry';hideResults();openSettings('garage',event.currentTarget);});
 $('#rRaceNext').addEventListener('click',event=>{event.stopPropagation();$('#raceChampionshipNext').click();});
+$('#raceResultCoach').addEventListener('click',event=>{event.stopPropagation();if(!event.currentTarget.disabled)openReview();});
+$('#raceResultAwards').addEventListener('click',event=>{const card=event.target.closest('[data-award-kind]');if(!card)return;event.stopPropagation();if(card.dataset.awardKind==='season'){hideResults();racePhoneProgress.click();}else{RACE_COMP_UI.category=RACE_COMP_UI.last?.category||'core';openBoard(card);}});
+$('#raceReplayPreview').addEventListener('click',event=>{event.stopPropagation();startReplay(0);});
+const RACE_REPLAY_PREVIEW={timer:0,started:0,frames:null};
+function stopRaceReplayPreview(){clearInterval(RACE_REPLAY_PREVIEW.timer);RACE_REPLAY_PREVIEW.timer=0;RACE_REPLAY_PREVIEW.frames=null;}
+function drawRaceReplayPreview(){
+  const frames=RACE_REPLAY_PREVIEW.frames;if(!frames?.length)return;
+  const canvas=$('#raceReplayCanvas'),c=canvas.getContext('2d'),w=canvas.width,h=canvas.height;
+  const phase=matchMedia('(prefers-reduced-motion:reduce)').matches?0.5:(performance.now()-RACE_REPLAY_PREVIEW.started)%3000/3000;
+  const frame=frames[Math.min(frames.length-1,Math.floor(phase*(frames.length-1)))],st=frame.s?.st||{};
+  const min=frames[0].s?.st?.x||0,max=frames.at(-1).s?.st?.x||min+1,span=Math.max(1,max-min);
+  const carX=36+Math.max(0,Math.min(1,((st.x||min)-min)/span))*(w-72),carY=h/2+Math.max(-20,Math.min(20,(st.y||0)*2));
+  c.fillStyle='#102338';c.fillRect(0,0,w,h);c.fillStyle='#46525a';c.fillRect(12,25,w-24,h-50);
+  c.strokeStyle='#e4e7c4';c.lineWidth=2;c.setLineDash([14,10]);c.beginPath();c.moveTo(18,h/2);c.lineTo(w-18,h/2);c.stroke();c.setLineDash([]);
+  c.fillStyle='#5fe3a1';c.fillRect(12,h-8,(w-24)*phase,4);
+  c.fillStyle='#9ff1ff';c.fillRect(carX-12,carY-7,24,14);c.fillStyle='#123148';c.fillRect(carX+3,carY-4,6,8);
+  c.fillStyle='#f5fbff';c.font='700 11px system-ui';c.fillText(`${Math.round((st.v||0)*3.6)} km/h`,18,17);
+  c.textAlign='right';c.fillText(`${Math.min(frames.length,Math.floor(phase*frames.length)+1)} / ${frames.length} frames`,w-18,17);c.textAlign='left';
+}
+function startRaceReplayPreview(record){stopRaceReplayPreview();RACE_REPLAY_PREVIEW.frames=record.frames;RACE_REPLAY_PREVIEW.started=performance.now();drawRaceReplayPreview();if(!matchMedia('(prefers-reduced-motion:reduce)').matches)RACE_REPLAY_PREVIEW.timer=setInterval(()=>{if(!document.hidden&&!$('#results').hidden)drawRaceReplayPreview();},120);}
 
 let LVL_STASH=0;
 function lvlRibbon(n){const u=unlocksAt(n),r=$('#rLvl');r.innerHTML=`LEVEL UP <b>${n}</b> ${LEVEL_T[Math.min(n-1,LEVEL_T.length-1)]}`+(u.length?` <small>· unlocked ${u.join(', ')}</small>`:'');r.hidden=false;SND.fanfare();energizeControlledPlayer('level-up',1800);

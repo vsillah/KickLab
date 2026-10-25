@@ -24,17 +24,17 @@ for(const viewport of [{width:390,height:844},{width:1440,height:900}]){
   await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});
   for(const [availability,review,replay] of [['none',false,false],['frames',false,true],['moves',true,false],['both',true,true]]){
     const record=await page.evaluate(value=>window.__KICKLAB_RACE_RESULTS_QA__.recorded(value),availability);
-    const state=await page.evaluate(()=>({review:!document.querySelector('#rReview').hidden,replay:!document.querySelector('#rReplay').hidden,summary:!document.querySelector('#results').hidden,controllerReview:!document.querySelector('#raceCoachResult').hidden,canvasPointerEvents:getComputedStyle(document.querySelector('#cv')).pointerEvents,notices:document.querySelectorAll('#toasts .toast,.stage .race-award-toast').length}));
+    const state=await page.evaluate(()=>({review:!document.querySelector('#raceResultCoach').disabled,replay:!document.querySelector('#raceReplayBlock').hidden,footerActions:!document.querySelector('#racts').hidden,summary:!document.querySelector('#results').hidden,controllerReview:!document.querySelector('#raceCoachResult').hidden,canvasPointerEvents:getComputedStyle(document.querySelector('#cv')).pointerEvents,notices:document.querySelectorAll('#toasts .toast,.stage .race-award-toast').length}));
     report.states.push({label,availability,record,...state});
-    if(!record||state.review!==review||state.replay!==replay||!state.summary||state.controllerReview||state.canvasPointerEvents!=='auto'||state.notices)report.errors.push(`${label} ${availability}: ${JSON.stringify(state)}`);
+    if(!record||state.review!==review||state.replay!==replay||state.footerActions||!state.summary||state.controllerReview||state.canvasPointerEvents!=='auto'||state.notices)report.errors.push(`${label} ${availability}: ${JSON.stringify(state)}`);
   }
   await page.locator('#results').screenshot({path:join(output,`${label}-eligible.png`)});
-  await page.click('#rReview');
+  await page.click('#raceResultCoach');
   if(!await page.locator('#rvBack').isVisible()||await page.locator('#results').isVisible()||!await page.locator('#rvBody').getByText('Best moves').isVisible()||await page.locator('#raceCoachResult').isVisible())report.errors.push(`${label}: Coach review did not open cleanly`);
   await page.click('#rvClose');
   if(await page.locator('#rvBack').isVisible()||await page.locator('#results').isVisible())report.errors.push(`${label}: Coach review did not return cleanly`);
   await page.evaluate(()=>window.__KICKLAB_RACE_RESULTS_QA__.recorded('both'));
-  await page.click('#rReplay');
+  await page.click('#raceReplayPreview');
   if(!await page.locator('#rbar').isVisible()||await page.locator('#results').isVisible()||await page.locator('#raceCoachResult').isVisible())report.errors.push(`${label}: Replay did not open cleanly`);
   await page.locator('#rbScrub').fill('500');
   const scrub=await page.locator('#rbScrub').inputValue();

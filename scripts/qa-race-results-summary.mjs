@@ -32,19 +32,22 @@ for(const viewport of [{width:360,height:780},{width:390,height:844},{width:768,
       return{visible:!document.querySelector('#results').hidden,coach:document.querySelector('#raceResultCoachText').textContent,coachTop:top?.id||top?.className,awardCount:rewards.children.length,rewardNames:[...rewards.querySelectorAll('b')].map(node=>node.textContent),rewardMetadata:[...rewards.querySelectorAll('small')].map(node=>node.textContent),rewardImagesReady:[...rewards.querySelectorAll('img')].every(img=>img.complete&&img.naturalWidth>0),duplicateCoach:!document.querySelector('#raceCoachResult').hidden,notices:document.querySelectorAll('#toasts .toast,.stage .race-award-toast').length,overflowX:Math.max(document.documentElement.scrollWidth-innerWidth,box.right-innerWidth,-box.left),overflowY:box.height-innerHeight,garage:!document.querySelector('#rRaceGarage').hidden,retry:document.querySelector('#rNext').textContent};
     });
     report.states.push({viewport,state,...measured});
-    if(!measured.visible||!measured.coach||measured.coachTop!=='raceResultCoachText'||measured.duplicateCoach||measured.notices||measured.overflowX>1||measured.overflowY>1||!measured.garage||!measured.retry)report.errors.push(`${viewport.width} ${state}: ${JSON.stringify(measured)}`);
+    if(!measured.visible||!measured.coach||measured.coachTop!=='raceResultCoachText'||measured.duplicateCoach||measured.notices||measured.overflowX>1||measured.overflowY>1||measured.garage!==(state==='failed')||measured.retry!==(state==='failed'?'Retry':'Finish run'))report.errors.push(`${viewport.width} ${state}: ${JSON.stringify(measured)}`);
     if(!measured.rewardImagesReady)report.errors.push(`${viewport.width} ${state}: award art did not load`);
     if(state==='success-new-award'&&(measured.awardCount!==1||measured.rewardNames[0]!=='Checkered Flag'||!measured.rewardMetadata[0]?.includes('Badge unlocked · +200 XP')))report.errors.push(`${viewport.width}: same-name rewards were not coalesced ${JSON.stringify(measured)}`);
     if(state==='success-distinct-award'&&(measured.awardCount!==2||JSON.stringify(measured.rewardNames)!==JSON.stringify(['Launch Ace','Clean Line'])))report.errors.push(`${viewport.width}: distinct rewards were not preserved ${JSON.stringify(measured)}`);
     if(['success-no-new-award','failed'].includes(state)&&measured.awardCount!==0)report.errors.push(`${viewport.width} ${state}: unexpected rewards ${measured.awardCount}`);
     if(viewport.width===390)await page.locator('#results').screenshot({path:join(output,`${state}.png`)});
     if(state==='success-new-award'){
-      await page.click('#rRaceBoard');
+      await page.locator('#raceResultAwards [data-award-kind]').first().click();
       if(!await page.locator('#fboard').isVisible())report.errors.push(`${viewport.width}: awards board action did not open`);
       await page.click('#fbClose');
+    }
+    if(state==='failed'){
       await page.click('#rRaceGarage');
       if(!await page.locator('#settingsDrawer').isVisible())report.errors.push(`${viewport.width}: Garage action did not open`);
       await page.click('#settingsClose');
+      await page.evaluate(()=>window.__KICKLAB_RACE_RESULTS_QA__.fixture('failed'));
     }
   }
   await page.click('#rNext');

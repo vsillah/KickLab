@@ -510,6 +510,11 @@ html:has(.results.race-summary:not([hidden])) .game-context-header{visibility:hi
 .results.race-summary .rmain{gap:10px}
 .results.race-summary .rtitle{font-size:clamp(22px,4vw,34px);line-height:1}
 .race-result-coach{padding:12px 14px;border-left:3px solid #7fdcff;border-radius:0 10px 10px 0;background:linear-gradient(90deg,rgba(49,117,145,.32),rgba(29,64,89,.14))}
+.results.race-summary .race-result-coach{display:block;width:100%;color:inherit;text-align:left;cursor:pointer}
+.results.race-summary .race-result-coach:disabled{cursor:default;opacity:1}
+.race-result-coach small{display:block;margin-top:6px;color:#9de8ef;font:800 11px var(--f-body)}
+.race-result-coach small[hidden]{display:none}
+.results.race-summary .race-result-coach:not(:disabled):is(:hover,:focus-visible),.race-result-awards button:is(:hover,:focus-visible),.race-replay-preview:is(:hover,:focus-visible){outline:2px solid #b4f4f3;outline-offset:2px;filter:brightness(1.08)}
 .race-result-coach[hidden],.race-result-awards[hidden]{display:none!important}
 .race-result-coach span,.race-result-award span,.race-result-badge span{font:800 10px var(--f-mono);letter-spacing:.1em;color:#9be5f2}
 .race-result-coach p{margin:5px 0 0;color:#f3fbff;font:600 clamp(14px,2vw,17px)/1.4 var(--f-body);overflow-wrap:anywhere}
@@ -519,6 +524,8 @@ html:has(.results.race-summary:not([hidden])) .game-context-header{visibility:hi
 .results.race-summary .rtotal b{font-size:27px}
 .race-result-awards{display:grid;gap:8px}
 .race-result-award,.race-result-badge{display:grid;grid-template-columns:80px minmax(0,1fr);align-items:center;gap:12px;min-width:0;padding:8px;border:1px solid #d9b975;border-radius:12px;background:radial-gradient(circle at 12% 30%,rgba(245,213,133,.18),transparent 45%),#162438}
+.race-result-awards button{box-sizing:border-box;width:100%;color:inherit;text-align:left;cursor:pointer}
+.race-result-awards em{display:block;margin-top:5px;color:#a9eaf2;font:800 11px var(--f-body);font-style:normal}
 .race-result-award img{display:block;width:80px;height:80px;object-fit:contain}
 .race-result-award b,.race-result-badge b{display:block;color:#fff4d2;font:400 clamp(19px,3vw,26px) var(--f-display);overflow-wrap:anywhere}
 .race-result-award small{display:block;color:#cbd7da;font:600 11px var(--f-body)}
@@ -532,6 +539,15 @@ html:has(.results.race-summary:not([hidden])) .game-context-header{visibility:hi
 .results.race-summary #rNext{grid-column:1/-1;width:100%;margin:0;font-size:15px;animation:none}
 .results.race-summary #rRaceGarage,.results.race-summary #rRaceNext{border:1px solid #82cbd7;background:#183a51;color:#fff}
 .results.race-summary #rRaceRecord{border-color:#a7d6ba;color:#d7f5df}
+.race-replay-block[hidden]{display:none!important}
+.race-replay-block{display:grid;gap:5px}
+.race-replay-preview{position:relative;display:block;width:100%;max-width:440px;padding:0;border:1px solid #7bcdd3;border-radius:11px;overflow:hidden;background:#102338;color:#fff;text-align:left;cursor:pointer}
+.race-replay-preview canvas{display:block;width:100%;height:auto}
+.race-replay-preview span{position:absolute;left:10px;right:10px;bottom:7px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 8px;border-radius:7px;background:rgba(4,22,36,.88);font:800 10px var(--f-mono);letter-spacing:.05em}
+.race-replay-preview b{color:#b9ffe2;font:800 13px var(--f-body);letter-spacing:0}
+.race-replay-block #rRaceRecord{justify-self:start;min-height:36px;padding:5px 9px;border:1px solid #a7d6ba;border-radius:7px;background:#17394a;color:#d7f5df;font:700 11px var(--f-body);cursor:pointer}
+.race-replay-block #rRaceRecord[hidden]{display:none}
+.results.race-summary .rgo:has(#rRaceGarage[hidden]){grid-template-columns:1fr}
 .results.race-summary .rboard{max-height:120px;overflow:auto}
 @media(max-width:640px){.stage .results.race-summary{top:0;padding:8px}.results.race-summary .rc{grid-template-columns:1fr;gap:5px;max-height:calc(100svh - 16px);padding:14px}.results.race-summary .grade{position:static;text-align:left;font-size:42px}.results.race-summary .grade small{display:inline;margin-left:8px}.results.race-summary .racts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}.race-result-award,.race-result-badge{grid-template-columns:64px minmax(0,1fr)}.race-result-award img{width:64px;height:64px}}
 /* coach review */
