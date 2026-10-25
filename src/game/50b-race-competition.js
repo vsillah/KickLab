@@ -3,6 +3,8 @@ const RACE_COMPETITION=globalThis.KickLabRaceCompetition;
 const RACE_COMPETITION_ON=RACE_COMPETITION.enabled();
 if(RACE_COMPETITION_ON)document.documentElement.dataset.raceCompetition='prototype';
 const RACE_COMP_UI={category:'core',last:null,capture:null,file:null,url:null,storageWarning:false};
+const RACE_AWARD_IMAGES=Object.fromEntries((RACE_COMPETITION_ON?RACE_COMPETITION.CATEGORIES:[]).map(cat=>{const image=new Image();image.src=`assets/awards/race/v1/${cat.id}.webp`;return[cat.id,image];}));
+function raceAwardArt(id){return`<img src="assets/awards/race/v1/${id}.webp" alt="" loading="lazy">`;}
 function raceCompetitionResult(event){
   if(!RACE_COMPETITION.enabled())return;
   RACE_COMP_UI.last=null;
@@ -11,9 +13,13 @@ function raceCompetitionResult(event){
   const result=RACE_COMPETITION.record(best.raceCompetition,{...event,vehicle});
   best.raceCompetition=result.state;saveBest();
   try{const saved=JSON.parse(localStorage.getItem(profileManager.key));RACE_COMP_UI.storageWarning=JSON.stringify(saved.profiles.find(row=>row.id===profile.id)?.progress?.raceCompetition)!==JSON.stringify(result.state);}catch(_){RACE_COMP_UI.storageWarning=true;}
-  RACE_COMP_UI.last={profileId:profile.id,recId:rec?.id,category:event.category,score:event.score,vehicle,award:result.earned?.name||RACE_COMPETITION.AWARDS[event.category].name};
+  RACE_COMP_UI.last={profileId:profile.id,recId:rec?.id,category:event.category,score:event.score,vehicle,award:result.state.awards[event.category]?RACE_COMPETITION.AWARDS[event.category].name:'Race result'};
   if(RACE_COMP_UI.storageWarning)toast('Race record is session-only','Device storage could not save this award. Clear space before leaving this page.');
-  if(result.earned)COACH.say(`${result.earned.name} earned. ${result.earned.perk} is now on your local Race record. Open Race awards to see your progress.`,'hype',8);
+  if(result.earned){
+    COACH.say(`${result.earned.name} earned. See your next chapter in Race awards.`,'hype',7);
+    const note=toast('Race collectible earned',result.earned.name,{hold:7000});
+    if(note){note.classList.add('race-award-toast');note.querySelector('.ic').replaceChildren(RACE_AWARD_IMAGES[event.category].cloneNode());}
+  }else if(!result.state.awards[event.category])COACH.say(`Run recorded. ${RACE_COMPETITION.journey(result.state).find(item=>item.id===event.category).progress}.`,'tip',6);
 }
 function raceCompetitionClear(){
   RACE_COMP_UI.last=null;
@@ -33,9 +39,11 @@ function renderRaceCompetition(){
   $('#raceCompetitionStats').innerHTML=`<div><span>Your best</span><b>${entry?raceCompetitionValue(cat.id,entry.score):'—'}</b><small>${entry?.previous?`Improved from ${raceCompetitionValue(cat.id,entry.previous)}`:entry?'First recorded best':'Complete a qualifying run'}</small></div><div><span>Device rank</span><b>${mine?'#'+mine.rank:'—'}</b><small>${rows.length?`${rows.length} local racer${rows.length===1?'':'s'}`:'No local scores yet'}</small></div><div><span>Progress</span><b>${Object.keys(progress.awards).length} / ${cats.length}</b><small>cosmetic awards earned</small></div>`;
   $('#raceCompetitionList').innerHTML=rows.length?rows.map(row=>`<li class="${row.profileId===active.id?'is-you':''}"><strong>#${row.rank}</strong><span>${row.alias}<small> · ${RACE_COMPETITION.AWARDS[cat.id].name}${row.profileId===active.id?' · playing now':''}</small></span><b>${raceCompetitionValue(cat.id,row.score)}</b></li>`).join(''):`<li class="empty">No ${cat.name.toLowerCase()} scores on this device yet. Finish a qualifying run to start this board.</li>`;
   section.querySelector('.race-competition-warning')?.remove();if(RACE_COMP_UI.storageWarning)$('#raceCompetitionStats').insertAdjacentHTML('afterend','<p class="race-competition-warning">This session’s record could not be saved to device storage. Clear space before leaving the page.</p>');
-  $('#raceCompetitionAwards').innerHTML=cats.map(c=>{const award=RACE_COMPETITION.AWARDS[c.id],unlocked=!!progress.awards[c.id];return`<div class="${unlocked?'earned':''}"><span>${unlocked?'★':'◇'}</span><b>${award.name}</b><small>${unlocked?award.perk:c.goal+' · '+award.perk}</small></div>`;}).join('');
+  const journey=RACE_COMPETITION.journey(progress),target=journey.find(item=>item.status==='available');
+  $('#raceJourneyNext').textContent=target?`NEXT · ${target.name} — ${target.requirement}`:'Journey complete · all six collectibles earned on this profile';
+  $('#raceCompetitionAwards').innerHTML=journey.map(item=>`<article class="race-journey-card ${item.status}" aria-label="Chapter ${item.index+1}: ${item.name}. ${item.status}. ${item.requirement}. ${item.progress}."><div class="race-journey-art">${raceAwardArt(item.id)}</div><div class="race-journey-copy"><span class="race-journey-chapter">${String(item.index+1).padStart(2,'0')} / ${item.chapter}</span><h4>${item.name}</h4><p>${item.requirement}</p><small>${item.status==='earned'?'Collected · '+item.perk:item.progress}</small></div><span class="race-journey-state">${item.status==='earned'?'Earned':item.status==='available'?'Ready':'Locked'}</span></article>`).join('');
 }
-function raceCompetitionProfilePerk(){if(!RACE_COMPETITION.enabled())return;const earned=Object.keys(RACE_COMPETITION.normalize(best.raceCompetition).awards);if(!earned.length)return;const id=earned[earned.length-1],award=RACE_COMPETITION.AWARDS[id];$('#profileSummary').insertAdjacentHTML('beforeend',`<div class="profile-achievement race-profile-perk"><b>★ ${award.name}</b><small>${award.perk} · Race competition on this device</small></div>`);}
+function raceCompetitionProfilePerk(){if(!RACE_COMPETITION.enabled())return;const earned=RACE_COMPETITION.journey(best.raceCompetition).filter(item=>item.status==='earned');if(!earned.length)return;const item=earned.at(-1);$('#profileSummary').insertAdjacentHTML('beforeend',`<div class="profile-achievement race-profile-perk">${raceAwardArt(item.id)}<span><b>${item.name}</b><small>${earned.length} of 6 Race collectibles · this profile</small></span></div>`);}
 $('#raceCompetitionCats').addEventListener('click',event=>{const button=event.target.closest('[data-race-comp-cat]');if(!button)return;RACE_COMP_UI.category=button.dataset.raceCompCat;renderRaceCompetition();button.focus();});
 function raceCompetitionResultActions(){const active=RACE_COMP_UI.last&&RACE_COMP_UI.last.profileId===profileManager.active().id&&RACE_COMP_UI.last.recId===RECS.race?.id&&M===Race&&RACE_COMPETITION.enabled();$('#rRaceBoard').hidden=!RACE_COMPETITION.enabled()||M!==Race;$('#rRaceRecord').hidden=!active||!RECS.race?.frames.length;}
 $('#rRaceBoard').addEventListener('click',event=>{event.stopPropagation();RACE_COMP_UI.category=RACE_COMP_UI.last?.category||'core';openBoard(event.currentTarget);});
@@ -47,6 +55,7 @@ function raceCompetitionDrawCapture(canvas,context,item){
   const bar=Math.max(50,canvas.height*.11);context.fillStyle='rgba(4,13,28,.9)';context.fillRect(0,canvas.height-bar,canvas.width,bar);
   context.fillStyle='#b1eeff';context.font=`700 ${Math.max(15,canvas.width*.025)}px system-ui`;context.fillText(`KICKLAB · ${RACE_COMPETITION.CATEGORIES.find(c=>c.id===item.category).name}`,18,canvas.height-bar+26);
   context.fillStyle='#fff';context.font=`600 ${Math.max(13,canvas.width*.019)}px system-ui`;context.fillText(`${item.vehicle} · ${raceCompetitionValue(item.category,item.score)} · ${item.award}`,18,canvas.height-12);
+  const art=item.award==='Race result'?null:RACE_AWARD_IMAGES[item.category];if(art?.complete&&art.naturalWidth)context.drawImage(art,canvas.width-118,canvas.height-bar-108,100,100);
 }
 function raceCompetitionCaptureFrame(){const job=RACE_COMP_UI.capture;if(!job||job.cancelled)return;try{raceCompetitionDrawCapture(job.canvas,job.context,job.item);if(RP.on&&RP.t>=job.end&&!RP.playing&&!job.stopping){job.stopping=true;job.recorder.stop();}}catch(error){job.error=error;job.stopping=true;try{job.recorder.stop();}catch(_){}}}
 function raceCompetitionShowFile(file,reason=''){
@@ -75,3 +84,9 @@ function raceCompetitionRecordShare(){
 $('#raceShareClose').addEventListener('click',()=>{$('#raceShare').hidden=true;});
 $('#raceShareDownload').addEventListener('click',()=>{if(!RACE_COMP_UI.file)return;const link=document.createElement('a');link.href=RACE_COMP_UI.url;link.download=RACE_COMP_UI.file.name;link.click();});
 $('#raceShareNative').addEventListener('click',async()=>{const file=RACE_COMP_UI.file;if(!file||!navigator.share||!navigator.canShare?.({files:[file]}))return;try{await navigator.share({files:[file],title:'KickLab Race highlight'});}catch(error){if(error.name!=='AbortError')$('#raceShareStatus').textContent='Share was unavailable. You can still download the file.';}});
+if(RACE_COMPETITION_ON&&(location.hostname==='localhost'||location.hostname==='127.0.0.1'))globalThis.__KICKLAB_RACE_AWARDS_QA__=Object.freeze({
+  qualify:(category,score)=>raceCompetitionResult({category,passed:true,score}),
+  openJourney:()=>openBoard(),
+  openProfile:()=>openProfiles(),
+  state:()=>({profileId:profileManager.active().id,journey:RACE_COMPETITION.journey(best.raceCompetition),storageWarning:RACE_COMP_UI.storageWarning})
+});

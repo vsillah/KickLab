@@ -28,9 +28,27 @@ test('qualifying results unlock only cosmetic awards and improve the correct sco
   const failed=competition.record(result.state,{category:'endurance',passed:false,score:3000});
   assert.equal(failed.state.bests.endurance,undefined);
   const mode=competition.record(failed.state,{category:'endurance',passed:true,score:3000,vehicle:'Aegis'});
-  assert.equal(mode.earned.perk,'Heat Tactician title');
+  assert.equal(mode.earned,null);
+  assert.equal(mode.state.bests.endurance.score,3000);
   assert.equal(competition.record(mode.state,{category:'endurance',passed:true,score:3100}).improved,true);
   assert.equal(competition.record(mode.state,{category:'endurance',passed:true,score:2900}).improved,false);
+});
+
+test('journey chains prerequisites, prevents duplicates and reads legacy flags',()=>{
+  const competition=context(local('?raceCompetition=prototype'));
+  let state={};
+  assert.deepEqual(Array.from(competition.journey(state),item=>item.status),['available','locked','locked','locked','locked','locked']);
+  const early=competition.record(state,{category:'drag',passed:true,score:1100,at:1});
+  assert.equal(early.earned,null);assert.equal(early.state.bests.drag.score,1100);
+  state=competition.record(early.state,{category:'core',passed:true,score:18.2,at:2}).state;
+  assert.equal(competition.journey(state)[1].status,'available');
+  const drag=competition.record(state,{category:'drag',passed:true,score:1050,at:3});
+  assert.equal(drag.earned.name,'Launch Ace');
+  assert.equal(competition.record(drag.state,{category:'drag',passed:true,score:1200,at:4}).earned,null);
+  assert.equal(competition.journey(drag.state)[2].status,'available');
+  const legacy=competition.normalize({version:1,bests:{endurance:{score:2800}},awards:{endurance:true}});
+  assert.equal(competition.journey(legacy).at(-1).status,'earned');
+  assert.equal(competition.journey(legacy)[0].status,'available');
 });
 
 test('device rankings use aliases, isolate profile records and share tied ranks',()=>{

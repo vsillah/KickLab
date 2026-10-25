@@ -1982,3 +1982,25 @@ html[data-kicklab-mode="race"] #gameGuidanceHud .race-control-style-current:not(
 html[data-kicklab-mode="race"] #gameGuidanceHud .orientation-summary small{display:block;max-width:100%;font:700 9px/1.15 var(--f-body);white-space:normal;overflow-wrap:anywhere}
 html[data-kicklab-mode="race"] #gameGuidanceHud .race-tool-coach-value:not([hidden]){display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;color:#fff;font:700 9px/1.2 var(--f-body);white-space:normal;overflow-wrap:anywhere}
 html[data-kicklab-mode="race"] #gameGuidanceHud :is(#historyTitle,#liveMathHudValues span,#hudProfileName,.hud-summary-cue){max-width:100%;white-space:normal;overflow-wrap:anywhere}
+/* Race journey: image-led collectibles with local records as secondary detail. */
+.race-competition{background:radial-gradient(ellipse at 50% -15%,#285069 0%,#101f33 48%,#091426 100%)}
+.race-competition-head{max-width:660px}.race-competition-head h3{font-size:clamp(30px,5vw,54px);line-height:1.02;letter-spacing:.02em}.race-competition-head p{font-size:14px}
+.race-journey-next{margin:0 0 18px!important;padding:11px 15px;border-left:3px solid #d8b978;border-radius:0 9px 9px 0;background:#182d3d;color:#f7e8c9!important;font:700 12px/1.4 var(--f-body)!important;letter-spacing:.02em}
+.race-competition-awards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0 0 18px}
+.race-journey-card{position:relative;min-width:0;overflow:hidden;display:flex;flex-direction:column;min-height:286px;border:1px solid #486176;border-radius:15px;background:linear-gradient(160deg,#244358,#0d1b2b 72%);box-shadow:0 16px 36px #0004}
+.race-journey-card.available{border-color:#d7b671;box-shadow:0 0 0 1px #d7b67166,0 16px 36px #0005}.race-journey-card.earned{border-color:#92c8b1}
+.race-journey-art{height:162px;display:grid;place-items:center;background:radial-gradient(circle at 50% 70%,#54748555,transparent 65%)}
+.race-journey-art img{display:block;width:min(100%,176px);height:162px;object-fit:contain;filter:drop-shadow(0 16px 14px #0008)}
+.race-journey-card.locked .race-journey-art img{filter:grayscale(1) brightness(.56) drop-shadow(0 12px 12px #0007)}
+.race-journey-copy{padding:0 13px 15px;display:grid;gap:4px}.race-journey-chapter{font:800 10px var(--f-mono);letter-spacing:.08em;color:#bad3d9;text-transform:uppercase}.race-journey-copy h4{margin:0;font:400 22px/1.05 var(--f-display);color:#fff}.race-journey-copy p{margin:0;color:#dce7e8;font:600 12px/1.3 var(--f-body)}.race-journey-copy small{color:#bdd5ce;font:600 11px/1.3 var(--f-body)}
+.race-journey-state{position:absolute;top:10px;right:10px;padding:5px 8px;border:1px solid #7e9aab;border-radius:99px;background:#0a1b2ad9;color:#fff;font:800 10px var(--f-body);text-transform:uppercase;letter-spacing:.06em}.race-journey-card.available .race-journey-state{border-color:#d7b671;color:#f6db9c}.race-journey-card.earned .race-journey-state{border-color:#92c8b1;color:#b9f2d5}
+.race-competition-records{border-top:1px solid #466475;padding-top:13px}.race-competition-records summary{min-height:44px;display:list-item;cursor:pointer;color:#d8eaf2;font:700 13px var(--f-body)}.race-competition-records[open] .race-competition-cats{margin-top:12px}
+.race-profile-perk{display:flex;align-items:center;gap:8px;min-height:50px}.race-profile-perk img{width:58px;height:58px;object-fit:contain}.race-profile-perk span{display:grid;gap:3px}
+.toast.race-award-toast .ic{background:transparent;box-shadow:none}.toast.race-award-toast .ic img{width:100%;height:100%;object-fit:contain}
+@media(max-width:850px){.race-competition-awards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.race-competition-awards{grid-template-columns:1fr;gap:9px}.race-journey-card{min-height:0;display:grid;grid-template-columns:126px minmax(0,1fr);align-items:center}.race-journey-art{height:150px}.race-journey-art img{height:138px;width:134px}.race-journey-copy{padding:19px 9px 10px 0}.race-journey-copy h4{font-size:19px}.race-journey-state{top:6px;right:6px;font-size:9px}.race-journey-chapter{padding-right:65px;font-size:9px}}
+@media(prefers-reduced-motion:reduce){.race-journey-card,.race-journey-art img,.race-award-toast{animation:none!important;transition:none!important}}
+html[data-kicklab-mode="race"] .stage .toast.race-award-toast{height:64px;grid-template-columns:52px minmax(0,1fr) 25px;gap:8px;background:linear-gradient(110deg,#263f52f0,#0a1729f0);border-color:#d6bb82;box-shadow:0 8px 30px #0008}
+html[data-kicklab-mode="race"] .stage .toast.race-award-toast .ic{width:52px;height:52px;border-radius:9px;background:radial-gradient(circle,#7790a055,#132538)}
+html[data-kicklab-mode="race"] .stage .toast.race-award-toast b{color:#f4d99b}
+html[data-kicklab-mode="race"] .stage .toast.race-award-toast span{font-size:12px;line-height:1.15}

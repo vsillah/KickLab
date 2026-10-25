@@ -56,11 +56,14 @@
     <div class="fb-me"><span>Your nickname</span><input id="fbNick" maxlength="16" placeholder="Make up a nickname" autocomplete="off"><button type="button" id="fbPost">Post my bests</button><div class="fb-msg" id="fbMsg"></div></div>
     <div class="fb-week" id="fbWeek"></div>
     <section class="race-competition" id="raceCompetition" hidden aria-label="Race competition on this device">
-      <div class="race-competition-head"><span>RACE COMPETITION · DEVICE ONLY</span><h3>Earn your place on the grid</h3><p>Coach Nia tracks completed runs for each local player. Names below are made-up racer aliases. Nothing is posted or uploaded.</p></div>
+      <div class="race-competition-head"><span>THE RACE JOURNEY · THIS DEVICE</span><h3>Build your legend</h3><p>Six chapters. One collectible for each skill you master.</p></div>
+      <p class="race-journey-next" id="raceJourneyNext" role="status"></p>
+      <div class="race-competition-awards" id="raceCompetitionAwards" aria-label="Race achievement journey"></div>
+      <details class="race-competition-records"><summary>Local Race records</summary>
       <div class="race-competition-cats" id="raceCompetitionCats" role="group" aria-label="Race category"></div>
       <div class="race-competition-stats" id="raceCompetitionStats"></div>
       <ul class="race-competition-list" id="raceCompetitionList"></ul>
-      <div class="race-competition-awards" id="raceCompetitionAwards"></div>
+      </details>
     </section>
     <div class="fb-cats" id="fbCats"></div>
     <p class="fb-eq" id="fbEq"></p>
