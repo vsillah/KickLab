@@ -17,7 +17,8 @@ async function open(width,height,{analog=false,reduced=false,canvas=false,mode='
   await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});
   await page.evaluate(({mode,vehicle})=>window.__KICKLAB_RACE_ENGINE_QA__.select(mode,vehicle),{mode,vehicle});
   if(!canvas)await page.waitForFunction(vehicle=>window.__KICKLAB_RACE_3D__?.status==='rendering'&&window.__KICKLAB_RACE_3D__?.vehicleId===vehicle&&window.__KICKLAB_RACE_FX__?.vehicle===vehicle,vehicle,{timeout:15000});
-  await page.evaluate(()=>{window.__KICKLAB_RACE_ENGINE_QA__.holdPresentation(true);window.__KICKLAB_RACE_ENGINE_QA__.run();});if(analog)await page.locator('#analogControlsButton').click();
+  if(analog)await page.evaluate(()=>window.__KICKLAB_RACE_ENGINE_QA__.controls(true));
+  await page.evaluate(()=>{window.__KICKLAB_RACE_ENGINE_QA__.holdPresentation(true);window.__KICKLAB_RACE_ENGINE_QA__.run();});
   return{context,page};
 }
 async function stage(page,label,fixture,{capture=false}={}){
@@ -49,7 +50,7 @@ report.failed=report.states.filter(row=>{
   if(row.renderer==='canvas')return row.fixture==='spinout'&&(!row.canvasTires||row.canvasTires.event!=='spinout'||row.canvasTires.marks<2||row.canvasTires.puffs<1);
   if(row.renderer!=='rendering')return false;
   if(row.fixture==='exhaust'||row.fixture==='normal-exhaust')return row.fx?.vapor<1;
-  if(row.fixture==='nos'||row.fixture==='nos-ignition')return !row.fx?.boost||row.fx.flameEnergy<.1||(!row.fx.reducedMotion&&!row.flamesVisible)||row.fx.reducedMotion&&row.flamesVisible;
+  if(row.fixture==='nos'||row.fixture==='nos-ignition')return !row.fx?.boost||row.fx.flameEnergy<.1||!row.flamesVisible;
   if(['launch','brake','brake-hot','brake-lock','drift','spinout'].includes(row.fixture))return row.fx?.markCount<2||(!row.fx.reducedMotion&&row.fx.tireSmoke<1)||row.fx?.tireEvent!==(row.fixture==='brake'||row.fixture==='brake-hot'?'brake-lock':row.fixture);
   if(row.fixture.startsWith('cutaway'))return !row.fx?.cutaway||!row.captionShown||row.fixture!=='cutaway'&&row.fx.cutaway.system!==row.fixture.slice('cutaway-'.length);
   return false;
