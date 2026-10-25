@@ -122,6 +122,10 @@
           <button type="button" class="game-overlay-backdrop" id="gameOverlayBackdrop" aria-label="Close open game overlay" hidden></button>
           <button type="button" class="race-phone-tools-toggle" id="racePhoneToolsToggle" aria-label="Open Race tools and collapse game controls" aria-expanded="false" aria-controls="gameGuidanceHud pad"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.3 6.1a5.4 5.4 0 0 1-6.8 6.8L7 19.4a2.1 2.1 0 0 1-3-3l6.5-6.5a5.4 5.4 0 0 1 6.8-6.8l-3.2 3.2 3.1 3.1z"/></svg><span class="race-phone-tools-chevron" aria-hidden="true">⌄</span></button>
           <div class="game-guidance-hud" id="gameGuidanceHud" aria-label="Gameplay information rail">
+            <div class="race-setup-tool-shortcuts" id="raceSetupToolShortcuts" hidden>
+              <button type="button" id="raceToolsGarage" aria-label="Open Garage and tuning" title="Garage and tuning"><span aria-hidden="true">⚙</span><span>Garage</span></button>
+              <button type="button" id="raceToolsSteering" aria-label="Toggle autopilot steering" title="Toggle autopilot steering" aria-pressed="false"><span aria-hidden="true">◉</span><span>Autopilot</span></button>
+            </div>
             <section class="orientation-hud contextual-summary" id="orientationHud" aria-label="Current lab and navigation">
               <div class="orientation-summary"><span class="mobile-hud-label" aria-hidden="true">Lab</span><b id="currentModeTitle">Fight</b><small>Labs &amp; settings</small></div>
               <button type="button" class="context-disclosure" id="orientationDetailToggle" data-detail-label="lab controls" aria-label="Open lab controls" title="Open lab controls" aria-expanded="false" aria-controls="orientationDetail"><span aria-hidden="true">⌄</span></button>
@@ -225,6 +229,8 @@
               <button type="button" class="control-style-button" id="analogControlsButton" aria-pressed="false" aria-label="Analog controls" title="Analog controls" data-tooltip="Analog controls" aria-controls="touchController"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="6"/><circle cx="8" cy="12" r="2.5"/><circle cx="16.5" cy="10" r="1"/><circle cx="18.5" cy="13" r="1"/></svg><span class="control-style-tooltip" aria-hidden="true">Analog controls</span></button>
               <button type="button" class="control-style-button" id="simulatorControlsButton" aria-pressed="false" aria-label="Simulator tilt controls" title="Simulator tilt controls" data-tooltip="Simulator tilt controls" aria-controls="raceSimulator" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2"/><path d="M4 9h6l2 3 2-3h6M12 14v7"/></svg><span class="control-style-tooltip" aria-hidden="true">Simulator tilt controls</span></button>
             </div>
+            <button type="button" class="race-setup-shortcut" id="raceSetupGarageShortcut" aria-label="Open Garage and tuning" title="Garage and tuning" hidden><span aria-hidden="true">⚙</span></button>
+            <button type="button" class="race-setup-shortcut" id="raceSetupSteeringShortcut" aria-label="Toggle autopilot steering" title="Toggle autopilot steering" aria-pressed="false" hidden><span aria-hidden="true">◉</span></button>
             <button type="button" class="controller-collapse" id="controllerCollapseButton" aria-expanded="true" aria-controls="pad" aria-label="Collapse game controls"><span aria-hidden="true">⌄</span></button>
           </div>
           <div class="pad" id="pad">

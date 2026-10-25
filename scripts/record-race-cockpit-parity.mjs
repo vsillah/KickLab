@@ -28,6 +28,7 @@ for(const [name,base,width,height] of scenarios){
    await page.locator('.stage').scrollIntoViewIfNeeded();await page.waitForTimeout(1200);
   }else{
    await page.locator('.stage').scrollIntoViewIfNeeded();await page.waitForTimeout(700);
+   if(width>480){await page.click('#racePhoneToolsToggle');await page.waitForTimeout(950);await page.click('#racePhoneToolsToggle');await page.click('#analogControlsButton');await page.waitForTimeout(600);await page.click('#classicControlsButton');await page.waitForTimeout(450);}
    await page.click('#racePhoneProgress');await page.waitForTimeout(1100);await page.click('[data-close-detail="orientation"]');
    await page.click('#raceCoachSetupStart');await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.dynamics?.state==='run',null,{timeout:25000});await page.waitForTimeout(900);
    await page.click('#racePhoneToolsToggle');await page.waitForTimeout(1200);await page.click('#racePhoneToolsToggle');

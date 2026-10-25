@@ -27,13 +27,13 @@ function syncRacePhoneTools(){
   const active=racePhoneToolsActive(),expanded=active&&racePhoneTools.getAttribute('aria-expanded')==='true';
   if(!active&&racePhoneTools.getAttribute('aria-expanded')==='true')setFloatingControllerCollapsed(false);
   if(active&&racePhoneControlHead.parentElement!==gameStage)gameStage.appendChild(racePhoneControlHead);
-  if(active&&matchMedia('(max-width:480px)').matches&&racePhoneStyleGroup.parentElement!==racePhoneRail)racePhoneRail.appendChild(racePhoneStyleGroup);
+  if(active&&(matchMedia('(max-width:480px)').matches||expanded)&&racePhoneStyleGroup.parentElement!==racePhoneRail)racePhoneRail.appendChild(racePhoneStyleGroup);
   if(active&&racePhoneCalibration.parentElement!==racePhoneRail)racePhoneRail.appendChild(racePhoneCalibration);
   if(active&&racePhoneChampionship.parentElement!==racePhoneStatusContent)racePhoneStatusContent.append(racePhoneChampionship,racePhoneMultiplayer);
   if(!active&&racePhoneCalibration.parentElement!==racePhoneCalibrationHome)racePhoneCalibrationHome.insertBefore(racePhoneCalibration,racePhoneCalibrationHome.querySelector('.sim-fallbacks'));
   if(!active&&racePhoneChampionship.parentElement!==racePhoneStatusHome)racePhoneStatusHome.insertBefore(racePhoneChampionship,gameStage);
   if(!active&&racePhoneMultiplayer.parentElement!==racePhoneStatusHome)racePhoneStatusHome.insertBefore(racePhoneMultiplayer,gameStage);
-  if((!active||!matchMedia('(max-width:480px)').matches)&&racePhoneStyleGroup.parentElement!==racePhoneControlHead)racePhoneControlHead.insertBefore(racePhoneStyleGroup,racePhoneControlHead.firstChild);
+  if((!active||!matchMedia('(max-width:480px)').matches&&!expanded)&&racePhoneStyleGroup.parentElement!==racePhoneControlHead)racePhoneControlHead.insertBefore(racePhoneStyleGroup,racePhoneControlHead.firstChild);
   if(!active&&racePhoneControlHead.parentElement!==racePhoneControlHome)racePhoneControlHome.insertBefore(racePhoneControlHead,racePhoneControlHome.firstChild);
   racePhoneRail.inert=active&&!expanded;
   if(!active)clearRacePhoneNotices();
@@ -122,7 +122,7 @@ function openSettings(category=null,trigger=settingsToggle){
 }
 function closeSettings({restore=true,restart=true}={}){
   if(settingsDrawer.hidden)return;settingsDrawer.hidden=true;gameStage.classList.remove('garage-review-open');$('#kitroom').hidden=true;settingsToggle.setAttribute('aria-expanded','false');releasePauseOwner('settings',{restart});
-  syncGameOverlayBackdrop();if(restore){const trigger=SETTINGS.trigger&&SETTINGS.trigger.isConnected&&SETTINGS.trigger.offsetParent!==null?SETTINGS.trigger:SETTINGS.restoreCategory!=null?$(`#quickSettings [data-category="${SETTINGS.restoreCategory}"]`):null;(trigger||$('#orientationDetailToggle')||settingsToggle).focus();}requestAnimationFrame(resize);
+  syncGameOverlayBackdrop();if(M===Race)renderRaceTelemetry();if(restore){const trigger=SETTINGS.trigger&&SETTINGS.trigger.isConnected&&SETTINGS.trigger.offsetParent!==null?SETTINGS.trigger:SETTINGS.restoreCategory!=null?$(`#quickSettings [data-category="${SETTINGS.restoreCategory}"]`):null;(trigger||$('#orientationDetailToggle')||settingsToggle).focus();}requestAnimationFrame(resize);
   const returnToRaceRetry=restore&&M===Race&&GARAGE_UI.returnToRaceRetry;GARAGE_UI.returnToRaceRetry=false;
   if(returnToRaceRetry){GARAGE_UI.notice=null;document.querySelectorAll('#toasts .toast[aria-label="Coach Nia"]').forEach(note=>note.remove());prepareRaceCoachRetry();}
   else if(M===Race&&GARAGE_UI.notice){const message=GARAGE_UI.notice;GARAGE_UI.notice=null;toast('Coach Nia',message,{action:'Open Coach',hold:14000,onAction:()=>setContextDetail('learn',{trigger:$('#learnDetailToggle'),focus:true})});}
