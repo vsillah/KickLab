@@ -17,15 +17,21 @@ async function scene(name,viewport,initialAwards){
  await page.click('#boardBtn');await page.locator('#raceCompetition').waitFor({state:'visible'});await page.waitForFunction(()=>[...document.querySelectorAll('.race-journey-art img')].every(image=>image.complete&&image.naturalWidth));
  await page.locator('#raceCompetition').scrollIntoViewIfNeeded();await page.waitForTimeout(name==='desktop'?6500:1800);
  if(name==='desktop'){
+   await page.locator('#raceCompetition').screenshot({path:join(output,`desktop-opening-${head}.png`)});
    await page.click('#fbClose');
    await page.click('#lab-tab-race');await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});
    await page.evaluate(()=>window.__KICKLAB_RACE_AWARDS_QA__.qualify('core',19.25));
    await page.waitForTimeout(1900);
-   await page.evaluate(()=>window.__KICKLAB_RACE_AWARDS_QA__.openJourney());await page.locator('#raceCompetition').scrollIntoViewIfNeeded();await page.waitForTimeout(5400);
+   await page.evaluate(()=>window.__KICKLAB_RACE_AWARDS_QA__.openJourney());await page.locator('#raceCompetition').scrollIntoViewIfNeeded();await page.waitForTimeout(4800);
+   await page.locator('#raceCompetition').screenshot({path:join(output,`desktop-core-earned-${head}.png`)});
+   await page.click('#fbClose');await page.evaluate(()=>window.__KICKLAB_RACE_AWARDS_QA__.qualify('drag',1300));
+   await page.evaluate(()=>window.__KICKLAB_RACE_AWARDS_QA__.openJourney());await page.locator('#raceCompetition').scrollIntoViewIfNeeded();await page.waitForTimeout(4800);
+   await page.locator('#raceCompetition').screenshot({path:join(output,`desktop-drag-earned-${head}.png`)});
    await page.click('#fbClose');await page.evaluate(()=>window.__KICKLAB_RACE_AWARDS_QA__.openProfile());await page.locator('.race-profile-perk img').waitFor();await page.waitForTimeout(2100);
  }else{
    await page.locator('#raceCompetition').screenshot({path:join(output,`${name}-journey-${head}.png`)});
-   await page.waitForTimeout(name==='reduced'?4000:7300);
+   await page.waitForTimeout(name==='reduced'?4000:3500);
+   if(name==='phone'){await page.locator('.race-journey-card:last-child').scrollIntoViewIfNeeded();await page.waitForTimeout(3000);await page.locator('.race-journey-card:first-child').scrollIntoViewIfNeeded();await page.waitForTimeout(1200);}
  }
  const path=await page.video().path();await context.close();const dest=join(output,`${name}-${head}.webm`);copyFileSync(path,dest);clips.push(dest);
 }
