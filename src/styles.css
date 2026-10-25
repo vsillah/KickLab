@@ -1950,7 +1950,8 @@ html[data-kicklab-mode="race"] .stage>.floating-control-head{z-index:40}
  html[data-kicklab-mode="race"] .game-frame .stage>.control-deck.race-setup-preview:not(.simulator-active){display:none!important}
  html[data-kicklab-mode="race"] .control-deck.race-setup-preview #raceCoachSetup{display:none!important}
  html[data-kicklab-mode="race"] .stage:has(>.control-deck.race-setup-preview)>.floating-control-head{display:grid;grid-template-columns:auto 44px 44px 44px}
- html[data-kicklab-mode="race"] .stage>.floating-control-head .race-setup-shortcut{box-sizing:border-box;display:grid;place-items:center;width:44px;height:44px;padding:0;border:1px solid rgba(153,202,228,.65);border-radius:10px;background:rgba(30,69,96,.8);color:#fff;font-size:21px;cursor:pointer}
+ html[data-kicklab-mode="race"] .stage>.floating-control-head .race-setup-shortcut{box-sizing:border-box;display:grid;place-items:center;align-content:center;gap:0;width:44px;height:44px;padding:0;border:1px solid rgba(153,202,228,.65);border-radius:10px;background:rgba(30,69,96,.8);color:#fff;font-size:18px;cursor:pointer}
+ html[data-kicklab-mode="race"] .stage>.floating-control-head .race-setup-shortcut small{font:800 7px/1 var(--f-body)}
  html[data-kicklab-mode="race"] .stage>.floating-control-head .race-setup-shortcut[hidden]{display:none}
  html[data-kicklab-mode="race"] .stage>.floating-control-head .race-setup-shortcut[aria-pressed="true"]{border-color:#a8f1ef;background:#246274}
  html[data-kicklab-mode="race"] .stage>.floating-control-head .race-setup-shortcut:focus-visible{outline:3px solid #ffc675;outline-offset:2px}
