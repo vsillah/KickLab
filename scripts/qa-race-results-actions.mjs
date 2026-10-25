@@ -30,11 +30,11 @@ for(const viewport of [{width:390,height:844},{width:1440,height:900}]){
   }
   await page.locator('#results').screenshot({path:join(output,`${label}-eligible.png`)});
   await page.click('#raceResultCoach');
-  if(!await page.locator('#rvBack').isVisible()||await page.locator('#results').isVisible()||!await page.locator('#rvBody').getByText('Best moves').isVisible()||await page.locator('#raceCoachResult').isVisible())report.errors.push(`${label}: Coach review did not open cleanly`);
+  if(!await page.locator('#rvBack').isVisible()||await page.locator('#results').isVisible()||!await page.locator('#rvBody').getByText('What worked').isVisible()||await page.locator('#raceCoachResult').isVisible())report.errors.push(`${label}: Coach review did not open cleanly`);
   await page.click('#rvClose');
   if(await page.locator('#rvBack').isVisible()||await page.locator('#results').isVisible())report.errors.push(`${label}: Coach review did not return cleanly`);
   await page.evaluate(()=>window.__KICKLAB_RACE_RESULTS_QA__.recorded('both'));
-  await page.click('#raceReplayPreview');
+  await page.click('#raceReplayFallback');
   if(!await page.locator('#rbar').isVisible()||await page.locator('#results').isVisible()||await page.locator('#raceCoachResult').isVisible())report.errors.push(`${label}: Replay did not open cleanly`);
   await page.locator('#rbScrub').fill('500');
   const scrub=await page.locator('#rbScrub').inputValue();

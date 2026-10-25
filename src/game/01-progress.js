@@ -83,7 +83,7 @@ function showResults(m){hideResults();const el=$('#results'),rc=$('#rc');const r
     $('#rRaceGarage').hidden=passed||!!RACE_MULTI_UI.match||!(/garage|tune|brake|grip|setup/i.test(`${raw} ${m.hint||''}`));
     $('#rRaceGarage').textContent=Race.expansionActive()?'Garage & tuning':'Garage';
     $('#rReview').hidden=true;$('#rReplay').hidden=true;$('#rRaceBoard').hidden=true;$('#racts').hidden=true;
-    $('#raceReplayBlock').hidden=!rr0?.frames?.length;if(!$('#raceReplayBlock').hidden)startRaceReplayPreview(rr0);
+    const recorded=!!rr0?.frames?.length,visualReplay=recorded&&!!rr0.preview3d?.length;$('#raceReplayBlock').hidden=!recorded;$('#raceReplayPreview').hidden=!visualReplay;$('#raceReplayFallback').hidden=!recorded||visualReplay;if(visualReplay)startRaceReplayPreview(rr0);
     document.querySelectorAll('#toasts .toast').forEach(note=>note.remove());syncRacePhoneNoticeSlot();
   }else{$('#rReview').hidden=false;$('#rReplay').hidden=false;}
   $('#rGrade').innerHTML=`${m.grade}<small>GRADE</small>`;$('#rTitle').textContent=m.title;$('#rSub').textContent=m.sub||'';$('#rHint').textContent=m.hint||'';$('#results .rtotal span').textContent=m.seasonPoints?'Event points':'XP earned';
@@ -98,26 +98,26 @@ $('#rRaceNext').addEventListener('click',event=>{event.stopPropagation();$('#rac
 $('#raceResultCoach').addEventListener('click',event=>{event.stopPropagation();if(!event.currentTarget.disabled)openReview();});
 $('#raceResultAwards').addEventListener('click',event=>{const card=event.target.closest('[data-award-kind]');if(!card)return;event.stopPropagation();if(card.dataset.awardKind==='season'){hideResults();racePhoneProgress.click();}else{RACE_COMP_UI.category=RACE_COMP_UI.last?.category||'core';openBoard(card);}});
 $('#raceReplayPreview').addEventListener('click',event=>{event.stopPropagation();startReplay(0);});
+$('#raceReplayFallback').addEventListener('click',event=>{event.stopPropagation();startReplay(0);});
+function captureRace3DPreviewFrame(force=false){
+  const record=RECS.race;if(M!==Race||!RACE_3D.on||!RACE_3D.ready||!record?.frames.length||RP.on||!force&&(Race.state!=='run'||!record.on))return false;
+  const now=performance.now();if(!force&&now-(record.preview3dAt||0)<450)return false;
+  const source=RACE_3D.canvas;if(!source?.width||!source.height)return false;
+  try{
+    const frame=document.createElement('canvas');frame.width=360;frame.height=240;const context=frame.getContext('2d',{willReadFrequently:true}),aspect=frame.width/frame.height,sw=Math.min(source.width,source.height*aspect),sh=sw/aspect,car=globalThis.__KICKLAB_RACE_3D__?.composition?.carCenter||[.5,.62],sx=clamp(source.width*car[0]-sw*.5,0,source.width-sw),sy=clamp(source.height*car[1]-sh*.76,0,source.height-sh);
+    context.drawImage(source,sx,sy,sw,sh,0,0,frame.width,frame.height);
+    const pixels=context.getImageData(0,0,frame.width,frame.height).data;let visible=false;for(const [x,y] of [[180,40],[90,120],[180,120],[270,120],[180,200]]){const i=(y*frame.width+x)*4;if(pixels[i+3]>0&&pixels[i]+pixels[i+1]+pixels[i+2]>40){visible=true;break;}}if(!visible)return false;
+    record.preview3d||=[];record.preview3d.push({canvas:frame,t:record.t});if(record.preview3d.length>8)record.preview3d.shift();record.preview3dAt=now;return true;
+  }catch(_){return false;}
+}
 const RACE_REPLAY_PREVIEW={timer:0,started:0,frames:null};
 function stopRaceReplayPreview(){clearInterval(RACE_REPLAY_PREVIEW.timer);RACE_REPLAY_PREVIEW.timer=0;RACE_REPLAY_PREVIEW.frames=null;}
 function drawRaceReplayPreview(){
   const frames=RACE_REPLAY_PREVIEW.frames;if(!frames?.length)return;
-  const canvas=$('#raceReplayCanvas'),c=canvas.getContext('2d'),w=canvas.width,h=canvas.height;
-  const phase=matchMedia('(prefers-reduced-motion:reduce)').matches?0.5:(performance.now()-RACE_REPLAY_PREVIEW.started)%3000/3000;
-  const index=Math.min(frames.length-1,Math.floor(phase*(frames.length-1))),frame=frames[index],st=frame.s?.st||{};
-  const min=frames[0].s?.st?.x||0,max=frames.at(-1).s?.st?.x||min+1,span=Math.max(1,max-min);
-  const carX=36+Math.max(0,Math.min(1,((st.x||min)-min)/span))*(w-72),carY=h/2+Math.max(-20,Math.min(20,(st.y||0)*2));
-  c.fillStyle='#172d29';c.fillRect(0,0,w,h);c.fillStyle='#8b7153';c.fillRect(0,20,w,h-38);c.fillStyle='#344450';c.fillRect(0,26,w,h-50);
-  c.fillStyle='#f6e8c5';c.fillRect(0,27,w,2);c.fillRect(0,h-26,w,2);
-  c.strokeStyle='#e4e7c4';c.lineWidth=2;c.setLineDash([14,10]);c.beginPath();c.moveTo(0,h/2);c.lineTo(w,h/2);c.stroke();c.setLineDash([]);
-  c.strokeStyle='#69e7e1';c.lineWidth=2;c.beginPath();frames.slice(0,index+1).forEach((sample,i)=>{const pos=sample.s?.st||{},x=36+Math.max(0,Math.min(1,((pos.x||min)-min)/span))*(w-72),y=h/2+Math.max(-20,Math.min(20,(pos.y||0)*2));if(i)c.lineTo(x,y);else c.moveTo(x,y);});c.stroke();
-  c.fillStyle='#f5f7eb';for(let y=28;y<h-25;y+=7)c.fillRect(w-28,y,4,4);
-  c.fillStyle='#5fe3a1';c.fillRect(12,h-8,(w-24)*phase,4);
-  c.save();c.translate(carX,carY);c.rotate(-(st.th||0));c.fillStyle='#101c27';c.fillRect(-10,-10,6,3);c.fillRect(4,-10,6,3);c.fillRect(-10,7,6,3);c.fillRect(4,7,6,3);c.fillStyle='#9ff1ff';c.fillRect(-13,-7,26,14);c.fillStyle='#244863';c.fillRect(2,-5,7,10);c.fillStyle='#f3bd75';c.fillRect(10,-5,3,3);c.fillRect(10,2,3,3);c.restore();
-  c.fillStyle='#f5fbff';c.font='700 11px system-ui';c.fillText(`${Math.round((st.v||0)*3.6)} km/h`,18,16);
-  c.textAlign='right';c.fillText(`${(frame.t||0).toFixed(1)}s / ${(frames.at(-1).t||0).toFixed(1)}s`,w-18,16);c.textAlign='left';
+  const canvas=$('#raceReplayCanvas'),context=canvas.getContext('2d'),phase=matchMedia('(prefers-reduced-motion:reduce)').matches?.5:(performance.now()-RACE_REPLAY_PREVIEW.started)%3000/3000,index=Math.min(frames.length-1,Math.floor(phase*frames.length));
+  context.drawImage(frames[index].canvas,0,0,canvas.width,canvas.height);
 }
-function startRaceReplayPreview(record){stopRaceReplayPreview();RACE_REPLAY_PREVIEW.frames=record.frames;RACE_REPLAY_PREVIEW.started=performance.now();drawRaceReplayPreview();if(!matchMedia('(prefers-reduced-motion:reduce)').matches)RACE_REPLAY_PREVIEW.timer=setInterval(()=>{if(!document.hidden&&!$('#results').hidden)drawRaceReplayPreview();},120);}
+function startRaceReplayPreview(record){stopRaceReplayPreview();RACE_REPLAY_PREVIEW.frames=record.preview3d;RACE_REPLAY_PREVIEW.started=performance.now();drawRaceReplayPreview();if(!matchMedia('(prefers-reduced-motion:reduce)').matches)RACE_REPLAY_PREVIEW.timer=setInterval(()=>{if(!document.hidden&&!$('#results').hidden)drawRaceReplayPreview();},120);}
 
 let LVL_STASH=0;
 function lvlRibbon(n){const u=unlocksAt(n),r=$('#rLvl');r.innerHTML=`LEVEL UP <b>${n}</b> ${LEVEL_T[Math.min(n-1,LEVEL_T.length-1)]}`+(u.length?` <small>· unlocked ${u.join(', ')}</small>`:'');r.hidden=false;SND.fanfare();energizeControlledPlayer('level-up',1800);
