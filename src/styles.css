@@ -1883,3 +1883,65 @@ html[data-race-preflight-arriving="true"] .race-preflight-grid-rev i:nth-of-type
 @media(max-width:520px){.race-preflight-shell{gap:10px;padding:12px}.race-preflight h2{font-size:28px}.race-preflight-header button{padding:8px 10px}.race-preflight-steps{gap:4px}.race-preflight-steps button{min-height:50px;justify-content:center;padding:4px}.race-preflight-intro{flex-direction:column;gap:8px}.race-preflight-route-list{grid-template-columns:1fr}.race-preflight-route{min-height:0;display:grid;grid-template-columns:110px 1fr}.race-preflight-route-art{height:100%}.race-preflight-route-copy strong{font-size:18px}.race-preflight-route-copy{padding:10px}.race-preflight-specs{grid-template-columns:1fr 1fr}.race-preflight-roster button{flex-basis:calc((100% - 12px)/2);min-height:78px;padding:6px;gap:5px}.race-preflight-roster img{width:52px;height:54px}.race-preflight-part-options{grid-template-columns:1fr 1fr}.race-preflight-grid-brief{padding:13px}.race-preflight-footer button{flex:1}}
 @media(prefers-reduced-motion:reduce){.race-preflight *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 @media(max-width:520px){.race-inspection-stage{height:330px;min-height:330px}.race-preflight-tune-layout{gap:12px}.race-preflight-deltas{padding:9px;gap:6px}.race-preflight-deltas span{padding:8px}.race-preflight-tune-focus{align-items:flex-start;flex-direction:column}}
+
+/* Race cockpit parity: the same compact entry points and panels at every width. */
+html[data-kicklab-mode="race"] .game-frame .stage{--game-rail-space:0px}
+html[data-kicklab-mode="race"] .race-phone-progress:not([hidden]){appearance:none;position:absolute;z-index:27;top:max(6px,env(safe-area-inset-top));left:max(6px,env(safe-area-inset-left));box-sizing:border-box;display:flex;align-items:center;gap:5px;width:min(270px,calc(100% - 70px));min-height:44px;padding:5px 8px;border:1px solid rgba(158,222,231,.8);border-radius:13px;background:rgba(5,26,44,.76);color:#e9faff;box-shadow:0 5px 14px rgba(0,0,0,.26);cursor:pointer}
+html[data-kicklab-mode="race"] .race-phone-progress:focus-visible{outline:3px solid #ffc675;outline-offset:2px}
+html[data-kicklab-mode="race"] .race-phone-progress-count{flex:none;color:#b8eff1;font:800 10px var(--f-mono)}
+html[data-kicklab-mode="race"] .race-phone-progress-nodes{display:flex;align-items:center;justify-content:space-between;gap:3px;min-width:0;flex:1}
+html[data-kicklab-mode="race"] .race-phone-progress-node{box-sizing:border-box;display:grid;place-items:center;flex:none;width:21px;height:21px;border:1px solid #7398ac;border-radius:50%;background:#132b3a;color:#d0e2e9;font:800 10px var(--f-mono)}
+html[data-kicklab-mode="race"] .race-phone-progress-node[data-state="passed"]{border-color:#95e9ba;background:#276246;color:#fff}
+html[data-kicklab-mode="race"] .race-phone-progress-node[data-state="current"]{width:27px;height:27px;border:2px solid #ffd377;background:#76511d;color:#fff;box-shadow:0 0 0 2px rgba(255,211,119,.22)}
+html[data-kicklab-mode="race"] .race-phone-progress-finish{flex:none;color:#ffd377;font:800 18px/1 var(--f-body)}
+html[data-kicklab-mode="race"] .stage.has-game-overlay .race-phone-progress{display:none}
+html[data-kicklab-mode="race"] .stage.race-phone-notice-active .race-phone-progress{visibility:hidden;pointer-events:none}
+html[data-kicklab-mode="race"] #racePhoneStatusContent{display:grid;gap:8px;margin:8px 0}
+html[data-kicklab-mode="race"] #racePhoneStatusContent .race-championship,html[data-kicklab-mode="race"] #racePhoneStatusContent .race-multiplayer{min-width:0}
+html[data-kicklab-mode="race"] .race-phone-tools-toggle{appearance:none;position:absolute;z-index:28;top:max(6px,env(safe-area-inset-top));right:max(6px,env(safe-area-inset-right));box-sizing:border-box;display:grid;place-items:center;width:44px;height:44px;padding:5px 8px 9px;border:1px solid rgba(164,222,244,.8);border-radius:14px;background:linear-gradient(145deg,rgba(23,65,88,.86),rgba(5,22,43,.82));color:#e9faff;box-shadow:0 7px 18px rgba(0,0,0,.35);cursor:pointer;touch-action:manipulation}
+html[data-kicklab-mode="race"] .race-phone-tools-toggle svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+html[data-kicklab-mode="race"] .race-phone-tools-chevron{position:absolute;right:4px;bottom:1px;font:800 12px/1 var(--f-mono);transition:transform .16s ease}
+html[data-kicklab-mode="race"] .race-phone-tools-toggle[aria-expanded="true"] .race-phone-tools-chevron{transform:rotate(180deg)}
+html[data-kicklab-mode="race"] .race-phone-tools-toggle[aria-expanded="true"]{background:#27607c;border-color:#baf6ff}
+html[data-kicklab-mode="race"] .race-phone-tools-toggle:focus-visible{outline:3px solid #ffc675;outline-offset:2px}
+html[data-kicklab-mode="race"] .stage.has-game-overlay .race-phone-tools-toggle{display:none}
+html[data-kicklab-mode="race"] #gameGuidanceHud{display:none;top:max(60px,calc(env(safe-area-inset-top) + 60px));right:max(6px,env(safe-area-inset-right));box-sizing:border-box;width:min(300px,calc(100% - 12px));max-height:calc(100% - 70px - env(safe-area-inset-bottom));grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-flow:row;grid-auto-rows:minmax(88px,auto);gap:7px;padding:8px;overflow-y:auto;border:1px solid rgba(151,207,231,.7);border-radius:16px;background:linear-gradient(145deg,rgba(7,28,47,.94),rgba(3,15,32,.9));box-shadow:0 12px 30px rgba(0,0,0,.35);-webkit-backdrop-filter:blur(13px);backdrop-filter:blur(13px);pointer-events:auto}
+html[data-kicklab-mode="race"] .race-phone-tools-toggle[aria-expanded="true"]+#gameGuidanceHud{display:grid}
+html[data-kicklab-mode="race"] .stage.has-game-overlay #gameGuidanceHud{display:none!important}
+html[data-kicklab-mode="race"] #gameGuidanceHud>.contextual-summary{grid-column:auto!important;min-height:88px;max-height:none;padding:26px 7px 6px;border:1px solid rgba(153,202,228,.44);border-radius:13px;background:linear-gradient(150deg,rgba(40,86,113,.66),rgba(15,42,68,.76));box-shadow:inset 0 1px 0 rgba(255,255,255,.13);text-align:left}
+html[data-kicklab-mode="race"] #gameGuidanceHud>.contextual-summary::before{display:none}
+html[data-kicklab-mode="race"] #gameGuidanceHud>.contextual-summary::after{position:absolute;top:6px;left:8px;color:#aaf0f1;font:800 18px/1 var(--f-body)}
+html[data-kicklab-mode="race"] #orientationHud::after{content:"◈"}html[data-kicklab-mode="race"] #challengeHud::after{content:"◎"}html[data-kicklab-mode="race"] #coach::after{content:"✦"}html[data-kicklab-mode="race"] #historyHud::after{content:"◷"}html[data-kicklab-mode="race"] #liveMathHud::after{content:"Σ"}html[data-kicklab-mode="race"] #profileHud::after{content:"◉"}
+html[data-kicklab-mode="race"] #gameGuidanceHud :is(.challenge-hud,.coach,.history-hud,.live-math-hud){padding:0;text-align:left}
+html[data-kicklab-mode="race"] #gameGuidanceHud :is(.mobile-hud-label,.hud-summary-cue,.history-summary>b,.coach .cn b,#liveMathHudValues span,.profile-hud-summary>b){font-size:10px!important;line-height:1.2}
+html[data-kicklab-mode="race"] #gameGuidanceHud :is(.orientation-summary small,.profile-hud-summary>small){font-size:8px}
+html[data-kicklab-mode="race"] .stage .toasts{top:max(6px,env(safe-area-inset-top));left:max(6px,env(safe-area-inset-left));right:auto;bottom:auto;display:block;width:min(270px,calc(100% - 70px));max-width:none}
+html[data-kicklab-mode="race"] .stage .toast{box-sizing:border-box;grid-template-columns:22px minmax(0,1fr) auto;gap:6px;height:44px;padding:3px 6px;border-radius:11px;background:rgba(8,21,35,.83);animation:racePhoneNoticeIn .25s ease-out both}
+html[data-kicklab-mode="race"] .stage .toast.out{animation:racePhoneNoticeOut .25s ease-in forwards}
+html[data-kicklab-mode="race"] .stage .toast .ic{width:22px;height:22px;font-size:12px}
+html[data-kicklab-mode="race"] .stage .toast-copy{gap:0}
+html[data-kicklab-mode="race"] .stage .toast b{font-size:9px;letter-spacing:.06em}
+html[data-kicklab-mode="race"] .stage .toast span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:10px;line-height:1.1}
+html[data-kicklab-mode="race"] .stage .toast-close{width:25px;height:25px;font-size:16px}
+html[data-kicklab-mode="race"] .stage.has-game-overlay .toasts{display:none}
+html[data-kicklab-mode="race"] .stage>.floating-control-head{position:absolute;z-index:25;bottom:max(8px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);box-sizing:border-box;display:grid;grid-template-columns:auto 44px;align-items:center;gap:5px;padding:3px 4px;border:1px solid rgba(151,187,231,.55);border-radius:13px;background:linear-gradient(180deg,rgba(8,24,45,.72),rgba(4,13,28,.65));box-shadow:0 8px 20px rgba(0,0,0,.3)}
+html[data-kicklab-mode="race"] .stage>.floating-control-head .control-style-switch{grid-column:1;grid-template-columns:repeat(2,44px);min-width:0}
+html[data-kicklab-mode="race"] .stage>.floating-control-head .control-style-switch:has(#simulatorControlsButton:not([hidden])){grid-template-columns:repeat(3,44px)}
+html[data-kicklab-mode="race"] .stage>.floating-control-head .controller-collapse{grid-column:2}
+html[data-kicklab-mode="race"] .stage>.floating-control-head .control-style-tooltip{right:auto;left:50%;top:auto;bottom:calc(100% + 6px);transform:translateX(-50%)}
+html[data-kicklab-mode="race"] .stage:has(>.race-phone-tools-toggle[aria-expanded="true"])>.floating-control-head{visibility:hidden;pointer-events:none}
+html[data-kicklab-mode="race"] .settings-category{min-height:72px;border-radius:14px;background:linear-gradient(150deg,rgba(40,86,113,.66),rgba(15,42,68,.76));border-color:rgba(153,202,228,.54)}
+html[data-kicklab-mode="race"] .settings-categories{gap:8px}
+@media(min-width:481px){
+ html[data-kicklab-mode="race"] .game-frame .stage>.control-deck.controller-collapsed{left:50%;right:auto;transform:translateX(-50%);width:0}
+ html[data-kicklab-mode="race"] .game-frame .stage>.control-deck{width:min(920px,calc(100% - 20px))}
+ html[data-kicklab-mode="race"] .game-frame .stage>.control-deck:not(.controller-collapsed) .pad{padding-bottom:54px}
+ html[data-kicklab-mode="race"] .stage .context-detail,html[data-kicklab-mode="race"] .stage .settings-drawer{right:max(6px,env(safe-area-inset-right))}
+}
+@media(max-width:480px){html[data-kicklab-mode="race"] #gameGuidanceHud{top:max(104px,calc(env(safe-area-inset-top) + 104px));width:min(244px,calc(100% - 12px));max-height:calc(100% - 112px - env(safe-area-inset-bottom))}html[data-kicklab-mode="race"] .stage>.floating-control-head{left:6px;bottom:12px;transform:none}}
+@media(prefers-reduced-motion:reduce){html[data-kicklab-mode="race"] .stage .toast,html[data-kicklab-mode="race"] .stage .toast.out{animation:none}html[data-kicklab-mode="race"] .race-phone-tools-chevron{transition:none}}
+@media(min-width:481px){html[data-kicklab-mode="race"] .stage .toasts{top:max(312px,42%)} }
+@media(min-width:481px){html[data-kicklab-mode="race"] .stage>.floating-control-head{left:auto;right:max(8px,env(safe-area-inset-right));transform:none}}
+html[data-kicklab-mode="race"] .stage:has(>.control-deck.race-setup-preview)>.floating-control-head,html[data-kicklab-mode="race"] .stage:has(>.control-deck.race-awaiting-coach)>.floating-control-head,html[data-kicklab-mode="race"] .stage:has(>.control-deck.race-result-review)>.floating-control-head{display:none}
+html[data-kicklab-mode="race"] .stage>.floating-control-head{z-index:40}
+@media(min-width:481px){html[data-kicklab-mode="race"] .stage>.floating-control-head{bottom:max(12px,env(safe-area-inset-bottom))}}

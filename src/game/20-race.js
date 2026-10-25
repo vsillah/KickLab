@@ -250,7 +250,7 @@ const Race={
     c.fillStyle='#132b40';c.beginPath();c.arc(0,2,15,0,Math.PI*2);c.fill();c.strokeStyle='#b1d9e8';c.lineWidth=2;c.stroke();c.fillStyle='#78e8ff';c.beginPath();c.moveTo(-5,5);c.lineTo(0,-4);c.lineTo(5,5);c.lineTo(1,5);c.lineTo(0,2);c.lineTo(-1,5);c.closePath();c.fill();
     c.fillStyle='#78e8ff';c.fillRect(-3,-r-3,6,8);c.restore();},
   hud(c){const s=this.st;
-    const preview=RACE_3D.shouldBlockInput()&&!RACE_3D.awaitingPacing,msg=preview?'Vehicle view · Skip to countdown.':{grid:this.expansionActive()?`${this.mode().name} · Start with Coach Nia below.`:'Hold GAS to start. Steer into the corner, brake if the path turns red.',count:'Get ready…',run:'',done:'',crashed:''}[this.state];
+    const preview=RACE_3D.shouldBlockInput()&&!RACE_3D.awaitingPacing,msg=preview?'Vehicle view · Skip to countdown.':{grid:this.expansionActive()?'':'Hold GAS to start. Steer into the corner, brake if the path turns red.',count:'Get ready…',run:'',done:'',crashed:''}[this.state];
     const phone=matchMedia('(max-width:480px)').matches;
     if(!phone)text(c,msg,24,54,'500 13px '+BODY,C.muted);
     const cockpit=$('#raceCockpit');

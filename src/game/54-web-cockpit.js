@@ -10,7 +10,7 @@ const racePhoneChampionship=$('#raceChampionship'),racePhoneMultiplayer=$('#race
 const racePhoneControlHead=$('.control-deck .floating-control-head'),racePhoneControlHome=racePhoneControlHead.parentElement;
 const racePhoneStyleGroup=$('#controlStyleOptions');
 const racePhoneCalibration=$('#raceSimulator .sim-calibration'),racePhoneCalibrationHome=racePhoneCalibration.parentElement;
-function racePhoneToolsActive(){return document.documentElement.dataset.kicklabMode==='race'&&matchMedia('(max-width:480px)').matches;}
+function racePhoneToolsActive(){return document.documentElement.dataset.kicklabMode==='race';}
 const RACE_PHONE_NOTICE={text:'',at:0};
 function clearRacePhoneNotices(reset=true){document.querySelectorAll('#toasts .race-phone-notice').forEach(note=>note.remove());syncRacePhoneNoticeSlot();if(reset){RACE_PHONE_NOTICE.text='';RACE_PHONE_NOTICE.at=0;}}
 function racePhoneNotice(message,mood='tip'){
@@ -27,13 +27,13 @@ function syncRacePhoneTools(){
   const active=racePhoneToolsActive(),expanded=active&&racePhoneTools.getAttribute('aria-expanded')==='true';
   if(!active&&racePhoneTools.getAttribute('aria-expanded')==='true')setFloatingControllerCollapsed(false);
   if(active&&racePhoneControlHead.parentElement!==gameStage)gameStage.appendChild(racePhoneControlHead);
-  if(active&&racePhoneStyleGroup.parentElement!==racePhoneRail)racePhoneRail.appendChild(racePhoneStyleGroup);
+  if(active&&matchMedia('(max-width:480px)').matches&&racePhoneStyleGroup.parentElement!==racePhoneRail)racePhoneRail.appendChild(racePhoneStyleGroup);
   if(active&&racePhoneCalibration.parentElement!==racePhoneRail)racePhoneRail.appendChild(racePhoneCalibration);
   if(active&&racePhoneChampionship.parentElement!==racePhoneStatusContent)racePhoneStatusContent.append(racePhoneChampionship,racePhoneMultiplayer);
   if(!active&&racePhoneCalibration.parentElement!==racePhoneCalibrationHome)racePhoneCalibrationHome.insertBefore(racePhoneCalibration,racePhoneCalibrationHome.querySelector('.sim-fallbacks'));
   if(!active&&racePhoneChampionship.parentElement!==racePhoneStatusHome)racePhoneStatusHome.insertBefore(racePhoneChampionship,gameStage);
   if(!active&&racePhoneMultiplayer.parentElement!==racePhoneStatusHome)racePhoneStatusHome.insertBefore(racePhoneMultiplayer,gameStage);
-  if(!active&&racePhoneStyleGroup.parentElement!==racePhoneControlHead)racePhoneControlHead.insertBefore(racePhoneStyleGroup,racePhoneControlHead.firstChild);
+  if((!active||!matchMedia('(max-width:480px)').matches)&&racePhoneStyleGroup.parentElement!==racePhoneControlHead)racePhoneControlHead.insertBefore(racePhoneStyleGroup,racePhoneControlHead.firstChild);
   if(!active&&racePhoneControlHead.parentElement!==racePhoneControlHome)racePhoneControlHome.insertBefore(racePhoneControlHead,racePhoneControlHome.firstChild);
   racePhoneRail.inert=active&&!expanded;
   if(!active)clearRacePhoneNotices();

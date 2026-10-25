@@ -33,8 +33,18 @@ function raceChampionshipGhostTick(){if(!RACE_CHAMP_UI.active||M!==Race||Race.st
 function raceChampionshipCoach(event){const brief=raceChampionshipCoachState(event);return`${brief.headline}. ${brief.instruction}`;}
 function renderRacePhoneProgress(){
   const map=$('#racePhoneProgress'),state=RACE_CHAMP.normalize(best.raceChampionship),events=RACE_CHAMP.EVENTS;
-  map.hidden=!RACE_CHAMP_ON||M!==Race||!$('#modeHome').hidden;
+  map.hidden=!(RACE_CHAMP_ON||RACE_MULTI.enabled())||M!==Race||!$('#modeHome').hidden;
   if(map.hidden)return;
+  const match=RACE_MULTI_UI.match;
+  if(match){
+    const current=match.phase.endsWith('B')||match.phase==='handoff'||match.phase==='result'?1:0;
+    $('#racePhoneProgressNodes').replaceChildren(...[0,1].map(index=>{const node=document.createElement('span');node.className='race-phone-progress-node';node.dataset.state=index===current?'current':index===0&&match.a?'passed':'upcoming';node.textContent=index===0&&match.a?'A':index+1;return node;}));
+    $('#racePhoneProgressCount').textContent=`Seat ${current?'B':'A'} / 2`;
+    $('#racePhoneProgress .race-phone-progress-finish').textContent=match.phase==='result'?'🏆':'⚑';
+    map.setAttribute('aria-label',`Local head to head, Seat ${current?'B':'A'} of 2. Open Race progress and controls.`);
+    return;
+  }
+  if(!RACE_CHAMP_ON){$('#racePhoneProgressNodes').replaceChildren();$('#racePhoneProgressCount').textContent='Local match';map.setAttribute('aria-label','Open local head to head setup and Race controls.');return;}
   const next=events.findIndex(event=>!state.results[event.id]),current=RACE_CHAMP_UI.active?RACE_CHAMP_UI.selected:Math.max(0,next<0?events.length-1:next);
   const nodes=$('#racePhoneProgressNodes');nodes.replaceChildren(...events.map((event,index)=>{
     const node=document.createElement('span'),passed=!!state.results[event.id];
