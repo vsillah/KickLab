@@ -2187,3 +2187,17 @@ html[data-kicklab-mode="race"] #gameGuidanceHud #coach .coach-copy{padding-right
 #gestureAction .race-instrument-nos{left:0;top:-9px;bottom:auto;font-size:8px}
 @media(max-width:480px){.control-deck.race-instruments-live #padR .arcade{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:2px}.control-deck.race-instruments-live #padR .abtn{min-height:54px}.control-deck.race-instruments-live #padR .abtn .cap{width:42px;height:42px}.race-instrument-face b{font-size:9px}.race-instrument-face small,.race-instrument-face em{font-size:5px}}
 @media(prefers-reduced-motion:reduce){.race-instrument .cap,.race-instrument-face{transition:none!important;animation:none!important}}
+.race-special-rack{position:absolute;right:8px;bottom:calc(100% + 5px);z-index:9;display:grid;grid-template-columns:44px minmax(74px,118px) 44px;gap:3px;align-items:center;padding:3px;border:1px solid rgba(143,215,242,.7);border-radius:12px;background:rgba(6,22,38,.96);box-shadow:0 5px 18px rgba(0,0,0,.28)}
+.race-special-rack[hidden]{display:none!important}
+.race-special-rack button{min-width:0;min-height:44px;border:1px solid rgba(143,215,242,.55);border-radius:8px;background:#12364d;color:#fff;font:800 18px var(--f-body)}
+.race-special-rack #raceSpecialAction{font:800 10px/1.12 var(--f-body);padding:3px;touch-action:pan-y}
+.race-special-rack #raceSpecialAction small{display:block;color:#aee9dc;font:700 8px var(--f-mono)}
+.race-special-rack button:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.race-special-rack button[hidden]{display:none!important}
+.race-special-rack:has(#raceSpecialPrevious[hidden]){grid-template-columns:minmax(104px,126px)}
+.control-deck.race-instruments-live #padR [data-id="gas"]{position:relative}
+.control-deck.race-instruments-live #padR [data-id="gas"] .race-instrument-nos{position:absolute;top:-9px;left:50%;transform:translateX(-50%);z-index:3;min-width:52px;padding:2px 3px;border:1px solid #70eac0;border-radius:4px;background:rgba(3,10,22,.95);color:#fff;font:800 7px/1 var(--f-mono);white-space:nowrap;pointer-events:none}
+.control-deck.race-instruments-live #padR [data-id="gas"] .race-instrument-nos[data-phase="prepare"]{border-color:#f0cc72}
+.control-deck.race-instruments-live #padR [data-id="gas"] .race-instrument-nos[data-phase="danger"]{border-color:#ff7478}
+@media(max-width:480px){.race-special-rack{right:4px;bottom:calc(100% + 4px)}}
+@media(prefers-reduced-motion:reduce){.race-special-rack button{transition:none!important;animation:none!important}}
