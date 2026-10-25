@@ -62,7 +62,7 @@ const RACE_3D={ready:false,loading:false,failed:false,on:false,trackKey:'',camer
     for(const item of fx.smoke)item.mesh.visible=false;
     RACE_CINEMATIC_FX.step(this,rdt);
   },
-  init(){const T=THREE,canvas=document.createElement('canvas');canvas.id='race3';canvas.setAttribute('aria-hidden','true');$('.stage').insertBefore(canvas,cv);
+  init(){const T=THREE,canvas=document.createElement('canvas');canvas.id='race3';canvas.setAttribute('aria-hidden','true');canvas.addEventListener('webglcontextlost',event=>{event.preventDefault();this.fail(new Error('WebGL context lost'));});$('.stage').insertBefore(canvas,cv);
     const panel=document.createElement('div');panel.className='race-orbit-panel';panel.hidden=true;panel.innerHTML='<span>Direction A · 360° view</span><button type="button" aria-label="Skip vehicle view">Skip view</button>';panel.querySelector('button').addEventListener('click',()=>this.finishOrbit());$('.stage').appendChild(panel);this.orbitPanel=panel;
     const caption=document.createElement('div');caption.className='race-cutaway-caption';caption.hidden=true;caption.setAttribute('role','status');caption.setAttribute('aria-live','polite');$('.stage').appendChild(caption);this.cutawayCaption=caption;
     document.addEventListener('visibilitychange',()=>{if(document.hidden)this.finishOrbit();});
