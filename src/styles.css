@@ -2004,3 +2004,26 @@ html[data-kicklab-mode="race"] .stage .toast.race-award-toast{height:64px;grid-t
 html[data-kicklab-mode="race"] .stage .toast.race-award-toast .ic{width:52px;height:52px;border-radius:9px;background:radial-gradient(circle,#7790a055,#132538)}
 html[data-kicklab-mode="race"] .stage .toast.race-award-toast b{color:#f4d99b}
 html[data-kicklab-mode="race"] .stage .toast.race-award-toast span{font-size:12px;line-height:1.15}
+/* Only the collectible turns; the journey card and its type stay anchored. */
+.race-journey-art img{
+  --award-start:-4deg;--award-end:4deg;--award-cycle:6.6s;--award-offset:0s;
+  transform-origin:50% 58%;backface-visibility:hidden;
+  animation:raceCollectibleSway var(--award-cycle) ease-in-out var(--award-offset) infinite alternate;
+}
+.race-journey-card.available .race-journey-art img{--award-start:-7deg;--award-end:7deg;--award-cycle:6.2s}
+.race-journey-card.earned .race-journey-art img{--award-start:-5deg;--award-end:5deg;--award-cycle:7.2s}
+.race-journey-card.locked .race-journey-art img{--award-start:-2deg;--award-end:2deg;--award-cycle:8s}
+.race-journey-card:nth-child(2) .race-journey-art img{--award-offset:-1.15s}
+.race-journey-card:nth-child(3) .race-journey-art img{--award-offset:-2.7s}
+.race-journey-card:nth-child(4) .race-journey-art img{--award-offset:-.8s}
+.race-journey-card:nth-child(5) .race-journey-art img{--award-offset:-3.4s}
+.race-journey-card:nth-child(6) .race-journey-art img{--award-offset:-1.9s}
+@keyframes raceCollectibleSway{
+  from{transform:perspective(700px) rotateY(var(--award-start)) rotateX(1.5deg)}
+  to{transform:perspective(700px) rotateY(var(--award-end)) rotateX(-1.5deg)}
+}
+@media(hover:hover){.race-journey-card:hover .race-journey-art img{animation-play-state:paused}}
+.race-journey-card:focus-within .race-journey-art img{animation-play-state:paused}
+.toast.race-award-toast .ic img{animation:raceCollectibleSettle .7s cubic-bezier(.18,.72,.28,1) both}
+@keyframes raceCollectibleSettle{from{transform:perspective(320px) rotateY(-22deg) scale(.92);opacity:.7}to{transform:none;opacity:1}}
+@media(prefers-reduced-motion:reduce){.race-journey-art img,.toast.race-award-toast .ic img{animation:none!important;transform:none!important}}
