@@ -39,7 +39,7 @@ test('journey chains prerequisites, prevents duplicates and reads legacy flags',
   let state={};
   assert.deepEqual(Array.from(competition.journey(state),item=>item.status),['available','locked','locked','locked','locked','locked']);
   const early=competition.record(state,{category:'drag',passed:true,score:1100,at:1});
-  assert.equal(early.earned,null);assert.equal(early.state.bests.drag.score,1100);
+  assert.equal(early.earned.name,'Checkered Flag');assert.equal(early.state.bests.drag.score,1100);
   state=competition.record(early.state,{category:'core',passed:true,score:18.2,at:2}).state;
   assert.equal(competition.journey(state)[1].status,'available');
   const drag=competition.record(state,{category:'drag',passed:true,score:1050,at:3});
@@ -49,6 +49,28 @@ test('journey chains prerequisites, prevents duplicates and reads legacy flags',
   const legacy=competition.normalize({version:1,bests:{endurance:{score:2800}},awards:{endurance:true}});
   assert.equal(competition.journey(legacy).at(-1).status,'earned');
   assert.equal(competition.journey(legacy)[0].status,'available');
+});
+
+test('a visible Drag Sprint qualifies the opening chapter before Launch Ace',()=>{
+  const competition=context(local('?raceCompetition=prototype'));
+  const failed=competition.record({}, {category:'drag',passed:false,score:1100});
+  assert.equal(failed.earned,null);
+  assert.equal(competition.journey(failed.state)[0].status,'available');
+  const invalid=competition.record(failed.state,{category:'drag',passed:true,score:0});
+  assert.equal(invalid.earned,null);
+  const first=competition.record(invalid.state,{category:'drag',passed:true,score:1100,vehicle:'Kestrel',at:1});
+  assert.equal(first.earned.name,'Checkered Flag');
+  assert.equal(first.awardId,'core');
+  assert.equal(first.state.awards.drag,undefined);
+  assert.equal(first.state.bests.drag.score,1100);
+  assert.deepEqual(Array.from(competition.journey(first.state),item=>item.status),['earned','available','locked','locked','locked','locked']);
+  const second=competition.record(first.state,{category:'drag',passed:true,score:1050,at:2});
+  assert.equal(second.earned.name,'Launch Ace');
+  assert.equal(second.awardId,'drag');
+  assert.equal(competition.record(second.state,{category:'drag',passed:true,score:1200}).earned,null);
+  assert.equal(competition.journey(second.state)[2].status,'available');
+  assert.equal(competition.record({}, {category:'drift',passed:true,score:250}).earned,null);
+  assert.equal(competition.record({}, {category:'core',passed:true,score:18.2}).earned.name,'Checkered Flag');
 });
 
 test('device rankings use aliases, isolate profile records and share tied ranks',()=>{

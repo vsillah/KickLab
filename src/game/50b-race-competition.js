@@ -13,12 +13,11 @@ function raceCompetitionResult(event){
   const result=RACE_COMPETITION.record(best.raceCompetition,{...event,vehicle});
   best.raceCompetition=result.state;saveBest();
   try{const saved=JSON.parse(localStorage.getItem(profileManager.key));RACE_COMP_UI.storageWarning=JSON.stringify(saved.profiles.find(row=>row.id===profile.id)?.progress?.raceCompetition)!==JSON.stringify(result.state);}catch(_){RACE_COMP_UI.storageWarning=true;}
-  RACE_COMP_UI.last={profileId:profile.id,recId:rec?.id,category:event.category,score:event.score,vehicle,award:result.state.awards[event.category]?RACE_COMPETITION.AWARDS[event.category].name:'Race result'};
+  RACE_COMP_UI.last={profileId:profile.id,recId:rec?.id,category:event.category,score:event.score,vehicle,award:result.earned?.name||(result.state.awards[event.category]?RACE_COMPETITION.AWARDS[event.category].name:'Race result')};
   if(RACE_COMP_UI.storageWarning)toast('Race record is session-only','Device storage could not save this award. Clear space before leaving this page.');
   if(result.earned){
-    COACH.say(`${result.earned.name} earned. See your next chapter in Race awards.`,'hype',7);
-    const note=toast('Race collectible earned',result.earned.name,{hold:7000});
-    if(note){note.classList.add('race-award-toast');note.querySelector('.ic').replaceChildren(RACE_AWARD_IMAGES[event.category].cloneNode());}
+    const announce=()=>{if(profileManager.active().id!==profile.id)return;COACH.say(`${result.earned.name} earned. See your next chapter in Race awards.`,'hype',7);const note=toast('Race collectible earned',result.earned.name,{hold:7000});if(note){note.classList.add('race-award-toast');note.querySelector('.ic').replaceChildren(RACE_AWARD_IMAGES[result.awardId].cloneNode());}};
+    if(Race.state==='done')setTimeout(announce,0);else announce();
   }else if(!result.state.awards[event.category])COACH.say(`Run recorded. ${RACE_COMPETITION.journey(result.state).find(item=>item.id===event.category).progress}.`,'tip',6);
 }
 function raceCompetitionClear(){
