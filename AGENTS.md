@@ -8,4 +8,6 @@ Every expanded Race tools tile must show its current selection or live value fro
 
 Race controller labels and live readouts must stay legible at narrow widths. Keep every visible control, including the full D-pad and its text, inside its visual and touch target region with bottom safe-area clearance.
 
+Keep Race telemetry and tuning-variable selection in the cockpit or wrench Math detail. The floating controller may show contextual actions such as Shift or Lock band, but must not reserve an empty selector row or show unlabeled paging arrows.
+
 Race results must separate Coach guidance into one evidence-backed "What worked" observation and one specific "Next focus" observation, each in its own visual theme. The actionable card opens a deeper review with the same two themes, metrics, events, and plan. A visual replay preview must use bounded, local frames from the canonical 3D race presentation; when 3D frames are unavailable, offer a text Replay action without showing a schematic substitute.

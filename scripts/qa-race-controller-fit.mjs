@@ -35,20 +35,28 @@ for(const [width,height] of [[360,780],[390,844],[768,1024],[1440,900]]){
   if(width>480)await page.locator('#classicControlsButton').click();
   const measure=()=>page.evaluate(()=>{
    const rect=s=>document.querySelector(s)?.getBoundingClientRect().toJSON();
-   const ids=['#raceTelemetry','#raceTelemetryTitle','#raceTelemetryValue','#raceTraceControls','#raceTraceVariable','#raceTraceValue','#raceTraceBand','#raceTraceEquation','#raceTraceState','.control-left-slot','#padL','.dpad','.dpad .down','.control-deck .pad'];
-   return {...Object.fromEntries(ids.map(id=>[id,rect(id)])),readoutVisible:!!document.querySelector('.race-trace-readout')?.getClientRects().length,cueVisible:!!document.querySelector('#raceTelemetryCue')?.getClientRects().length,previousName:document.querySelector('#raceTracePrev')?.getAttribute('aria-label'),nextName:document.querySelector('#raceTraceNext')?.getAttribute('aria-label'),cockpitValue:document.querySelector('#raceNavigationStatus')?.textContent,overflow:document.documentElement.scrollWidth-innerWidth};
+   const ids=['#raceTelemetry','.control-center-slot','.control-left-slot','#padL','.dpad','.dpad .down','.control-deck .pad'];
+   return {...Object.fromEntries(ids.map(id=>[id,rect(id)])),stripPresent:!!document.querySelector('#raceTraceControls'),cueVisible:!!document.querySelector('#raceTelemetryCue')?.getClientRects().length,pagerVisible:['raceTelemetryPrev','raceTelemetryNext','raceTelemetryIndex'].some(id=>!!document.getElementById(id)?.getClientRects().length),cockpitValue:document.querySelector('#raceNavigationStatus')?.textContent,overflow:document.documentElement.scrollWidth-innerWidth};
   });
   const expanded=await measure();
-  if(expanded.readoutVisible||expanded.cueVisible||!expanded.previousName?.includes('Selected:')||!expanded.nextName?.includes('Selected:')||expanded.overflow>1)throw Error(`controller readout or semantics ${JSON.stringify(expanded)}`);
+  if(expanded.stripPresent||expanded.cueVisible||expanded.pagerVisible||expanded['.control-center-slot'].height>50||expanded['#raceTelemetry'].height>50||expanded.overflow>1)throw Error(`empty strip or contextless controller action ${JSON.stringify(expanded)}`);
   if(width<=480&&expanded['.dpad .down'].bottom>expanded['.control-left-slot'].bottom-6)throw Error(`D-pad lacks bottom clearance ${JSON.stringify(expanded)}`);
   await page.locator('.stage').screenshot({path:join(out,`${label}-classic-expanded.png`)});
   if(width===390)await page.waitForTimeout(900);
-  if(await page.locator('#raceTraceNext').isVisible()){
-   await page.locator('#raceTraceNext').click();
-   const selectedAfter=await page.locator('#raceTraceNext').getAttribute('aria-label');
-   if(selectedAfter===expanded.nextName||!selectedAfter?.includes('Selected:'))throw Error('physics variable selection lost its accessible current value');
-   if(await page.locator('#raceNavigation').isVisible()&&!selectedAfter.includes((await page.locator('#raceNavigationStatus').innerText()).trim()))throw Error('cockpit physics value is stale after selection');
-  }
+  await page.locator('#racePhoneToolsToggle').click();
+  await page.locator('#physicsDetailsHud').click();
+  const selector=page.locator('#raceTraceVariableSelect');
+  if(!await selector.isVisible()||!await selector.getAttribute('aria-describedby'))throw Error('wrench Math lacks labeled variable selection');
+  const gauge=page.locator('#raceTelemetryGaugeSelect');
+  if(!await gauge.isVisible()||!await gauge.getAttribute('aria-describedby'))throw Error('wrench Math lacks labeled telemetry selection');
+  await gauge.selectOption('torque');
+  if(await page.evaluate(()=>window.__KICKLAB_RACE_TELEMETRY__?.selected)!=='torque')throw Error('telemetry gauge did not follow wrench selection');
+  if(!await page.locator('#raceTelemetryGaugeReadout').isVisible()||!String(await page.locator('#raceTelemetryGaugeReadout').textContent()).includes('Throttle'))throw Error('wrench telemetry readout is missing');
+  await selector.selectOption('F');
+  if(!String(await page.locator('#raceTraceSelectedValue').textContent()).includes('engine force')||!String(await page.locator('#liveMathHudValues').textContent()).includes('Engine'))throw Error('wrench physics value did not follow canonical selection');
+  if(width===390)await page.waitForTimeout(900);
+  await page.locator('[data-close-detail="math"]').click();
+  if(await page.locator('#racePhoneToolsToggle').getAttribute('aria-expanded')==='true')await page.locator('#racePhoneToolsToggle').click();
   await page.locator('#controllerCollapseButton').evaluate(button=>button.click());
   const collapsed=await measure();
   if(await page.locator('.control-deck .pad').isVisible())throw Error('collapsed controller retains visible controls');
