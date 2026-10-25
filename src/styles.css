@@ -2177,7 +2177,7 @@ html[data-kicklab-mode="race"] #gameGuidanceHud #coach .coach-copy{padding-right
 .race-instrument[aria-disabled="true"]{opacity:.72}
 .race-instrument[hidden]{display:none!important}
 #gestureAction.race-instrument,#raceAnalogActions .race-instrument,#simGas.race-instrument,#simShiftUp.race-instrument,#simNos.race-instrument,#simHandbrake.race-instrument{position:relative}
-#gestureAction.race-instrument #gesturePowerValue{visibility:hidden}
+#gestureAction.race-instrument #gesturePowerValue,#gestureAction.race-instrument #gestureSpinValue{visibility:hidden}
 #gestureAction .race-instrument-nos,#simGas .race-instrument-nos{position:absolute;z-index:3;left:2px;bottom:2px;padding:2px;border:1px solid #70eac0;border-radius:4px;background:rgba(3,10,22,.94);color:#fff;font:700 6px/1 var(--f-mono);pointer-events:none}
 #gestureAction .race-instrument-nos[data-phase="prepare"],#simGas .race-instrument-nos[data-phase="prepare"]{border-color:#f0cc72}#gestureAction .race-instrument-nos[data-phase="danger"],#simGas .race-instrument-nos[data-phase="danger"]{border-color:#ff7478}
 #gestureAction.race-instrument .race-instrument-face,#raceAnalogActions .race-instrument .race-instrument-face,#simGas.race-instrument .race-instrument-face,#simShiftUp.race-instrument .race-instrument-face,#simNos.race-instrument .race-instrument-face,#simHandbrake.race-instrument .race-instrument-face{inset:auto 2px 2px auto;min-width:39px;border-radius:4px;background:rgba(3,10,22,.92);padding:2px}
