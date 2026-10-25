@@ -65,7 +65,12 @@ const RACE_3D={ready:false,loading:false,failed:false,on:false,trackKey:'',camer
       if(presentation.body)presentation.body.position.y=presentation.bodyRestY-presentation.energy*(reduce?.018:.045);
       globalThis.__KICKLAB_RACE_SPIN__={energy:presentation.energy,whip:presentation.whip,countersteer:presentation.countersteer,compression:presentation.body?presentation.bodyRestY-presentation.body.position.y:0,reducedMotion:!!reduce};
     }
-    this.car.position.y=.025+(reduce?0:(boost?-.07:t.torque>.55?-.035:braking?.055:0));this.car.rotation.z=(reduce?0:braking?-.018:boost?.022:0)+(reduce?0:(presentation?.energy||0)*.022);this.car.rotation.x=heatMotion*Math.sin(s.t*38)*.005+(reduce?0:-Math.sign(s.slipAngle||0)*(presentation?.energy||0)*.055);
+    const transfer=drive&&!reduce?this.cinematicFx?.loadTransfer||0:0,pitch=transfer*(s.launchSlip>.08?.09:.055),driftEnergy=drive&&!reduce?this.cinematicFx?.driftEnergy||0:0,driftYaw=clamp(((s.slipAngle||0)*.9+(s.yawRate||0)*.12)*driftEnergy,-.18,.18);
+    this.car.position.y=.025+pitch*1.28+(reduce?0:braking?.055:0)-transfer*.008;
+    this.car.rotation.z=(reduce?0:braking?-.018:0)+pitch+(reduce?0:(presentation?.energy||0)*.022);
+    this.car.rotation.x=heatMotion*Math.sin(s.t*38)*.005+(reduce?0:-Math.sign(s.slipAngle||0)*(presentation?.energy||0)*.055)-Math.sign(s.slipAngle||0)*driftEnergy*.025;
+    this.car.rotation.y=-s.th-Race.spin-driftYaw;if(this.contactShadow)this.contactShadow.rotation.y=this.car.rotation.y;
+    globalThis.__KICKLAB_RACE_LOAD_DRIFT__={transfer,pitch,rearContactHeight:this.car.position.y-pitch*1.28,driftEnergy,driftYaw,handbrakeCommitted:!!s.handbrakeCommitted,reducedMotion:!!reduce};
     fx.exhaust.forEach(mesh=>{mesh.material.opacity=0;mesh.visible=false;});fx.streaks.forEach(line=>{line.material.opacity=boost&&!reduce?.3:0;});fx.shimmer.forEach((line,index)=>{line.visible=drive&&t.heat>.58&&!reduce;line.material.opacity=line.visible?Math.min(.16,(t.heat-.58)*.35):0;line.scale.y=1+Math.sin(s.t*19+index*2)*.1;});
     for(const mesh of fx.brakes)mesh.material.opacity=braking?mesh.userData.brakeOpacity*Math.min(1,t.braking/.55):0;
     for(const mesh of fx.brakeHalos)mesh.material.opacity=braking&&!reduce?mesh.userData.brakeOpacity*Math.min(1,t.braking/.55):0;
