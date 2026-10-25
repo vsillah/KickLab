@@ -17,6 +17,7 @@ try{
     const context=await browser.newContext({viewport:{width,height},deviceScaleFactor:1});
     const page=await context.newPage();
     page.on('pageerror',error=>errors.push(`${viewport}/${venue}: ${error.message}`));
+    page.on('console',message=>{if(message.type()==='error')errors.push(`${viewport}/${venue}: ${message.text()}`);});
     await page.route('**/*',async route=>{const url=new URL(route.request().url());if(url.origin==='http://127.0.0.1:4173'&&url.pathname==='/kicklab.html'){
       const response=await route.fetch();let html=await response.text();const end=html.lastIndexOf('</script>');
       const close=html.lastIndexOf('})();',end);
