@@ -54,6 +54,7 @@ function simSelect(on){
   else{RACE_SIMULATOR.active=false;floatingControlDeck.classList.remove('simulator-active');simPanel.hidden=true;simButton.setAttribute('aria-pressed','false');classicControlsButton.setAttribute('aria-pressed','true');}
   simPaint();
   renderRaceTelemetry();
+  renderRaceToolTruth();
 }
 function simOrientation(event){
   if(!simAllowed()||!RACE_SIMULATOR.active)return;

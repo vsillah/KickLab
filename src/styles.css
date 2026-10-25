@@ -1966,3 +1966,19 @@ html[data-kicklab-mode="race"] .stage>.floating-control-head{z-index:40}
  html[data-kicklab-mode="race"] #gameGuidanceHud #controlStyleOptions{grid-column:1/-1;justify-self:center;grid-template-columns:repeat(2,44px);gap:8px;min-width:0;padding:5px 8px;border:1px solid rgba(153,202,228,.44);border-radius:13px;background:rgba(30,69,96,.7)}
  html[data-kicklab-mode="race"] #gameGuidanceHud #controlStyleOptions:has(#simulatorControlsButton:not([hidden])){grid-template-columns:repeat(3,44px)}
 }
+/* Expanded Race tools show the selected value from each canonical game state. */
+html[data-kicklab-mode="race"] .stage>.floating-control-head .race-control-style-current{display:none}
+html[data-kicklab-mode="race"] #gameGuidanceHud>.race-setup-tool-shortcuts:not([hidden]){grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+html[data-kicklab-mode="race"] #gameGuidanceHud>.race-setup-tool-shortcuts button{min-width:0;min-height:66px;display:flex;align-items:center;gap:7px;padding:7px;border:1px solid rgba(153,202,228,.54);border-radius:12px;background:rgba(30,69,96,.78);color:#fff;cursor:pointer}
+html[data-kicklab-mode="race"] #gameGuidanceHud>.race-setup-tool-shortcuts button[hidden]{display:none}
+html[data-kicklab-mode="race"] #gameGuidanceHud>.race-setup-tool-shortcuts button:disabled{opacity:.7;cursor:not-allowed}
+html[data-kicklab-mode="race"] #gameGuidanceHud>.race-setup-tool-shortcuts button[aria-pressed="true"]{border-color:#a8f1ef;background:#246274}
+html[data-kicklab-mode="race"] #gameGuidanceHud>.race-setup-tool-shortcuts button>span:first-child{flex:none;font-size:19px}
+html[data-kicklab-mode="race"] #gameGuidanceHud>.race-setup-tool-shortcuts button>span:last-child{display:grid;gap:3px;min-width:0;text-align:left}
+html[data-kicklab-mode="race"] #gameGuidanceHud>.race-setup-tool-shortcuts button b{font:800 10px/1.1 var(--f-body)}
+html[data-kicklab-mode="race"] #gameGuidanceHud>.race-setup-tool-shortcuts button small{font:700 9px/1.15 var(--f-body);white-space:normal;overflow-wrap:anywhere}
+html[data-kicklab-mode="race"] #gameGuidanceHud #controlStyleOptions{grid-template-rows:44px auto}
+html[data-kicklab-mode="race"] #gameGuidanceHud .race-control-style-current:not([hidden]){grid-column:1/-1;display:block;padding:2px 0;color:#e9faff;font:800 10px/1.2 var(--f-body);text-align:center}
+html[data-kicklab-mode="race"] #gameGuidanceHud .orientation-summary small{display:block;max-width:100%;font:700 9px/1.15 var(--f-body);white-space:normal;overflow-wrap:anywhere}
+html[data-kicklab-mode="race"] #gameGuidanceHud .race-tool-coach-value:not([hidden]){display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;color:#fff;font:700 9px/1.2 var(--f-body);white-space:normal;overflow-wrap:anywhere}
+html[data-kicklab-mode="race"] #gameGuidanceHud :is(#historyTitle,#liveMathHudValues span,#hudProfileName,.hud-summary-cue){max-width:100%;white-space:normal;overflow-wrap:anywhere}

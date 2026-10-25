@@ -38,6 +38,7 @@ function setPrototypeControls(on){
   touchController.hidden=!ANALOG_CONTROL.enabled;$('.control-deck').classList.toggle('prototype-active',ANALOG_CONTROL.enabled);
   if(!ANALOG_CONTROL.enabled){cancelAnalog('Classic controls restored');cancelGesture('Classic controls restored');}
   else{$('#gesturePowerStatus').textContent='Ready · release timing sets power';renderAnalogControls();}
+  if(typeof renderRaceToolTruth==='function')renderRaceToolTruth();
   requestAnimationFrame(resize);
 }
 

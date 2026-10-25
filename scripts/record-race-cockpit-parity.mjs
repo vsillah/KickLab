@@ -28,11 +28,20 @@ for(const [name,base,width,height] of scenarios){
    await page.locator('.stage').scrollIntoViewIfNeeded();await page.waitForTimeout(1200);
   }else{
    await page.locator('.stage').scrollIntoViewIfNeeded();await page.waitForTimeout(700);
-   if(width>480){await page.click('#racePhoneToolsToggle');await page.waitForTimeout(950);await page.click('#racePhoneToolsToggle');await page.click('#analogControlsButton');await page.waitForTimeout(600);await page.click('#classicControlsButton');await page.waitForTimeout(450);}
-   await page.click('#racePhoneProgress');await page.waitForTimeout(1100);await page.click('[data-close-detail="orientation"]');
+   await page.click('#racePhoneToolsToggle');await page.waitForTimeout(1400);
+   await page.click('#analogControlsButton');await page.waitForTimeout(800);
+   await page.click('#simulatorControlsButton');await page.waitForTimeout(800);
+   await page.click('#classicControlsButton');await page.waitForTimeout(700);
+   await page.click('#raceToolsGarage');await page.locator('#settingsDrawer').waitFor({state:'visible'});
+   const tireSection=page.locator('#raceGarage [data-garage-section="tires"]');if(await tireSection.getAttribute('aria-expanded')!=='true')await tireSection.click();
+   await page.locator('#raceGarage [data-garage-part="tires"]:not([aria-pressed="true"]):not(:disabled)').first().click();
+   await page.locator('#raceGarage [data-race-mode]:not([aria-pressed="true"]):not(:disabled)').first().click();
+   await page.waitForTimeout(700);await page.click('#settingsClose');await page.waitForTimeout(1250);
+   await page.click('#racePhoneToolsToggle');await page.waitForTimeout(300);await page.click('#racePhoneToolsToggle');await page.waitForTimeout(800);
+   await page.click('#orientationDetailToggle');await page.waitForTimeout(900);await page.click('[data-close-detail="orientation"]');
+   await page.click('#racePhoneToolsToggle');
    await page.click('#raceCoachSetupStart');await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.dynamics?.state==='run',null,{timeout:25000});await page.waitForTimeout(900);
    await page.click('#racePhoneToolsToggle');await page.waitForTimeout(1200);await page.click('#racePhoneToolsToggle');
-   if(width>480){await page.click('#analogControlsButton');await page.waitForTimeout(650);await page.click('#classicControlsButton');}
    await page.waitForTimeout(1000);
   }
   const path=await page.video().path();await context.close();report.clips.push({name,width,height,url:url.toString(),source:path});
