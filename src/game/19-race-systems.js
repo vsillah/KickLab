@@ -59,7 +59,7 @@ const RACE_SYSTEMS=(()=>{
     if(!committed&&!s.axleActive){s.slipAngle=(s.slipAngle||0)+(slipGoal-(s.slipAngle||0))*Math.min(1,h*(mode==='skid'?2.5:4.5*(P.recovery??1)));s.latV=s.v*Math.sin(s.slipAngle);}
     const slope=P.progressionGrade?globalThis.KickLabRaceProgression.grade(v,s.x)*Math.cos(s.th):0;
     const drag=(P.F/P.m)/(P.top*P.top)*(P.rolling??1),accel=longitudinal-drag*s.v*s.v-g*slope/Math.sqrt(1+slope*slope);
-    s.longitudinalAccel=accel;s.deliveredBoostAccel=boost;s.handbrakeCommitted=!!input.handbrake;
+    s.longitudinalAccel=accel;s.deliveredBoostAccel=boost;s.handbrakeCommitted=committed;
     s.v=Math.max(0,s.v+accel*h);
     if(committed&&!s.axleActive){s.yawRate=s.v*yawCurvature;s.latV=0;s.slipAngle=0;s.axleActive=true;}
     const forces=s.axleActive?axleStep(s,P,{steer,mu,wheel,handbrake:committed,h,baselineYaw:s.v*yawCurvature}):null;

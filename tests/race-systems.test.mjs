@@ -57,11 +57,13 @@ test('handbrake changes axle grip and yaw only with enough speed and steering',(
   const run=(extra,input)=>drive(state({x:0,...extra}),{gas:.3,brake:0,wheel:42,drift:false,...input},.48);
   const free=run({},{}),held=run({},{handbrake:true});
   assert.ok(held.rearGrip<.5&&free.rearGrip===1);
+  assert.equal(held.handbrakeCommitted,true);assert.equal(free.handbrakeCommitted,false);
   assert.ok(held.yawRate>free.yawRate+.05);
   assert.ok(held.slipAngle>.08);
   for(const [extra,input] of [[{v:6},{wheel:42}],[{}, {wheel:0}],[{}, {brake:.5}]]){
     const off=run(extra,input),on=run(extra,{...input,handbrake:true});
     assert.equal(on.th,off.th);assert.equal(on.slipAngle,off.slipAngle);assert.equal(on.yawRate,off.yawRate);
+    assert.equal(on.handbrakeCommitted,false);assert.equal(on.axleActive,false);assert.equal(on.rearGrip,1);
   }
 });
 
