@@ -501,6 +501,39 @@ html[data-race-competition="prototype"] .stage .results:not(.mini) .racts{flex-w
 @keyframes miniOut{to{opacity:0;transform:translateY(-8px)}}
 @media (max-width:640px){.rnext{font-size:14px;padding:7px 12px}.rnext kbd{display:none}.rgo{margin-top:4px}.stage .results{top:34px}.stage .results.mini{top:30px}.rlvl{font-size:12px;margin-bottom:2px}.rlvl small{display:none}}
 .racts button{border-color:var(--tone);color:var(--tone);font-family:var(--f-display);font-size:13px;padding:6px 10px}
+/* Race owns one scrollable result surface at every viewport. */
+.stage .results.race-summary{position:fixed;inset:0;z-index:90;box-sizing:border-box;display:grid;place-items:center;overflow:auto;padding:12px max(12px,env(safe-area-inset-right)) 12px max(12px,env(safe-area-inset-left));background:rgba(3,9,20,.84);pointer-events:auto}
+.stage .results.race-summary[hidden]{display:none!important}
+html:has(.results.race-summary:not([hidden])) .game-context-header{visibility:hidden}
+.results.race-summary .rc{box-sizing:border-box;cursor:default;width:min(720px,100%);max-height:calc(100svh - 24px);overflow:auto;align-items:start;grid-template-columns:64px minmax(0,1fr);gap:12px;padding:clamp(14px,3vw,26px);border:1px solid color-mix(in srgb,var(--tone) 70%,#fff 30%);background:radial-gradient(circle at 90% 0%,rgba(77,153,171,.22),transparent 38%),linear-gradient(150deg,#101f35,#071321 72%);box-shadow:0 24px 80px #000b}
+.results.race-summary .grade{font-size:60px;position:sticky;top:0}
+.results.race-summary .rmain{gap:10px}
+.results.race-summary .rtitle{font-size:clamp(22px,4vw,34px);line-height:1}
+.race-result-coach{padding:12px 14px;border-left:3px solid #7fdcff;border-radius:0 10px 10px 0;background:linear-gradient(90deg,rgba(49,117,145,.32),rgba(29,64,89,.14))}
+.race-result-coach[hidden],.race-result-awards[hidden]{display:none!important}
+.race-result-coach span,.race-result-award span,.race-result-badge span{font:800 10px var(--f-mono);letter-spacing:.1em;color:#9be5f2}
+.race-result-coach p{margin:5px 0 0;color:#f3fbff;font:600 clamp(14px,2vw,17px)/1.4 var(--f-body);overflow-wrap:anywhere}
+.results.race-summary .rsub,.results.race-summary .rhint{display:block;color:#c9dce5;font-size:13px;text-align:left}
+.results.race-summary .rrows{display:grid}
+.results.race-summary .rtotal{border-top:1px solid #466477;padding-top:10px}
+.results.race-summary .rtotal b{font-size:27px}
+.race-result-awards{display:grid;gap:8px}
+.race-result-award,.race-result-badge{display:grid;grid-template-columns:80px minmax(0,1fr);align-items:center;gap:12px;min-width:0;padding:8px;border:1px solid #d9b975;border-radius:12px;background:radial-gradient(circle at 12% 30%,rgba(245,213,133,.18),transparent 45%),#162438}
+.race-result-award img{display:block;width:80px;height:80px;object-fit:contain}
+.race-result-award b,.race-result-badge b{display:block;color:#fff4d2;font:400 clamp(19px,3vw,26px) var(--f-display);overflow-wrap:anywhere}
+.race-result-award small{display:block;color:#cbd7da;font:600 11px var(--f-body)}
+.race-result-badge{grid-template-columns:48px minmax(0,1fr);border-color:#6ca7b7}
+.race-result-badge img{display:block;width:48px;height:48px;object-fit:contain}
+.results.race-summary .rgo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.results.race-summary .racts{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px}
+.results.race-summary .racts[hidden]{display:none}
+.results.race-summary .rgo button{box-sizing:border-box;min-width:0;min-height:44px;white-space:normal;line-height:1.2;padding:8px 12px;border-radius:9px;font:700 12px var(--f-body);cursor:pointer}
+.results.race-summary .rgo button[hidden]{display:none!important}
+.results.race-summary #rNext{grid-column:1/-1;width:100%;margin:0;font-size:15px;animation:none}
+.results.race-summary #rRaceGarage,.results.race-summary #rRaceNext{border:1px solid #82cbd7;background:#183a51;color:#fff}
+.results.race-summary #rRaceRecord{border-color:#a7d6ba;color:#d7f5df}
+.results.race-summary .rboard{max-height:120px;overflow:auto}
+@media(max-width:640px){.stage .results.race-summary{top:0;padding:8px}.results.race-summary .rc{grid-template-columns:1fr;gap:5px;max-height:calc(100svh - 16px);padding:14px}.results.race-summary .grade{position:static;text-align:left;font-size:42px}.results.race-summary .grade small{display:inline;margin-left:8px}.results.race-summary .racts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}.race-result-award,.race-result-badge{grid-template-columns:64px minmax(0,1fr)}.race-result-award img{width:64px;height:64px}}
 /* coach review */
 .rv-back{position:fixed;inset:0;z-index:1000;background:rgba(3,6,14,.78);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);display:grid;place-items:center;padding:16px}
 .rv-back[hidden]{display:none}

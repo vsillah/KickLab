@@ -17,12 +17,9 @@ function raceCompetitionResult(event){
   const result=RACE_COMPETITION.record(best.raceCompetition,{...event,vehicle});
   best.raceCompetition=result.state;saveBest();
   try{const saved=JSON.parse(localStorage.getItem(profileManager.key));RACE_COMP_UI.storageWarning=JSON.stringify(saved.profiles.find(row=>row.id===profile.id)?.progress?.raceCompetition)!==JSON.stringify(result.state);}catch(_){RACE_COMP_UI.storageWarning=true;}
-  RACE_COMP_UI.last={profileId:profile.id,recId:rec?.id,category:event.category,score:event.score,vehicle,award:result.earned?.name||(result.state.awards[event.category]?RACE_COMPETITION.AWARDS[event.category].name:'Race result')};
+  RACE_COMP_UI.last={profileId:profile.id,recId:rec?.id,category:event.category,score:event.score,vehicle,award:result.earned?.name||(result.state.awards[event.category]?RACE_COMPETITION.AWARDS[event.category].name:'Race result'),earned:result.earned?{id:result.awardId,name:result.earned.name}:null};
   if(RACE_COMP_UI.storageWarning)toast('Race record is session-only','Device storage could not save this award. Clear space before leaving this page.');
-  if(result.earned){
-    const announce=()=>{if(profileManager.active().id!==profile.id)return;COACH.say(`${result.earned.name} earned. See your next chapter in Race awards.`,'hype',7);const note=toast('Race collectible earned',result.earned.name,{hold:7000});if(note){note.classList.add('race-award-toast');note.querySelector('.ic').replaceChildren(RACE_AWARD_IMAGES[result.awardId].cloneNode());if(note.classList.contains('race-phone-notice')){note.classList.remove('race-phone-notice');note.style.cssText='position:absolute;z-index:28;top:calc(max(6px,env(safe-area-inset-top)) + 52px);left:max(6px,env(safe-area-inset-left));width:min(270px,calc(100% - 70px))';const stage=$('.stage'),results=$('#results');stage.append(note);syncRacePhoneNoticeSlot();const place=()=>{if(results.hidden||results.classList.contains('mini')||!note.isConnected)return;const panel=results.querySelector('.rc')?.getBoundingClientRect();if(panel){note.style.top=`${Math.ceil(parseFloat(getComputedStyle(note).top)||0)+Math.ceil(panel.bottom+10-note.getBoundingClientRect().top)}px`;note.style.zIndex='36';}};const observer=new MutationObserver(()=>{place();setTimeout(place,400);});observer.observe(results,{attributes:true,attributeFilter:['hidden','class']});place();setTimeout(()=>observer.disconnect(),4600);}}};
-    if(Race.state==='done')setTimeout(announce,0);else announce();
-  }else if(!result.state.awards[event.category])COACH.say(`Run recorded. ${RACE_COMPETITION.journey(result.state).find(item=>item.id===event.category).progress}.`,'tip',6);
+  // The result surface owns award and progress announcements for this run.
 }
 function raceCompetitionClear(){
   RACE_COMP_UI.last=null;
@@ -93,4 +90,7 @@ if(RACE_COMPETITION_ON&&(location.hostname==='localhost'||location.hostname==='1
   openJourney:()=>openBoard(),
   openProfile:()=>openProfiles(),
   state:()=>({profileId:profileManager.active().id,journey:RACE_COMPETITION.journey(best.raceCompetition),storageWarning:RACE_COMP_UI.storageWarning})
+});
+if(['localhost','127.0.0.1'].includes(location.hostname)&&new URLSearchParams(location.search).get('raceResultsQA')==='1')globalThis.__KICKLAB_RACE_RESULTS_QA__=Object.freeze({
+  fixture(state){if(M!==Race)return false;Race.state=state==='failed'?'crashed':'done';Race.resultBadges=state==='success-new-award'?['Checkered Flag']:[];Race.progressionReviewNote=state==='failed'?'Brake before the corner. Match the wheel angle, then retry.':'Controlled line. Keep your entry speed steady on the next run.';raceCompetitionResult({category:'core',passed:state!=='failed',score:18.24});showResults({grade:state==='failed'?'D':'A',rows:[['run recorded',state==='failed'?20:300]],mult:1,tot:state==='failed'?20:300,title:state==='failed'?'OFF THE TRACK':'RACE COMPLETE',sub:state==='failed'?'Slid wide at the corner':'18.24 s · clean line',hint:'This profile · device only'});return{awards:RACE_COMPETITION.normalize(best.raceCompetition).awards,profileId:profileManager.active().id};}
 });

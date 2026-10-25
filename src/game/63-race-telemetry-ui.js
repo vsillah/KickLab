@@ -38,7 +38,7 @@ function renderRaceTelemetry(){
   const active=RACE_TELEMETRY.enabled&&M===Race&&!!Race.telemetry;
   const coachActive=Race.progressionActive()||Race.expansionActive();
   const setupPreview=active&&coachActive&&Race.state==='grid'&&(!RACE_3D.on||RACE_3D.orbit.done);
-  const resultReview=active&&coachActive&&!!Race.progressionComparison&&['done','crashed'].includes(Race.state);
+  const resultReview=false; // The primary Race summary owns the completed-run lifecycle.
   const stageStart=$('#raceStageStart'),simulatorStart=setupPreview&&typeof RACE_SIMULATOR!=='undefined'&&RACE_SIMULATOR.active;
   stageStart.hidden=!setupPreview||PAUSE.on||$('#racePhoneToolsToggle').getAttribute('aria-expanded')==='true'||$('.stage').classList.contains('has-game-overlay');
   $('#raceCoachSetupStart').hidden=!setupPreview||simulatorStart;
