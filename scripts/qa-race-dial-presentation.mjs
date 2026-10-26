@@ -36,6 +36,8 @@ try{
    const live=await snapshot();await page.screenshot({path:join(out,`go-${width}.png`)});
    const overlaps=(a,b)=>a&&b&&a.x<b.x+b.width&&a.x+a.width>b.x&&a.y<b.y+b.height&&a.y+a.height>b.y;
    check(`GO dial has distinct touch targets ${width}`,live.active&&live.dial?.width>0&&!overlaps(live.gas,live.previous)&&!overlaps(live.gas,live.next)&&!overlaps(live.gas,live.action)&&!overlaps(live.dial,live.brake),live);
+   const visual=await page.evaluate(()=>{const dial=document.querySelector('#raceActionDial'),outline=dial.querySelector('.race-dial-outline'),needle=dial.querySelector('.race-dial-pointer line'),hub=dial.querySelector('.race-dial-needle-hub');return{outlineLength:outline.getAttribute('d')?.length,outlineCount:dial.querySelectorAll('.race-dial-outline').length,satelliteBorder:getComputedStyle(dial.querySelector('.race-dial-cycle')).borderTopWidth,extraRing:getComputedStyle(dial,'::after').display,needleWidth:getComputedStyle(needle).strokeWidth,needleColor:getComputedStyle(needle).stroke,hubRadius:hub.getAttribute('r'),miniOutlines:[...document.querySelectorAll('.race-mini-dial .race-dial-outline')].map(path=>path.getAttribute('d')?.length)};});
+   check(`one faceplate and warm needle ${width}`,visual.outlineLength>1000&&visual.outlineCount===1&&visual.satelliteBorder==='0px'&&visual.extraRing==='none'&&Number.parseFloat(visual.needleWidth)>=6&&Number(visual.hubRadius)>=5&&visual.miniOutlines.every(length=>length>1000),visual);
   }finally{await context.close();}
  }
 }catch(error){report.errors.push(error.stack||String(error));}

@@ -3,6 +3,12 @@ const RACE_INSTRUMENTS=(()=>{
   const deck=$('.control-deck'),pad=$('#padR'),dial=$('#raceActionDial'),gas=$('#raceDialGas'),action=$('#raceDialAction');
   const previous=$('#raceDialPrevious'),next=$('#raceDialNext');
   const clamp=value=>Math.min(1,Math.max(0,value));
+  const faceCircles=[[66,66,60],[22,27,22],[22,105,22],[110,66,22]];
+  const outline=Array.from({length:360},(_,degree)=>{const theta=degree*Math.PI/180,ux=Math.cos(theta),uy=Math.sin(theta);let radius=60;for(const [cx,cy,r] of faceCircles.slice(1)){const x=cx-66,y=cy-66,projection=x*ux+y*uy,discriminant=projection*projection-(x*x+y*y-r*r);if(discriminant>=0)radius=Math.max(radius,projection+Math.sqrt(discriminant));}return`${degree?'L':'M'}${(66+radius*ux).toFixed(2)} ${(66+radius*uy).toFixed(2)}`;}).join(' ')+' Z';
+  document.querySelectorAll('.race-dial-outline').forEach(path=>path.setAttribute('d',outline));
+  const arcPoint=fraction=>{const angle=(-20+fraction*70)*Math.PI/180;return`${(60+49*Math.sin(angle)).toFixed(2)} ${(60-49*Math.cos(angle)).toFixed(2)}`;};
+  function paintBands(svg,target,key){if(svg.dataset.bandKey===key)return;svg.dataset.bandKey=key;for(const [className,from,to] of [['low',0,target[0]],['opt',target[0],target[1]],['red',target[1],1]])svg.querySelector(`.race-dial-band-${className}`).setAttribute('d',`M ${arcPoint(from)} A 49 49 0 0 1 ${arcPoint(to)}`);}
+  document.querySelectorAll('.race-mini-gauge').forEach(svg=>paintBands(svg,[.55,.78],'preview'));
   let gasPointer=null,gasKeyboard=false,trim=null,trimTimer=null,brakePointer=null,brakeArmed=false,brakeTimer=null,brakeExpiry=null;
   let actionPointer=null,actionTimer=null,actionHeld=false,selected=null,selectionContext='',gaugeLock=null;
   const style=()=>RACE_SIMULATOR.active?'simulator':ANALOG_CONTROL.enabled?'analog':'classic';
@@ -48,7 +54,7 @@ const RACE_INSTRUMENTS=(()=>{
     const setupPreview=$('#raceSetupInstrument');setupPreview.hidden=!(M===Race&&Race.state==='grid'&&deck.classList.contains('race-setup-preview'));$('#raceStageInstrument').hidden=setupPreview.hidden;
     if(!setupPreview.hidden){const drift=Race.mode().id==='drift',label=`Race action dial preview for ${Race.mode().name}. ${drift?'Handbrake':'Shift'} and NOS become available during the heat. Driving controls activate after the green light.`;$('#raceSetupInstrumentAction').textContent=drift?'↶':'⇧';$('#raceStageInstrumentAction').textContent=drift?'↶':'⇧';$('#raceSetupInstrumentHint').textContent=drift?'Handbrake and NOS appear when ready':'Shift and NOS appear when ready';setupPreview.setAttribute('aria-label',label);$('#raceStageInstrument').setAttribute('aria-label',label);}
     if(!present){cancel();dial.hidden=true;return;}
-    if(preview){cancel();place();dial.hidden=false;dial.dataset.preview='true';dial.dataset.selected='';dial.dataset.available='';dial.dataset.actionPhase='build';dial.dataset.trim='off';dial.dataset.brakeArmed='false';dial.style.setProperty('--needle-angle','-120deg');$('#raceDialMetric').textContent='LIGHTS · WAIT';$('#raceDialThrottle').textContent='0%';$('#raceDialHold').textContent='WAIT';action.hidden=false;$('#raceDialActionIcon').textContent=Race.mode().id==='drift'?'↶':'⇧';$('#raceDialActionName').textContent=Race.mode().id==='drift'?'DRIFT':'SHIFT';previous.hidden=next.hidden=false;for(const button of [gas,action,previous,next]){button.disabled=true;button.setAttribute('aria-disabled','true');}dial.setAttribute('aria-label','Race action dial preview. Controls activate after the green light.');return;}
+    if(preview){cancel();place();dial.hidden=false;dial.dataset.preview='true';dial.dataset.selected='';dial.dataset.available='';dial.dataset.actionPhase='build';dial.dataset.trim='off';dial.dataset.brakeArmed='false';paintBands(dial.querySelector('.race-dial-gauge'),[.55,.78],'preview');dial.style.setProperty('--needle-angle','-2.5deg');$('#raceDialMetric').textContent='LIGHTS · WAIT';$('#raceDialThrottle').textContent='0%';$('#raceDialHold').textContent='WAIT';action.hidden=false;$('#raceDialActionIcon').textContent=Race.mode().id==='drift'?'↶':'⇧';$('#raceDialActionName').textContent=Race.mode().id==='drift'?'DRIFT':'SHIFT';previous.hidden=next.hidden=false;for(const button of [gas,action,previous,next]){button.disabled=true;button.setAttribute('aria-disabled','true');}dial.setAttribute('aria-label','Race action dial preview. Controls activate after the green light.');return;}
     dial.dataset.preview='false';dial.setAttribute('aria-label','Race action dial');for(const button of [gas,action,previous,next]){button.disabled=false;button.removeAttribute('aria-disabled');}
     place();dial.hidden=false;if(trim&&(!trimEligible()||performance.now()>=trim.until))dropTrim();
     const list=choices(),context=`${Race.mode().id}:${finishApproach()?'finish':'drive'}`;
@@ -57,7 +63,8 @@ const RACE_INSTRUMENTS=(()=>{
     dial.dataset.selected=current?.id||'';dial.dataset.available=list.map(item=>item.id).join(',');dial.dataset.gauge=g.kind;dial.dataset.gaugeState=g.state;
     const band=Race.modeAttempt?.gear&&RACE_MODES.shiftTarget(Race.modeAttempt.gear),ratio=Race.st.v/Math.max(1,Race.P().top);
     dial.dataset.actionPhase=current?.id==='shift'?(Race.modeAttempt.shiftCooldown>0||ratio<band-.1?'build':ratio<=band+.07?'act':'danger'):current?.id==='nos'?'act':current?'act':'build';
-    dial.style.setProperty('--needle-angle',`${-120+g.fraction*240}deg`);
+    const target=RACE_TELEMETRY.GAUGES.find(item=>item.id===g.kind)?.target||[.55,.78];paintBands(dial.querySelector('.race-dial-gauge'),target,g.kind);
+    dial.style.setProperty('--needle-angle',`${-20+g.fraction*70}deg`);
     dial.querySelector('.race-dial-gauge').setAttribute('aria-label',`${g.kind==='rpm'?'Engine RPM':g.kind==='nos'?'NOS pressure':'Drift slip angle'} ${g.value}, ${g.state}${g.kind==='nos'?`, heat ${Math.round(Race.telemetry.heat*100)} percent, tank ${Math.round(Race.telemetry.capacity*100)} percent`:''}`);
     $('#raceDialMetric').textContent=`${g.value} ${g.state}`;$('#raceDialThrottle').textContent=`${amount}%`;
     $('#raceDialHold').textContent=trim?`${Math.max(1,Math.ceil((trim.until-performance.now())/1000))}s HOLD`:brakeArmed?'BRK ARM':'LIVE';
