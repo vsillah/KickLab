@@ -2228,6 +2228,13 @@ html[data-kicklab-mode="race"] #gameGuidanceHud #coach .coach-copy{padding-right
 .race-action-dial .race-dial-cycle{left:0;width:44px;height:44px;font-size:22px}
 .race-action-dial .race-dial-previous{top:5px}.race-action-dial .race-dial-next{bottom:5px}
 .race-action-dial .race-dial-metric{left:39px;right:39px;bottom:17px;font-size:7px;line-height:1.1}
+.race-dial-metric{display:flex;align-items:center;justify-content:center;gap:3px}.race-dial-metric span:first-child{font-size:13px;line-height:1}
+.race-action-dial .race-dial-action #raceDialActionIcon{font-size:23px;line-height:1}
+.race-control-ghost{position:absolute;z-index:4;right:0;top:5px;min-width:55px;height:34px;padding:2px 6px;display:flex;align-items:center;justify-content:center;gap:3px;border:2px solid #f8dc84;border-radius:18px;background:#102838ee;color:#fff;pointer-events:none;animation:race-coach-pulse .8s ease-in-out 2}
+.race-control-ghost b{font:900 18px/1 var(--f-body)}.race-control-ghost small{font:900 7px/1 var(--f-mono);white-space:nowrap}
+.race-control-ghost[data-anchor="brake"]{right:auto;left:-53px;top:42px}.race-control-ghost[data-anchor="finish"]{top:-20px;right:10px;border-color:#8ff2c7}.race-control-ghost[hidden]{display:none!important}
+@keyframes race-coach-pulse{50%{transform:scale(1.16);box-shadow:0 0 0 5px #f8dc8455}}
+@media(prefers-reduced-motion:reduce){.race-control-ghost{animation:none!important}}
 .race-action-dial button:disabled{cursor:default;opacity:.68;pointer-events:none}
 .race-action-dial[data-preview="true"]{filter:saturate(.7)}
 .control-deck.race-instruments-countdown :is(#padR .arcade,#raceAnalogActions,.sim-controls){pointer-events:none!important}
