@@ -54,9 +54,9 @@ window.addEventListener('keyup',e=>{const id=held[e.code];if(!id)return;held[e.c
 let canvasHeld=false,drag=null;
 function cpt(e){const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)/r.width*W,y:(e.clientY-r.top)/r.height*H};}
 cv.addEventListener('pointerdown',e=>{e.preventDefault();unlock();if(RP.on){$('#rbPlay').click();return;}if(PAUSE.on){resumePlayerPause();return;}if(resOpen()){ackResults();return;}
-  if(M.key==='race'){const p=cpt(e),wh=Race.WH;if(Math.hypot(p.x-wh.x,p.y-wh.y)<wh.r+26&&Race.opt.steer==='you'){drag={id:e.pointerId,a:Math.atan2(p.y-wh.y,p.x-wh.x)};try{cv.setPointerCapture(e.pointerId);}catch(_){}return;}}
+  if(M.key==='race'){const p=cpt(e),wh=Race.WH,wheelY=wh.y+(matchMedia('(max-width:480px)').matches?104:0);if(Math.hypot(p.x-wh.x,p.y-wheelY)<wh.r+26&&Race.opt.steer==='you'){drag={id:e.pointerId,a:Math.atan2(p.y-wheelY,p.x-wh.x)};try{cv.setPointerCapture(e.pointerId);}catch(_){}return;}}
   pauseGame('stage');});
-cv.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;const p=cpt(e),wh=Race.WH,a=Math.atan2(p.y-wh.y,p.x-wh.x);let d=a-drag.a;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;drag.a=a;Race.wheel=clamp(Race.wheel+(RACE_SYSTEMS.enabled()?1:-1)*d/DEG,-180,180);});
+cv.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;const p=cpt(e),wh=Race.WH,wheelY=wh.y+(matchMedia('(max-width:480px)').matches?104:0),a=Math.atan2(p.y-wheelY,p.x-wh.x);let d=a-drag.a;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;drag.a=a;Race.wheel=clamp(Race.wheel+(RACE_SYSTEMS.enabled()?1:-1)*d/DEG,-180,180);});
 ['pointerup','pointercancel'].forEach(ev=>cv.addEventListener(ev,e=>{if(drag&&e.pointerId===drag.id)drag=null;if(canvasHeld){canvasHeld=false;M.press(primary(),false);}}));
 cv.addEventListener('dblclick',()=>{if(M.key==='race')Race.wheel=0;});
 
