@@ -2029,19 +2029,18 @@ html[data-race-corner-trace="prototype"][data-race-telemetry="prototype"][data-k
 html[data-kicklab-mode="race"] .stage:has(>.control-deck.race-setup-preview)>.floating-control-head,html[data-kicklab-mode="race"] .stage:has(>.control-deck.race-awaiting-coach)>.floating-control-head,html[data-kicklab-mode="race"] .stage:has(>.control-deck.race-result-review)>.floating-control-head{display:none}
 html[data-kicklab-mode="race"] .stage>.floating-control-head{z-index:40}
 @media(min-width:481px){html[data-kicklab-mode="race"] .stage>.floating-control-head{bottom:max(12px,env(safe-area-inset-bottom))}}
-/* Keep the shared icon controller visible during setup; its two setup shortcuts replace the text chooser. */
+/* Keep the shared icon controller visible during setup; steering remains beside controller selection. */
 @media(min-width:481px){
  html[data-kicklab-mode="race"] .game-frame .stage>.control-deck.race-setup-preview:not(.simulator-active){display:none!important}
  html[data-kicklab-mode="race"] .control-deck.race-setup-preview #raceCoachSetup{display:none!important}
- html[data-kicklab-mode="race"] .stage:has(>.control-deck.race-setup-preview)>.floating-control-head{display:grid;grid-template-columns:auto 44px 44px 44px}
+ html[data-kicklab-mode="race"] .stage:has(>.control-deck.race-setup-preview)>.floating-control-head{display:grid;grid-template-columns:auto 44px 44px}
  html[data-kicklab-mode="race"] .stage>.floating-control-head .race-setup-shortcut{box-sizing:border-box;display:grid;place-items:center;align-content:center;gap:0;width:44px;height:44px;padding:0;border:1px solid rgba(153,202,228,.65);border-radius:10px;background:rgba(30,69,96,.8);color:#fff;font-size:18px;cursor:pointer}
  html[data-kicklab-mode="race"] .stage>.floating-control-head .race-setup-shortcut small{font:800 7px/1 var(--f-body)}
  html[data-kicklab-mode="race"] .stage>.floating-control-head .race-setup-shortcut[hidden]{display:none}
  html[data-kicklab-mode="race"] .stage>.floating-control-head .race-setup-shortcut[aria-pressed="true"]{border-color:#a8f1ef;background:#246274}
  html[data-kicklab-mode="race"] .stage>.floating-control-head .race-setup-shortcut:focus-visible{outline:3px solid #ffc675;outline-offset:2px}
- html[data-kicklab-mode="race"] .stage:has(>.control-deck.race-setup-preview)>.floating-control-head #raceSetupGarageShortcut{grid-column:2}
- html[data-kicklab-mode="race"] .stage:has(>.control-deck.race-setup-preview)>.floating-control-head #raceSetupSteeringShortcut{grid-column:3}
- html[data-kicklab-mode="race"] .stage:has(>.control-deck.race-setup-preview)>.floating-control-head .controller-collapse{grid-column:4}
+ html[data-kicklab-mode="race"] .stage:has(>.control-deck.race-setup-preview)>.floating-control-head #raceSetupSteeringShortcut{grid-column:2}
+ html[data-kicklab-mode="race"] .stage:has(>.control-deck.race-setup-preview)>.floating-control-head .controller-collapse{grid-column:3}
  html[data-kicklab-mode="race"] #gameGuidanceHud>.race-setup-tool-shortcuts:not([hidden]){grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
  html[data-kicklab-mode="race"] #gameGuidanceHud>.race-setup-tool-shortcuts button{min-height:54px;display:flex;align-items:center;gap:8px;padding:8px;border:1px solid rgba(153,202,228,.54);border-radius:12px;background:rgba(30,69,96,.78);color:#fff;font:700 11px var(--f-body);cursor:pointer}
  html[data-kicklab-mode="race"] #gameGuidanceHud>.race-setup-tool-shortcuts button[hidden]{display:none}
