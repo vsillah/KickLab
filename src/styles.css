@@ -501,6 +501,63 @@ html[data-race-competition="prototype"] .stage .results:not(.mini) .racts{flex-w
 @keyframes miniOut{to{opacity:0;transform:translateY(-8px)}}
 @media (max-width:640px){.rnext{font-size:14px;padding:7px 12px}.rnext kbd{display:none}.rgo{margin-top:4px}.stage .results{top:34px}.stage .results.mini{top:30px}.rlvl{font-size:12px;margin-bottom:2px}.rlvl small{display:none}}
 .racts button{border-color:var(--tone);color:var(--tone);font-family:var(--f-display);font-size:13px;padding:6px 10px}
+/* Race owns one scrollable result surface at every viewport. */
+.stage .results.race-summary{position:fixed;inset:0;z-index:90;box-sizing:border-box;display:grid;place-items:center;overflow:auto;padding:12px max(12px,env(safe-area-inset-right)) 12px max(12px,env(safe-area-inset-left));background:rgba(3,9,20,.84);pointer-events:auto}
+.stage .results.race-summary[hidden]{display:none!important}
+html:has(.results.race-summary:not([hidden])) .game-context-header{visibility:hidden}
+.results.race-summary .rc{box-sizing:border-box;cursor:default;width:min(720px,100%);max-height:calc(100svh - 24px);overflow:auto;align-items:start;grid-template-columns:64px minmax(0,1fr);gap:12px;padding:clamp(14px,3vw,26px);border:1px solid color-mix(in srgb,var(--tone) 70%,#fff 30%);background:radial-gradient(circle at 90% 0%,rgba(77,153,171,.22),transparent 38%),linear-gradient(150deg,#101f35,#071321 72%);box-shadow:0 24px 80px #000b}
+.results.race-summary .grade{font-size:60px;position:sticky;top:0}
+.results.race-summary .rmain{gap:10px}
+.results.race-summary .rtitle{font-size:clamp(22px,4vw,34px);line-height:1}
+.race-result-coach{padding:10px;border:1px solid #6eaac2;border-radius:11px;background:linear-gradient(130deg,rgba(49,117,145,.27),rgba(29,64,89,.12))}
+.results.race-summary .race-result-coach{display:block;width:100%;color:inherit;text-align:left;cursor:pointer}
+.results.race-summary .race-result-coach:disabled{cursor:default;opacity:1}
+.race-result-coach small{display:block;margin-top:6px;color:#9de8ef;font:800 11px var(--f-body)}
+.race-result-coach small[hidden]{display:none}
+.results.race-summary .race-result-coach:not(:disabled):is(:hover,:focus-visible),.race-result-awards button:is(:hover,:focus-visible),.race-replay-preview:is(:hover,:focus-visible){outline:2px solid #b4f4f3;outline-offset:2px;filter:brightness(1.08)}
+.race-result-coach[hidden],.race-result-awards[hidden]{display:none!important}
+.race-result-coach>span:first-child,.race-result-award span,.race-result-badge span{font:800 10px var(--f-mono);letter-spacing:.1em;color:#9be5f2}
+.race-result-coach-theme{display:block;margin-top:8px;padding:9px 11px;border:1px solid rgba(117,211,219,.35);border-radius:9px;background:rgba(7,21,35,.6)}
+.race-result-coach-theme.best{border-left:3px solid var(--good)}
+.race-result-coach-theme.work{border-left:3px solid var(--hot)}
+.race-result-coach-theme strong{display:block;margin-bottom:4px;color:#9be5f2;font:800 10px var(--f-mono);letter-spacing:.08em;text-transform:uppercase}
+.race-result-coach-theme span{display:block;color:#f3fbff;font:600 clamp(14px,2vw,17px)/1.4 var(--f-body);overflow-wrap:anywhere}
+.results.race-summary .rsub,.results.race-summary .rhint{display:block;color:#c9dce5;font-size:13px;text-align:left}
+.results.race-summary .rrows{display:grid}
+.results.race-summary .rtotal{border-top:1px solid #466477;padding-top:10px}
+.results.race-summary .rtotal b{font-size:27px}
+.race-result-awards{display:grid;gap:8px}
+.race-result-award,.race-result-badge{display:grid;grid-template-columns:80px minmax(0,1fr);align-items:center;gap:12px;min-width:0;padding:8px;border:1px solid #d9b975;border-radius:12px;background:radial-gradient(circle at 12% 30%,rgba(245,213,133,.18),transparent 45%),#162438}
+.race-result-awards button{box-sizing:border-box;width:100%;color:inherit;text-align:left;cursor:pointer}
+.race-result-awards em{display:block;margin-top:5px;color:#a9eaf2;font:800 11px var(--f-body);font-style:normal}
+.race-result-award img{display:block;width:80px;height:80px;object-fit:contain}
+.race-result-award b,.race-result-badge b{display:block;color:#fff4d2;font:400 clamp(19px,3vw,26px) var(--f-display);overflow-wrap:anywhere}
+.race-result-award small{display:block;color:#cbd7da;font:600 11px var(--f-body)}
+.race-result-badge{grid-template-columns:48px minmax(0,1fr);border-color:#6ca7b7}
+.race-result-badge img{display:block;width:48px;height:48px;object-fit:contain}
+.results.race-summary .rgo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.results.race-summary .racts{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px}
+.results.race-summary .racts[hidden]{display:none}
+.results.race-summary .rgo button{box-sizing:border-box;min-width:0;min-height:44px;white-space:normal;line-height:1.2;padding:8px 12px;border-radius:9px;font:700 12px var(--f-body);cursor:pointer}
+.results.race-summary .rgo button[hidden]{display:none!important}
+.results.race-summary #rNext{grid-column:1/-1;width:100%;margin:0;font-size:15px;animation:none}
+.results.race-summary #rRaceGarage,.results.race-summary #rRaceNext{border:1px solid #82cbd7;background:#183a51;color:#fff}
+.results.race-summary #rRaceRecord{border-color:#a7d6ba;color:#d7f5df}
+.race-replay-block[hidden]{display:none!important}
+.race-replay-block{display:grid;gap:5px}
+.race-replay-preview{position:relative;display:block;width:100%;max-width:440px;padding:0;border:1px solid #7bcdd3;border-radius:11px;overflow:hidden;background:#102338;color:#fff;text-align:left;cursor:pointer}
+.race-replay-preview[hidden]{display:none}
+#raceReplayFallback{width:100%;max-width:440px;padding:10px 14px;border:1px solid #7bcdd3;border-radius:10px;background:rgba(31,76,99,.76);color:#e8fbff;font:800 13px var(--f-body);text-align:left;cursor:pointer}
+#raceReplayFallback:is(:hover,:focus-visible){outline:2px solid #b4f4f3;outline-offset:2px}
+#raceReplayFallback[hidden]{display:none}
+.race-replay-preview canvas{display:block;width:100%;height:auto}
+.race-replay-preview span{position:absolute;left:10px;right:10px;bottom:7px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 8px;border-radius:7px;background:rgba(4,22,36,.88);font:800 10px var(--f-mono);letter-spacing:.05em}
+.race-replay-preview b{color:#b9ffe2;font:800 13px var(--f-body);letter-spacing:0}
+.race-replay-block #rRaceRecord{justify-self:start;min-height:36px;padding:5px 9px;border:1px solid #a7d6ba;border-radius:7px;background:#17394a;color:#d7f5df;font:700 11px var(--f-body);cursor:pointer}
+.race-replay-block #rRaceRecord[hidden]{display:none}
+.results.race-summary .rgo:has(#rRaceGarage[hidden]){grid-template-columns:1fr}
+.results.race-summary .rboard{max-height:120px;overflow:auto}
+@media(max-width:640px){.stage .results.race-summary{top:0;padding:8px}.results.race-summary .rc{grid-template-columns:1fr;gap:5px;max-height:calc(100svh - 16px);padding:14px}.results.race-summary .grade{position:static;text-align:left;font-size:42px}.results.race-summary .grade small{display:inline;margin-left:8px}.results.race-summary .racts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}.race-result-award,.race-result-badge{grid-template-columns:64px minmax(0,1fr)}.race-result-award img{width:64px;height:64px}}
 /* coach review */
 .rv-back{position:fixed;inset:0;z-index:1000;background:rgba(3,6,14,.78);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);display:grid;place-items:center;padding:16px}
 .rv-back[hidden]{display:none}
@@ -515,6 +572,10 @@ html[data-race-competition="prototype"] .stage .results:not(.mini) .racts{flex-w
 .rv-stats span{display:block;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .rv-stats b{font-family:var(--f-mono);font-size:15px;font-variant-numeric:tabular-nums}
 .rv-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.review.race-review .rv-sec.best,.review.race-review .rv-sec.work{min-width:0;padding:12px;border:1px solid var(--line);border-radius:12px;background:linear-gradient(150deg,rgba(36,73,88,.45),rgba(11,24,40,.85))}
+.review.race-review .rv-sec.best{border-top:3px solid var(--good)}
+.review.race-review .rv-sec.work{border-top:3px solid var(--hot)}
+.review.race-review .rv-theme-summary{margin:0 0 10px;color:#f3fbff;font:600 14px/1.4 var(--f-body)}
 @media (max-width:700px){.rv-cols{grid-template-columns:minmax(0,1fr)}.rv-back{padding:8px}.review{max-height:94vh}}
 .rv-sec h3{margin:0 0 6px;font-size:12px;letter-spacing:.12em;text-transform:uppercase}
 .rv-sec.best h3{color:var(--good)}.rv-sec.work h3{color:var(--bad)}.rv-sec.plan h3{color:var(--hot)}
@@ -1141,6 +1202,7 @@ html[data-kicklab-mode="race"] .game-frame .stage>#race3{position:absolute;inset
 html[data-kicklab-mode="race"] .stage .toasts{z-index:28;right:calc(var(--game-rail-space) + 10px);max-width:calc(100% - var(--game-rail-space) - 22px)}
 @media (min-width:481px){html[data-kicklab-mode="race"] .game-frame .stage>.control-deck .pad{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);min-height:0;gap:8px}html[data-kicklab-mode="race"] .game-frame .stage>.control-deck .control-center-slot{display:none}html[data-kicklab-mode="race"] .game-frame .stage>.control-deck.live-combo-active .control-center-slot{display:block;position:absolute;z-index:2;left:12%;right:12%;bottom:calc(100% + 8px);border:1px solid rgba(151,187,231,.58);border-radius:14px;background:rgba(5,15,33,.96);padding:8px}html[data-kicklab-mode="race"] .game-frame .stage>.control-deck .control-left-slot,html[data-kicklab-mode="race"] .game-frame .stage>.control-deck #padR{height:154px;min-height:0}}
 @media (min-width:481px){html[data-kicklab-mode="race"] .game-frame .stage>.control-deck{width:calc(100% - var(--game-rail-space) - 20px);border:0;background:transparent;padding:0;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;pointer-events:none}html[data-kicklab-mode="race"] .game-frame .stage>.control-deck .floating-control-head{position:absolute;right:0;bottom:164px;width:min(280px,45%);border:1px solid rgba(151,187,231,.48);border-radius:13px;background:rgba(5,15,33,.78);padding:3px;pointer-events:auto}html[data-kicklab-mode="race"] .game-frame .stage>.control-deck .pad{grid-template-columns:1fr 1fr;align-items:end;pointer-events:none}html[data-kicklab-mode="race"] .game-frame .stage>.control-deck .control-left-slot{justify-self:start;width:170px;pointer-events:auto}html[data-kicklab-mode="race"] .game-frame .stage>.control-deck #padR{justify-self:end;width:180px;pointer-events:auto}html[data-kicklab-mode="race"] .game-frame .stage>.control-deck.live-combo-active .control-center-slot{left:21%;right:21%;bottom:calc(100% + 8px);pointer-events:auto}}
+@media (min-width:481px){html[data-kicklab-mode="race"] .game-frame .stage>.control-deck>.rbar:not([hidden]){pointer-events:auto}}
 /* Analog's gesture panel can grow above the Classic pod height; anchor its header above the actual panel. */
 @media (min-width:481px){html[data-kicklab-mode="race"] .game-frame .stage>.control-deck.prototype-active:not(.controller-collapsed) .floating-control-head{bottom:calc(100% + 8px);z-index:3}}
 @media (max-width:480px){
@@ -1940,6 +2002,25 @@ html[data-kicklab-mode="race"] .settings-categories{gap:8px}
 }
 @media(max-width:480px){html[data-kicklab-mode="race"] #gameGuidanceHud{top:max(104px,calc(env(safe-area-inset-top) + 104px));width:min(244px,calc(100% - 12px));max-height:calc(100% - 112px - env(safe-area-inset-bottom))}html[data-kicklab-mode="race"] .stage>.floating-control-head{left:6px;bottom:12px;transform:none}}
 @media(prefers-reduced-motion:reduce){html[data-kicklab-mode="race"] .stage .toast,html[data-kicklab-mode="race"] .stage .toast.out{animation:none}html[data-kicklab-mode="race"] .race-phone-tools-chevron{transition:none}}
+
+/* Variable selection belongs to the wrench's Math detail, leaving one compact action row. */
+.race-trace-wrench-select{display:grid;gap:6px;margin:8px 0;padding:10px;border:1px solid rgba(127,220,255,.45);border-radius:10px;background:rgba(7,28,45,.9);color:#e9faff;font:800 11px var(--f-body)}
+.race-trace-wrench-select[hidden]{display:none!important}
+.race-trace-wrench-select select{width:100%;min-height:44px;padding:8px;border:1px solid rgba(127,220,255,.65);border-radius:8px;background:#102b43;color:#fff;font:700 13px var(--f-body)}
+.race-trace-wrench-select output{display:block;color:#a8f2cb;font:800 12px var(--f-mono)}
+.race-trace-wrench-select small{color:#b9dce7;font:600 10px/1.3 var(--f-body)}
+html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] #raceTelemetryCue{display:none!important}
+html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .race-telemetry-actions :is(#raceTelemetryPrev,#raceTelemetryNext,#raceTelemetryIndex){display:none!important}
+html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .race-telemetry-actions{justify-content:center}
+@media(min-width:481px){html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .game-frame .stage>.control-deck .race-telemetry-actions{justify-self:end;transform:translateX(8px)}}
+html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .race-navigation-foot small:first-child{display:block;min-width:0;max-width:52%;font-size:8px}
+html[data-race-corner-trace="prototype"][data-race-telemetry="prototype"][data-kicklab-mode="race"] .game-frame .stage>.control-deck:not(.simulator-active,.race-setup-preview,.race-result-review) .control-center-slot{height:48px;min-height:0}
+html[data-race-corner-trace="prototype"][data-race-telemetry="prototype"][data-kicklab-mode="race"] .game-frame .stage>.control-deck:not(.simulator-active,.race-setup-preview,.race-result-review) .race-telemetry{height:48px;grid-template-rows:44px;gap:0;padding:0 4px}
+html[data-race-corner-trace="prototype"][data-race-telemetry="prototype"][data-kicklab-mode="race"] .game-frame .stage>.control-deck:not(.simulator-active,.race-setup-preview,.race-result-review) .race-telemetry-actions{grid-row:1}
+@media(max-width:480px){
+ html[data-race-corner-trace="prototype"][data-race-telemetry="prototype"][data-kicklab-mode="race"] .game-frame .stage>.control-deck:not(.simulator-active,.race-setup-preview,.race-result-review) .pad{grid-template-rows:48px 148px}
+ html[data-race-corner-trace="prototype"][data-race-telemetry="prototype"][data-kicklab-mode="race"] .game-frame .stage>.control-deck:not(.simulator-active,.race-setup-preview,.race-result-review) :is(.control-left-slot,#padR){height:148px}
+}
 @media(min-width:481px){html[data-kicklab-mode="race"] .stage .toasts{top:max(312px,42%)} }
 @media(min-width:481px){html[data-kicklab-mode="race"] .stage>.floating-control-head{left:auto;right:max(8px,env(safe-area-inset-right));transform:none}}
 html[data-kicklab-mode="race"] .stage:has(>.control-deck.race-setup-preview)>.floating-control-head,html[data-kicklab-mode="race"] .stage:has(>.control-deck.race-awaiting-coach)>.floating-control-head,html[data-kicklab-mode="race"] .stage:has(>.control-deck.race-result-review)>.floating-control-head{display:none}
@@ -2041,3 +2122,39 @@ html[data-kicklab-mode="race"] .stage .toast.race-award-toast span{font-size:12p
 .toast.race-award-toast .ic img{animation:raceCollectibleSettle .7s cubic-bezier(.18,.72,.28,1) both}
 @keyframes raceCollectibleSettle{from{transform:perspective(320px) rotateY(-22deg) scale(.92);opacity:.7}to{transform:none;opacity:1}}
 @media(prefers-reduced-motion:reduce){.race-journey-art img,.toast.race-award-toast .ic img{animation:none!important;transform:none!important}}
+
+/* Race radio: one compact cue in the gap between the event map and wrench. */
+html[data-kicklab-mode="race"] .stage{--race-progress-width:270px}
+html[data-kicklab-mode="race"] .race-phone-progress:not([hidden]){width:min(var(--race-progress-width),calc(100% - 70px))}
+html[data-kicklab-mode="race"] .stage.race-phone-notice-active .race-phone-progress{visibility:visible;pointer-events:auto}
+.race-coach-notice[hidden],.race-coach-history [hidden]{display:none!important}
+.race-coach-notice{display:none}
+html[data-kicklab-mode="race"] .race-coach-notice:not([hidden]){position:absolute;z-index:27;top:max(6px,env(safe-area-inset-top));right:max(56px,calc(env(safe-area-inset-right) + 56px));box-sizing:border-box;display:flex;align-items:center;gap:3px;width:min(220px,calc(100% - var(--race-progress-width) - 70px));height:44px;min-width:0;padding:3px 4px;border:1px solid #9fe6e8;border-radius:11px;background:rgba(7,31,48,.95);box-shadow:0 5px 15px rgba(0,0,0,.3);color:#e9faff;transform-origin:right center}
+html[data-kicklab-mode="race"] .stage.has-game-overlay .race-coach-notice{display:none!important}
+.race-coach-notice[data-mood="warn"]{border-color:#ffc178!important}
+.race-coach-notice-icon{flex:none;display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#28798a;color:#fff;font:900 11px/1 var(--f-body)}
+.race-coach-notice[data-mood="warn"] .race-coach-notice-icon{background:#b65e31}
+.race-coach-notice-text{min-width:0;flex:1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font:700 9px/1.14 var(--f-body)}
+#raceCoachNoticeDismiss{flex:none;width:18px;height:24px;padding:0;border:0;background:transparent;color:#fff;font:700 16px/1 var(--f-body);cursor:pointer}
+#raceCoachNoticeDismiss:focus-visible{outline:2px solid #ffcb79;outline-offset:1px}
+.race-coach-notice.is-entering{animation:raceCoachFlyOut .28s cubic-bezier(.18,.75,.32,1) both}
+.race-coach-notice.is-leaving{animation:raceCoachFlyIn .28s ease-in both}
+@keyframes raceCoachFlyOut{from{opacity:0;transform:translateX(50px) scale(.25)}to{opacity:1;transform:none}}
+@keyframes raceCoachFlyIn{from{opacity:1;transform:none}to{opacity:0;transform:translateX(50px) scale(.25)}}
+html[data-kicklab-mode="race"] #coach:has(.race-coach-history[open]){grid-column:1/-1!important}
+.race-coach-history{display:none}
+html[data-kicklab-mode="race"] #gameGuidanceHud .race-coach-history{display:block;grid-column:1/-1;width:100%;min-width:0;margin-top:5px;padding-top:5px;border-top:1px solid rgba(161,223,229,.35);font:700 10px/1.3 var(--f-body)}
+html[data-kicklab-mode="race"] #gameGuidanceHud #coach>.context-disclosure{inset:4px 5px auto auto;display:grid;place-items:center;width:34px;min-width:34px;height:21px;min-height:21px;border:1px solid rgba(155,220,231,.65);border-radius:6px;background:rgba(6,31,50,.8);color:#d8f4f7}
+html[data-kicklab-mode="race"] #gameGuidanceHud #coach>.context-disclosure::after{content:"Plan";font:800 8px/1 var(--f-body)}
+html[data-kicklab-mode="race"] #gameGuidanceHud #coach .coach-copy{padding-right:31px}
+.race-coach-history summary{cursor:pointer;color:#b8eff1;list-style:none}
+.race-coach-history summary::-webkit-details-marker{display:none}
+.race-coach-history summary::after{content:"⌄";float:right}
+.race-coach-history[open] summary::after{transform:rotate(180deg)}
+.race-coach-history p{margin:7px 0 0;color:#b9d8df;font-weight:500}
+.race-coach-history ol{display:grid;gap:5px;max-height:176px;overflow-y:auto;margin:7px 0 0;padding:0;list-style:none}
+.race-coach-history li{display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:5px;align-items:start;padding:5px;border-radius:7px;background:rgba(6,26,40,.75);font-weight:600;overflow-wrap:anywhere}
+.race-coach-history-icon{color:#8de8ee}.race-coach-history li small{color:#aad1dc;white-space:nowrap;font:700 8px var(--f-mono)}
+@media(max-width:520px){html[data-kicklab-mode="race"] .stage{--race-progress-width:160px}html[data-kicklab-mode="race"] .race-phone-progress:not([hidden]){width:160px;gap:2px;padding:5px}html[data-kicklab-mode="race"] .race-phone-progress-node{width:15px;height:15px;font-size:8px}html[data-kicklab-mode="race"] .race-phone-progress-node[data-state="current"]{width:20px;height:20px}html[data-kicklab-mode="race"] .race-phone-progress-count{font-size:8px}html[data-kicklab-mode="race"] .race-phone-progress-finish{font-size:14px}html[data-kicklab-mode="race"] .race-coach-notice:not([hidden]){height:52px}.race-coach-notice-icon{width:14px;height:14px;font-size:9px}.race-coach-notice-text{font-size:9px;-webkit-line-clamp:3}#raceCoachNoticeDismiss{width:13px}}
+@media(max-width:360px){html[data-kicklab-mode="race"] .stage{--race-progress-width:120px}html[data-kicklab-mode="race"] .race-phone-progress:not([hidden]){width:120px;padding:3px}html[data-kicklab-mode="race"] .race-phone-progress-node{width:13px;height:13px}html[data-kicklab-mode="race"] .race-phone-progress-node[data-state="current"]{width:18px;height:18px}html[data-kicklab-mode="race"] .race-phone-progress-finish{display:none}}
+@media(prefers-reduced-motion:reduce){.race-coach-notice.is-entering{animation:raceCoachFadeIn .18s ease-out both}.race-coach-notice.is-leaving{animation:raceCoachFadeOut .18s ease-in both}@keyframes raceCoachFadeIn{from{opacity:0}to{opacity:1}}@keyframes raceCoachFadeOut{from{opacity:1}to{opacity:0}}}

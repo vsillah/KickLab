@@ -36,9 +36,10 @@ function renderRaceTelemetry(){
   const preflightSetup=typeof RACE_PREFLIGHT_ON!=='undefined'&&RACE_PREFLIGHT_ON&&M===Race?racePreflightSetupIdentity(recorded?.garage||Race.garage,recorded?.vehicle||Race.vehicle().id):'';
   $('#raceTelemetrySetup').hidden=!preflightSetup;$('#raceTelemetrySetup').textContent=preflightSetup;
   const active=RACE_TELEMETRY.enabled&&M===Race&&!!Race.telemetry;
+  const variableSelection=$('#raceTraceWrenchSelection');variableSelection.hidden=!(active&&RACE_CORNER_TRACE.enabled);
   const coachActive=Race.progressionActive()||Race.expansionActive();
   const setupPreview=active&&coachActive&&Race.state==='grid'&&(!RACE_3D.on||RACE_3D.orbit.done);
-  const resultReview=active&&coachActive&&!!Race.progressionComparison&&['done','crashed'].includes(Race.state);
+  const resultReview=false; // The primary Race summary owns the completed-run lifecycle.
   const stageStart=$('#raceStageStart'),simulatorStart=setupPreview&&typeof RACE_SIMULATOR!=='undefined'&&RACE_SIMULATOR.active;
   stageStart.hidden=!setupPreview||PAUSE.on||$('#racePhoneToolsToggle').getAttribute('aria-expanded')==='true'||$('.stage').classList.contains('has-game-overlay');
   $('#raceCoachSetupStart').hidden=!setupPreview||simulatorStart;
@@ -78,8 +79,10 @@ function renderRaceTelemetry(){
   if(showSimResult&&typeof RACE_CHAMP_UI!=='undefined'&&RACE_CHAMP_UI.active){const brief=raceChampionshipCoachState(RACE_CHAMP.EVENTS[RACE_CHAMP_UI.selected]);$('#simResultTitle').textContent=`Coach Nia · ${brief.headline}`;$('#simResultMeasurements').textContent=brief.instruction;$('#simResultRecommendation').hidden=true;$('#simResultSeason').hidden=false;raceChampionshipChipList('simResultSeasonChips',brief.chips);}
   raceTelemetryEl.hidden=!active||setupPreview||resultReview;if(!active){$('#raceNavigation').hidden=true;if(globalThis.__KICKLAB_RACE_NAVIGATION__)globalThis.__KICKLAB_RACE_NAVIGATION__.visible=false;return;}
   const t=Race.telemetry,g=RACE_TELEMETRY.GAUGES.find(item=>item.id===t.selected),index=RACE_TELEMETRY.GAUGES.indexOf(g),thermal=RACE_TELEMETRY.thermalStage(t);renderRaceTemperature(t);
+  if(RACE_CORNER_TRACE.enabled){const selector=$('#raceTelemetryGaugeSelect');if(!selector.options.length)selector.innerHTML=RACE_TELEMETRY.GAUGES.map(item=>`<option value="${item.id}">${item.name}</option>`).join('');selector.value=t.selected;}
   const values={rpm:[Math.round(t.rpm*8500),'rpm',t.rpm],torque:[Math.round(t.torque*100),'%',t.torque],nos:[Math.round(t.pressure*100),'%',t.pressure],temperature:[Math.round(65+t.heat*90),'°C',t.heat],braking:[Math.round(t.braking*100),'%',t.braking],drift:[Math.round(t.angle*38),'°',t.angle],grip:[Math.round(t.grip*100),'%',t.grip]};
   const [value,unit,fraction]=values[g.id],phase={warming:'ENGINE WARMING',hot:'HOT · POWER FADING',critical:'CRITICAL · LIFT','power-loss':'POWER LOW · COOLING',cooling:t.phase==='recovered'?'COOLED · POWER BACK':'COOLING'}[thermal]|| (t.lock===g.id?'BAND LOCKED':t.manualUntil>t.clock?'MANUAL VIEW':'COACH RECOMMENDS');
+  if(RACE_CORNER_TRACE.enabled){const readout=$('#raceTelemetryGaugeReadout');readout.textContent=`${g.name}: ${value} ${unit}`;readout.setAttribute('aria-label',readout.textContent);}
   raceTelemetryEl.dataset.phase=t.overheat?'overheat':t.phase;raceTelemetryEl.dataset.lock=String(t.lock===g.id);raceTelemetryEl.dataset.cue=String(t.clock<t.cueUntil);
   const compact=matchMedia('(max-width:980px)').matches,shortName={rpm:'RPM',torque:'Torque',nos:'NOS',temperature:'Engine heat',braking:'Brakes',drift:'Drift angle',grip:'Grip recovery'}[g.id];
   $('#raceTelemetryTitle').textContent=compact?shortName:g.name;$('#raceTelemetryTitle').title=g.name;$('#raceTelemetryPhase').textContent=phase;$('#raceTelemetryValue').textContent=`${value} ${unit}`;$('#raceTelemetryValue').setAttribute('aria-label',g.id==='nos'?`NOS pressure ${value} percent, capacity ${Math.round(t.capacity*100)} percent`:g.id==='braking'?`Braking force ${value} percent, stopping distance ${Math.round(t.brakeDistance)} metres`:`${g.name} ${value} ${unit}`);$('#raceTelemetryFill').style.width=`${Math.round(fraction*100)}%`;
@@ -97,8 +100,7 @@ function renderRaceTelemetry(){
   if(coachButton.textContent!==coachText)coachButton.textContent=coachText;
   coachButton.title=thermalCue;
   coachButton.setAttribute('aria-label',`Coach Nia. ${thermalCue}${level||mode?' Activate for the full mode plan and Garage link.':''}`);
-  const traceControls=$('#raceTraceControls');traceControls.hidden=!RACE_CORNER_TRACE.enabled;
-  if(RACE_CORNER_TRACE.enabled){const def=RACE_CORNER_TRACE.variable(),value=Race.V[def.id],band=Race.suggest()[def.id],P=Race.P(),state=globalThis.__KICKLAB_RACE_CORNER_TRACE__?.state||'safe';$('#raceTraceVariable').textContent=def.name.split(' (')[0];$('#raceTraceValue').textContent=`${def.sym} ${fmt(value,def.d)}${def.unit?' '+def.unit:''}`;$('#raceTraceBand').textContent=`Nia: ${fmt(band.lo,def.d)}–${fmt(band.hi,def.d)}${def.unit?' '+def.unit:''}`;$('#raceTraceEquation').textContent=def.id==='mu'||def.id==='R'?`√(μgR) → ${fmt(Math.sqrt(P.mu*G0*P.R)*3.6,0)} km/h`:`F ÷ m → ${fmt(P.F/P.m,1)} m/s²`;$('#raceTraceState').textContent={safe:'SAFE LINE',understeer:'UNDERSTEER · LIFT OR BRAKE',oversteer:'OVERSTEER · UNWIND'}[state];traceControls.dataset.state=state;}
+  if(RACE_CORNER_TRACE.enabled){const selector=$('#raceTraceVariableSelect');if(!selector.options.length)selector.innerHTML=RACE_CORNER_TRACE.VARIABLES.map(id=>{const def=Race.vars().find(item=>item.id===id);return`<option value="${id}">${def.name.split(' (')[0]}</option>`;}).join('');selector.value=RACE_CORNER_TRACE.variable().id;const def=RACE_CORNER_TRACE.variable(),value=Race.V[def.id],selected=`${def.name.split(' (')[0]} ${def.sym} ${fmt(value,def.d)}${def.unit?' '+def.unit:''}`;$('#raceNavigationStatus').textContent=selected;$('#raceTraceSelectedValue').textContent=selected;$('#raceTraceSelectedValue').setAttribute('aria-label',selected);}
   renderRaceNavigation({gauge:shortName,value,unit,fraction,phase,cue:thermalCue});
   globalThis.__KICKLAB_RACE_TELEMETRY__={enabled:true,selected:t.selected,recommended:t.recommended,manual:t.manualUntil>t.clock,phase:t.phase,thermalStage:thermal,powerFactor:RACE_TELEMETRY.powerFactor(t),overheat:t.overheat,heat:t.heat,pressure:t.pressure,nosPulse:t.nosPulse,lock:t.lock,clock:t.clock,collapsed:FLOATING_CONTROLLER.collapsed};
 }
@@ -120,7 +122,8 @@ $('#raceTelemetryPrev').addEventListener('click',()=>raceTelemetryAction('prev')
 $('#raceTelemetryNext').addEventListener('click',()=>raceTelemetryAction('next'));
 $('#raceTelemetryApply').addEventListener('click',()=>raceTelemetryAction('apply'));
 $('#raceTelemetryShift').addEventListener('click',()=>{if(M!==Race||PAUSE.on||RP.on)return;if(Race.shiftGear()){renderRaceTelemetry();requestMobileHaptic('tick');}});
-for(const [id,direction] of [['raceTracePrev',-1],['raceTraceNext',1]])$('#'+id).addEventListener('click',()=>{if(!RACE_CORNER_TRACE.enabled||M!==Race||PAUSE.on)return;RACE_CORNER_TRACE.select(direction);renderRaceTelemetry();SND.click();});
+$('#raceTelemetryGaugeSelect').addEventListener('change',event=>{if(!RACE_CORNER_TRACE.enabled||M!==Race||!Race.telemetry)return;for(let index=0;index<RACE_TELEMETRY.GAUGES.length&&Race.telemetry.selected!==event.currentTarget.value;index++)RACE_TELEMETRY.tune(Race.telemetry,'next');renderRaceTelemetry();SND.click();});
+$('#raceTraceVariableSelect').addEventListener('change',event=>{if(!RACE_CORNER_TRACE.enabled||M!==Race)return;for(let index=0;index<RACE_CORNER_TRACE.VARIABLES.length&&RACE_CORNER_TRACE.variable().id!==event.currentTarget.value;index++)RACE_CORNER_TRACE.select(1);renderRaceTelemetry();renderRaceToolTruth();SND.click();});
 raceTelemetryEl.addEventListener('keydown',event=>{if(event.key==='ArrowLeft'||event.key==='ArrowRight'){event.preventDefault();event.stopPropagation();raceTelemetryAction(event.key==='ArrowLeft'?'prev':'next');}else if(event.key==='Escape'){event.preventDefault();event.stopPropagation();setFloatingControllerCollapsed(true);}});
 raceTelemetryEl.addEventListener('pointerdown',event=>event.stopPropagation());
 function raceCoachCueAction(trigger){
@@ -188,7 +191,9 @@ function renderRaceNavigation({gauge,value,unit,fraction,phase,cue}){
   $('#raceSteeringNeeded').textContent=`Needed ${needed}°`;
   $('#raceSteeringCurrentTick').style.left=`${Math.max(7,Math.min(93,50+current*.46))}%`;
   $('#raceSteeringNeededTick').style.left=`${Math.max(7,Math.min(93,50+needed*.46))}%`;
-  $('#raceNavigationStatus').textContent=`${{safe:'Safe line',understeer:'Understeer',oversteer:'Oversteer'}[state]}`;
+  const selected=RACE_CORNER_TRACE.variable(),selectedValue=Race.V[selected.id];
+  $('#raceNavigationStatus').textContent=`${selected.name.split(' (')[0]} ${selected.sym} ${fmt(selectedValue,selected.d)}${selected.unit?' '+selected.unit:''}`;
+  $('#raceNavigationStatus').title=`${$('#raceNavigationStatus').textContent} · ${{safe:'Safe line',understeer:'Understeer',oversteer:'Oversteer'}[state]}`;
   panel.dataset.state=state;
   panel.setAttribute('aria-label',`Race cockpit. ${gauge} ${value} ${unit}. ${phase}. Car, predicted path, ${showFinish?'finish line, ':''}and target exit corridor. Current steering ${current} degrees. Needed steering ${needed} degrees. Projected signed line error ${error>=0?'plus':'minus'} ${Math.abs(error).toFixed(1)} metres. ${state}. Coach Nia: ${cue}`);
   globalThis.__KICKLAB_RACE_NAVIGATION__={current,needed,error,state,target,endpoint:end,finish,finishVisible:showFinish,gauge,value,unit,visible:true};
