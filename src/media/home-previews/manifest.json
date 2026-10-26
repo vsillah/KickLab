@@ -26,16 +26,16 @@
       }
     },
     {
-      "lab": "Race",
-      "revision": "db08f39641a8c8c1daa70bd1f3b967296cc5792a",
+      "lab": "Kick",
+      "revision": "eeee5daf3ce3075d352090ce00ccd346b1da8638",
       "source": "Current local KickLab 3D renderer",
       "captureFlags": [
-        "raceSystems=proxy"
+        "kickTime=day"
       ],
-      "mp4": "media/home-previews/race.mp4",
-      "poster": "media/home-previews/race-poster.png",
-      "bytes": 242398,
-      "posterBytes": 148901,
+      "mp4": "media/home-previews/kick.mp4",
+      "poster": "media/home-previews/kick-poster.png",
+      "bytes": 328332,
+      "posterBytes": 157645,
       "uniqueFrames": 17,
       "programs": [],
       "stream_groups": [],
@@ -51,16 +51,17 @@
       }
     },
     {
-      "lab": "Kick",
-      "revision": "eeee5daf3ce3075d352090ce00ccd346b1da8638",
+      "lab": "Race",
+      "revision": "43e0e6a273b062771e37c7e45d1ca56745d28a15",
       "source": "Current local KickLab 3D renderer",
       "captureFlags": [
-        "kickTime=day"
+        "raceSystems=proxy",
+        "raceVideo=cinematic"
       ],
-      "mp4": "media/home-previews/kick.mp4",
-      "poster": "media/home-previews/kick-poster.png",
-      "bytes": 328332,
-      "posterBytes": 157645,
+      "mp4": "media/home-previews/race.mp4",
+      "poster": "media/home-previews/race-poster.png",
+      "bytes": 194601,
+      "posterBytes": 152665,
       "uniqueFrames": 17,
       "programs": [],
       "stream_groups": [],

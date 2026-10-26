@@ -35,7 +35,7 @@ for(const lab of selectedLab?[selectedLab]:['Fight','Race','Kick']){
   await page.getByRole('button',{name:new RegExp(`^${lab} .*Enter ${lab}$`)}).click();
   if(lab==='Race'){const orbit=page.locator('.race-orbit-panel button');await orbit.waitFor({state:'visible',timeout:15000});await orbit.click();}
   await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:25000});
-  if(lab==='Race'&&await page.locator('#raceCoachSetupStart').isVisible())await page.locator('#raceCoachSetupStart').click();
+  if(lab==='Race'){await page.locator('#raceCoachSetupStart').waitFor({state:'visible',timeout:15000});await page.locator('#raceCoachSetupStart').click();}
   if(lab==='Race')await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.status==='rendering'&&window.__KICKLAB_RACE_3D__?.dynamics?.state==='run',null,{timeout:25000});
   if(lab==='Kick'){await page.locator('#cv3').waitFor({state:'visible',timeout:25000});await page.waitForFunction(()=>window.__KICKLAB_LIGHTING_AUDIT__?.time==='day',null,{timeout:15000});}
   const ready=await page.evaluate(lab=>lab==='Fight'?!!document.querySelector('#cv')?.width:lab==='Kick'?!!document.querySelector('#cv3')?.width&&getComputedStyle(document.querySelector('#cv3')).display!=='none':window.__KICKLAB_RACE_3D__?.status==='rendering'&&!!document.querySelector('#race3')?.width,lab);
