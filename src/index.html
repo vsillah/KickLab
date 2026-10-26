@@ -110,6 +110,7 @@
               <h2 id="raceCoachSetupTitle">Race setup</h2>
               <p id="raceCoachSetupTargets"></p>
               <p id="raceCoachSetupRecommendation"></p>
+              <div class="race-stage-instrument" id="raceStageInstrument" role="img" aria-label="Race action dial preview. Driving controls activate after the green light." hidden><span class="race-stage-instrument-face"><span>‹</span><b>GAS<br>0%</b><span id="raceStageInstrumentAction">⇧</span><span>›</span></span><small>Action dial · controls wake at GO</small></div>
               <button type="button" id="raceCoachSetupStart">Start heat</button>
               <button type="button" id="simStart" hidden><span>Start heat</span></button>
             </div>
@@ -283,6 +284,7 @@
                 <b>Choose controls</b>
                 <section class="season-coach-summary" id="raceCoachSetupSeason" hidden><ul class="champ-coach-chips" id="raceCoachSetupSeasonChips"></ul><button type="button" id="raceCoachSetupSeasonDetails">Why this setup?</button></section>
                 <button type="button" id="raceCoachSetupVehicle" class="race-coach-vehicle" hidden><img id="raceCoachSetupVehicleImage" alt="" width="640" height="400"><span><b id="raceCoachSetupVehicleName"></b><small id="raceCoachSetupVehicleRole"></small><small>Choose car in Garage</small></span></button>
+                <div class="race-setup-instrument" id="raceSetupInstrument" role="img" aria-label="Race action dial preview. Driving controls activate after the green light." hidden><div class="race-setup-instrument-face"><span class="race-setup-instrument-satellite">‹</span><span class="race-setup-instrument-core"><b>GAS</b><strong>0%</strong><small>READY</small></span><span class="race-setup-instrument-satellite race-setup-instrument-action" id="raceSetupInstrumentAction">⇧</span><span class="race-setup-instrument-satellite">›</span></div><span class="race-setup-instrument-copy"><b>Action dial</b><small id="raceSetupInstrumentHint">Shift and NOS appear when ready</small><em>Controls wake at GO</em></span></div>
                 <div class="race-coach-setup-actions"><div class="race-coach-control-types" role="group" aria-label="Choose Race controls"><button type="button" id="raceCoachSetupClassic" aria-pressed="true" hidden>Classic</button><button type="button" id="raceCoachSetupControls" aria-pressed="false" hidden>Analog</button><button type="button" id="raceCoachSetupSimulator" aria-pressed="false" hidden>Simulator</button></div><div class="race-coach-support-actions"><button type="button" id="raceCoachSetupGarage">Garage &amp; tuning</button><button type="button" id="raceCoachSetupSteering" hidden>Autopilot steering</button></div></div>
               </section>
               <section class="race-coach-setup race-coach-result" id="raceCoachResult" aria-labelledby="raceCoachResultTitle" hidden>

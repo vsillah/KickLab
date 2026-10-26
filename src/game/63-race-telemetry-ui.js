@@ -31,7 +31,6 @@ function renderRaceTemperature(t){
   for(const id of ['raceTelemetryTemp','raceNavigationTemp','simTemp']){const arc=$('#'+id);arc.style.setProperty('--temp-angle',`${Math.round(t.heat*240)}deg`);arc.style.setProperty('--temp-color',color);arc.dataset.stage=stage;arc.querySelector('b').textContent=`${celsius}°`;arc.setAttribute('aria-label',`Engine temperature ${celsius} degrees Celsius, ${stage.replace('-',' ')}${t.overheat?', reduced power':''}`);}
 }
 function renderRaceTelemetry(){
-  if(typeof renderRaceInstruments==='function')renderRaceInstruments();
   if(typeof racePreflightMaybeOpen==='function')racePreflightMaybeOpen();
   const recorded=RP.on&&RECS.race?.meta?.garage?RECS.race.meta:null;
   const preflightSetup=typeof RACE_PREFLIGHT_ON!=='undefined'&&RACE_PREFLIGHT_ON&&M===Race?racePreflightSetupIdentity(recorded?.garage||Race.garage,recorded?.vehicle||Race.vehicle().id):'';
@@ -50,6 +49,7 @@ function renderRaceTelemetry(){
   floatingControlDeck.classList.toggle('race-result-review',resultReview);
   floatingControlDeck.classList.toggle('race-coach-live',active&&coachActive&&Race.state==='run');
   floatingControlDeck.classList.toggle('race-endurance-card',(setupPreview||resultReview)&&Race.expansionActive()&&Race.mode().id==='endurance');
+  if(typeof renderRaceInstruments==='function')renderRaceInstruments();
   if(setupPreview&&!Race.coachPreviewShown){Race.coachPreviewShown=true;setFloatingControllerCollapsed(false);}
   if(resultReview&&!Race.coachResultShown){Race.coachResultShown=true;setFloatingControllerCollapsed(false);}
   $('#raceCoachSetupRecommendation').hidden=false;$('#raceCoachResultRecommendation').hidden=false;$('#raceCoachResultRetry').hidden=false;$('#simResultRecommendation').hidden=false;$('#raceCoachSetupSeason').hidden=true;$('#raceCoachResultSeason').hidden=true;$('#simResultSeason').hidden=true;

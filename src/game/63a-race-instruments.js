@@ -7,6 +7,7 @@ const RACE_INSTRUMENTS=(()=>{
   let actionPointer=null,actionTimer=null,actionHeld=false,selected=null,selectionContext='',gaugeLock=null;
   const style=()=>RACE_SIMULATOR.active?'simulator':ANALOG_CONTROL.enabled?'analog':'classic';
   const live=()=>RACE_INSTRUMENTS_ON&&M===Race&&Race.state==='run'&&!!Race.telemetry&&!PAUSE.on&&!RP.on&&!CINE.on&&!document.hidden&&RACE_3D.on&&RACE_3D.ready&&!RACE_3D.failed&&!deck.classList.contains('controller-collapsed')&&$('#racePhoneToolsToggle').getAttribute('aria-expanded')!=='true';
+  const countdown=()=>RACE_INSTRUMENTS_ON&&M===Race&&Race.state==='count'&&!!Race.telemetry&&!PAUSE.on&&!RP.on&&!CINE.on&&!document.hidden&&RACE_3D.on&&RACE_3D.ready&&!RACE_3D.failed&&!deck.classList.contains('controller-collapsed')&&$('#racePhoneToolsToggle').getAttribute('aria-expanded')!=='true';
   const gasValue=()=>Number(Race.inp.gas)||0;
   function finishApproach(){if(!RACE_FINISHES.enabled||!['drag','hill'].includes(Race.mode().id)||Race.signatureFinish?.phase!=='run')return false;const distance=RACE_FINISHES.distance(Race.mode().id,Race.st);return distance>=0&&distance<=Math.max(22,Race.st.v*2.1)&&Race.st.v>=13;}
   const trimEligible=()=>Race.mode().id==='drift'||finishApproach();
@@ -42,8 +43,13 @@ const RACE_INSTRUMENTS=(()=>{
   }
   function paint(){
     if(!RACE_INSTRUMENTS_ON)return;
-    const active=live();deck.classList.toggle('race-instruments-live',active);
-    if(!active){cancel();dial.hidden=true;return;}
+    const active=live(),preview=countdown(),present=active||preview;
+    deck.classList.toggle('race-instruments-live',present);deck.classList.toggle('race-instruments-countdown',preview);
+    const setupPreview=$('#raceSetupInstrument');setupPreview.hidden=!(M===Race&&Race.state==='grid'&&deck.classList.contains('race-setup-preview'));$('#raceStageInstrument').hidden=setupPreview.hidden;
+    if(!setupPreview.hidden){const drift=Race.mode().id==='drift',label=`Race action dial preview for ${Race.mode().name}. ${drift?'Handbrake':'Shift'} and NOS become available during the heat. Driving controls activate after the green light.`;$('#raceSetupInstrumentAction').textContent=drift?'↶':'⇧';$('#raceStageInstrumentAction').textContent=drift?'↶':'⇧';$('#raceSetupInstrumentHint').textContent=drift?'Handbrake and NOS appear when ready':'Shift and NOS appear when ready';setupPreview.setAttribute('aria-label',label);$('#raceStageInstrument').setAttribute('aria-label',label);}
+    if(!present){cancel();dial.hidden=true;return;}
+    if(preview){cancel();place();dial.hidden=false;dial.dataset.preview='true';dial.dataset.selected='';dial.dataset.available='';dial.dataset.actionPhase='build';dial.dataset.trim='off';dial.dataset.brakeArmed='false';dial.style.setProperty('--needle-angle','-120deg');$('#raceDialMetric').textContent='LIGHTS · WAIT';$('#raceDialThrottle').textContent='0%';$('#raceDialHold').textContent='WAIT';action.hidden=false;$('#raceDialActionIcon').textContent=Race.mode().id==='drift'?'↶':'⇧';$('#raceDialActionName').textContent=Race.mode().id==='drift'?'DRIFT':'SHIFT';previous.hidden=next.hidden=false;for(const button of [gas,action,previous,next]){button.disabled=true;button.setAttribute('aria-disabled','true');}dial.setAttribute('aria-label','Race action dial preview. Controls activate after the green light.');return;}
+    dial.dataset.preview='false';dial.setAttribute('aria-label','Race action dial');for(const button of [gas,action,previous,next]){button.disabled=false;button.removeAttribute('aria-disabled');}
     place();dial.hidden=false;if(trim&&(!trimEligible()||performance.now()>=trim.until))dropTrim();
     const list=choices(),context=`${Race.mode().id}:${finishApproach()?'finish':'drive'}`;
     if(context!==selectionContext||!list.some(item=>item.id===selected)){dropAction();selected=list[0]?.id||null;selectionContext=context;}

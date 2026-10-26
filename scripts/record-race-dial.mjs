@@ -21,7 +21,10 @@ async function boot(mode='drag'){
  await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.status==='rendering'&&window.__KICKLAB_RACE_3D__?.orbit?.done&&document.querySelector('#raceCoachSetupStart')?.getBoundingClientRect().width>0);
  await page.locator('#raceCoachSetupGarage').click();if(mode!=='drag')await page.locator(`#raceGarage [data-race-mode="${mode}"]`).click();else{await page.locator('[data-garage-section="body"]').click();await page.locator('[data-garage-part="body"][data-garage-value="kart"]').click();await page.locator('[data-garage-section="tires"]').click();await page.locator('[data-garage-part="tires"][data-garage-value="narrow"]').click();}await page.locator('#settingsClose').click();
  if(await page.locator('.race-orbit-panel button').isVisible())await page.locator('.race-orbit-panel button').click();await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.orbit?.done&&document.querySelector('#raceCoachSetupStart')?.getBoundingClientRect().width>0);
- await page.locator('#raceCoachSetupStart').click();await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.dynamics?.state==='run');await page.locator('#raceActionDial').waitFor({state:'visible'});await page.evaluate(()=>{const stage=document.querySelector('.stage');window.scrollTo({top:window.scrollY+stage.getBoundingClientRect().top-8,behavior:'instant'});});
+ await page.evaluate(()=>{const stage=document.querySelector('.stage');window.scrollTo({top:window.scrollY+stage.getBoundingClientRect().top-8,behavior:'instant'});});
+ await page.locator('#raceSetupInstrument').waitFor({state:'visible'});await stamp(`${mode} setup-safe radial preview before Start heat`);await page.waitForTimeout(1100);
+ await page.locator('#raceCoachSetupStart').click();await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.dynamics?.state==='count');await page.locator('#raceActionDial').waitFor({state:'visible'});await stamp(`${mode} countdown radial preview stays inert`);await page.waitForTimeout(850);
+ await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.dynamics?.state==='run');await page.locator('#raceActionDial').waitFor({state:'visible'});await stamp(`${mode} GO activates the same radial instrument`);
 }
 try{
  await boot();await stamp('Drag dial at GO');await page.waitForTimeout(1200);
