@@ -2276,6 +2276,8 @@ html[data-race-telemetry="prototype"] #raceCoachSetup>.race-setup-instrument{dis
 .race-action-dial[data-action-phase="act"] .race-dial-action{border:0;background:radial-gradient(circle at 48% 40%,#217760,#0b3c3a 65%,#091b2b);box-shadow:inset 0 0 10px #90f4bd66}
 .race-action-dial[data-action-phase="danger"] .race-dial-action{border:0;background:radial-gradient(circle at 48% 40%,#8b3e42,#472833 65%,#091b2b);box-shadow:inset 0 0 10px #ffb2a455}
 .race-action-dial[data-action-phase="build"] .race-dial-action{border:0;background:radial-gradient(circle at 48% 40%,#765c2c,#403629 65%,#091b2b);box-shadow:inset 0 0 10px #f6d69655}
+@media(prefers-reduced-motion:no-preference){.race-action-dial[data-shift-timing="optimal"][data-action-phase="act"] .race-dial-action{animation:race-shift-opt .58s ease-in-out infinite alternate}}
+@keyframes race-shift-opt{to{transform:scale(1.045);box-shadow:inset 0 0 10px #90f4bd66,0 0 0 3px #90f4bd66}}
 .race-action-dial[data-preview="true"]{filter:none}
 .race-mini-dial.race-setup-instrument-face,.race-mini-dial.race-stage-instrument-face{display:block;position:relative;border:0;border-radius:0;background:transparent;box-shadow:none;isolation:isolate;--needle-angle:-2.5deg}
 .race-mini-dial.race-setup-instrument-face{width:72px;height:72px}

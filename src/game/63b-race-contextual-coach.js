@@ -13,13 +13,13 @@ const RACE_CONTEXTUAL_COACH=(()=>{
   function suspend(){suspended=true;cancel();}
   function render({dial,action,gas,current,g,brakeArmed,finishApproach}){
     if(!core.enabled){ghost.hidden=true;return;}sync();if(suspended||Race.state!=='run'||PAUSE.on||RP.on||CINE.on||document.hidden||!RACE_3D.ready){cancel();return;}
-    const gear=Race.modeAttempt?.gear||1,ratio=Race.st.v/Math.max(1,Race.P().top),target=RACE_MODES.shiftTarget(gear),shiftKey=`${runKey}:${gear}`;
-    if(Race.mode().id==='drag'&&gear<4&&ratio>target+.12&&missedShift!==shiftKey){missedShift=shiftKey;result('shift','miss','The useful RPM band passed before the shift.');}
+    const gear=Race.modeAttempt?.gear||1,shift=Race.mode().id==='drag'?RACE_MODES.shiftDisplay(gear,Race.st.v,Race.P().top):null,shiftKey=`${runKey}:${gear}`;
+    if(shift&&shift.ratio>shift.window.high+.05&&missedShift!==shiftKey){missedShift=shiftKey;result('shift','miss','The useful RPM band passed before the shift.');}
     const id=finishApproach?'finisher':brakeArmed?'launch':current?.id==='shift'?'shift':current?.id==='nos'?'nos':current?.id?.includes('handbrake')?'drift':null;
     if(id==='finisher'||id==='launch')$('#raceDialMetricIcon').textContent=id==='finisher'?'⚑':'◉';
-    const phase=id&&core.status(state,id),urgent=id==='shift'&&ratio>=target-.08||id==='finisher'||id==='launch'||id==='nos'&&g.state==='OPT';
+    const phase=id&&core.status(state,id),urgent=id==='shift'&&shift?.timing==='optimal'||id==='finisher'||id==='launch'||id==='nos'&&g.state==='OPT';
     if(!id||phase==='retired'||!urgent){ghost.hidden=true;shown='';return;}
-    const content={shift:['⇧','TAP','Tap at the bright RPM band'],nos:['⚡','TAP','Tap for a short NOS pulse'],drift:['↶','HOLD','Hold for a controlled slide'],launch:['◉','RELEASE','Release brake to launch'],finisher:['⚑','STEER + HOLD','Steer and hold handbrake beside the finish marker']}[id];
+    const content={shift:['⇧','TAP',`Tap in Gear ${gear} OPT shift window`],nos:['⚡','TAP','Tap for a short NOS pulse'],drift:['↶','HOLD','Hold for a controlled slide'],launch:['◉','RELEASE','Release brake to launch'],finisher:['⚑','STEER + HOLD','Steer and hold handbrake beside the finish marker']}[id];
     const key=`${id}:${phase}:${gear}`;if(key!==shown){shown=key;until=performance.now()+2500;}if(performance.now()>until){ghost.hidden=true;return;}
     ghostIcon.textContent=content[0];ghostVerb.textContent=content[1];ghost.title=content[2];ghost.dataset.anchor=id==='launch'?'brake':id==='finisher'?'finish':'action';ghost.dataset.phase=phase;ghost.hidden=false;
     action.dataset.coachPhase=id==='shift'||id==='nos'||id==='drift'?phase:'';dial.dataset.coachCue=id;

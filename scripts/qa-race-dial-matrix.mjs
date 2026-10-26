@@ -14,7 +14,7 @@ const context=await browser.newContext({viewport:{width:390,height:844},hasTouch
 await context.addInitScript(()=>localStorage.setItem('impactlab.v1',JSON.stringify({gfx:'3d',ch:{fight:0,race:0,kick:0},play:{fight:'ch',race:'ch',kick:'ch'}})));
 const page=await context.newPage();page.setDefaultTimeout(15000);page.on('pageerror',error=>report.errors.push(error.message));
 await page.route('**/*',route=>{const url=route.request().url();if(url.startsWith(`${origin}/`)||url.startsWith(`blob:${origin}/`)||url.startsWith('data:'))return route.continue();report.external.push(url);return route.abort();});
-const params=new URLSearchParams({raceExpansion:'prototype',raceInstruments:'prototype',raceSystems:'proxy',raceTelemetry:'prototype',raceFinishes:'prototype',raceCornerTrace:'prototype',raceProgression:'prototype',raceCompetition:'prototype',raceChampionship:'prototype',raceMultiplayer:'prototype',raceSimulator:'prototype',rev:head.slice(0,7)});
+const params=new URLSearchParams({raceExpansion:'prototype',raceInstruments:'prototype',raceSystems:'proxy',raceTelemetry:'prototype',raceFinishes:'prototype',raceCornerTrace:'prototype',raceProgression:'prototype',raceCompetition:'prototype',raceChampionship:'prototype',raceMultiplayer:'prototype',raceSimulator:'prototype',raceShiftQA:'1',rev:head.slice(0,7)});
 try{
  await page.goto(`${origin}/?${params}`,{waitUntil:'domcontentloaded'});
  if(await page.locator('#profileFormSave').isVisible())await page.locator('#profileFormSave').click();
@@ -45,12 +45,13 @@ try{
  const dial=page.locator('#raceActionDial');
  const before=await dial.evaluate(node=>({selected:node.dataset.selected,available:node.dataset.available,needle:node.style.getPropertyValue('--needle-angle')}));
  check('Drag exposes Shift and charged NOS in one dial',before.selected==='shift'&&before.available.includes('nos'),before);
+ const shiftBox=await page.locator('#raceDialAction').boundingBox();const initialGear=await page.evaluate(()=>window.__KICKLAB_RACE_SHIFT_QA__?.state()?.gear);
  await page.evaluate(()=>document.activeElement?.blur());await page.keyboard.down('Space');
- await page.waitForFunction(()=>window.__KICKLAB_RACE_MODES_QA__?.state?.()?.speedKmh>10&&document.querySelector('#raceActionDial')?.dataset.actionPhase==='act',null,{timeout:12000});
+ await page.waitForFunction(()=>{const s=window.__KICKLAB_RACE_SHIFT_QA__?.state();return s?.phase==='run'&&s.selected==='shift'&&s.gauge==='OPT'&&s.ratio>=s.window.low+.025;},null,{timeout:12000});
  const band=await page.evaluate(()=>({phase:window.__KICKLAB_RACE_MODES_QA__?.state?.()?.phase,speedKmh:window.__KICKLAB_RACE_MODES_QA__?.state?.()?.speedKmh,actionPhase:document.querySelector('#raceActionDial')?.dataset.actionPhase,needle:document.querySelector('#raceActionDial')?.style.getPropertyValue('--needle-angle')}));
  check('canonical driving reaches Shift action band',band.phase==='run'&&band.speedKmh>10&&band.actionPhase==='act'&&band.needle!==before.needle,band);
- await page.keyboard.up('Space');await page.locator('#raceDialAction').click();
- const shifted=await page.evaluate(()=>({action:document.querySelector('#raceDialAction')?.getAttribute('aria-label'),coach:document.querySelector('#coachMsg')?.textContent}));check('outer Shift advances canonical gear in band',shifted.action?.includes('Shift G3')&&shifted.coach?.includes('Good shift'),shifted);
+ await page.mouse.click(shiftBox.x+shiftBox.width/2,shiftBox.y+shiftBox.height/2);await page.keyboard.up('Space');
+ const shifted=await page.evaluate(()=>({gear:window.__KICKLAB_RACE_SHIFT_QA__?.state()?.gear,lastShift:window.__KICKLAB_RACE_SHIFT_QA__?.state()?.lastShift,action:document.querySelector('#raceDialAction')?.getAttribute('aria-label'),coach:document.querySelector('#coachMsg')?.textContent}));check('outer Shift advances canonical gear in band',shifted.gear===initialGear+1&&shifted.lastShift==='optimal'&&shifted.coach?.includes('Good shift'),shifted);
  await page.locator('#raceDialNext').click();check('outer ring cycles to NOS',(await dial.getAttribute('data-selected'))==='nos',await dial.getAttribute('data-selected'));
  await page.locator('#raceDialAction').click();await page.waitForFunction(()=>window.__KICKLAB_RACE_TELEMETRY__?.nosPulse>0);
  const fired=await dial.evaluate(node=>({gauge:node.dataset.gauge,state:node.dataset.gaugeState,available:node.dataset.available}));check('outer NOS triggers canonical pulse and pressure gauge',fired.gauge==='nos'&&!!fired.state,fired);
