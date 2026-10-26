@@ -1493,6 +1493,8 @@ html[data-race-telemetry="prototype"] #raceTelemetryCue{display:block;width:100%
 html[data-race-telemetry="prototype"] #raceTelemetryCue:focus-visible{outline:2px solid #ffbe68;outline-offset:1px}
 html[data-race-corner-trace="prototype"] #raceTelemetryCue{grid-column:1/-1;grid-row:3}
 /* Local progression holds driving input behind a visible Coach setup preview. */
+html[data-race-telemetry="prototype"][data-kicklab-mode="race"] .game-frame .stage>.control-deck.race-orbit-view,
+html[data-race-telemetry="prototype"][data-kicklab-mode="race"] .stage:has(>.control-deck.race-orbit-view)>.floating-control-head{display:none!important}
 html[data-race-telemetry="prototype"] .control-deck:is(.race-setup-preview,.race-result-review) .pad{display:grid!important;grid-template-columns:minmax(0,1fr)!important}
 html[data-race-telemetry="prototype"] .control-deck:is(.race-setup-preview,.race-result-review) .control-center-slot{grid-column:1!important;grid-row:1!important;width:min(100%,440px)!important;max-width:440px!important;justify-self:center!important}
 html[data-race-telemetry="prototype"] .control-deck:is(.race-setup-preview,.race-result-review) :is(.control-left-slot,#padR,.touch-controller){visibility:hidden!important;pointer-events:none!important}
@@ -2272,6 +2274,9 @@ html[data-race-telemetry="prototype"] #raceCoachSetup>.race-setup-instrument{dis
 .race-action-dial button{border:0;background:#091b2b;box-shadow:inset 0 0 9px #2e6b7544}
 .race-action-dial .race-dial-gas{border:0;background:radial-gradient(circle at 40% 24%,#1c725d,#0e443e 66%,#092d32);box-shadow:inset 0 0 9px #84e7b94d}
 .race-action-dial .race-dial-cycle{background:radial-gradient(circle at 45% 45%,#194158,#091b2b 75%);box-shadow:inset 0 0 8px #5497aa55}
+.race-action-dial .race-dial-cycle{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;line-height:1}
+.race-action-dial .race-dial-cycle-icon{font:900 19px/1 var(--f-body)}
+.race-action-dial .race-dial-cycle small{font:900 11px/1 var(--f-body);color:#9be7e5}
 .race-action-dial .race-dial-action{background:radial-gradient(circle at 55% 45%,#174351,#091b2b 75%);box-shadow:inset 0 0 8px #57919b66}
 .race-action-dial[data-action-phase="act"] .race-dial-action{border:0;background:radial-gradient(circle at 48% 40%,#217760,#0b3c3a 65%,#091b2b);box-shadow:inset 0 0 10px #90f4bd66}
 .race-action-dial[data-action-phase="danger"] .race-dial-action{border:0;background:radial-gradient(circle at 48% 40%,#8b3e42,#472833 65%,#091b2b);box-shadow:inset 0 0 10px #ffb2a455}
