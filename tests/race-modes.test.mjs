@@ -58,6 +58,30 @@ test('simulator Drag paddles distinguish early, optimal, late, and missed shifts
   assert.equal(late.lastShift,'missed');assert.equal(late.badShifts,2);
 });
 
+test('every Drag upshift shows LOW, OPT and RED at the canonical scoring boundaries',()=>{
+  const top=55;
+  for(const gear of [1,2,3]){
+    const band=modes.shiftWindow(gear);
+    assert.equal(band.ideal,modes.shiftTarget(gear));
+    for(const [ratio,phase,timing,bad] of [[band.low-.001,'LOW','early',1],[band.low,'OPT','optimal',0],[band.ideal,'OPT','optimal',0],[band.high,'OPT','optimal',0],[band.high+.001,'RED','late',1]]){
+      const display=modes.shiftDisplay(gear,ratio*top,top),attempt=modes.initial('drag');attempt.phase='run';attempt.gear=gear;
+      assert.equal(({early:'LOW',optimal:'OPT',late:'RED'})[display.timing],phase,`gear ${gear} ratio ${ratio}`);
+      assert.equal(modes.shift(attempt,ratio*top,top,true),true);
+      assert.equal(attempt.lastShift,timing,`gear ${gear} ratio ${ratio}`);
+      assert.equal(attempt.badShifts,bad,`gear ${gear} ratio ${ratio}`);
+      assert.ok(display.fraction>=0&&display.fraction<=1);
+      assert.ok(display.target[0]<display.target[1]);
+    }
+    const lateLegacy=modes.initial('drag');lateLegacy.phase='run';lateLegacy.gear=gear;
+    assert.equal(modes.shift(lateLegacy,(band.high+.001)*top,top,false),true);
+    assert.equal(lateLegacy.lastShift,'optimal','non-strict legacy scoring stays unchanged');
+  }
+  assert.equal(modes.shiftWindow(4),null);
+  assert.equal(modes.shiftDisplay(4,top,top),null);
+  const topGear=modes.initial('drag');topGear.phase='run';topGear.gear=4;
+  assert.equal(modes.shift(topGear,top,top,true),false);
+});
+
 test('Drift route has an acceleration lead-in, two opposite curves, and recovery room',()=>{
   const route=modes.DRIFT_ROUTE,points=modes.driftPoints();
   assert.ok(route.leadEnd>=80);

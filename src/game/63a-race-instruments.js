@@ -40,6 +40,8 @@ const RACE_INSTRUMENTS=(()=>{
   }
   function gauge(){
     const t=Race.telemetry,kind=selected==='nos'||gaugeLock&&gaugeLock.until>performance.now()?'nos':Race.mode().id==='drift'?'drift':'rpm';
+    const shift=kind==='rpm'&&Race.mode().id==='drag'?RACE_MODES.shiftDisplay(Race.modeAttempt?.gear||1,Race.st.v,Race.P().top):null;
+    if(shift)return{kind,fraction:shift.fraction,value:`${(shift.rpm/1000).toFixed(1)}k`,state:{early:'LOW',optimal:'OPT',late:'RED'}[shift.timing],target:shift.target,shift};
     const range=RACE_TELEMETRY.GAUGES.find(item=>item.id===kind)?.target||[.55,.78],fraction=kind==='nos'?t.pressure:kind==='drift'?t.angle:t.rpm;
     const value=kind==='nos'?`${Math.round(t.pressure*100)}%`:kind==='drift'?`${Math.round(Math.abs(Race.st.slipAngle||0)*180/Math.PI)}°`:`${(t.rpm*8.5).toFixed(1)}k`;
     let state=fraction<range[0]?'LOW':fraction<=range[1]?'OPT':'RED';
@@ -61,17 +63,18 @@ const RACE_INSTRUMENTS=(()=>{
     if(context!==selectionContext||!list.some(item=>item.id===selected)){dropAction();selected=list[0]?.id||null;selectionContext=context;}
     const current=list.find(item=>item.id===selected),g=gauge(),amount=Math.round(clamp(gasValue())*100);
     dial.dataset.selected=current?.id||'';dial.dataset.available=list.map(item=>item.id).join(',');dial.dataset.gauge=g.kind;dial.dataset.gaugeState=g.state;
-    const band=Race.modeAttempt?.gear&&RACE_MODES.shiftTarget(Race.modeAttempt.gear),ratio=Race.st.v/Math.max(1,Race.P().top);
-    dial.dataset.actionPhase=current?.id==='shift'?(Race.modeAttempt.shiftCooldown>0||ratio<band-.1?'build':ratio<=band+.07?'act':'danger'):current?.id==='nos'?'act':current?'act':'build';
-    const target=RACE_TELEMETRY.GAUGES.find(item=>item.id===g.kind)?.target||[.55,.78];paintBands(dial.querySelector('.race-dial-gauge'),target,g.kind);
+    dial.dataset.shiftTiming=g.shift?.timing||'';
+    dial.dataset.actionPhase=current?.id==='shift'?(Race.modeAttempt.shiftCooldown>0||g.shift?.timing==='early'?'build':g.shift?.timing==='optimal'?'act':'danger'):current?.id==='nos'?'act':current?'act':'build';
+    const target=g.target||RACE_TELEMETRY.GAUGES.find(item=>item.id===g.kind)?.target||[.55,.78];paintBands(dial.querySelector('.race-dial-gauge'),target,g.shift?`shift-${g.shift.gear}`:g.kind);
     dial.style.setProperty('--needle-angle',`${-20+g.fraction*70}deg`);
-    dial.querySelector('.race-dial-gauge').setAttribute('aria-label',`${g.kind==='rpm'?'Engine RPM':g.kind==='nos'?'NOS pressure':'Drift slip angle'} ${g.value}, ${g.state}${g.kind==='nos'?`, heat ${Math.round(Race.telemetry.heat*100)} percent, tank ${Math.round(Race.telemetry.capacity*100)} percent`:''}`);
-    $('#raceDialMetricIcon').textContent=g.kind==='nos'?'⚡':g.kind==='drift'?'↶':'◴';$('#raceDialMetricValue').textContent=g.value;$('#raceDialMetric').setAttribute('aria-label',`${g.kind==='nos'?'NOS pressure':g.kind==='drift'?'Drift angle':'Engine RPM'} ${g.value}, ${g.state}`);$('#raceDialThrottle').textContent=`${amount}%`;
+    const shiftDescription=g.shift?`Gear ${g.shift.gear} shift RPM estimate ${g.value}, ${g.state}. Canonical shift window ${Math.round(g.shift.window.low*Race.P().top*3.6)} to ${Math.round(g.shift.window.high*Race.P().top*3.6)} kilometers per hour.`:null;
+    dial.querySelector('.race-dial-gauge').setAttribute('aria-label',shiftDescription||`${g.kind==='rpm'?'Engine RPM':g.kind==='nos'?'NOS pressure':'Drift slip angle'} ${g.value}, ${g.state}${g.kind==='nos'?`, heat ${Math.round(Race.telemetry.heat*100)} percent, tank ${Math.round(Race.telemetry.capacity*100)} percent`:''}`);
+    $('#raceDialMetricIcon').textContent=g.kind==='nos'?'⚡':g.kind==='drift'?'↶':'◴';$('#raceDialMetricValue').textContent=g.shift?`RPM ${g.value}`:g.value;$('#raceDialMetric').setAttribute('aria-label',shiftDescription||`${g.kind==='nos'?'NOS pressure':g.kind==='drift'?'Drift angle':'Engine RPM'} ${g.value}, ${g.state}`);$('#raceDialThrottle').textContent=`${amount}%`;
     $('#raceDialHold').textContent=trim?`${Math.max(1,Math.ceil((trim.until-performance.now())/1000))}s HOLD`:brakeArmed?'BRK ARM':'LIVE';
     dial.dataset.trim=trim?'armed':'off';dial.dataset.brakeArmed=String(brakeArmed);
     gas.setAttribute('aria-label',`Gas, throttle ${amount} percent. Slide vertically to set real throttle. ${trimEligible()?'Hold at least half a second, then release to keep a four-second throttle trim.':'Releases immediately.'} ${trim?'Throttle trim active. ':''}${brakeArmed?'Brake launch control armed. ':''}`);
     action.hidden=!current;$('#raceDialActionIcon').textContent=current?.icon||'·';$('#raceDialActionName').textContent=current?.id==='finish-handbrake'?'FINISH':current?.id==='handbrake'?'DRIFT':current?.id==='shift'?'SHIFT':current?.label||'NONE';
-    action.setAttribute('aria-label',current?`${current.label}. ${g.kind} ${g.value}, ${g.state}. ${current.id==='finish-handbrake'?'Steer and hold handbrake beside the finish marker.':current.id==='handbrake'?'Hold to apply canonical handbrake.':'Tap to use canonical action.'}`:'No eligible special action');
+    action.setAttribute('aria-label',current?`${current.label}. ${g.shift?shiftDescription:`${g.kind} ${g.value}, ${g.state}.`} ${current.id==='finish-handbrake'?'Steer and hold handbrake beside the finish marker.':current.id==='handbrake'?'Hold to apply canonical handbrake.':'Tap to use canonical action.'}`:'No eligible special action');
     previous.hidden=next.hidden=list.length<2;
     previous.setAttribute('aria-label',`Previous eligible Race action${list.length>1?`, ${list[(list.findIndex(item=>item.id===selected)-1+list.length)%list.length].label}`:''}`);
     next.setAttribute('aria-label',`Next eligible Race action${list.length>1?`, ${list[(list.findIndex(item=>item.id===selected)+1)%list.length].label}`:''}`);
@@ -107,3 +110,7 @@ const RACE_INSTRUMENTS=(()=>{
   return Object.freeze({render:paint,cancel});
 })();
 function renderRaceInstruments(){RACE_INSTRUMENTS.render();}
+if(['localhost','127.0.0.1'].includes(location.hostname)&&new URLSearchParams(location.search).get('raceShiftQA')==='1')globalThis.__KICKLAB_RACE_SHIFT_QA__=Object.freeze({
+  state(){return{phase:Race.state,gear:Race.modeAttempt?.gear,lastShift:Race.modeAttempt?.lastShift,ratio:Race.st.v/Math.max(1,Race.P().top),window:RACE_MODES.shiftWindow(Race.modeAttempt?.gear),selected:$('#raceActionDial').dataset.selected,gauge:$('#raceActionDial').dataset.gaugeState,metric:$('#raceDialMetric').textContent};},
+  fixture(gear,ratio){if(!RACE_INSTRUMENTS_ON||Race.mode().id!=='drag'||Race.state!=='run'||!RACE_3D.ready)return null;const top=Race.P().top;Race.modeAttempt.gear=gear;Race.modeAttempt.phase='run';Race.modeAttempt.shiftCooldown=0;Race.st.v=ratio*top;Race.telemetry.rpm=.11;RACE_INSTRUMENTS.render();const dial=$('#raceActionDial'),attempt=RACE_MODES.initial('drag');attempt.phase='run';attempt.gear=gear;RACE_MODES.shift(attempt,Race.st.v,top,true);return{gear,ratio,phase:dial.dataset.gaugeState,timing:dial.dataset.shiftTiming,action:dial.dataset.actionPhase,selected:dial.dataset.selected,metric:$('#raceDialMetric').textContent,aria:$('#raceDialMetric').getAttribute('aria-label'),ghost:!dial.querySelector('.race-control-ghost')?.hidden,pulse:getComputedStyle($('#raceDialAction')).animationName,scored:attempt.lastShift,needle:dial.style.getPropertyValue('--needle-angle'),band:dial.querySelector('.race-dial-band-opt').getAttribute('d')};}
+});
