@@ -66,7 +66,7 @@ test('uses muted looping local video with reduced-motion and error fallback',()=
   for(const clip of manifest.clips){
     assert.match(clip.revision,/^[a-f0-9]{40}$/);
     assert.equal(clip.source,clip.lab==='Fight'?'Current local KickLab Canvas renderer':'Current local KickLab 3D renderer');
-    assert.deepEqual(clip.captureFlags,clip.lab==='Race'?['raceSystems=proxy']:clip.lab==='Kick'&&clip.revision!=='db08f39641a8c8c1daa70bd1f3b967296cc5792a'?['kickTime=day']:[]);
+    assert.deepEqual(clip.captureFlags,clip.lab==='Race'?['raceSystems=proxy','raceVideo=cinematic']:clip.lab==='Kick'&&clip.revision!=='db08f39641a8c8c1daa70bd1f3b967296cc5792a'?['kickTime=day']:[]);
     assert.equal(clip.streams[0].codec_name,'h264');
     assert.equal(clip.streams[0].width,640);assert.equal(clip.streams[0].height,360);
     assert.ok(Number(clip.format.duration)>=5&&Number(clip.format.duration)<=7);

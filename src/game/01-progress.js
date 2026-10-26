@@ -102,7 +102,7 @@ $('#raceReplayFallback').addEventListener('click',event=>{event.stopPropagation(
 function captureRace3DPreviewFrame(force=false){
   const record=RECS.race;if(M!==Race||!RACE_3D.on||!RACE_3D.ready||!record?.frames.length||RP.on||!force&&(Race.state!=='run'||!record.on))return false;
   const now=performance.now();if(!force&&now-(record.preview3dAt||0)<450)return false;
-  const source=RACE_3D.canvas;if(!source?.width||!source.height)return false;
+  const source=RACE_VIDEO.source();if(!source)return false;
   try{
     const frame=document.createElement('canvas');frame.width=360;frame.height=240;const context=frame.getContext('2d',{willReadFrequently:true}),aspect=frame.width/frame.height,sw=Math.min(source.width,source.height*aspect),sh=sw/aspect,car=globalThis.__KICKLAB_RACE_3D__?.composition?.carCenter||[.5,.62],sx=clamp(source.width*car[0]-sw*.5,0,source.width-sw),sy=clamp(source.height*car[1]-sh*.76,0,source.height-sh);
     context.drawImage(source,sx,sy,sw,sh,0,0,frame.width,frame.height);

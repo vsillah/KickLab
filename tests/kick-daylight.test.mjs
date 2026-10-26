@@ -58,16 +58,17 @@ test('time selection is presentation-only and does not enter the free-kick calcu
   assert.match(read('src/game/49-profiles.js'),/Kick\.opt\.time=best\.kickTime/);
 });
 
-test('keeps Fight and Race media bytes and local source policy intact',()=>{
+test('keeps Fight bytes and records the clean Race source',()=>{
   const expected={
     'fight.mp4':'7f84ffd903b08fc3dd4521b97f6598e8462b7f97f614c6af7da241877175e2f3',
-    'race.mp4':'5d7eaafcac2ff87ff007619254153db0c0b70bc4b383099d2e3586924e66da74',
+    'race.mp4':'464fa2f3fa43f213679b167b6ff5f17eeeb8942b8bafacbc1503b57e9723f9d9',
     'fight-poster.png':'3855ff1c70c78ae1b8ebdfda8ef020144aa11e388dfd04e5af11b4f9a66db1ba',
-    'race-poster.png':'277b050e937db559e885828701237f9debbd474a9c0224cd7c9ec4614bc53c02'
+    'race-poster.png':'a0e4406cfd7b93d2a1c55220d224e329f4ca43b3fe047e6ed1432853b73287c6'
   };
   for(const [name,hash] of Object.entries(expected))assert.equal(createHash('sha256').update(readFileSync(join(root,'src/media/home-previews',name))).digest('hex'),hash);
   const manifest=JSON.parse(read('src/media/home-previews/manifest.json'));
   assert.equal(manifest.privacy,'local renderer only; no external requests; no audio');
-  for(const clip of manifest.clips.filter(clip=>clip.lab!=='Kick'))assert.equal(clip.revision,'db08f39641a8c8c1daa70bd1f3b967296cc5792a');
-  const capture=read('scripts/capture-home-preview-media.mjs');assert.match(capture,/kickOnly\?\['Kick'\]/);assert.match(capture,/origin!==new URL\(baseUrl\)\.origin/);
+  assert.equal(manifest.clips.find(clip=>clip.lab==='Fight').revision,'db08f39641a8c8c1daa70bd1f3b967296cc5792a');
+  assert.equal(manifest.clips.find(clip=>clip.lab==='Race').revision,'43e0e6a273b062771e37c7e45d1ca56745d28a15');
+  const capture=read('scripts/capture-home-preview-media.mjs');assert.match(capture,/selectedLab\?\[selectedLab\]/);assert.match(capture,/origin!==new URL\(baseUrl\)\.origin/);
 });

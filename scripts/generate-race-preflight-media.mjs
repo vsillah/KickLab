@@ -31,7 +31,9 @@ try{
     if(!selected)throw Error(`Cannot select ${id}`);
     await page.waitForFunction(()=>window.__KICKLAB_RACE_PREFLIGHT_CAPTURE__?.ready(),{timeout:20000});
     const capture=page.evaluate(async ({id,kind})=>{
-      const hook=window.__KICKLAB_RACE_PREFLIGHT_CAPTURE__,canvas=document.querySelector('#race3'),stream=canvas.captureStream(24),recorder=new MediaRecorder(stream,{mimeType:'video/webm;codecs=vp8',videoBitsPerSecond:1200000}),chunks=[];
+      const hook=window.__KICKLAB_RACE_PREFLIGHT_CAPTURE__,canvas=window.__KICKLAB_RACE_VIDEO__?.source();
+      if(!canvas)throw new Error('Clean 3D Race video source is unavailable');
+      const stream=canvas.captureStream(24),recorder=new MediaRecorder(stream,{mimeType:'video/webm;codecs=vp8',videoBitsPerSecond:1200000}),chunks=[];
       recorder.ondataavailable=event=>chunks.push(event.data);
       const stopped=new Promise(resolve=>recorder.onstop=resolve);
       const binding=hook[kind==='arrival'?'arrive':'drive']();recorder.start();

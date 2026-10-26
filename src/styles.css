@@ -37,6 +37,13 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--hot);outline-of
 @media(prefers-reduced-motion:reduce){.goal-celebration-controls button{transition:none!important}}
 #cv3{position:absolute;left:0;top:0;width:100%;height:auto;aspect-ratio:16/9;display:none;pointer-events:none}
 #race3{position:absolute;left:0;top:0;width:100%;height:auto;aspect-ratio:16/9;display:none;pointer-events:none}
+/* Local capture-only presentation. Live Race never receives this attribute. */
+html[data-race-video="cinematic"][data-kicklab-mode="race"],
+html[data-race-video="cinematic"][data-kicklab-mode="race"] body{width:100vw!important;height:100vh!important;margin:0!important;overflow:hidden!important;background:#050a16!important}
+html[data-race-video="cinematic"][data-kicklab-mode="race"] :is(.wrap,.play,.left,.game-frame,.stage){display:block!important;width:100vw!important;height:100vh!important;max-width:none!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;overflow:hidden!important}
+html[data-race-video="cinematic"][data-kicklab-mode="race"] :is(.top,.game-context-header,.game-guidance-hud,.game-orientation-tools,.control-deck,.results,.lvlup,.feed,.toasts,.game-overlay-backdrop,.context-detail,.settings-drawer,.profile-dialog,.fboard,.game-pacing-overlay,.race-orbit-panel,.goal-celebration-controls,.race-phone-progress,.race-coach-notice,.race-cockpit,.race-phone-tools-toggle,.floating-control-head){display:none!important}
+html[data-race-video="cinematic"][data-kicklab-mode="race"] .stage>canvas#cv{visibility:hidden!important;pointer-events:none!important}
+html[data-race-video="cinematic"][data-kicklab-mode="race"] .stage>#race3{position:absolute!important;inset:0!important;width:100vw!important;height:100vh!important;aspect-ratio:auto!important}
 canvas#cv{position:relative;z-index:1}
 canvas#cv{display:block;width:100%;height:auto;aspect-ratio:16/9;touch-action:none;user-select:none;-webkit-user-select:none;cursor:pointer}
 .dock{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;justify-content:space-between}
