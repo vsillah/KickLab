@@ -2166,6 +2166,17 @@ html[data-kicklab-mode="race"] #gameGuidanceHud #coach .coach-copy{padding-right
 .race-coach-history-icon{color:#8de8ee}.race-coach-history li small{color:#aad1dc;white-space:nowrap;font:700 8px var(--f-mono)}
 @media(max-width:520px){html[data-kicklab-mode="race"] .stage{--race-progress-width:160px}html[data-kicklab-mode="race"] .race-phone-progress:not([hidden]){width:160px;gap:2px;padding:5px}html[data-kicklab-mode="race"] .race-phone-progress-node{width:15px;height:15px;font-size:8px}html[data-kicklab-mode="race"] .race-phone-progress-node[data-state="current"]{width:20px;height:20px}html[data-kicklab-mode="race"] .race-phone-progress-count{font-size:8px}html[data-kicklab-mode="race"] .race-phone-progress-finish{font-size:14px}html[data-kicklab-mode="race"] .race-coach-notice:not([hidden]){height:52px}.race-coach-notice-icon{width:14px;height:14px;font-size:9px}.race-coach-notice-text{font-size:9px;-webkit-line-clamp:3}#raceCoachNoticeDismiss{width:13px}}
 @media(max-width:360px){html[data-kicklab-mode="race"] .stage{--race-progress-width:120px}html[data-kicklab-mode="race"] .race-phone-progress:not([hidden]){width:120px;padding:3px}html[data-kicklab-mode="race"] .race-phone-progress-node{width:13px;height:13px}html[data-kicklab-mode="race"] .race-phone-progress-node[data-state="current"]{width:18px;height:18px}html[data-kicklab-mode="race"] .race-phone-progress-finish{display:none}}
+/* The wheel-anchored live dashboard occupies the band below the fixed progress and radio controls. */
+@media(max-width:480px){html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] #raceNavigation:not([hidden]){display:block!important}}
+@media(max-width:480px){
+ html[data-kicklab-mode="race"] .race-navigation-wing{grid-template-rows:29px 3px 20px 12px;gap:2px;padding:3px 5px 2px}
+ html[data-kicklab-mode="race"] .race-navigation-body{height:20px;align-items:center}
+ html[data-kicklab-mode="race"] .race-navigation svg{height:20px;max-height:20px}
+ html[data-kicklab-mode="race"] .race-navigation-steering{grid-template-rows:9px 9px;gap:1px}
+ html[data-kicklab-mode="race"] .race-navigation-steering b{padding:0 2px;font-size:8px;line-height:9px}
+ html[data-kicklab-mode="race"] .race-navigation-foot{height:12px;overflow:hidden}
+ html[data-kicklab-mode="race"] .race-navigation-foot :is(small,button):last-child{font-size:8px;line-height:11px}
+}
 @media(prefers-reduced-motion:reduce){.race-coach-notice.is-entering{animation:raceCoachFadeIn .18s ease-out both}.race-coach-notice.is-leaving{animation:raceCoachFadeOut .18s ease-in both}@keyframes raceCoachFadeIn{from{opacity:0}to{opacity:1}}@keyframes raceCoachFadeOut{from{opacity:1}to{opacity:0}}}
 /* Race playable instruments live on the control the player's hand already uses. */
 .control-deck.race-instruments-live #padR .arcade{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:3px;align-items:center;justify-items:center;transform:none!important}

@@ -149,19 +149,21 @@ function renderRaceNavigation({gauge,value,unit,fraction,phase,cue}){
   const panel=$('#raceNavigation'),cockpit=$('#raceCockpit');panel.hidden=!(RACE_CORNER_TRACE.enabled&&Race.state==='run'&&!RP.on&&!RACE_3D.shouldBlockInput());cockpit.hidden=panel.hidden;if(panel.hidden){if(globalThis.__KICKLAB_RACE_NAVIGATION__)globalThis.__KICKLAB_RACE_NAVIGATION__.visible=false;return;}
   const now=performance.now();if(now-raceNavigationAt<90&&gauge===raceNavigationGauge)return;raceNavigationAt=now;raceNavigationGauge=gauge;
   const navScale=(cv.clientWidth||960)/960,phone=cv.clientWidth<=480,left=8;
-  const width=phone?238:Math.round(Math.min(390,Math.max(205,215+(cv.clientWidth-356)*.18)));
-  const contentHeight=phone?118:Math.max(88,Math.round((Race.WH.y-Race.WH.r)*navScale));
-  const wheelX=Race.WH.x*navScale,wheelY=Race.WH.y*navScale,wheelRadius=Race.WH.r*(phone?1.5:1)*navScale;
-  const height=Math.max(contentHeight,Math.round(wheelY+wheelRadius*.55-4));
+  const width=phone?cv.clientWidth-16:Math.round(Math.min(390,Math.max(205,215+(cv.clientWidth-356)*.18)));
+  const contentHeight=phone?80:Math.max(88,Math.round((Race.WH.y-Race.WH.r)*navScale));
+  const wheelX=Race.WH.x*navScale,wheelY=(Race.WH.y+(phone?104:0))*navScale,wheelRadius=Race.WH.r*(phone?1.5:1)*navScale;
+  const progress=$('#racePhoneProgress').getBoundingClientRect(),stage=$('.stage').getBoundingClientRect();
+  const top=Math.ceil(progress.top-stage.top+Math.max(progress.height,phone?52:44)+6);
+  const height=Math.max(contentHeight,Math.round(wheelY+wheelRadius*.55-top));
   cockpit.style.left=`${wheelX}px`;cockpit.style.top=`${wheelY}px`;
   const overlay=$('#raceWheelCanvas');overlay.style.left=`${-wheelX}px`;overlay.style.top=`${-wheelY}px`;overlay.style.width=`${cv.clientWidth}px`;overlay.style.height=`${cv.clientHeight}px`;
   panel.style.left=`${left-wheelX}px`;
-  panel.style.top=`${4-wheelY}px`;
+  panel.style.top=`${top-wheelY}px`;
   panel.style.width=`${width}px`;
   panel.style.height=`${height}px`;
   panel.style.setProperty('--race-content-height',`${contentHeight}px`);
   panel.style.setProperty('--race-wheel-x',`${wheelX-left}px`);
-  panel.style.setProperty('--race-wheel-y',`${wheelY-4}px`);
+  panel.style.setProperty('--race-wheel-y',`${wheelY-top}px`);
   panel.style.setProperty('--race-wheel-radius',`${wheelRadius+7}px`);
   const wingRight=wheelX-left+wheelRadius+12;
   panel.style.setProperty('--race-wing-right',`${wingRight}px`);
@@ -210,7 +212,7 @@ if(['localhost','127.0.0.1'].includes(location.hostname)&&new URLSearchParams(lo
   controls(analog){setPrototypeControls(!!analog);},
   run(){RACE_3D.orbit.phase='done';RACE_3D.orbit.done=true;RACE_3D.awaitingPacing=false;RACE_3D.cameraPose=null;if(RACE_3D.orbitPanel)RACE_3D.orbitPanel.hidden=true;RACE_3D.setStartLights('go');Race.state='run';E.title=null;if(Race.mode().id==='drag')Race.st.x=45;Race.st.v=18;Race.st.t=4;Race.telemetry.selected='temperature';Race.telemetry.manualUntil=1000;renderRaceTelemetry();},
   thermal(heat,overheat,phase){Race.telemetry.heat=heat;Race.telemetry.overheat=overheat;Race.telemetry.phase=phase;Race.telemetry.recoveryUntil=phase==='recovered'?Race.telemetry.clock+1.5:0;Race.telemetry.selected='temperature';Race.telemetry.manualUntil=1000;Race.inp.gas=overheat&&heat>=.91;Race.st.t+=.2;renderRaceTelemetry();},
-  state(){return{phase:Race.state,inputs:{...Race.inp},paused:PAUSE.on,heat:Race.telemetry?.heat,thermal:Race.telemetry?RACE_TELEMETRY.thermalStage(Race.telemetry):null};},
+  state(){return{phase:Race.state,inputs:{...Race.inp},paused:PAUSE.on,steer:Race.opt.steer,wheel:Race.wheel,heat:Race.telemetry?.heat,thermal:Race.telemetry?RACE_TELEMETRY.thermalStage(Race.telemetry):null};},
   effect(fixture){const t=Race.telemetry,s=Race.st;let launchSetup=null;Race.__qaNosDrain=false;RACE_CINEMATIC_FX.clear(RACE_3D);Race.state='run';if(Race.mode().id==='drag')Object.assign(s,{x:45,y:0,th:0});Race.inp.gas=false;Race.inp.brake=false;t.nosPulse=0;t.brakeHeat=0;t.braking=0;t.grip=1;t.gripRecoveryUntil=0;s.nitroActive=false;s.nitroDelivered=false;s.launchSlip=0;s.driftMode='none';s.slipAngle=0;s.skidTime=0;s.slide=false;s.wheel=0;t.heat=.35;t.overheat=false;t.phase='drive';
     if(fixture==='exhaust'){t.heat=.82;t.torque=.75;}
     if(fixture==='normal-exhaust'){t.heat=.35;t.torque=.75;}
