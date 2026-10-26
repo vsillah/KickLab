@@ -4,7 +4,7 @@ import {join,resolve} from 'node:path';
 
 const {chromium}=createRequire(import.meta.url)('playwright');
 const out=resolve(process.argv[2]||'qa-artifacts/race-results-3d-preview');mkdirSync(out,{recursive:true});
-const head=process.env.KICKLAB_QA_HEAD||'working',base=`http://127.0.0.1:5887/kicklab.html?raceExpansion=prototype&raceCompetition=prototype&raceTelemetry=prototype&raceChampionship=prototype&raceResultsQA=1&rev=${head}`;
+const head=process.env.KICKLAB_QA_HEAD||'working',base=process.env.KICKLAB_QA_URL||`http://127.0.0.1:5887/kicklab.html?raceExpansion=prototype&raceCompetition=prototype&raceTelemetry=prototype&raceChampionship=prototype&raceResultsQA=1&rev=${head}`;
 const browser=await chromium.launch({headless:true,executablePath:[chromium.executablePath(),'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find(existsSync),args:['--enable-webgl']});
 const report={head,base,states:[],errors:[],external:[]};
 for(const viewport of [{width:390,height:844},{width:768,height:1024},{width:1440,height:900}].filter(size=>!process.env.KICKLAB_QA_WIDTH||size.width===Number(process.env.KICKLAB_QA_WIDTH)))for(const motion of ['reduce','no-preference']){

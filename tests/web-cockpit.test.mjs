@@ -229,7 +229,7 @@ test('starts on a dedicated mode home and keeps the full lab chooser out of acti
   for(const mode of ['fight','race','kick'])assert.match(html,new RegExp(`class="tab lab-showcase" id="lab-tab-${mode}"[^>]+data-mode="${mode}"[^>]+aria-pressed=`));
   assert.match(html,/id="game-cockpit" role="region" aria-labelledby="currentModeTitle" hidden/);
   assert.match(html,/id="modeHomeButton"[^>]*>[\s\S]*All labs[\s\S]*<\/button>/);
-  assert.match(keys,/function showModeHome\(\{focus=true\}=\{\}\)/);
+  assert.match(keys,/function showModeHome\(\{focus=true,preserveRaceResult=false\}=\{\}\)/);
   assert.match(keys,/\$\('#game-cockpit'\)\.hidden=true;\$\('#modeHome'\)\.hidden=false/);
   assert.match(keys,/\$\('#modeHome'\)\.after\(\$\('#progressHud'\)\)/);
   assert.match(keys,/\$\('#progressHud'\)\.hidden=false/);
