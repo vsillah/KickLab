@@ -42,6 +42,7 @@ function racePreflightMaybeOpen(){
   }
   if(M===Race&&RACE_PREFLIGHT.lastRaceState&&RACE_PREFLIGHT.lastRaceState!=='grid'&&Race.state==='grid'){RACE_PREFLIGHT.lastEpoch=-1;RACE_PREFLIGHT.committed=false;RACE_PREFLIGHT.draft=null;}
   RACE_PREFLIGHT.lastRaceState=M===Race?Race.state:null;
+  if(typeof RACE_MULTI!=='undefined'&&RACE_MULTI.enabled())return;
   if(!racePreflightCanOpen()||!$('#racePreflight').hidden||RACE_PREFLIGHT.committing||RACE_PREFLIGHT.committed||RACE_PREFLIGHT.lastEpoch===(Race.preflightEpoch||0)||RACE_3D.on&&!RACE_3D.orbit.done)return;
   RACE_PREFLIGHT.draft=null;
   racePreflightOpen($('#raceCoachSetupStart'));
