@@ -1,91 +1,95 @@
-/* Playable Race instruments decorate existing controls and read only canonical Race state. */
+/* Flagged Race dial: presentation and input routing over canonical Race state. */
 const RACE_INSTRUMENTS=(()=>{
-  const pad=$('#padR'),deck=$('.control-deck');
-  let pointer=null,keyboardGas=false,rackSelected=null,rackContext='',rackPointer=null,rackGesture=null;
-  const rack=$('#raceSpecialRack'),rackAction=$('#raceSpecialAction'),rackPrevious=$('#raceSpecialPrevious'),rackNext=$('#raceSpecialNext');
-  const clamp=(value)=>Math.min(1,Math.max(0,value));
+  const deck=$('.control-deck'),pad=$('#padR'),dial=$('#raceActionDial'),gas=$('#raceDialGas'),action=$('#raceDialAction');
+  const previous=$('#raceDialPrevious'),next=$('#raceDialNext');
+  const clamp=value=>Math.min(1,Math.max(0,value));
+  let gasPointer=null,gasKeyboard=false,trim=null,trimTimer=null,brakePointer=null,brakeArmed=false,brakeTimer=null,brakeExpiry=null;
+  let actionPointer=null,actionTimer=null,actionHeld=false,selected=null,selectionContext='',gaugeLock=null;
+  const style=()=>RACE_SIMULATOR.active?'simulator':ANALOG_CONTROL.enabled?'analog':'classic';
   const live=()=>RACE_INSTRUMENTS_ON&&M===Race&&Race.state==='run'&&!!Race.telemetry&&!PAUSE.on&&!RP.on&&!CINE.on&&!document.hidden&&RACE_3D.on&&RACE_3D.ready&&!RACE_3D.failed&&!deck.classList.contains('controller-collapsed')&&$('#racePhoneToolsToggle').getAttribute('aria-expanded')!=='true';
-  const controller=()=>RACE_SIMULATOR.active?'simulator':ANALOG_CONTROL.enabled?'analog':'classic';
-  const throttle=()=>controller()==='analog'&&Race.analogControl?.active?Math.max(0,-Race.analogControl.y):Number(Race.inp.gas)||0;
-  const shiftBand=()=>{const a=Race.modeAttempt,target=a?.mode==='drag'?RACE_MODES.shiftTarget(a.gear):null,ratio=Race.st.v/Math.max(1,Race.P().top);return{target,ratio,phase:!target?'hold':ratio<target-.1?'build':ratio<=target+.07?'act':'danger'};};
-  function paint(button,kind,value,sub,phase,label){
-    if(!button)return;
-    if(!button.dataset.instrumentBaseAria)button.dataset.instrumentBaseAria=button.getAttribute('aria-label')||'';
-    button.classList.add('race-instrument');button.dataset.instrument=kind;button.dataset.instrumentPhase=phase;
-    let face=button.querySelector('.race-instrument-face');
-    if(!face){face=document.createElement('span');face.className='race-instrument-face';face.setAttribute('aria-hidden','true');(button.querySelector('.cap')||button).appendChild(face);}
-    const cue={safe:'READY',prepare:'BUILD',build:'BUILD',act:kind==='shift'?'SHIFT':kind==='drift'?'HOLD':kind==='nos'?'FIRE':'ACT',danger:kind==='drift'?'SPIN':'LIMIT',hold:'HOLD'}[phase]||'READY';
-    const copy=`<b>${value}</b><small>${sub}</small><em>${cue}</em>`;if(face.innerHTML!==copy)face.innerHTML=copy;
-    if(button.getAttribute('aria-label')!==label)button.setAttribute('aria-label',label);
-    button.title=label;
+  const gasValue=()=>Number(Race.inp.gas)||0;
+  function finishApproach(){if(!RACE_FINISHES.enabled||!['drag','hill'].includes(Race.mode().id)||Race.signatureFinish?.phase!=='run')return false;const distance=RACE_FINISHES.distance(Race.mode().id,Race.st);return distance>=0&&distance<=Math.max(22,Race.st.v*2.1)&&Race.st.v>=13;}
+  const trimEligible=()=>Race.mode().id==='drift'||finishApproach();
+  function releaseInput(id){if(M===Race)Race.press(id,false);}
+  function dropTrim(){if(trimTimer)clearTimeout(trimTimer);trimTimer=null;if(trim)releaseInput('gas');trim=null;dial.dataset.trim='off';}
+  function dropBrake(){if(brakeTimer)clearTimeout(brakeTimer);if(brakeExpiry)clearTimeout(brakeExpiry);brakeTimer=brakeExpiry=null;if(brakePointer||brakeArmed)releaseInput('brake');brakePointer=null;brakeArmed=false;dial.dataset.brakeArmed='false';pad.querySelector('[data-id="brake"]')?.classList.remove('on');}
+  function dropAction(){if(actionTimer)clearTimeout(actionTimer);actionTimer=null;if(actionHeld)releaseInput('drift');actionHeld=false;actionPointer=null;}
+  function cancel(){if(gasPointer||gasKeyboard)releaseInput('gas');gasPointer=null;gasKeyboard=false;dropTrim();dropBrake();dropAction();}
+  function choices(){
+    if(!live())return[];
+    const mode=Race.mode().id,t=Race.telemetry,out=[];
+    if(mode==='drag'&&Race.modeAttempt?.gear<4)out.push({id:'shift',label:`Shift G${Race.modeAttempt.gear+1}`,icon:'⇧'});
+    if(mode==='drift')out.push({id:'handbrake',label:'Handbrake',icon:'↶'});
+    if(finishApproach())out.unshift({id:'finish-handbrake',label:'Finish handbrake',icon:'↶'});
+    if(t.capacity>.1&&!t.overheat&&t.pressure>=.25&&t.nosPulse<=0)out.push({id:'nos',label:'NOS',icon:'⚡'});
+    return out;
   }
-  function clear(button){if(!button||!button.classList.contains('race-instrument'))return;button.classList.remove('race-instrument');delete button.dataset.instrument;delete button.dataset.instrumentPhase;button.querySelector('.race-instrument-face')?.remove();button.setAttribute('aria-label',button.dataset.instrumentBaseAria||'');button.removeAttribute('aria-disabled');button.removeAttribute('title');}
-  function releaseGas(){if((pointer?.kind==='gas'||keyboardGas)&&M===Race)Race.press('gas',false);pointer=null;keyboardGas=false;}
-  function release(){releaseGas();if(rackPointer?.kind==='handbrake'&&M===Race)Race.press('drift',false);if(rackGesture?.timer)clearTimeout(rackGesture.timer);rackPointer=null;rackGesture=null;}
-  function act(kind){if(!live())return false;
-    if(kind==='instrument-shift'){const changed=Race.shiftGear();if(changed){requestMobileHaptic('tick');renderRaceTelemetry();}return changed;}
-    if(kind==='instrument-nos'){const t=Race.telemetry,changed=RACE_TELEMETRY.activateNos(t,.25);if(changed){requestMobileHaptic('tick');renderRaceTelemetry();}else COACH.say(t.overheat?'NOS locked: cool the engine.':t.capacity<=.1?'NOS tank empty.':'Build NOS pressure before release.','tip',2);return changed;}
+  function place(){const mode=style(),host=mode==='analog'?$('#touchController'):mode==='simulator'?$('#raceSimulator .sim-controls'):pad.querySelector('.arcade');if(host&&dial.parentElement!==host)host.appendChild(dial);dial.dataset.controller=mode;}
+  function cycle(direction){const list=choices();if(list.length<2)return false;const index=list.findIndex(item=>item.id===selected);dropAction();selected=list[(index+direction+list.length)%list.length].id;gaugeLock=null;paint();action.focus();return true;}
+  function doAction(id){if(!live()||!choices().some(item=>item.id===id))return false;
+    if(id==='shift'){const changed=Race.shiftGear();if(changed){requestMobileHaptic('tick');renderRaceTelemetry();}return changed;}
+    if(id==='nos'){const changed=RACE_TELEMETRY.activateNos(Race.telemetry,.25);if(changed){gaugeLock={kind:'nos',until:performance.now()+1700};requestMobileHaptic('tick');renderRaceTelemetry();}return changed;}
     return false;
   }
-  function rackChoices(){
-    if(!live())return[];
-    const choices=[],t=Race.telemetry,s=Race.st,mode=Race.mode().id;
-    const remaining=RACE_FINISHES.distance(mode,s),approach=RACE_FINISHES.enabled&&Race.signatureFinish?.phase==='run'&&['drag','hill'].includes(mode)&&remaining>=0&&remaining<=Math.max(22,s.v*2.1)&&s.v>=13;
-    if(approach)choices.push({id:'handbrake',name:'Finish handbrake',detail:`${Math.ceil(remaining)} m · steer`,priority:true});
-    if(t.capacity>.1&&!t.overheat&&t.pressure>=.25&&t.nosPulse<=0)choices.push({id:'nos',name:'NOS',detail:`${Math.round(t.pressure*100)}% · ${Math.round(t.heat*100)}°`,priority:!approach});
-    return choices;
+  function gauge(){
+    const t=Race.telemetry,kind=selected==='nos'||gaugeLock&&gaugeLock.until>performance.now()?'nos':Race.mode().id==='drift'?'drift':'rpm';
+    const range=RACE_TELEMETRY.GAUGES.find(item=>item.id===kind)?.target||[.55,.78],fraction=kind==='nos'?t.pressure:kind==='drift'?t.angle:t.rpm;
+    const value=kind==='nos'?`${Math.round(t.pressure*100)}%`:kind==='drift'?`${Math.round(Math.abs(Race.st.slipAngle||0)*180/Math.PI)}°`:`${(t.rpm*8.5).toFixed(1)}k`;
+    let state=fraction<range[0]?'LOW':fraction<=range[1]?'OPT':'RED';
+    if(kind==='nos')state=t.capacity<=.1?'EMPTY':t.overheat?'HOT':t.pressure<.25?'BUILD':t.nosPulse>0?'ON':state;
+    if(kind==='drift'&&Race.st.driftMode==='skid')state='SPIN';
+    return{kind,fraction:clamp(fraction),value,state};
   }
-  function renderRack(active){
-    const choices=active?rackChoices():[];
-    if(!choices.length){if(rackPointer?.kind==='handbrake')Race.press('drift',false);rackPointer=null;rackSelected=null;rackContext='';rack.hidden=true;return;}
-    const priority=choices.find(choice=>choice.priority)||choices[0],context=`${Race.mode().id}:${choices.some(choice=>choice.id==='handbrake')?'approach':'drive'}`;
-    if(context!==rackContext||!choices.some(choice=>choice.id===rackSelected)){rackSelected=priority.id;rackContext=context;}
-    const choice=choices.find(item=>item.id===rackSelected)||priority,multiple=choices.length>1;
-    if(rackPointer?.kind==='handbrake'&&choice.id!=='handbrake'){Race.press('drift',false);rackPointer=null;}
-    rack.hidden=false;rack.dataset.selected=choice.id;rack.dataset.available=choices.map(item=>item.id).join(',');
-    rackPrevious.hidden=rackNext.hidden=!multiple;
-    rackAction.innerHTML=`${choice.name}<small>${choice.detail}</small>`;
-    rackAction.setAttribute('aria-label',`${choice.name}. ${choice.detail}. ${choice.id==='handbrake'?'Hold to arm the existing finish contract.':'Activate the existing NOS pulse.'}`);
-  }
-  function cycleRack(direction){const choices=rackChoices();if(choices.length<2)return false;const index=choices.findIndex(choice=>choice.id===rackSelected);rackSelected=choices[(index+direction+choices.length)%choices.length].id;renderRack(true);rackAction.focus();return true;}
-  function rackPress(event){if(!live()||rack.hidden)return;const choice=rackChoices().find(item=>item.id===rackSelected);if(!choice)return;event.preventDefault();event.stopPropagation();if(choice.id==='nos'){act('instrument-nos');return;}if(rackPointer)return;rackPointer={kind:'handbrake',id:event.pointerId??'keyboard'};if(event.pointerId!=null)try{rackAction.setPointerCapture(event.pointerId);}catch(_){}Race.press('drift',true);renderRaceTelemetry();}
-  function rackRelease(event){if(!rackPointer||event.pointerId!=null&&rackPointer.id!==event.pointerId)return;event?.preventDefault();const held=rackPointer;rackPointer=null;if(held.kind==='handbrake'&&M===Race)Race.press('drift',false);renderRaceTelemetry();}
-  rackPrevious.addEventListener('click',()=>cycleRack(-1));rackNext.addEventListener('click',()=>cycleRack(1));
-  rack.addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight'].includes(event.key))return;event.preventDefault();cycleRack(event.key==='ArrowRight'?1:-1);});
-  rack.addEventListener('pointerdown',event=>{if(!live()||rack.hidden||event.target===rackPrevious||event.target===rackNext)return;const choice=rackChoices().find(item=>item.id===rackSelected);if(!choice)return;event.preventDefault();event.stopPropagation();rackGesture={id:event.pointerId,x:event.clientX,kind:event.target===rackAction?choice.id:null,swipe:false,timer:null};try{rackAction.setPointerCapture(event.pointerId);}catch(_){}if(choice.id==='handbrake'&&rackGesture.kind==='handbrake')rackGesture.timer=setTimeout(()=>{if(rackGesture?.id===event.pointerId&&!rackGesture.swipe&&rackChoices().some(item=>item.id==='handbrake'))rackPress(event);},80);});
-  rack.addEventListener('pointermove',event=>{if(!rackGesture||rackGesture.id!==event.pointerId||Math.abs(event.clientX-rackGesture.x)<24)return;rackGesture.swipe=true;if(rackGesture.timer)clearTimeout(rackGesture.timer);rackRelease(event);});
-  rack.addEventListener('pointerup',event=>{if(!rackGesture||rackGesture.id!==event.pointerId)return;event.preventDefault();const gesture=rackGesture;rackGesture=null;if(gesture.timer)clearTimeout(gesture.timer);rackRelease(event);if(gesture.swipe||Math.abs(event.clientX-gesture.x)>=24)cycleRack(event.clientX<gesture.x?1:-1);else if(gesture.kind==='nos'&&rackChoices().some(item=>item.id==='nos')&&rackSelected==='nos')act('instrument-nos');});
-  for(const type of ['pointercancel','lostpointercapture'])rack.addEventListener(type,event=>{if(rackGesture?.id===event.pointerId){if(rackGesture.timer)clearTimeout(rackGesture.timer);rackGesture=null;}rackRelease(event);});
-  rackAction.addEventListener('keydown',event=>{if(!['Enter',' '].includes(event.key)||event.repeat)return;rackPress(event);});
-  rackAction.addEventListener('keyup',event=>{if(['Enter',' '].includes(event.key))rackRelease(event);});
-  rackAction.addEventListener('blur',()=>rackRelease());
-  function render(){
+  function paint(){
     if(!RACE_INSTRUMENTS_ON)return;
-    const active=live(),style=controller(),gas=pad.querySelector('[data-id="gas"]'),shift=pad.querySelector('[data-id="instrument-shift"]'),nos=pad.querySelector('[data-id="instrument-nos"]'),drift=pad.querySelector('[data-id="drift"]');
-    deck.classList.toggle('race-instruments-live',active);renderRack(active);if(!active){release();$('#gestureAction .race-instrument-nos')?.remove();$('#simGas .race-instrument-nos')?.remove();gas?.querySelector('.race-instrument-nos')?.remove();for(const button of [gas,shift,nos,drift,$('#gestureAction'),$('#raceAnalogShift'),$('#raceAnalogActions [data-race-assist="drift"]'),$('#simGas'),$('#simShiftUp'),$('#simNos'),$('#simHandbrake')])clear(button);for(const button of [shift,nos,$('#raceAnalogShift')])if(button)button.hidden=true;if(drift&&!RACE_FINISHES.enabled)drift.hidden=true;return;}
-    const t=Race.telemetry,a=Race.modeAttempt,mode=Race.mode().id,band=shiftBand(),amount=Math.round(clamp(throttle())*100),rpm=Math.round(t.rpm*8500),rpmText=`${(rpm/1000).toFixed(1)}k`,rpmPhase=mode==='drag'?band.phase:t.overheat?'danger':amount>=75?'act':amount>0?'prepare':'safe';
-    if(gas){const empty=t.capacity<=.1,nosStatus=empty?'EMPTY':t.overheat?'HOT':t.nosPulse>0?'ON':t.pressure<.25?'BUILD':t.phase==='recovered'?'COOLED':'READY',label=(mode==='drag'?`Gas, ${rpm} RPM, throttle ${amount} percent, gear ${a.gear}, ${band.phase} shift window.`:`Gas, throttle ${amount} percent, engine heat ${Math.round(t.heat*100)} percent.`)+` NOS ${Math.round(t.pressure*100)} percent, tank ${Math.round(t.capacity*100)} percent, ${nosStatus.toLowerCase()}. Slide up for more throttle, down for less.`;paint(gas,'throttle',mode==='drag'?rpmText:`${amount}%`,mode==='drag'?`${amount}% · G${a.gear}`:`${Math.round(t.heat*100)}° heat`,rpmPhase,label);gas.dataset.instrumentEditable=String(style==='classic');let badge=gas.querySelector('.race-instrument-nos');if(!badge){badge=document.createElement('span');badge.className='race-instrument-nos';badge.setAttribute('aria-hidden','true');gas.appendChild(badge);}badge.textContent=`N${Math.round(t.pressure*100)} ${nosStatus}`;badge.dataset.phase=empty||t.overheat?'danger':t.pressure<.25?'prepare':t.nosPulse>0?'act':'safe';}
-    if(shift){shift.hidden=mode!=='drag'||a.gear>=4;if(!shift.hidden){const target=Math.round((band.target||0)*Race.P().top*3.6);paint(shift,'shift',`G${a.gear}→${a.gear+1}`,`${target} km/h`,band.phase,`Shift to gear ${a.gear+1}. Current ${rpm} RPM, ${Math.round(Race.st.v*3.6)} kilometres per hour; target ${target}; ${band.phase} window. ${a.lastShift?`Last shift ${a.lastShift}.`:''}`);shift.setAttribute('aria-disabled',String(a.shiftCooldown>0));}}
-    if(nos){nos.hidden=true;clear(nos);}
-    if(drift&&mode==='drift'){drift.hidden=false;const angle=Math.round(Math.abs(Race.st.slipAngle||0)*180/Math.PI),phase=Race.st.driftMode==='skid'||angle>32?'danger':Race.st.driftMode==='drift'&&angle>=7?'act':Race.inp.drift?'prepare':'safe';paint(drift,'drift',`${angle}°`,phase==='danger'?'SPIN':phase==='act'?'HOLD':'7–32°',phase,`Handbrake, drift angle ${angle} degrees, target 7 to 32 degrees; ${phase==='danger'?'spin out, release and recover':phase==='act'?'controlled drift':'hold to begin drift'}. Hold Shift or this control.`);}
-    const analogGas=$('#gestureAction'),simGas=$('#simGas');
-    const analogShift=$('#raceAnalogShift');if(analogShift){analogShift.hidden=style!=='analog'||mode!=='drag'||a.gear>=4;if(!analogShift.hidden){const target=Math.round((band.target||0)*Race.P().top*3.6);$('#raceAnalogActions').hidden=false;paint(analogShift,'shift',`G${a.gear}→${a.gear+1}`,`${target} km/h`,band.phase,`Shift to gear ${a.gear+1}. Current ${Math.round(Race.st.v*3.6)} kilometres per hour; target ${target}; ${band.phase} window. ${a.lastShift?`Last shift ${a.lastShift}.`:''}`);analogShift.setAttribute('aria-disabled',String(a.shiftCooldown>0));}else clear(analogShift);}
-    if(style==='analog'&&analogGas){paint(analogGas,'throttle',mode==='drag'?rpmText:`${amount}%`,mode==='drag'?`${amount}%`:`H${Math.round(t.heat*100)}%`,rpmPhase,`Gas gesture, ${rpm} RPM, throttle ${amount} percent, ${band.phase} shift window. NOS charge ${Math.round(t.pressure*100)} percent, heat ${Math.round(t.heat*100)} percent. Analog stick controls throttle; flick up here for NOS.`);let badge=analogGas.querySelector('.race-instrument-nos');if(t.capacity>.1){if(!badge){badge=document.createElement('span');badge.className='race-instrument-nos';badge.setAttribute('aria-hidden','true');analogGas.appendChild(badge);}badge.dataset.phase=t.overheat?'danger':t.pressure>=.62&&t.pressure<=.86?'act':t.pressure>=.25?'safe':'prepare';const copy=`N${Math.round(t.pressure*100)} · ${t.overheat?'HOT':t.nosPulse>0?'ON':t.pressure<.25?'BUILD':'READY'}`;if(badge.textContent!==copy)badge.textContent=copy;}else badge?.remove();}else{analogGas?.querySelector('.race-instrument-nos')?.remove();clear(analogGas);}
-    const analogDrift=$('#raceAnalogActions [data-race-assist="drift"]');if(style==='analog'&&mode==='drift'){const angle=Math.round(Math.abs(Race.st.slipAngle||0)*180/Math.PI),phase=Race.st.driftMode==='skid'?'danger':Race.st.driftMode==='drift'?'act':'prepare';$('#raceAnalogActions').hidden=false;analogDrift.hidden=false;paint(analogDrift,'drift',`${angle}°`,'7–32°',phase,`Hold handbrake, current drift angle ${angle} degrees, target 7 to 32 degrees, ${phase}.`);}else clear(analogDrift);
-    if(style==='simulator'&&simGas){paint(simGas,'throttle',mode==='drag'?rpmText:`${amount}%`,mode==='drag'?`${amount}%`:`H${Math.round(t.heat*100)}%`,rpmPhase,`Throttle pedal, ${rpm} RPM, throttle ${amount} percent, ${band.phase} shift window. Hold pedal; flick up for NOS.`);let badge=simGas.querySelector('.race-instrument-nos');if(!badge){badge=document.createElement('span');badge.className='race-instrument-nos';badge.setAttribute('aria-hidden','true');simGas.appendChild(badge);}badge.dataset.phase=t.capacity<=.1||t.overheat?'danger':t.pressure<.25?'prepare':'safe';badge.textContent=`NOS ${Math.round(t.pressure*100)}% · ${t.capacity<=.1?'EMPTY':t.overheat?'HOT':t.nosPulse>0?'ON':'READY'}`;}else{simGas?.querySelector('.race-instrument-nos')?.remove();clear(simGas);}
-    if(style==='simulator'){const simNos=$('#simNos'),simHandbrake=$('#simHandbrake'),simShift=$('#simShiftUp');if(simNos)paint(simNos,'nos',`${Math.round(t.pressure*100)}%`,t.overheat?'HOT':'NOS',t.overheat?'danger':t.pressure>=.25?'act':'prepare',`NOS, charge ${Math.round(t.pressure*100)} percent, heat ${Math.round(t.heat*100)} percent, ${t.overheat?'locked by overheat':'use N or flick up from throttle'}`);if(mode==='drag'&&a.gear<4){paint(simShift,'shift',`G${a.gear}→${a.gear+1}`,`${Math.round((band.target||0)*Race.P().top*3.6)} km/h`,band.phase,`Upshift to gear ${a.gear+1}, ${band.phase} window, current ${Math.round(Race.st.v*3.6)} kilometres per hour. ${a.lastShift?`Last shift ${a.lastShift}.`:''}`);simShift.setAttribute('aria-disabled',String(a.shiftCooldown>0));}else clear(simShift);if(mode==='drift'&&simHandbrake)paint(simHandbrake,'drift',`${Math.round(Math.abs(Race.st.slipAngle||0)*180/Math.PI)}°`,'7–32°',Race.st.driftMode==='skid'?'danger':Race.st.driftMode==='drift'?'act':'prepare',`Handbrake, drift angle ${Math.round(Math.abs(Race.st.slipAngle||0)*180/Math.PI)} degrees, target 7 to 32 degrees.`);else clear(simHandbrake);}else{clear($('#simShiftUp'));clear($('#simNos'));clear($('#simHandbrake'));}
+    const active=live();deck.classList.toggle('race-instruments-live',active);
+    if(!active){cancel();dial.hidden=true;return;}
+    place();dial.hidden=false;if(trim&&(!trimEligible()||performance.now()>=trim.until))dropTrim();
+    const list=choices(),context=`${Race.mode().id}:${finishApproach()?'finish':'drive'}`;
+    if(context!==selectionContext||!list.some(item=>item.id===selected)){dropAction();selected=list[0]?.id||null;selectionContext=context;}
+    const current=list.find(item=>item.id===selected),g=gauge(),amount=Math.round(clamp(gasValue())*100);
+    dial.dataset.selected=current?.id||'';dial.dataset.available=list.map(item=>item.id).join(',');dial.dataset.gauge=g.kind;dial.dataset.gaugeState=g.state;
+    const band=Race.modeAttempt?.gear&&RACE_MODES.shiftTarget(Race.modeAttempt.gear),ratio=Race.st.v/Math.max(1,Race.P().top);
+    dial.dataset.actionPhase=current?.id==='shift'?(Race.modeAttempt.shiftCooldown>0||ratio<band-.1?'build':ratio<=band+.07?'act':'danger'):current?.id==='nos'?'act':current?'act':'build';
+    dial.style.setProperty('--needle-angle',`${-120+g.fraction*240}deg`);
+    dial.querySelector('.race-dial-gauge').setAttribute('aria-label',`${g.kind==='rpm'?'Engine RPM':g.kind==='nos'?'NOS pressure':'Drift slip angle'} ${g.value}, ${g.state}${g.kind==='nos'?`, heat ${Math.round(Race.telemetry.heat*100)} percent, tank ${Math.round(Race.telemetry.capacity*100)} percent`:''}`);
+    $('#raceDialMetric').textContent=`${g.value} ${g.state}`;$('#raceDialThrottle').textContent=`${amount}%`;
+    $('#raceDialHold').textContent=trim?`${Math.max(1,Math.ceil((trim.until-performance.now())/1000))}s HOLD`:brakeArmed?'BRK ARM':'LIVE';
+    dial.dataset.trim=trim?'armed':'off';dial.dataset.brakeArmed=String(brakeArmed);
+    gas.setAttribute('aria-label',`Gas, throttle ${amount} percent. Slide vertically to set real throttle. ${trimEligible()?'Hold at least half a second, then release to keep a four-second throttle trim.':'Releases immediately.'} ${trim?'Throttle trim active. ':''}${brakeArmed?'Brake launch control armed. ':''}`);
+    action.hidden=!current;$('#raceDialActionIcon').textContent=current?.icon||'·';$('#raceDialActionName').textContent=current?.id==='finish-handbrake'?'FINISH':current?.id==='handbrake'?'DRIFT':current?.id==='shift'?'SHIFT':current?.label||'NONE';
+    action.setAttribute('aria-label',current?`${current.label}. ${g.kind} ${g.value}, ${g.state}. ${current.id.includes('handbrake')?'Hold to apply canonical handbrake.':'Tap to use canonical action.'}`:'No eligible special action');
+    previous.hidden=next.hidden=list.length<2;
+    previous.setAttribute('aria-label',`Previous eligible Race action${list.length>1?`, ${list[(list.findIndex(item=>item.id===selected)-1+list.length)%list.length].label}`:''}`);
+    next.setAttribute('aria-label',`Next eligible Race action${list.length>1?`, ${list[(list.findIndex(item=>item.id===selected)+1)%list.length].label}`:''}`);
+    for(const brake of [pad.querySelector('[data-id="brake"]'),$('#raceAnalogActions [data-race-assist="brake"]'),$('#simBrake')])if(brake)brake.setAttribute('aria-label',`Brake. ${brakeArmed?'Launch control armed; tap to release and launch.':'Hold to brake; long-press while stopped to arm launch control.'}`);
   }
-  pad.addEventListener('pointerdown',event=>{if(!live()||controller()!=='classic')return;const button=event.target.closest('button[data-id]');if(!button)return;const kind=button.dataset.id;if(!['gas','instrument-nos','instrument-shift'].includes(kind))return;
-    event.preventDefault();event.stopImmediatePropagation();unlock();releaseGas();pointer={id:event.pointerId,kind,startY:event.clientY};try{button.setPointerCapture(event.pointerId);}catch(_){}
-    if(kind==='gas'){keyboardGas=false;const rect=button.getBoundingClientRect();Race.press('gas',clamp((rect.bottom-event.clientY)/Math.max(1,rect.height)));render();}
-  },true);
-  pad.addEventListener('pointermove',event=>{if(!pointer||pointer.id!==event.pointerId||pointer.kind!=='gas')return;event.preventDefault();event.stopImmediatePropagation();if(!live()){release();return;}const button=event.target.closest('button[data-id="gas"]')||pad.querySelector('[data-id="gas"]'),rect=button.getBoundingClientRect();Race.press('gas',clamp((rect.bottom-event.clientY)/Math.max(1,rect.height)));render();},true);
-  for(const type of ['pointerup','pointercancel','lostpointercapture'])pad.addEventListener(type,event=>{if(!pointer||pointer.id!==event.pointerId)return;event.preventDefault();event.stopImmediatePropagation();const kind=pointer.kind,startY=pointer.startY;releaseGas();if(type==='pointerup'&&live()&&kind!=='gas'&&(kind==='instrument-shift'||startY-event.clientY>=18||Math.abs(startY-event.clientY)<10))act(kind);render();},true);
-  pad.addEventListener('keydown',event=>{if(!live()||controller()!=='classic')return;const button=event.target.closest('button[data-id]');if(!button)return;const kind=button.dataset.id;if(kind==='gas'&&['ArrowUp','ArrowDown'].includes(event.key)){event.preventDefault();event.stopImmediatePropagation();keyboardGas=true;Race.press('gas',clamp(throttle()+(event.key==='ArrowUp'?.1:-.1)));render();}else if(['instrument-nos','instrument-shift'].includes(kind)&&['Enter',' '].includes(event.key)){event.preventDefault();event.stopImmediatePropagation();if(!event.repeat)act(kind);}},true);
-  pad.addEventListener('focusout',event=>{if(event.target.matches('[data-id="gas"]'))releaseGas();});
-  for(const type of ['blur','orientationchange','pagehide'])window.addEventListener(type,release);
-  document.addEventListener('visibilitychange',()=>{if(document.hidden)release();});
-  $('#raceAnalogShift').addEventListener('click',()=>act('instrument-shift'));
-  return Object.freeze({render,cancel:release});
+  function setGasFromY(y){const box=gas.getBoundingClientRect();Race.press('gas',clamp((box.bottom-y)/Math.max(1,box.height)));paint();}
+  gas.addEventListener('pointerdown',event=>{if(!live())return;event.preventDefault();event.stopPropagation();unlock();dropTrim();gasPointer={id:event.pointerId,at:performance.now()};try{gas.setPointerCapture(event.pointerId);}catch(_){}setGasFromY(event.clientY);});
+  gas.addEventListener('pointermove',event=>{if(gasPointer?.id!==event.pointerId)return;event.preventDefault();setGasFromY(event.clientY);});
+  gas.addEventListener('pointerup',event=>{if(gasPointer?.id!==event.pointerId)return;event.preventDefault();const elapsed=performance.now()-gasPointer.at;gasPointer=null;if(live()&&trimEligible()&&elapsed>=500&&gasValue()>=.15){trim={value:gasValue(),until:performance.now()+4000};trimTimer=setTimeout(()=>{dropTrim();paint();},4000);}else Race.press('gas',false);paint();});
+  for(const type of ['pointercancel','lostpointercapture'])gas.addEventListener(type,event=>{if(gasPointer?.id===event.pointerId){gasPointer=null;Race.press('gas',false);paint();}});
+  gas.addEventListener('keydown',event=>{if(!live()||!['ArrowUp','ArrowDown'].includes(event.key))return;event.preventDefault();gasKeyboard=true;Race.press('gas',clamp(gasValue()+(event.key==='ArrowUp'?.1:-.1)));paint();});
+  gas.addEventListener('blur',()=>{if(gasKeyboard){gasKeyboard=false;Race.press('gas',false);paint();}});
+  function brakeDown(event,button){if(!live())return;event.preventDefault();event.stopImmediatePropagation();unlock();dropTrim();if(brakeArmed){dropBrake();paint();return;}brakePointer={id:event.pointerId,button};button.classList.add('on');try{button.setPointerCapture(event.pointerId);}catch(_){}Race.press('brake',true);if(Race.mode().id==='drag'&&Race.st.v<1.5)brakeTimer=setTimeout(()=>{if(!brakePointer||Race.st.v>=1.5)return;brakeArmed=true;dial.dataset.brakeArmed='true';brakeExpiry=setTimeout(()=>{cancel();paint();},5000);paint();},500);paint();}
+  function brakeUp(event){if(!live()&&brakePointer?.id!==event.pointerId)return;event.preventDefault();event.stopImmediatePropagation();if(brakePointer?.id!==event.pointerId)return;if(brakeTimer)clearTimeout(brakeTimer);brakeTimer=null;brakePointer.button.classList.remove('on');if(event.type!=='pointerup'||!brakeArmed)dropBrake();else brakePointer=null;paint();}
+  pad.addEventListener('pointerdown',event=>{const button=event.target.closest('[data-id="brake"]');if(button&&style()==='classic')brakeDown(event,button);},true);
+  for(const type of ['pointerup','pointercancel','lostpointercapture'])pad.addEventListener(type,event=>{if(event.target.closest('[data-id="brake"]')&&style()==='classic')brakeUp(event);},true);
+  for(const button of [$('#raceAnalogActions [data-race-assist="brake"]'),$('#simBrake')]){button.addEventListener('pointerdown',event=>brakeDown(event,button),true);for(const type of ['pointerup','pointercancel','lostpointercapture'])button.addEventListener(type,brakeUp,true);}
+  function actionDown(event,kind=selected){if(!live())return;event.preventDefault();event.stopPropagation();actionPointer={id:event.pointerId??'keyboard',x:event.clientX??0,y:event.clientY??0,kind,swiped:false,direction:0};if(event.pointerId!=null)try{dial.setPointerCapture(event.pointerId);}catch(_){}if(kind?.includes('handbrake'))actionTimer=setTimeout(()=>{if(actionPointer?.kind===kind&&!actionPointer.swiped&&choices().some(item=>item.id===kind)){Race.press('drift',true);actionHeld=true;paint();}},80);}
+  function actionUp(event){if(!actionPointer||event.pointerId!=null&&actionPointer.id!==event.pointerId)return;event?.preventDefault();const gesture=actionPointer;dropAction();if(gesture.swiped){cycle(gesture.direction);return;}if(gesture.kind&&!gesture.kind.includes('handbrake'))doAction(gesture.kind);paint();}
+  action.addEventListener('pointerdown',event=>actionDown(event));
+  dial.addEventListener('pointerdown',event=>{if(event.target===dial||event.target.closest('.race-dial-gauge'))actionDown(event,null);});
+  dial.addEventListener('pointermove',event=>{if(actionPointer?.id!==event.pointerId)return;const dx=event.clientX-actionPointer.x,dy=event.clientY-actionPointer.y;if(Math.hypot(dx,dy)<24)return;actionPointer.swiped=true;actionPointer.direction=dx<0||Math.abs(dx)<8&&dy>0?1:-1;if(actionTimer)clearTimeout(actionTimer);actionTimer=null;if(actionHeld){Race.press('drift',false);actionHeld=false;}});
+  dial.addEventListener('pointerup',event=>{if(actionPointer?.id===event.pointerId)actionUp(event);});
+  for(const type of ['pointercancel','lostpointercapture'])dial.addEventListener(type,event=>{if(actionPointer?.id===event.pointerId){dropAction();paint();}});
+  action.addEventListener('keydown',event=>{if([' ','Enter'].includes(event.key)&&!event.repeat)actionDown(event);});
+  action.addEventListener('keyup',event=>{if([' ','Enter'].includes(event.key))actionUp(event);});
+  action.addEventListener('blur',()=>{if(actionPointer?.id==='keyboard'){dropAction();paint();}});
+  previous.addEventListener('click',()=>cycle(-1));next.addEventListener('click',()=>cycle(1));
+  dial.addEventListener('keydown',event=>{if(event.target===gas)return;if(['ArrowLeft','ArrowRight'].includes(event.key)){event.preventDefault();cycle(event.key==='ArrowRight'?1:-1);}if(event.key==='Escape'){event.preventDefault();cancel();paint();}});
+  for(const type of ['blur','orientationchange','pagehide'])window.addEventListener(type,()=>{cancel();paint();});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden){cancel();paint();}});
+  return Object.freeze({render:paint,cancel});
 })();
 function renderRaceInstruments(){RACE_INSTRUMENTS.render();}

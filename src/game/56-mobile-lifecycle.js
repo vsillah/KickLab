@@ -4,6 +4,7 @@ const MOBILE_HAPTIC_STYLES=Object.freeze({target:'LIGHT',perfect:'MEDIUM',overch
 function reflectMobileState(){document.documentElement.dataset.kicklabMobileLifecycle=MOBILE_STATE.active?'active':'suspended';}
 
 function releaseMobileHeldInputs(reason='App interrupted'){
+  if(typeof RACE_INSTRUMENTS!=='undefined'&&reason!=='Race green light')RACE_INSTRUMENTS.cancel();
   if(typeof simCancel==='function'&&reason!=='Race green light')simCancel(reason,true);
   document.querySelectorAll('#pad button.on').forEach(button=>{if(reason==='Race green light'&&button.closest('#raceSimulator'))return;button.dispatchEvent(new Event('pointercancel'));});
   document.querySelectorAll('#raceAnalogActions [data-held="true"]').forEach(button=>{button.dispatchEvent(new Event('pointercancel'));button.dataset.held='false';button.classList.remove('on');});

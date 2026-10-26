@@ -270,7 +270,7 @@
               </div>
               <div class="race-analog-actions" id="raceAnalogActions" hidden aria-label="Race systems prototype actions">
                 <button type="button" id="raceAnalogShift" hidden aria-label="Shift to next gear">Shift</button>
-                <button type="button" data-race-assist="brake" aria-label="Hold Brake">Hold Brake · B</button>
+                <button type="button" data-race-assist="brake" aria-label="Hold Brake"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sim-ico-brake"/></svg><span>Brake</span></button>
                 <button type="button" data-race-assist="drift" aria-label="Hold Drift">Hold Drift · Shift</button>
                 <button type="button" data-race-assist="nitro" aria-label="Hold Nitro">Hold Nitro · N</button>
               </div>
@@ -326,7 +326,13 @@
             </div>
             <div class="grp r" id="padR"></div>
           </div>
-          <div class="race-special-rack" id="raceSpecialRack" role="group" aria-label="Race special controls" hidden><button type="button" id="raceSpecialPrevious" aria-label="Previous available special control">‹</button><button type="button" id="raceSpecialAction" aria-label="Available special control"></button><button type="button" id="raceSpecialNext" aria-label="Next available special control">›</button></div>
+          <div class="race-action-dial" id="raceActionDial" role="group" aria-label="Race action dial" hidden>
+            <svg class="race-dial-gauge" viewBox="0 0 120 120" role="img" aria-label="Live Race gauge"><path class="race-dial-band race-dial-band-low" d="M 21 89 A 49 49 0 0 1 20 32"/><path class="race-dial-band race-dial-band-opt" d="M 20 32 A 49 49 0 0 1 91 20"/><path class="race-dial-band race-dial-band-red" d="M 91 20 A 49 49 0 0 1 99 85"/><line class="race-dial-needle" id="raceDialNeedle" x1="60" y1="60" x2="60" y2="12"/><circle class="race-dial-pin" cx="60" cy="60" r="3"/></svg>
+            <button type="button" class="race-dial-gas" id="raceDialGas" aria-label="Gas, slide vertically to set throttle"><span class="race-dial-gas-label">GAS</span><strong id="raceDialThrottle">0%</strong><small id="raceDialHold">LIVE</small></button>
+            <button type="button" class="race-dial-action" id="raceDialAction" aria-label="Race special action"><span id="raceDialActionIcon" aria-hidden="true">⚡</span><small id="raceDialActionName">NOS</small></button>
+            <button type="button" class="race-dial-cycle race-dial-previous" id="raceDialPrevious" aria-label="Previous eligible Race action">‹</button><button type="button" class="race-dial-cycle race-dial-next" id="raceDialNext" aria-label="Next eligible Race action">›</button>
+            <output class="race-dial-metric" id="raceDialMetric" aria-live="off">RPM · LOW</output>
+          </div>
           <div class="rbar" id="rbar" hidden><span class="rb-tag">REPLAY</span><button type="button" id="rbBack" aria-label="Back 3 seconds">Back 3s</button><button type="button" id="rbPlay" aria-label="Play or pause">Pause</button><div class="rb-sp"><button type="button" data-sp="0.25">¼×</button><button type="button" data-sp="0.5" aria-pressed="true">½×</button><button type="button" data-sp="1">1×</button></div><input type="range" id="rbScrub" min="0" max="1000" value="0" aria-label="Scrub replay"><span class="rb-t" id="rbTime">0:00.0</span><button type="button" id="rbReview">Review</button><button type="button" id="rbExit">Exit replay</button></div>
         </div>
         </div>

@@ -17,7 +17,7 @@ function powerLabel(state){return{early:'Early',target:'Target band',perfect:'Pe
 function renderAnalogControls(){
   if(!analogControlsButton)return;
   const map=analogMapping(),primary=primaryAction();touchController.style.setProperty('--control-accent',map.color);
-  const raceAssist=$('#raceAnalogActions');if(raceAssist){raceAssist.hidden=!(RACE_SYSTEMS.enabled()&&M===Race&&(!RACE_TELEMETRY.enabled||RACE_CORNER_TRACE.enabled||RACE_INSTRUMENTS_ON));raceAssist.querySelector('[data-race-assist="brake"]').hidden=!RACE_CORNER_TRACE.enabled;raceAssist.querySelector('[data-race-assist="drift"]').hidden=RACE_TELEMETRY.enabled&&!(RACE_INSTRUMENTS_ON&&Race.mode().id==='drift');raceAssist.querySelector('[data-race-assist="nitro"]').hidden=RACE_TELEMETRY.enabled;}
+  const raceAssist=$('#raceAnalogActions');if(raceAssist){raceAssist.hidden=!(RACE_SYSTEMS.enabled()&&M===Race&&(!RACE_TELEMETRY.enabled||RACE_CORNER_TRACE.enabled||RACE_INSTRUMENTS_ON));raceAssist.querySelector('[data-race-assist="brake"]').hidden=!(RACE_CORNER_TRACE.enabled||RACE_INSTRUMENTS_ON);raceAssist.querySelector('[data-race-assist="drift"]').hidden=RACE_TELEMETRY.enabled&&!(RACE_INSTRUMENTS_ON&&Race.mode().id==='drift');raceAssist.querySelector('[data-race-assist="nitro"]').hidden=RACE_TELEMETRY.enabled;}
   $('#touchMapTitle').textContent=map.title;$('#touchMapAxes').textContent=RACE_CORNER_TRACE.enabled&&M===Race?'Steer left ↔ right · tune − ↔ +':`${map.x.join(' ↔ ')} · ${map.y.join(' ↔ ')}`;
   $('#analogLeftLabel').textContent=map.x[0];$('#analogRightLabel').textContent=map.x[1];$('#analogDownLabel').textContent=RACE_CORNER_TRACE.enabled&&M===Race?'Tune −':map.y[0];$('#analogUpLabel').textContent=RACE_CORNER_TRACE.enabled&&M===Race?'Tune +':map.y[1];
   const variableAxes=M===Kick&&Kick.opt.shot!=='dribble';[['analogLeftLabel','left'],['analogRightLabel','right'],['analogDownLabel','down'],['analogUpLabel','up']].forEach(([id,direction])=>{$(`#${id}`).classList.toggle('disabled',!variableAxes&&!actionForDirection(direction));});
@@ -42,7 +42,7 @@ function setPrototypeControls(on){
   requestAnimationFrame(resize);
 }
 
-function analogDirections(value){const t=0.16,out=[];if(value.x<-t)out.push('left');if(value.x>t)out.push('right');if(value.y<-t)out.push('up');if(value.y>t)out.push('down');return out;}
+function analogDirections(value){const t=0.16,out=[];if(value.x<-t)out.push('left');if(value.x>t)out.push('right');if(!(RACE_INSTRUMENTS_ON&&M===Race)){if(value.y<-t)out.push('up');if(value.y>t)out.push('down');}return out;}
 function syncDirectionalActions(value){
   const desired=new Map();analogDirections(value).forEach(direction=>{const action=actionForDirection(direction);if(action)desired.set(action.id,action);});
   ANALOG_CONTROL.pressed.forEach(id=>{if(!desired.has(id)){gameInput(id,false,'analog');ANALOG_CONTROL.pressed.delete(id);}});
