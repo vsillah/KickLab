@@ -10,6 +10,17 @@ mkdirSync(out,{recursive:true});
 const head=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
 const browser=await chromium.launch({headless:true,executablePath:[process.env.KICKLAB_CHROMIUM_PATH,chromium.executablePath(),'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find(path=>path&&existsSync(path))});
 const report={head,cases:[],errors:[],externalRequests:[]};
+async function waitForStableAction(locator,{timeout=20000,stableFor=2000}={}){
+ const started=Date.now();let stableSince=0,last='';
+ while(Date.now()-started<timeout){
+  if(await locator.isVisible()&&await locator.isEnabled()){
+   const box=await locator.boundingBox(),key=box?`${Math.round(box.x)}:${Math.round(box.y)}:${Math.round(box.width)}:${Math.round(box.height)}`:'';
+   if(key&&key===last){if(Date.now()-stableSince>=stableFor)return;}else{last=key;stableSince=Date.now();}
+  }else{last='';stableSince=0;}
+  await locator.page().waitForTimeout(100);
+ }
+ throw Error('visible Start action did not become geometrically stable');
+}
 for(const [width,height] of [[360,780],[390,844],[768,1024],[1440,900]]){
  const label=`${width}x${height}`;
  const context=await browser.newContext({viewport:{width,height},deviceScaleFactor:1,reducedMotion:'reduce',hasTouch:width<=768,...(width===390?{recordVideo:{dir:out,size:{width,height}}}:{})});
@@ -27,9 +38,10 @@ for(const [width,height] of [[360,780],[390,844],[768,1024],[1440,900]]){
   await page.click('#lab-tab-race');await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});
   const skip=page.locator('.race-orbit-panel button');if(await skip.isVisible())await skip.click();
   await page.locator('#raceStageStart').waitFor({state:'visible',timeout:20000});
-  for(let attempt=0;attempt<3&&!(await page.locator('#raceTelemetry').isVisible());attempt++){
-   if(await page.locator('#raceCoachSetupStart').isVisible())await page.click('#raceCoachSetupStart');
-   await page.waitForTimeout(800);
+  if(!await page.locator('#raceTelemetry').isVisible()){
+   const start=page.locator('#raceCoachSetupStart');
+   await waitForStableAction(start);
+   await start.click();
   }
   await page.locator('#raceTelemetry').waitFor({state:'visible',timeout:25000});
   if(width>480)await page.locator('#classicControlsButton').click();
