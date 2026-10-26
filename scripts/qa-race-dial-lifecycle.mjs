@@ -16,7 +16,7 @@ async function open({mode='drift',canvas=false,reduced=false,corner=true}={}){
  await context.addInitScript(({canvas})=>localStorage.setItem('impactlab.v1',JSON.stringify({gfx:canvas?'2d':'3d',ch:{fight:0,race:0,kick:0},play:{fight:'ch',race:'ch',kick:'ch'}})),{canvas});
  const page=await context.newPage();page.setDefaultTimeout(15000);page.on('pageerror',error=>report.errors.push(error.message));
  await page.route('**/*',route=>{const url=route.request().url();if(url.startsWith(`${origin}/`)||url.startsWith(`blob:${origin}/`)||url.startsWith('data:'))return route.continue();report.external.push(url);return route.abort();});
- const query=new URLSearchParams(params);if(!corner)query.delete('raceCornerTrace');await page.goto(`${origin}/?${query}`,{waitUntil:'domcontentloaded'});
+ const query=new URLSearchParams(params);if(!corner)query.delete('raceCornerTrace');await page.goto(`${origin}/kicklab.html?${query}`,{waitUntil:'domcontentloaded'});
  if(await page.locator('#profileFormSave').isVisible())await page.locator('#profileFormSave').click();if(await page.locator('#profileClose').isVisible())await page.locator('#profileClose').click();
  await page.locator('#lab-tab-race').click();await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});
  if(!canvas){if(await page.locator('.race-orbit-panel button').isVisible())await page.locator('.race-orbit-panel button').click();await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.status==='rendering'&&window.__KICKLAB_RACE_3D__?.orbit?.done);}
