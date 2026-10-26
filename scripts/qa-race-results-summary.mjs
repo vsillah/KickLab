@@ -29,10 +29,10 @@ for(const viewport of [{width:360,height:780},{width:390,height:844},{width:768,
       const panel=document.querySelector('#rc'),box=panel.getBoundingClientRect();
       const coachCard=document.querySelector('#raceResultCoach'),coachBox=coachCard.getBoundingClientRect(),top=document.elementFromPoint(coachBox.left+coachBox.width/2,coachBox.top+coachBox.height/2);
       const rewards=document.querySelector('#raceResultAwards');
-      return{visible:!document.querySelector('#results').hidden,coach:coachCard.querySelectorAll('.race-result-coach-theme').length===2?coachCard.textContent:'',coachTop:top?.closest('#raceResultCoach')?.id,awardCount:rewards.children.length,rewardNames:[...rewards.querySelectorAll('b')].map(node=>node.textContent),rewardMetadata:[...rewards.querySelectorAll('small')].map(node=>node.textContent),rewardImagesReady:[...rewards.querySelectorAll('img')].every(img=>img.complete&&img.naturalWidth>0),duplicateCoach:!document.querySelector('#raceCoachResult').hidden,notices:document.querySelectorAll('#toasts .toast,.stage .race-award-toast').length,overflowX:Math.max(document.documentElement.scrollWidth-innerWidth,box.right-innerWidth,-box.left),overflowY:box.height-innerHeight,garage:!document.querySelector('#rRaceGarage').hidden,retry:document.querySelector('#rNext').textContent};
+      return{visible:!document.querySelector('#results').hidden,coach:coachCard.querySelectorAll('.race-result-coach-theme').length===2?coachCard.textContent:'',coachTop:top?.closest('#raceResultCoach')?.id,awardCount:rewards.children.length,rewardNames:[...rewards.querySelectorAll('b')].map(node=>node.textContent),rewardMetadata:[...rewards.querySelectorAll('small')].map(node=>node.textContent),rewardImagesReady:[...rewards.querySelectorAll('img')].every(img=>img.complete&&img.naturalWidth>0),duplicateCoach:!document.querySelector('#raceCoachResult').hidden,notices:document.querySelectorAll('#toasts .toast,.stage .race-award-toast').length,overflowX:Math.max(document.documentElement.scrollWidth-innerWidth,box.right-innerWidth,-box.left),overflowY:box.height-innerHeight,saveExit:!document.querySelector('#rRaceGarage').hidden&&document.querySelector('#rRaceGarage').textContent.trim()==='Save & Exit',sub:document.querySelector('#rSub').textContent,hint:document.querySelector('#rHint').textContent,nextVisible:!document.querySelector('#rNext').hidden,next:document.querySelector('#rNext').hidden?null:document.querySelector('#rNext').textContent};
     });
     report.states.push({viewport,state,...measured});
-    if(!measured.visible||!measured.coach||measured.coachTop!=='raceResultCoach'||measured.duplicateCoach||measured.notices||measured.overflowX>1||measured.overflowY>1||measured.garage!==(state==='failed')||measured.retry!==(state==='failed'?'Retry':'Finish run'))report.errors.push(`${viewport.width} ${state}: ${JSON.stringify(measured)}`);
+    if(!measured.visible||!measured.coach||measured.coachTop!=='raceResultCoach'||measured.duplicateCoach||measured.notices||measured.overflowX>1||measured.overflowY>1||!measured.saveExit||measured.sub||measured.hint||measured.nextVisible!==(state==='failed')||measured.next!==(state==='failed'?'Retry':null))report.errors.push(`${viewport.width} ${state}: ${JSON.stringify(measured)}`);
     if(!measured.rewardImagesReady)report.errors.push(`${viewport.width} ${state}: award art did not load`);
     if(state==='success-new-award'&&(measured.awardCount!==1||measured.rewardNames[0]!=='Checkered Flag'||!measured.rewardMetadata[0]?.includes('Badge unlocked · +200 XP')))report.errors.push(`${viewport.width}: same-name rewards were not coalesced ${JSON.stringify(measured)}`);
     if(state==='success-distinct-award'&&(measured.awardCount!==2||JSON.stringify(measured.rewardNames)!==JSON.stringify(['Launch Ace','Clean Line'])))report.errors.push(`${viewport.width}: distinct rewards were not preserved ${JSON.stringify(measured)}`);
@@ -44,9 +44,11 @@ for(const viewport of [{width:360,height:780},{width:390,height:844},{width:768,
       await page.click('#fbClose');
     }
     if(state==='failed'){
+      const progressBefore=await page.evaluate(id=>JSON.stringify(JSON.parse(localStorage.getItem('kicklab.profiles.v1')).profiles.find(profile=>profile.id===id).progress),fixture.profileId);
       await page.click('#rRaceGarage');
-      if(!await page.locator('#settingsDrawer').isVisible())report.errors.push(`${viewport.width}: Garage action did not open`);
-      await page.click('#settingsClose');
+      const exit=await page.evaluate(()=>({home:!document.querySelector('#modeHome').hidden,results:!document.querySelector('#results').hidden,drawer:!document.querySelector('#settingsDrawer').hidden,profiles:JSON.parse(localStorage.getItem('kicklab.profiles.v1'))}));
+      if(!exit.home||exit.results||exit.drawer||JSON.stringify(exit.profiles?.profiles?.find(profile=>profile.id===fixture.profileId)?.progress)!==progressBefore||!exit.profiles?.profiles?.find(profile=>profile.id===fixture.profileId)?.progress?.raceCompetition?.awards?.core)report.errors.push(`${viewport.width}: Save & Exit did not persist and return home`);
+      await page.click('#lab-tab-race');await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});
       await page.evaluate(()=>window.__KICKLAB_RACE_RESULTS_QA__.fixture('failed'));
     }
   }

@@ -5,18 +5,18 @@ import {join,resolve} from 'node:path';
 const {chromium}=createRequire(import.meta.url)('playwright');
 const out=resolve(process.argv[2]||'qa-artifacts/race-results-contextual');mkdirSync(out,{recursive:true});
 const head=process.env.KICKLAB_QA_HEAD||'working';
-const base='http://127.0.0.1:5887/kicklab.html?raceExpansion=prototype&raceCompetition=prototype&raceTelemetry=prototype&raceChampionship=prototype&raceResultsQA=1&rev='+head;
+const base=process.env.KICKLAB_QA_URL||'http://127.0.0.1:5887/kicklab.html?raceExpansion=prototype&raceCompetition=prototype&raceTelemetry=prototype&raceChampionship=prototype&raceResultsQA=1&rev='+head;
 const browser=await chromium.launch({headless:true,executablePath:[chromium.executablePath(),'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find(existsSync)});
 const report={head,base,states:[],errors:[],external:[]};
 const cases=[
-  {outcome:'pass',achievement:'collectible',replay:'both',context:'standalone',progress:'Finish run'},
-  {outcome:'pass',achievement:'none',replay:'both',context:'standalone',progress:'Finish run'},
-  {outcome:'pass',achievement:'none',replay:'none',context:'standalone',progress:'Finish run'},
+  {outcome:'pass',achievement:'collectible',replay:'both',context:'standalone',progress:null},
+  {outcome:'pass',achievement:'none',replay:'both',context:'standalone',progress:null},
+  {outcome:'pass',achievement:'none',replay:'none',context:'standalone',progress:null},
   {outcome:'fail',achievement:'none',replay:'both',context:'standalone',progress:'Retry'},
   {outcome:'pass',achievement:'season',replay:'both',context:'mid',progress:'Continue to next'},
-  {outcome:'pass',achievement:'season',replay:'both',context:'final',progress:'View season results'},
+  {outcome:'pass',achievement:'season',replay:'both',context:'final',progress:null},
   {outcome:'fail',achievement:'none',replay:'none',context:'mid',progress:'Retry'},
-  {outcome:'pass',achievement:'none',replay:'both',context:'standalone',coach:'error-heavy',progress:'Finish run'},
+  {outcome:'pass',achievement:'none',replay:'both',context:'standalone',coach:'error-heavy',progress:null},
   {outcome:'fail',achievement:'none',replay:'both',context:'standalone',coach:'error-heavy',progress:'Retry'}
 ];
 for(const viewport of [{width:390,height:844},{width:768,height:1024},{width:1440,height:900}].filter(v=>!process.env.KICKLAB_QA_WIDTH||v.width===Number(process.env.KICKLAB_QA_WIDTH))){
@@ -28,10 +28,10 @@ for(const viewport of [{width:390,height:844},{width:768,height:1024},{width:144
     for(const sample of cases){
       const fixture=await page.evaluate(value=>window.__KICKLAB_RACE_RESULTS_QA__.scenario(value),sample);
       await page.waitForTimeout(500);
-      const state=await page.evaluate(()=>{const visible=id=>!document.querySelector(id).hidden;const rc=document.querySelector('#rc'),award=document.querySelector('#raceResultAwards'),coach=document.querySelector('#raceResultCoach');return{summary:visible('#results'),coachEnabled:!coach.disabled,coachRows:coach.querySelectorAll('.race-result-coach-theme').length,themeTitles:[...coach.querySelectorAll('.race-result-coach-theme strong')].map(node=>node.textContent.trim()),positive:document.querySelector('#raceResultCoachPositive').textContent.trim(),focus:document.querySelector('#raceResultCoachFocus').textContent.trim(),coachText:coach.textContent.trim(),awards:award.querySelectorAll('[data-award-kind]').length,replay:visible('#raceReplayBlock'),visualReplay:visible('#raceReplayPreview'),fallbackReplay:visible('#raceReplayFallback'),progress:document.querySelector('#rNext').textContent.trim(),garage:visible('#rRaceGarage'),footerActions:visible('#racts')||visible('#rRaceNext'),notices:document.querySelectorAll('#toasts .toast,.stage .race-award-toast').length,overflow:rc.scrollWidth>rc.clientWidth+2,scrollWidth:rc.scrollWidth,clientWidth:rc.clientWidth};});
+      const state=await page.evaluate(()=>{const visible=id=>!document.querySelector(id).hidden;const rc=document.querySelector('#rc'),award=document.querySelector('#raceResultAwards'),coach=document.querySelector('#raceResultCoach');return{summary:visible('#results'),coachEnabled:!coach.disabled,coachRows:coach.querySelectorAll('.race-result-coach-theme').length,themeTitles:[...coach.querySelectorAll('.race-result-coach-theme strong')].map(node=>node.textContent.trim()),positive:document.querySelector('#raceResultCoachPositive').textContent.trim(),focus:document.querySelector('#raceResultCoachFocus').textContent.trim(),coachText:coach.textContent.trim(),awards:award.querySelectorAll('[data-award-kind]').length,replay:visible('#raceReplayBlock'),visualReplay:visible('#raceReplayPreview'),fallbackReplay:visible('#raceReplayFallback'),progress:document.querySelector('#rNext').hidden?null:document.querySelector('#rNext').textContent.trim(),sole:document.querySelector('#results .rgo').classList.contains('sole-action'),garage:visible('#rRaceGarage'),footerActions:visible('#racts')||visible('#rRaceNext'),notices:document.querySelectorAll('#toasts .toast,.stage .race-award-toast').length,overflow:rc.scrollWidth>rc.clientWidth+2,scrollWidth:rc.scrollWidth,clientWidth:rc.clientWidth};});
       report.states.push({label,sample,fixture,state});
       const expectedAward=sample.achievement==='none'?0:1,expectedReplay=sample.replay==='frames'||sample.replay==='both',expectedCoach=sample.replay==='moves'||sample.replay==='both';
-      if(!fixture||!state.summary||state.coachEnabled!==expectedCoach||state.awards!==expectedAward||state.replay!==expectedReplay||state.visualReplay||state.fallbackReplay!==expectedReplay||state.progress!==sample.progress||state.garage!==(sample.outcome==='fail')||state.footerActions||state.notices||state.overflow)report.errors.push(`${label} ${JSON.stringify(sample)}: ${JSON.stringify(state)}`);
+      if(!fixture||!state.summary||state.coachEnabled!==expectedCoach||state.awards!==expectedAward||state.replay!==expectedReplay||state.visualReplay||state.fallbackReplay!==expectedReplay||state.progress!==sample.progress||state.sole!==(sample.outcome==='pass'&&sample.progress===null)||!state.garage||state.footerActions||state.notices||state.overflow)report.errors.push(`${label} ${JSON.stringify(sample)}: ${JSON.stringify(state)}`);
       if(state.coachRows!==2||JSON.stringify(state.themeTitles)!==JSON.stringify(['What worked','Next focus'])||!state.positive||!state.focus||[state.positive,state.focus].some(line=>!/^[^.!?]+[.!?]$/.test(line))||/run messages|Lift now: power is reduced|Brake before the switchback/.test(state.coachText))report.errors.push(`${label}: Coach summary hierarchy ${JSON.stringify({sample,state})}`);
       if(sample.coach==='error-heavy'&&(!state.focus.includes('Brake earlier')||state.positive.includes('braking was on target')))report.errors.push(`${label}: error-heavy run did not prioritize actual entry error ${JSON.stringify({sample,state})}`);
       if(sample.outcome==='fail'&&state.positive.includes('finish'))report.errors.push(`${label}: failed run claimed a finish ${JSON.stringify({sample,state})}`);
@@ -60,22 +60,32 @@ for(const viewport of [{width:390,height:844},{width:768,height:1024},{width:144
         if(next!=='drift')report.errors.push(`${label}: Continue did not select next event, got ${next}`);
       }
       if(sample.context==='final'&&sample.outcome==='pass'){
-        await page.evaluate(value=>window.__KICKLAB_RACE_RESULTS_QA__.scenario(value),sample);await page.click('#rNext');
-        const closed=await page.evaluate(()=>({result:!document.querySelector('#results').hidden,season:document.querySelector('#raceChampionshipTitle').textContent,selected:window.__KICKLAB_RACE_RESULTS_QA__.state().selected}));
-        if(closed.result||!closed.season.includes('Season complete')||closed.selected!=='endurance')report.errors.push(`${label}: final completion did not return to season ${JSON.stringify(closed)}`);
+        await page.evaluate(value=>window.__KICKLAB_RACE_RESULTS_QA__.scenario(value),sample);await page.click('#rRaceGarage');
+        const closed=await page.evaluate(()=>({result:!document.querySelector('#results').hidden,home:!document.querySelector('#modeHome').hidden,season:document.querySelector('#raceChampionshipTitle').textContent,selected:window.__KICKLAB_RACE_RESULTS_QA__.state().selected}));
+        if(closed.result||!closed.home||!closed.season.includes('Season complete')||closed.selected!=='endurance')report.errors.push(`${label}: final Save & Exit did not return home with season progress ${JSON.stringify(closed)}`);
+        await page.click('#lab-tab-race');await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});
       }
-      if(sample.context==='standalone'&&sample.outcome==='pass'&&sample.achievement==='none'&&sample.replay==='none'||sample.outcome==='fail'&&sample.replay==='none'){
+      if(sample.context==='standalone'&&sample.outcome==='pass'&&sample.achievement==='none'&&sample.replay==='none'){
+        await page.evaluate(value=>{window.__KICKLAB_RACE_RESULTS_QA__.scenario(value);document.activeElement?.blur();},sample);await page.keyboard.press('Space');
+        if(!await page.locator('#results').isVisible()||!await page.locator('#rRaceGarage').evaluate(button=>button===document.activeElement))report.errors.push(`${label}: hidden Continue was reachable by shortcut`);
+        await page.click('#rRaceGarage');if(!await page.locator('#modeHome').isVisible())report.errors.push(`${label}: standalone Save & Exit did not reach home`);
+        await page.click('#lab-tab-race');await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});
+      }
+      if(sample.outcome==='fail'&&sample.replay==='none'){
         await page.evaluate(value=>window.__KICKLAB_RACE_RESULTS_QA__.scenario(value),sample);await page.click('#rNext');
         const after=await page.evaluate(()=>window.__KICKLAB_RACE_RESULTS_QA__.state());
-        if(after.resultsOpen||after.raceState!=='grid')report.errors.push(`${label}: completion/retry did not prepare next run ${JSON.stringify(after)}`);
+        if(after.resultsOpen||after.raceState!=='grid')report.errors.push(`${label}: Retry did not prepare next run ${JSON.stringify(after)}`);
       }
       if(sample.outcome==='fail'&&sample.replay==='both'){
         await page.evaluate(value=>window.__KICKLAB_RACE_RESULTS_QA__.scenario(value),sample);await page.click('#rRaceGarage');
-        if(!await page.locator('#settingsDrawer').isVisible())report.errors.push(`${label}: failed-run Garage did not open`);
-        await page.click('#settingsClose');const recovered=await page.evaluate(()=>window.__KICKLAB_RACE_RESULTS_QA__.state());
-        if(recovered.resultsOpen||recovered.raceState!=='grid')report.errors.push(`${label}: Garage close did not prepare Retry ${JSON.stringify(recovered)}`);
+        const exited=await page.evaluate(()=>({home:!document.querySelector('#modeHome').hidden,results:!document.querySelector('#results').hidden,drawer:!document.querySelector('#settingsDrawer').hidden,record:window.__KICKLAB_RACE_RESULTS_QA__.state()}));
+        if(!exited.home||exited.results||exited.drawer||exited.record.raceState!=='crashed'||exited.record.recordMoves<1||exited.record.recordFrames<1)report.errors.push(`${label}: Save & Exit did not retain the result and return home ${JSON.stringify(exited)}`);
+        await page.click('#lab-tab-race');await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});
       }
     }
+    const match=await page.evaluate(()=>window.__KICKLAB_RACE_RESULTS_QA__.matchAction());
+    if(match?.primary!=='Match controls'||!match.primaryVisible||match.save!=='Save & Exit'||!match.saveVisible)report.errors.push(`${label}: local match lost its contextual action ${JSON.stringify(match)}`);
+    report.states.push({label,match});
   }catch(error){report.errors.push(`${label}: ${error.stack||String(error)}`);}
   await context.close();
 }

@@ -542,13 +542,15 @@ html:has(.results.race-summary:not([hidden])) .game-context-header{visibility:hi
 .race-result-award small{display:block;color:#cbd7da;font:600 11px var(--f-body)}
 .race-result-badge{grid-template-columns:48px minmax(0,1fr);border-color:#6ca7b7}
 .race-result-badge img{display:block;width:48px;height:48px;object-fit:contain}
-.results.race-summary .rgo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.results.race-summary .rgo{order:1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.results.race-summary .race-replay-block{order:2}
 .results.race-summary .racts{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px}
 .results.race-summary .racts[hidden]{display:none}
 .results.race-summary .rgo button{box-sizing:border-box;min-width:0;min-height:44px;white-space:normal;line-height:1.2;padding:8px 12px;border-radius:9px;font:700 12px var(--f-body);cursor:pointer}
 .results.race-summary .rgo button[hidden]{display:none!important}
 .results.race-summary #rNext{grid-column:1/-1;width:100%;margin:0;font-size:15px;animation:none}
 .results.race-summary #rRaceGarage,.results.race-summary #rRaceNext{border:1px solid #82cbd7;background:#183a51;color:#fff}
+.results.race-summary .rgo.sole-action #rRaceGarage{grid-column:1/-1;background:var(--tone);border-color:var(--tone);color:#071321;font-size:15px}
 .results.race-summary #rRaceRecord{border-color:#a7d6ba;color:#d7f5df}
 .race-replay-block[hidden]{display:none!important}
 .race-replay-block{display:grid;gap:5px}
