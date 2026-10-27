@@ -2339,6 +2339,7 @@ html[data-race-telemetry="prototype"] #raceCoachSetup>.race-setup-instrument{dis
 .race-coach-choose{min-height:42px;max-width:100%;padding:7px 11px;border:1px solid #7fdcff88;border-radius:10px;background:#123449;color:#e9faff;font:700 12px/1.3 var(--f-body);cursor:pointer}
 .race-coach-choose[hidden],#racePreflightCoach[hidden],.race-coach-roster[hidden],.race-persona-avatar[hidden]{display:none!important}
 .race-persona-avatar{display:inline-block;flex:none;width:42px;height:58px;border-radius:10px;background-color:#183041;background-repeat:no-repeat;background-size:500% 100%;box-shadow:inset 0 0 0 1px #ffffff44;vertical-align:middle}
+html[data-race-coach-personas="prototype"] .race-persona-avatar{background-repeat:no-repeat;background-size:500% 100%;border-radius:10px}
 html[data-race-coach-personas="prototype"] #coachAv{width:42px;height:58px;font-size:0}
 html[data-race-coach-personas="prototype"] #raceCoachNoticeIcon{width:32px;height:43px;font-size:0}
 html[data-race-coach-personas="prototype"] .race-coach-history-icon{width:25px;height:34px;font-size:0}
