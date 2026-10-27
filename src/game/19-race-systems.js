@@ -34,7 +34,8 @@ const RACE_SYSTEMS=(()=>{
     const countersteer=!handbrake&&Math.abs(s.slipAngle)>.08&&(Math.abs(wheel)>=9&&wheel*s.yawRate<0||unwinding);
     const yawLimit=countersteer?3.4*recovery:1.7;
     const yawAccel=clamp((frontArm*frontForce-rearArm*rearForce)/inertia-(s.yawRate-(unwinding?0:baselineYaw))*(countersteer?5.2*recovery:handbrake?.75:3.8*recovery),-yawLimit,yawLimit);
-    s.yawRate=clamp(s.yawRate+yawAccel*h,-1.1,1.1);
+    const yawRateLimit=handbrake&&Math.abs(s.slipAngle)<.55?1:1.1;
+    s.yawRate=clamp(s.yawRate+yawAccel*h,-yawRateLimit,yawRateLimit);
     s.latV=clamp(s.latV+((frontForce+rearForce)/mass-speed*s.yawRate-(handbrake?0:3.2*recovery)*s.latV)*h,-speed*1.75,speed*1.75);
     s.slipAngle=clamp(-Math.atan2(s.latV,speed),-1.05,1.05);
     s.axleWheel=wheel;
