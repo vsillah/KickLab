@@ -15,6 +15,7 @@ function raceCoachPersonaExpression(event){
   if(!RACE_COACH_PERSONAS.enabled)return;
   RACE_PERSONA_UI.expression=event;
   for(const selector of ['#coachAv','#raceTelemetry .race-telemetry-coach','#raceCoachNoticeIcon','#raceResultCoachAvatar','#rvAv'])raceCoachPersonaPaint($(selector),event);
+  for(const avatar of document.querySelectorAll('.race-preflight-coach-avatar.race-persona-avatar'))raceCoachPersonaPaint(avatar,event);
 }
 function raceCoachPersonaMessage(message){return RACE_COACH_PERSONAS.present(message,raceCoachPersona().id);}
 function raceCoachPersonaSync(){

@@ -14,6 +14,14 @@ test('the four-step Race lifecycle keeps full accessible names and compact respo
   assert.match(styles,/\.race-preflight-steps button::after\{content:attr\(data-short\)/);
 });
 
+test('every attributed preflight Coach comment carries the selected Coach avatar',()=>{
+  assert.match(preflightUi,/function racePreflightCoachComment\(message,compact=false\)/);
+  assert.match(preflightUi,/race-preflight-coach-avatar race-persona-avatar/);
+  assert.doesNotMatch(preflightUi,/<aside><b>Coach Nia/);
+  assert.doesNotMatch(preflightUi,/<p><b>Coach Nia:/);
+  assert.match(styles,/\.race-preflight-coach-avatar\{/);
+});
+
 test('each inspection category and option has a unique, nonempty local icon',()=>{
   const keys=['whole','suspension','suspension:soft','suspension:balanced','suspension:firm','tires','tires:narrow','tires:balanced','tires:wide','brakes','brakes:standard','brakes:sport','brakes:endurance'];
   assert.equal(new Set(keys.map(key=>guide.ICONS[key])).size,keys.length);
