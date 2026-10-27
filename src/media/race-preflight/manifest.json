@@ -184,6 +184,126 @@
       "sourceFrames": 130,
       "bytes": 524269,
       "sha256": "05dad5728ea71ce26ff40b03c82e78c59133ef0d816092a44cc04c84ab047672"
+    },
+    {
+      "mode": "drag",
+      "vehicle": "vesper",
+      "course": "highland/32/7/straight/standard",
+      "asset": "assets/3d/kicklab-race-vesper/v1/vesper-original.glb",
+      "video": "media/race-preflight/drag-vesper.mp4",
+      "poster": "media/race-preflight/drag-vesper.jpg",
+      "duration": 5.15,
+      "sourceFrames": 73,
+      "bytes": 265136,
+      "sha256": "3159622f21e9f5ff8e7d25617d5280ca9c3724d50a3bb02c70a37e93c7618b9d"
+    },
+    {
+      "mode": "drag",
+      "vehicle": "sable",
+      "course": "highland/32/7/straight/standard",
+      "asset": "assets/3d/kicklab-race-sable/v1/sable-original.glb",
+      "video": "media/race-preflight/drag-sable.mp4",
+      "poster": "media/race-preflight/drag-sable.jpg",
+      "duration": 5.13,
+      "sourceFrames": 82,
+      "bytes": 287457,
+      "sha256": "33e0ab47c0a30fd1c60f93f0aa1e67461f4d00f6310b548741c2cca8ba160080"
+    },
+    {
+      "mode": "drift",
+      "vehicle": "vesper",
+      "course": "highland/32/7/drift/standard",
+      "asset": "assets/3d/kicklab-race-vesper/v1/vesper-original.glb",
+      "video": "media/race-preflight/drift-vesper.mp4",
+      "poster": "media/race-preflight/drift-vesper.jpg",
+      "duration": 5.09,
+      "sourceFrames": 77,
+      "bytes": 310884,
+      "sha256": "e1408a50eb19979a2b9d2c6bde5703a20e803b8d1a60930b88c22ba8246c0086"
+    },
+    {
+      "mode": "drift",
+      "vehicle": "sable",
+      "course": "highland/32/7/drift/standard",
+      "asset": "assets/3d/kicklab-race-sable/v1/sable-original.glb",
+      "video": "media/race-preflight/drift-sable.mp4",
+      "poster": "media/race-preflight/drift-sable.jpg",
+      "duration": 5.13,
+      "sourceFrames": 76,
+      "bytes": 310423,
+      "sha256": "05fba0078fd617e708fd7c72e3bb4b94e59b5136521b53bf2f94a17b49a42534"
+    },
+    {
+      "mode": "circuit",
+      "vehicle": "vesper",
+      "course": "highland/32/7/oval/standard",
+      "asset": "assets/3d/kicklab-race-vesper/v1/vesper-original.glb",
+      "video": "media/race-preflight/circuit-vesper.mp4",
+      "poster": "media/race-preflight/circuit-vesper.jpg",
+      "duration": 5.15,
+      "sourceFrames": 87,
+      "bytes": 319580,
+      "sha256": "dbf91565c4a1232554992e85582483a334d72a2e4b0426d5a8c50ef623ed5fbc"
+    },
+    {
+      "mode": "circuit",
+      "vehicle": "sable",
+      "course": "highland/32/7/oval/standard",
+      "asset": "assets/3d/kicklab-race-sable/v1/sable-original.glb",
+      "video": "media/race-preflight/circuit-sable.mp4",
+      "poster": "media/race-preflight/circuit-sable.jpg",
+      "duration": 5.16,
+      "sourceFrames": 88,
+      "bytes": 325567,
+      "sha256": "0b230f0d9557f115c6d160a1e79391b3499b37d5f96bd0dc6f733a6634202241"
+    },
+    {
+      "mode": "hill",
+      "vehicle": "vesper",
+      "course": "highland/32/7/bend/standard",
+      "asset": "assets/3d/kicklab-race-vesper/v1/vesper-original.glb",
+      "video": "media/race-preflight/hill-vesper.mp4",
+      "poster": "media/race-preflight/hill-vesper.jpg",
+      "duration": 5.15,
+      "sourceFrames": 86,
+      "bytes": 303041,
+      "sha256": "ab2ecde0062e726e74c6721e2db1372ab5b74309ecd084db377f411412c4434c"
+    },
+    {
+      "mode": "hill",
+      "vehicle": "sable",
+      "course": "highland/32/7/bend/standard",
+      "asset": "assets/3d/kicklab-race-sable/v1/sable-original.glb",
+      "video": "media/race-preflight/hill-sable.mp4",
+      "poster": "media/race-preflight/hill-sable.jpg",
+      "duration": 5.14,
+      "sourceFrames": 85,
+      "bytes": 300250,
+      "sha256": "d6c41ead8ab643c05eeb9d4102df6c1a697187088420ccbc57cace8e1ee5f6fe"
+    },
+    {
+      "mode": "endurance",
+      "vehicle": "vesper",
+      "course": "highland/100/7/oval/endurance",
+      "asset": "assets/3d/kicklab-race-vesper/v1/vesper-original.glb",
+      "video": "media/race-preflight/endurance-vesper.mp4",
+      "poster": "media/race-preflight/endurance-vesper.jpg",
+      "duration": 5.09,
+      "sourceFrames": 74,
+      "bytes": 285440,
+      "sha256": "f0c598a1add82de0a83d272ad536dbdb7229c19e86c3d84a568c8980e774df03"
+    },
+    {
+      "mode": "endurance",
+      "vehicle": "sable",
+      "course": "highland/100/7/oval/endurance",
+      "asset": "assets/3d/kicklab-race-sable/v1/sable-original.glb",
+      "video": "media/race-preflight/endurance-sable.mp4",
+      "poster": "media/race-preflight/endurance-sable.jpg",
+      "duration": 5.11,
+      "sourceFrames": 75,
+      "bytes": 292662,
+      "sha256": "0b1475999f7d40740de200fc1989bc826e7c36d2dcb3d59c473697dfff6de951"
     }
   ]
 }

@@ -17,14 +17,17 @@ const page=await context.newPage();
 const errors=[],external=[];
 page.on('pageerror',error=>errors.push(error.message));
 await page.route('**/*',route=>{const url=new URL(route.request().url());if(url.origin===base||['blob:','data:'].includes(url.protocol))return route.continue();external.push(url.href);return route.abort();});
-const manifest={source:'KickLab local Race 3D renderer',kind,origin:base,captureFlag:'racePreflightCapture=1',durationTargetSeconds:5.2,entries:[]};
+const manifestPath=join(target,kind==='arrival'?'arrival-manifest.json':'manifest.json');
+const previous=existsSync(manifestPath)?JSON.parse(readFileSync(manifestPath,'utf8')):null;
+const manifest={source:'KickLab local Race 3D renderer',kind,origin:base,captureFlag:'racePreflightCapture=1',durationTargetSeconds:5.2,entries:previous?.entries||[]};
+const vehicles=process.env.KICKLAB_CAPTURE_VEHICLES?.split(',').filter(Boolean)||['kestrel','cobalt','aegis'];
 try{
   await page.goto(`${base}/kicklab.html?raceExpansion=prototype&raceTelemetry=prototype&racePreflight=prototype&racePreflightCapture=1`,{waitUntil:'domcontentloaded'});
   if(await page.locator('#profileFormSave').isVisible())await page.click('#profileFormSave');
   if(await page.locator('#profileClose').isVisible())await page.click('#profileClose');
   await page.click('#lab-tab-race');
   await page.waitForTimeout(1800);
-  for(const mode of ['drag','drift','circuit','hill','endurance'])for(const vehicle of ['kestrel','cobalt','aegis']){
+  for(const mode of ['drag','drift','circuit','hill','endurance'])for(const vehicle of vehicles){
     const id=`${mode}-${vehicle}`;
     if(process.env.KICKLAB_CAPTURE_ONLY&&process.env.KICKLAB_CAPTURE_ONLY!==id)continue;
     const selected=await page.evaluate(({mode,vehicle})=>window.__KICKLAB_RACE_PREFLIGHT_CAPTURE__?.select(mode,vehicle),{mode,vehicle});
@@ -51,6 +54,7 @@ try{
     const duration=Number(probe.format?.duration),frames=Number(probe.streams?.[0]?.nb_read_frames);
     if(duration<4||frames<28||!binding.track.includes(mode==='endurance'?'endurance':({drag:'straight',drift:'drift',circuit:'oval',hill:'bend'})[mode])||!binding.asset.includes(vehicle==='cobalt'?'direction-a':vehicle))throw Error(`${id} failed source gate: ${JSON.stringify({duration,frames,binding})}`);
     const sha256=createHash('sha256').update(readFileSync(output)).digest('hex');
+    manifest.entries=manifest.entries.filter(entry=>entry.mode!==mode||entry.vehicle!==vehicle);
     manifest.entries.push({mode,vehicle,course:binding.track,asset:binding.asset,video:`media/race-preflight/${stem}.mp4`,poster:`media/race-preflight/${stem}.jpg`,duration:Number(duration.toFixed(2)),sourceFrames:frames,bytes:readFileSync(output).length,sha256});
     console.log(`${stem}: ${duration.toFixed(2)} s, ${frames} source frames, ${Math.round(readFileSync(output).length/1024)} KiB`);
     rmSync(raw);

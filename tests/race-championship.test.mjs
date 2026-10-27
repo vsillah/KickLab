@@ -35,3 +35,9 @@ test('records and standings remain profile local and migration bounds ghost data
   assert.equal(rows[0].profileId,'a');assert.equal(rows[1].points,0);
   assert.equal(rows[0].alias,'Racer 1');
 });
+test('championship records preserve advanced vehicle identities',()=>{
+  for(const vehicle of ['vesper','sable']){
+    const state=season.complete(null,'drag',{pass:true,score:1100},vehicle).state;
+    assert.equal(season.normalize(state).results.drag.vehicle,vehicle);
+  }
+});
