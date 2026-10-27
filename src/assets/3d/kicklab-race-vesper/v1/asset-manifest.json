@@ -13,7 +13,7 @@
     "creator": "KickLab local Race roster authoring",
     "sourceType": "self-authored-production",
     "sourcePath": "scripts/race-roster/generate.py, scripts/race-roster/body_variants.py, and src/assets/3d/kicklab-race-vesper/v1/vesper-original.blend",
-    "sourceCommit": "77e07c7bdc44b19f434117aa8a591ce3a4ab59c3",
+    "sourceCommit": "86877504645991e799ef1f6036c3c168bbaa74ee",
     "acquiredOn": "2026-10-27",
     "externalInputs": false,
     "likeness": false,
