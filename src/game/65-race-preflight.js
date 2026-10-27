@@ -20,6 +20,7 @@ function racePreflightDraft(){
   const control=RACE_SIMULATOR.active?'simulator':$('#analogControlsButton').getAttribute('aria-pressed')==='true'?'analog':'classic';
   return{mode:fixed||Race.mode().id,vehicle:Race.vehicle().id,garage:{...Race.garage},control,steer:Race.opt.steer};
 }
+function racePreflightMatchStage(){return typeof RACE_MULTI_UI!=='undefined'?RACE_MULTI_UI.setup:null;}
 function racePreflightCanOpen(){return RACE_PREFLIGHT_ON&&M===Race&&Race.state==='grid'&&!PAUSE.on&&!RP.on&&!$('#game-cockpit').hidden&&$('#settingsDrawer').hidden&&$('#profileDialog').hidden&&!(typeof RACE_MULTI_UI!=='undefined'&&RACE_MULTI_UI.match);}
 function racePreflightPrepareHomeEntry(){
   if(!RACE_PREFLIGHT_ON)return;
@@ -31,7 +32,9 @@ function racePreflightPrepareHomeEntry(){
 }
 function racePreflightOpen(trigger=null){
   if(!racePreflightCanOpen())return false;
-  if(RACE_PREFLIGHT.profileId!==profileManager.active().id||!RACE_PREFLIGHT.draft){RACE_PREFLIGHT.draft=racePreflightDraft();RACE_PREFLIGHT.phase=0;RACE_PREFLIGHT.lastRenderedPhase=null;RACE_PREFLIGHT.focusPart='tires';RACE_PREFLIGHT.profileId=profileManager.active().id;}
+  const matchStage=racePreflightMatchStage();
+  if(RACE_PREFLIGHT.profileId!==profileManager.active().id||!RACE_PREFLIGHT.draft){RACE_PREFLIGHT.draft=matchStage?.stage==='b'?(matchStage.bDraft||racePreflightDraft()):racePreflightDraft();RACE_PREFLIGHT.phase=matchStage?.stage==='b'?1:0;RACE_PREFLIGHT.lastRenderedPhase=null;RACE_PREFLIGHT.focusPart='tires';RACE_PREFLIGHT.profileId=profileManager.active().id;}
+  if(matchStage?.shared)RACE_PREFLIGHT.draft.mode=matchStage.shared.mode;
   RACE_PREFLIGHT.returnFocus=trigger&&trigger.isConnected?trigger:document.activeElement;
   RACE_PREFLIGHT.lastEpoch=Race.preflightEpoch||0;
   RACE_PREFLIGHT.notice='Your choices stay on this device. Nothing changes until Start heat.';
@@ -43,6 +46,7 @@ function racePreflightOpen(trigger=null){
 }
 function racePreflightMaybeOpen(){
   if(!RACE_PREFLIGHT_ON)return;
+  if(racePreflightMatchStage())return;
   if(RACE_PREFLIGHT.pendingStart&&M===Race&&Race.state==='grid'&&(RACE_3D.orbit.done||RACE_3D.failed||best.gfx==='2d')&&!RACE_3D.shouldBlockInput()){
     RACE_PREFLIGHT.pendingStart=false;
     const start=RACE_PREFLIGHT.startControl==='simulator'&&typeof simFlag!=='undefined'&&simFlag?$('#simStart'):$('#raceCoachSetupStart');
@@ -56,12 +60,14 @@ function racePreflightMaybeOpen(){
 }
 function racePreflightClose(){
   if(RACE_PREFLIGHT.arriving)return;
+  const matchStage=racePreflightMatchStage();
   RACE_INSPECT.dispose();
   $('#racePreflight').querySelectorAll('video').forEach(video=>video.pause());
   $('#racePreflight').hidden=true;
   document.documentElement.dataset.racePreflightOpen='false';
   RACE_PREFLIGHT.lastEpoch=Race.preflightEpoch||0;
   RACE_PREFLIGHT.draft=null;
+  if(matchStage)raceMultiplayerSetupCancel();
   const target=RACE_PREFLIGHT.returnFocus;
   RACE_PREFLIGHT.returnFocus=null;
   requestAnimationFrame(()=>(target&&target.isConnected?target:$('#raceCoachSetupStart')).focus());
@@ -78,7 +84,7 @@ function racePreflightMedia(mode,vehicle,label,kind='drive'){
   const id=`${mode}-${vehicle}`,path=`media/race-preflight/${kind==='arrival'?'arrival-':''}${id}`,staticPreview=reduce||best.gfx==='2d'||RACE_3D.failed;
   return`<span class="race-preflight-media" data-preflight-media="${id}" data-preflight-kind="${kind}">${staticPreview?'':`<video autoplay muted loop playsinline preload="metadata" poster="${path}.jpg" aria-label="${label}" data-preflight-video><source src="${path}.mp4" type="video/mp4"></video>`}<img src="${path}.jpg" alt="${label}" ${staticPreview?'':'hidden'}><small class="race-preflight-media-fallback" ${staticPreview?'':'hidden'}>${staticPreview?'Still preview · reduced motion or Canvas mode':'Still preview · local clip unavailable'}</small></span>`;
 }
-function racePreflightLocation(){const draft=RACE_PREFLIGHT.draft,fixed=typeof RACE_CHAMP_UI!=='undefined'&&RACE_CHAMP_UI.active?RACE_CHAMP.EVENTS[RACE_CHAMP_UI.selected].mode:null,recommend=racePreflightRecommendation(),car=globalThis.KickLabRaceVehicleCatalog.get(recommend.vehicle);
+function racePreflightLocation(){const draft=RACE_PREFLIGHT.draft,fixed=racePreflightMatchStage()?.shared?.mode||(typeof RACE_CHAMP_UI!=='undefined'&&RACE_CHAMP_UI.active?RACE_CHAMP.EVENTS[RACE_CHAMP_UI.selected].mode:null),recommend=racePreflightRecommendation(),car=globalThis.KickLabRaceVehicleCatalog.get(recommend.vehicle);
   return`<div class="race-preflight-intro"><p>Choose your Highland route. Each view is captured from the course you will drive; weather stays fixed.</p><aside><b>Coach Nia</b><span>${recommend.tier==='beginner'?'Beginner':'Practiced'} pick for ${racePreflightMode().name}: ${car.name}. ${recommend.reasons.vehicle} ${racePreflightCoachMark(recommend.reasons.vehicle)}</span></aside></div><div class="race-preflight-route-list" role="group" aria-label="Race locations and challenges">${Object.values(RACE_MODES.MODES).map((mode,index)=>{const [route,surface,challenge,difficulty]=RACE_ROUTE_TRAITS[mode.id];const selected=draft.mode===mode.id,locked=!!fixed&&fixed!==mode.id;return`<button type="button" class="race-preflight-route" data-preflight-mode="${mode.id}" aria-pressed="${selected}" ${locked?'disabled':''}><span class="race-preflight-route-art" aria-hidden="true">${racePreflightMedia(mode.id,'cobalt',`${mode.name} Highland route with Cobalt showcase car`)}<b>${String(index+1).padStart(2,'0')}</b><em>HIGHLAND · ${route}</em></span><span class="race-preflight-route-copy"><small>${difficulty} · ${route}</small><strong>${mode.name}</strong><span>${surface} · ${challenge}</span><em>${mode.target}</em><span class="race-preflight-route-enter">${locked?'Championship event is fixed':selected?'Selected route ✓':'Select route →'}</span></span></button>`;}).join('')}</div>`;
 }
 function racePreflightVehicle(){
@@ -121,21 +127,22 @@ function racePreflightInspect(part){
   const readout=$('#raceInspectionReadout');if(readout)readout.textContent=part==='whole'?'Whole car · selected setup':`${RACE_GARAGE.PARTS[part].label}: ${choice.name}`;const readoutIcon=$('#raceInspectionReadoutIcon');if(readoutIcon)readoutIcon.innerHTML=RACE_PREFLIGHT_GUIDE.icon(part);const physics=$('#raceInspectionPhysics');if(physics)physics.textContent=racePreflightInspectionCue(part);
   const whole=$('#raceInspectionWhole');if(whole)whole.setAttribute('aria-pressed',part==='whole'?'true':'false');
 }
-function racePreflightGrid(){const d=RACE_PREFLIGHT.draft,mode=racePreflightMode(),car=racePreflightCar(),parts=['suspension','tires','brakes'].map(field=>RACE_GARAGE.option(field,d.garage[field]).name);
-  return`<div class="race-preflight-grid"><div class="race-preflight-grid-car">${racePreflightMedia(mode.id,car.id,`${car.name} arriving at the ${mode.name} starting grid`,'arrival')}<div class="race-preflight-grid-rev" aria-hidden="true"><small>GRID REV</small><i></i><i></i><i></i><i></i><i></i></div><span class="race-preflight-grid-caption">STARTING GRID · HIGHLAND</span></div><div class="race-preflight-grid-brief"><small>${mode.name} · ${RACE_ROUTE_TRAITS[mode.id][0]}</small><h3>${car.name} is lined up</h3><p>${mode.target}</p><dl><div><dt>Car</dt><dd>${car.name} · ${car.role}</dd></div><div><dt>Tune</dt><dd>${parts.join(' · ')}</dd></div><div><dt>Controls</dt><dd>${d.control==='classic'?'Classic':d.control==='analog'?'Analog':'Simulator'} · ${d.steer==='auto'?'Autopilot steering':'You steer'}</dd></div></dl><aside><b>Coach Nia</b><span>${mode.recommend}</span></aside><div class="race-preflight-control-options" role="group" aria-label="Control style">${[['classic','Classic'],['analog','Analog'],...(typeof simFlag!=='undefined'&&simFlag?[['simulator','Simulator']]:[])].map(([id,name])=>`<button type="button" data-preflight-control="${id}" aria-pressed="${d.control===id}">${name}</button>`).join('')}</div><button type="button" id="racePreflightSteer">${d.steer==='auto'?'Autopilot steering':'You steer'}</button><small>Start heat commits these choices to this player, then runs the existing vehicle orbit and Race lights.</small></div></div>`;
+function racePreflightGrid(){const d=RACE_PREFLIGHT.draft,mode=racePreflightMode(),car=racePreflightCar(),parts=['suspension','tires','brakes'].map(field=>RACE_GARAGE.option(field,d.garage[field]).name),setup=racePreflightMatchStage(),computer=setup?.stage==='b'&&setup.kind==='computer';
+  return`<div class="race-preflight-grid"><div class="race-preflight-grid-car">${racePreflightMedia(mode.id,car.id,`${car.name} arriving at the ${mode.name} starting grid`,'arrival')}<div class="race-preflight-grid-rev" aria-hidden="true"><small>GRID REV</small><i></i><i></i><i></i><i></i></div><span class="race-preflight-grid-caption">STARTING GRID · HIGHLAND</span></div><div class="race-preflight-grid-brief"><small>${mode.name} · ${RACE_ROUTE_TRAITS[mode.id][0]}</small><h3>${car.name} is lined up</h3><p>${mode.target}</p><dl><div><dt>Car</dt><dd>${car.name} · ${car.role}</dd></div><div><dt>Tune</dt><dd>${parts.join(' · ')}</dd></div><div><dt>Controls</dt><dd>${computer?'Computer · canonical autopilot':`${d.control==='classic'?'Classic':d.control==='analog'?'Analog':'Simulator'} · ${d.steer==='auto'?'Autopilot steering':'You steer'}`}</dd></div></dl><aside><b>Coach Nia</b><span>${mode.recommend}</span></aside>${computer?'':`<div class="race-preflight-control-options" role="group" aria-label="Control style">${[['classic','Classic'],['analog','Analog'],...(typeof simFlag!=='undefined'&&simFlag?[['simulator','Simulator']]:[])].map(([id,name])=>`<button type="button" data-preflight-control="${id}" aria-pressed="${d.control===id}">${name}</button>`).join('')}</div><button type="button" id="racePreflightSteer">${d.steer==='auto'?'Autopilot steering':'You steer'}</button>`}<small>${setup?'Confirm this racer’s choices to compare both builds before the first run.':'Start heat commits these choices to this player, then runs the existing vehicle orbit and Race lights.'}</small></div></div>`;
 }
 function racePreflightFocus(selector){requestAnimationFrame(()=>$('#racePreflight '+selector)?.focus({preventScroll:true}));}
 function racePreflightSyncMedia(){if($('#racePreflight').hidden)return;$('#racePreflight').querySelectorAll('video').forEach(video=>{const route=video.closest('[data-preflight-mode]'),active=!document.hidden&&(!route||route.getAttribute('aria-pressed')==='true'||route.matches(':hover,:focus-within'));if(active)video.play().catch(()=>{});else video.pause();});}
 function racePreflightRender(){if($('#racePreflight').hidden)return;const phase=RACE_PREFLIGHT.phase;
   if(phase===2)RACE_INSPECT.detach();else RACE_INSPECT.dispose();
-  $('#racePreflightTitle').textContent=['Choose your location','Choose your vehicle','Tune in the Garage','Take your place on the grid'][phase];
+  const setup=racePreflightMatchStage(),seat=setup?.stage==='b'?(setup.kind==='computer'?'Computer':'Racer 2'):'Racer 1';
+  $('#racePreflightTitle').textContent=(setup?`${seat} · `:'')+['Choose your location','Choose your vehicle','Tune in the Garage','Take your place on the grid'][phase];
   $('#racePreflightSteps').innerHTML=RACE_PREFLIGHT_PHASES.map((name,index)=>`<button type="button" data-preflight-step="${index}" ${index>phase?'disabled':''} aria-current="${index===phase?'step':'false'}"><b>${index+1}</b><span>${name}</span></button>`).join('');
   $('#racePreflightStatus').textContent=RACE_PREFLIGHT.notice;
   $('#racePreflightContent').innerHTML=[racePreflightLocation,racePreflightVehicle,racePreflightTuning,racePreflightGrid][phase]();
   if(phase===2){const P=racePreflightParams(RACE_PREFLIGHT.draft.garage);RACE_INSPECT.mount($('#raceInspectionStage'),racePreflightCar(),RACE_PREFLIGHT.focusPart,{transfer:P.transfer,recovery:P.recovery,tireHeat:P.tireHeat,brakeHeat:P.brakeHeat});}
-  if(RACE_PREFLIGHT.lastRenderedPhase!==phase){$('#racePreflight').scrollTop=0;RACE_PREFLIGHT.lastRenderedPhase=phase;}
+  if(RACE_PREFLIGHT.lastRenderedPhase!==phase){$('#racePreflight').scrollTop=0;$('#racePreflightContent').scrollTop=0;RACE_PREFLIGHT.lastRenderedPhase=phase;}
   requestAnimationFrame(racePreflightSyncMedia);
-  $('#racePreflightBack').textContent=phase?'Back':'Cancel';$('#racePreflightNext').textContent=phase===3?'Start heat':'Continue';
+  $('#racePreflightBack').textContent=phase?'Back':'Cancel';$('#racePreflightNext').textContent=phase===3?(setup?'Confirm setup':'Start heat'):'Continue';
   $('#racePreflightBack').disabled=RACE_PREFLIGHT.arriving||RACE_PREFLIGHT.committing;
   $('#racePreflightNext').disabled=RACE_PREFLIGHT.arriving||RACE_PREFLIGHT.committing;
   if(phase===1)requestAnimationFrame(()=>{const roster=$('#racePreflight .race-preflight-roster'),selected=roster?.querySelector('[aria-pressed=\"true\"]');if(roster&&selected)roster.scrollLeft=selected.offsetLeft-roster.offsetLeft-(roster.clientWidth-selected.clientWidth)/2;});
@@ -145,6 +152,20 @@ function racePreflightCommit(){
   const d=RACE_PREFLIGHT.draft,mode=RACE_MODES.config(d.mode),vehicle=globalThis.KickLabRaceVehicleCatalog.get(d.vehicle);
   if(!mode||!vehicle||!RACE_GARAGE.fields.every(field=>RACE_GARAGE.option(field,d.garage[field])))return;
   if(typeof RACE_CHAMP_UI!=='undefined'&&RACE_CHAMP_UI.active&&RACE_CHAMP.EVENTS[RACE_CHAMP_UI.selected].mode!==mode.id)return;
+  const comparative=racePreflightMatchStage();
+  if(comparative){
+    if(comparative.shared&&comparative.shared.mode!==mode.id)return;
+    const contract=raceMultiplayerContractFromDraft(d);
+    RACE_INSPECT.dispose();RACE_PREFLIGHT.committing=true;RACE_PREFLIGHT.arriving=true;
+    document.documentElement.dataset.racePreflightArriving='true';
+    $('#racePreflightTitle').textContent=`${comparative.stage==='a'?'Racer 1':comparative.kind==='computer'?'Computer':'Racer 2'} arriving at the grid`;
+    $('#racePreflightStatus').textContent=`${vehicle.name} · ${mode.name}. This setup stays local and is compared before racing.`;
+    $('#racePreflightBack').disabled=true;$('#racePreflightNext').disabled=true;
+    const arrival=$('#racePreflight .race-preflight-grid-car video');
+    const handoff=()=>{if(!RACE_PREFLIGHT.arriving)return;RACE_PREFLIGHT.arriving=false;RACE_PREFLIGHT.committing=false;RACE_PREFLIGHT.committed=true;RACE_PREFLIGHT.draft=null;$('#racePreflight').hidden=true;document.documentElement.dataset.racePreflightOpen='false';document.documentElement.dataset.racePreflightArriving='false';raceMultiplayerSetupCommit(contract);};
+    if(arrival&&!reduce&&best.gfx!=='2d'&&!RACE_3D.failed){arrival.loop=false;arrival.currentTime=0;arrival.addEventListener('ended',handoff,{once:true});arrival.addEventListener('error',handoff,{once:true});arrival.play().catch(handoff);setTimeout(handoff,6800);}else setTimeout(handoff,reduce?350:700);
+    return;
+  }
   RACE_INSPECT.dispose();
   RACE_PREFLIGHT.committing=true;RACE_PREFLIGHT.arriving=true;RACE_PREFLIGHT.startControl=d.control;
   $('#racePreflight').scrollTop=0;

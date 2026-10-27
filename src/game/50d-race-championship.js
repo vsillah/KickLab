@@ -38,10 +38,11 @@ function renderRacePhoneProgress(){
   const match=RACE_MULTI_UI.match;
   if(match){
     const current=match.phase.endsWith('B')||match.phase==='handoff'||match.phase==='result'?1:0;
-    $('#racePhoneProgressNodes').replaceChildren(...[0,1].map(index=>{const node=document.createElement('span');node.className='race-phone-progress-node';node.dataset.state=index===current?'current':index===0&&match.a?'passed':'upcoming';node.textContent=index===0&&match.a?'A':index+1;return node;}));
-    $('#racePhoneProgressCount').textContent=`Seat ${current?'B':'A'} / 2`;
+    $('#racePhoneProgressNodes').replaceChildren(...[0,1].map(index=>{const node=document.createElement('span');node.className='race-phone-progress-node';node.dataset.state=index===current?'current':index===0&&match.a?'passed':'upcoming';node.textContent=index+1;return node;}));
+    const racer=raceMultiplayerRacerLabel(match,current?'B':'A');
+    $('#racePhoneProgressCount').textContent=`${racer} / 2`;
     $('#racePhoneProgress .race-phone-progress-finish').textContent=match.phase==='result'?'🏆':'⚑';
-    map.setAttribute('aria-label',`Local head to head, Seat ${current?'B':'A'} of 2. Open Race progress and controls.`);
+    map.setAttribute('aria-label',`Local head to head, ${racer} of 2. Open Race progress and controls.`);
     return;
   }
   if(!RACE_CHAMP_ON){$('#racePhoneProgressNodes').replaceChildren();$('#racePhoneProgressCount').textContent='Local match';map.setAttribute('aria-label','Open local head to head setup and Race controls.');return;}
@@ -66,7 +67,7 @@ $('#raceChampionshipEvents').addEventListener('click',event=>{const button=event
 $('#raceChampionshipNext').addEventListener('click',()=>{const next=RACE_CHAMP_UI.selected+1;if(next>=RACE_CHAMP.EVENTS.length||Race.locked()||!RACE_CHAMP.unlocked(best.raceChampionship,next))return;RACE_CHAMP_UI.selected=next;RACE_CHAMP_UI.last=null;raceChampionshipStopGhost();hideResults();raceChampionshipReset(true);renderAll(false);renderRaceChampionship();renderRaceTelemetry();RACE_CHAMP_UI.timer=setInterval(raceChampionshipGhostTick,180);$('#raceChampionshipEvents [aria-pressed="true"]')?.focus();});
 $('#raceChampionshipGarage').addEventListener('click',event=>{if(!RACE_CHAMP_UI.active)return;GARAGE_UI.active=RACE_CHAMP.EVENTS[RACE_CHAMP_UI.selected].category;openSettings('garage',event.currentTarget);});
 $('#raceChampionshipBoard').addEventListener('click',()=>{RACE_CHAMP_UI.standings=!RACE_CHAMP_UI.standings;renderRaceChampionship();});
-$('#raceChampionshipMatch').addEventListener('click',()=>{if(!RACE_CHAMP_UI.active||!RACE_MULTI.enabled()||Race.locked())return;raceChampionshipExit();COACH.say('Coach Nia: Local head to head uses alternating players on this device. It leaves championship points alone. Choose Seat B and start a match.','tip',8);$('#raceMultiplayerStart').focus();});
+$('#raceChampionshipMatch').addEventListener('click',()=>{if(!RACE_CHAMP_UI.active||!RACE_MULTI.enabled()||Race.locked())return;raceChampionshipExit();COACH.say('Coach Nia: Local head to head uses alternating players on this device. It leaves championship points alone. Choose Racer 2 and start a match.','tip',8);$('#raceMultiplayerStart').focus();});
 $('#raceChampionshipReplay').addEventListener('click',()=>{if(!RACE_CHAMP_UI.last||RACE_CHAMP_UI.last.profileId!==profileManager.active().id||!RECS.race?.frames?.length)return;startReplay(0);});
 if(RACE_CHAMP_ON&&(location.hostname==='localhost'||location.hostname==='127.0.0.1'))globalThis.__KICKLAB_RACE_CHAMPIONSHIP_QA__=Object.freeze({liveCue:()=>raceChampionshipLiveCue(),state:()=>({active:RACE_CHAMP_UI.active,ghostTimerActive:!!RACE_CHAMP_UI.timer,event:RACE_CHAMP.EVENTS[RACE_CHAMP_UI.selected].id,season:RACE_CHAMP.normalize(best.raceChampionship),solo:{xp:best.xp,stats:best.stats,raceModes:best.raceModes,raceCompetition:best.raceCompetition},profileId:profileManager.active().id}),finish:(pass=true)=>{if(!RACE_CHAMP_UI.active||Race.state==='run')return false;const mode=Race.mode();Race.modeAttempt=RACE_MODES.initial(mode.id);const a=Race.modeAttempt;Object.assign(a,{elapsed:mode.id==='endurance'?120:mode.id==='circuit'?60:mode.id==='drag'?12:15,trapKmh:150,laps:mode.id==='endurance'?3:2,lapTimes:mode.id==='endurance'?[40,40,40]:[30,30],straightPaceSeconds:16,peakEngineHeat:.5,criticalSeconds:0,offLineSeconds:0,launchSpin:0,peakHeat:.2,badShifts:0,driftPoints:250,driftCurvePoints:[125,125],spinCount:0});Race.slideT=0;Race.st.t=a.elapsed;Race.state=pass?'done':'crashed';Race.finish(pass,pass?undefined:'outside');return true;}});
 
