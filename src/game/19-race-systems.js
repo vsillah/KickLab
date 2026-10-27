@@ -29,7 +29,9 @@ const RACE_SYSTEMS=(()=>{
     const frontForce=clamp(frontAngle*mass*9.81*3.5*stability,-frontCap,frontCap);
     const rearForce=clamp(rearAngle*mass*9.81*3.5*recovery*rearGrip,-rearCap,rearCap);
     const inertia=mass*wheelbase*wheelbase*(.31+(1-recovery)*.045);
-    const yawAccel=clamp((frontArm*frontForce-rearArm*rearForce)/inertia-(s.yawRate-baselineYaw)*(handbrake?.75:3.8*recovery),-1.7,1.7);
+    const countersteer=!handbrake&&Math.abs(wheel)>=9&&wheel*s.yawRate<0&&Math.abs(s.slipAngle)>.08;
+    const yawLimit=countersteer?3.4*recovery:1.7;
+    const yawAccel=clamp((frontArm*frontForce-rearArm*rearForce)/inertia-(s.yawRate-baselineYaw)*(countersteer?5.2*recovery:handbrake?.75:3.8*recovery),-yawLimit,yawLimit);
     s.yawRate=clamp(s.yawRate+yawAccel*h,-1.1,1.1);
     s.latV=clamp(s.latV+((frontForce+rearForce)/mass-speed*s.yawRate-(handbrake?0:3.2*recovery)*s.latV)*h,-speed*1.75,speed*1.75);
     s.slipAngle=clamp(-Math.atan2(s.latV,speed),-1.05,1.05);

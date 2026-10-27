@@ -79,6 +79,22 @@ test('short handbrake rotation holds a readable angle and countersteer recovers'
   assert.ok(Math.abs(s.slipAngle)<.06);
 });
 
+test('opposite steering arrests a committed slide without snapping yaw',()=>{
+  const physics={...P,expansionCourse:'straight',stability:1,recovery:1};
+  const s=state({x:95,v:11});
+  for(let i=0;i<.9/.004;i++)api.step(s,physics,{gas:0,wheel:120,handbrake:true},.004);
+  assert.ok(s.slipAngle>=15*Math.PI/180&&s.slipAngle<=35*Math.PI/180);
+  const neutral={...s},counter={...s};let maxYawStep=0,previous=counter.yawRate;
+  for(let i=0;i<.4/.004;i++){
+    api.step(neutral,physics,{gas:0,wheel:0,handbrake:false},.004);
+    api.step(counter,physics,{gas:0,wheel:-120,handbrake:false},.004);
+    maxYawStep=Math.max(maxYawStep,Math.abs(counter.yawRate-previous));previous=counter.yawRate;
+  }
+  assert.ok(counter.yawRate<0&&neutral.yawRate>.3,`counter ${counter.yawRate}, neutral ${neutral.yawRate}`);
+  assert.ok(Math.abs(counter.slipAngle)<.1&&counter.rearGrip===1);
+  assert.ok(maxYawStep<.015,`bounded yaw step ${maxYawStep}`);
+});
+
 test('prolonged handbrake misuse can spin without unbounded per-step yaw',()=>{
   const s=state({x:0}),physics={...P,expansionCourse:'straight'};let previous=s.th,maxStep=0;
   for(let i=0;i<800;i++){api.step(s,physics,{gas:.3,wheel:90,handbrake:true},.004);maxStep=Math.max(maxStep,Math.abs(s.th-previous));previous=s.th;}
