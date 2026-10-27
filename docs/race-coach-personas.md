@@ -10,7 +10,9 @@ The current audio engine synthesizes game tones and car sound locally with Web A
 
 ## Art provenance
 
-The four transparent expression sheets were generated with the built-in image generation skill on 2026-10-27 and converted locally to WebP with `cwebp -q 82 -alpha_q 90`. Each sheet has five left-to-right portraits: ready, celebration, supportive concern, focused instruction, calm encouragement. The source PNGs remain under the Codex generated-images directory; the selected optimized assets are in `src/assets/coaches/v1/`.
+The current semi-real portrait sheets and all 20 source-frame checksums are documented in [Race Coach portrait art, v2](race-coach-art-v2.md). The earlier generation record below is retained for historical provenance; its WebP files now live in `docs/art-archive/coaches/v1/`.
+
+The original four transparent expression sheets were generated with the built-in image generation skill on 2026-10-27 and converted locally to WebP with `cwebp -q 82 -alpha_q 90`. Each sheet has five left-to-right portraits: ready, celebration, supportive concern, focused instruction, calm encouragement. The source PNGs remain under the Codex generated-images directory; the archived optimized assets are in `docs/art-archive/coaches/v1/`.
 
 Shared prompt: “Premium modern animated-feature cartoon half-body Race Coach expression sheet, five side-by-side transparent panels, identical face, hair, jacket, framing, lighting, proportions and rendering; ready, restrained celebration, supportive concern after missed timing, focused instruction, calm encouragement. Painterly dimensional shading for ages 9–15; no text, logo, watermark, caricature, shame or anger.” Character details varied by sheet:
 

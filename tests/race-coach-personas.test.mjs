@@ -72,3 +72,14 @@ test('canonical Race events map to supportive expressions',()=>{
   assert.deepEqual(['setup','correct','mistake','recovery','award','win','loss','pause','instruction'].map(event=>api.expressionFor(event)),['ready','celebrate','concern','encourage','celebrate','celebrate','encourage','encourage','focus']);
   assert.equal(api.expressionFor('unknown'),'ready');
 });
+test('four local v2 Coach sheets retain five equal transparent frames under the mobile budget',()=>{
+  for(const id of ['nia','imani','mateo','arun']){
+    const path=new URL(`../src/assets/coaches/v2/${id}.webp`,import.meta.url);
+    const data=readFileSync(path);
+    assert.ok(data.length<85_000,`${id} portrait sheet exceeds budget`);
+    assert.equal(data.toString('ascii',0,4),'RIFF');assert.equal(data.toString('ascii',8,12),'WEBP');
+    assert.equal(data.toString('ascii',12,16),'VP8X');assert.ok(data[20]&0x10,'alpha flag');
+    assert.equal(1+data.readUIntLE(24,3),1280);assert.equal(1+data.readUIntLE(27,3),256);
+    assert.ok(data.includes(Buffer.from('ALPH')),'alpha chunk');
+  }
+});

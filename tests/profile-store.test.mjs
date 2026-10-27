@@ -40,6 +40,7 @@ test('migrates legacy avatar presets additively and isolates edited portrait cho
   const first=manager.active();assert.equal(first.avatar,'wiz');assert.equal(first.avatarLook.hair,'sweep');assert.deepEqual(first.progress,{xp:7});
   manager.updateActive({avatarLook:{skin:'deep',hair:'wrap',face:'angular',detail:'freckles',outfit:'amber',expression:'focus'}});
   assert.equal(manager.active().avatar,'wiz');assert.equal(manager.active().avatarLook.hair,'wrap');
+  manager.updateActive({nickname:'Edited First'});assert.equal(manager.active().avatarLook.hair,'wrap');
   manager.switchTo('b');assert.equal(manager.active().avatarLook.hair,'coils');assert.deepEqual(manager.active().progress,{xp:9});
   const reloaded=createManager(storage,{now:()=>101});assert.equal(reloaded.active().avatarLook.hair,'coils');reloaded.switchTo('a');assert.equal(reloaded.active().avatarLook.hair,'wrap');
 });

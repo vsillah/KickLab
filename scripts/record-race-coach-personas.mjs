@@ -43,6 +43,17 @@ try{
   const saved=await page.evaluate(()=>{const data=JSON.parse(localStorage.getItem('kicklab.profiles.v1'));return data.profiles.find(profile=>profile.id===data.activeId)?.progress.raceCoachId;});if(saved!=='imani')throw Error(`Save & Exit lost Coach: ${saved}`);
   await page.reload({waitUntil:'domcontentloaded'});await page.waitForFunction(()=>document.querySelector('#raceCoachChoose')?.textContent.includes('Imani'));report.events.push('Coach Imani restored after reload');await page.waitForTimeout(900);
   await page.click('#lab-tab-race');await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});if(await page.locator('#racePreflight').isVisible())await page.click('#racePreflightClose');
+  for(const [coach,select] of [['Imani',false],['Mateo',true]]){
+    if(select){if(await page.locator('#racePreflight').isVisible())await page.click('#racePreflightClose');await page.click('#racePhoneToolsToggle');await page.click('#raceCoachChoose');await page.locator('[data-coach-id="mateo"]').click();await page.click('#raceCoachRosterClose');await page.click('#racePhoneToolsToggle');}
+    for(const [outcome,expected] of [['success','celebrating'],['miss','supportive concern']]){
+      await page.evaluate(value=>window.__KICKLAB_RACE_CONTEXTUAL_QA__.result('shift',value,value==='success'?'Optimal timing.':'Timing missed.'),outcome);
+      await page.waitForTimeout(900);
+      const label=await page.locator('#coachAv').getAttribute('aria-label');
+      if(!label?.includes(expected))throw Error(`${coach} ${outcome} expression: ${label}`);
+      report.events.push(`${coach} Race shift ${outcome}: ${label}`);
+    }
+  }
+  if(await page.locator('#racePreflight').isVisible())await page.click('#racePreflightClose');await page.click('#racePhoneToolsToggle');await page.click('#raceCoachChoose');await page.locator('[data-coach-id="imani"]').click();await page.click('#raceCoachRosterClose');await page.click('#racePhoneToolsToggle');
   await page.evaluate(()=>{window.__KICKLAB_RACE_COACH_QA__.clear();window.__KICKLAB_RACE_COACH_QA__.start();window.__KICKLAB_RACE_COACH_QA__.preview('Shift in the bright band.','hype');window.__KICKLAB_RACE_COACH_QA__.hold();});await page.waitForTimeout(1000);
   const imaniCue=await page.locator('#raceCoachNoticeText').textContent(),imaniExpression=await page.locator('#raceCoachNoticeIcon').getAttribute('aria-label');
   await page.click('#racePhoneToolsToggle');await page.locator('#raceCoachHistory summary').click();await page.waitForTimeout(1000);const imaniHistory=await page.locator('#raceCoachHistoryList').textContent();
