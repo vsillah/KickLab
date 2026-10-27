@@ -2335,3 +2335,36 @@ html[data-race-telemetry="prototype"] #raceCoachSetup>.race-setup-instrument{dis
 #racePartyCamera{width:min(100%,380px);aspect-ratio:4/3;object-fit:cover;background:#061d2a}
 #racePartyQr p{color:#102c3c}
 @media(max-width:700px){.race-multiplayer-menu{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* Opt-in Race Coach roster: presentation only, outside the driving controls. */
+.race-coach-choose{min-height:42px;max-width:100%;padding:7px 11px;border:1px solid #7fdcff88;border-radius:10px;background:#123449;color:#e9faff;font:700 12px/1.3 var(--f-body);cursor:pointer}
+.race-coach-choose[hidden],#racePreflightCoach[hidden],.race-coach-roster[hidden],.race-persona-avatar[hidden]{display:none!important}
+.race-persona-avatar{display:inline-block;flex:none;width:42px;height:58px;border-radius:10px;background-color:#183041;background-repeat:no-repeat;background-size:500% 100%;box-shadow:inset 0 0 0 1px #ffffff44;vertical-align:middle}
+html[data-race-coach-personas="prototype"] .race-persona-avatar{background-repeat:no-repeat;background-size:500% 100%;border-radius:10px}
+html[data-race-coach-personas="prototype"] #coachAv{width:42px;height:58px;font-size:0}
+html[data-race-coach-personas="prototype"] #raceCoachNoticeIcon{width:32px;height:43px;font-size:0}
+html[data-race-coach-personas="prototype"] .race-coach-history-icon{width:25px;height:34px;font-size:0}
+html[data-race-coach-personas="prototype"] #raceTelemetry .race-telemetry-coach{width:31px;height:42px;font-size:0}
+html[data-race-coach-personas="prototype"] #rvAv{width:48px;height:64px;font-size:0}
+.race-result-coach-heading{display:flex;align-items:center;gap:9px}
+#raceResultCoachAvatar{width:38px;height:50px}
+.race-coach-roster{position:fixed;inset:0;z-index:1300;display:grid;place-items:center;padding:16px;background:#030d18df;overflow-y:auto}
+.race-coach-roster-panel{width:min(890px,100%);max-height:min(90vh,900px);overflow-y:auto;padding:clamp(14px,2.4vw,26px);border:1px solid #75d7e3a6;border-radius:20px;background:linear-gradient(155deg,#15354a,#081827 72%);color:#f3fbff;box-shadow:0 25px 80px #0009}
+.race-coach-roster-panel header{display:flex;align-items:start;justify-content:space-between;gap:12px;margin-bottom:15px}
+.race-coach-roster-panel header small{color:#96dce8;font:700 11px/1.2 var(--f-body);letter-spacing:.12em}
+.race-coach-roster-panel h2{margin:2px 0 5px;font:800 clamp(21px,3vw,30px)/1.1 var(--f-body)}
+.race-coach-roster-panel p{margin:0;color:#d2e6ee;font:500 12px/1.45 var(--f-body)}
+.race-coach-roster-panel header button{min-height:44px;white-space:nowrap;border:1px solid #8bb3c5;border-radius:10px;background:#123246;color:#fff;padding:8px 12px;cursor:pointer}
+.race-coach-roster-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.race-coach-roster-card{display:grid;justify-items:center;align-content:start;gap:8px;min-height:216px;padding:12px 10px;border:2px solid #557385;border-radius:16px;background:#102b3d;color:#f3fbff;text-align:center;cursor:pointer}
+.race-coach-roster-card[aria-pressed="true"]{border-color:#9df2df;background:#174d53;box-shadow:0 0 0 2px #9df2df55}
+.race-coach-roster-card .race-persona-avatar{width:68px;height:94px}
+.race-coach-roster-card span:last-child{display:grid;gap:3px}
+.race-coach-roster-card b{font:800 15px/1.15 var(--f-body)}
+.race-coach-roster-card small{color:#c3edf1;font:700 11px/1.25 var(--f-body)}
+.race-coach-roster-card q{color:#fff2c7;font:600 10px/1.35 var(--f-body)}
+.race-coach-roster-card em{color:#c4d5de;font:400 10px/1.35 var(--f-body);font-style:normal}
+#raceCoachRosterStatus{margin-top:13px;color:#b9f0d8}
+.race-coach-roster button:focus-visible,.race-coach-choose:focus-visible,#racePreflightCoach:focus-visible{outline:3px solid #ffdb7d;outline-offset:3px}
+@media(max-width:680px){.race-coach-roster-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.race-coach-roster-panel{max-height:94vh}.race-coach-roster-card{min-height:188px}.race-coach-roster-card .race-persona-avatar{width:53px;height:73px}}
+@media(max-width:390px){.race-coach-roster{padding:8px}.race-coach-roster-panel{padding:12px}.race-coach-roster-cards{gap:6px}.race-coach-roster-card{padding:8px 5px}}
+@media(prefers-reduced-motion:reduce){.race-coach-roster *,.race-persona-avatar{animation:none!important;transition:none!important}}
