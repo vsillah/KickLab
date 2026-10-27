@@ -4,7 +4,9 @@ const RACE_CONTEXTUAL_COACH=(()=>{
   let state=core.create(best.raceControlCoach),profileId=profileManager.active().id,runKey='',shown='',until=0,missedShift='',suspended=false;
   const ghost=document.createElement('span'),ghostIcon=document.createElement('b'),ghostVerb=document.createElement('small');ghost.className='race-control-ghost';ghost.setAttribute('aria-hidden','true');ghost.hidden=true;ghost.append(ghostIcon,ghostVerb);$('#raceActionDial').append(ghost);
   function history(event){if(!event)return;const labels={shift:'Shift',nos:'NOS',drift:'Drift',launch:'Launch control',finisher:'Finisher'},names={success:'confirmed',early:'early',late:'late',miss:'missed'};
-    RACE_PHONE_NOTICE.entries.push({text:`${labels[event.id]} ${names[event.kind]}. ${event.detail} ${event.to==='retired'?'Gesture mastered; cue retired.':event.from==='retired'?'Cue returned after repeated misses.':''}`.trim(),mood:event.kind==='success'?'tip':'warn',sequence:++RACE_PHONE_NOTICE.sequence});
+    const expression=event.kind==='success'?'correct':'mistake';
+    RACE_PHONE_NOTICE.entries.push({text:`${labels[event.id]} ${names[event.kind]}. ${event.detail} ${event.to==='retired'?'Gesture mastered; cue retired.':event.from==='retired'?'Cue returned after repeated misses.':''}`.trim(),mood:event.kind==='success'?'tip':'warn',expression,sequence:++RACE_PHONE_NOTICE.sequence});
+    if(RACE_COACH_PERSONAS.enabled)raceCoachPersonaExpression(expression);
     if(RACE_PHONE_NOTICE.entries.length>12)RACE_PHONE_NOTICE.entries.shift();renderRaceCoachHistory();
   }
   function sync(){const active=profileManager.active().id;if(profileId!==active){profileId=active;state=core.create(best.raceControlCoach);runKey='';shown='';ghost.hidden=true;}const key=`${active}:${Race.preflightEpoch||0}`;if(runKey!==key){runKey=key;core.resetRun(state);shown='';missedShift='';ghost.hidden=true;}}

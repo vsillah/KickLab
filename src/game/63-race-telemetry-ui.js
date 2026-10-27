@@ -97,7 +97,7 @@ function renderRaceTelemetry(){
   const level=Race.progressionActive()?Race.progressionLevel():null,mode=Race.expansionActive()?Race.mode():null,coachCue=mode?(typeof RACE_CHAMP_UI!=='undefined'&&RACE_CHAMP_UI.active?raceChampionshipLiveCue():Race.state==='run'?RACE_MODES.live(Race.modeAttempt,Race.st,Race.telemetry):Race.progressionComparison||mode.description):level?(Race.progressionComparison&&['done','crashed'].includes(Race.state)?Race.progressionComparison:Race.state==='run'?RACE_PROGRESSION.live(level,{slide:Race.st.slide,zone:Race.st.zone,distance:Race.P().L-Race.st.x}):RACE_PROGRESSION.preview(level)):cue;
   const thermalCue=mode?.id==='endurance'?coachCue:['hot','critical','power-loss','cooling'].includes(thermal)?cue:coachCue;
   const visibleCue=matchMedia('(max-width:480px)').matches?cue:thermalCue;
-  const coachText=`Nia: ${visibleCue}`,coachButton=$('#raceTelemetryCue');
+  const coachText=`${RACE_COACH_PERSONAS.enabled?raceCoachName().split(' ')[1]:'Nia'}: ${visibleCue}`,coachButton=$('#raceTelemetryCue');
   if(Race.state==='run')racePhoneNotice(racePhoneLiveCue(mode,level,thermal,cue),['hot','critical','power-loss'].includes(thermal)?'warn':'tip');
   if(coachButton.textContent!==coachText)coachButton.textContent=coachText;
   coachButton.title=thermalCue;
@@ -173,7 +173,7 @@ function renderRaceNavigation({gauge,value,unit,fraction,phase,cue}){
   $('#raceNavigationGaugePhase').textContent=phase;
   $('#raceNavigationGaugeFill').style.width=`${Math.round(fraction*100)}%`;
   const compactCue={RPM:'Hold RPM band.',Torque:'Feed throttle.',NOS:'Release a pulse.','Engine heat':'Watch temperature.',Brakes:'Brake early.','Drift angle':'Hold modest angle.','Grip recovery':'Unwind to recover.'},thermal=RACE_TELEMETRY.thermalStage(Race.telemetry),thermalCue={warming:'Engine warming.',hot:'Hot. Ease off.',critical:'Critical. Lift now.','power-loss':'Power low. Keep lifting.',cooling:Race.telemetry.phase==='recovered'?'Cooled. Power back.':'Cooling. Keep airflow.'};
-  const navigationCue=$('#raceNavigationCue');navigationCue.textContent=`Nia: ${matchMedia('(max-width:980px)').matches?(thermalCue[thermal]||compactCue[gauge]||cue):cue}`;navigationCue.disabled=!(Race.progressionActive()||Race.expansionActive());navigationCue.title=navigationCue.disabled?'Coach details open with Race progression or expansion.':cue;navigationCue.setAttribute('aria-label',navigationCue.disabled?`${navigationCue.textContent}. Details unavailable in this Race mode.`:$('#raceTelemetryCue').getAttribute('aria-label'));
+  const navigationCue=$('#raceNavigationCue');navigationCue.textContent=`${RACE_COACH_PERSONAS.enabled?raceCoachName().split(' ')[1]:'Nia'}: ${matchMedia('(max-width:980px)').matches?(thermalCue[thermal]||compactCue[gauge]||cue):cue}`;navigationCue.disabled=!(Race.progressionActive()||Race.expansionActive());navigationCue.title=navigationCue.disabled?'Coach details open with Race progression or expansion.':cue;navigationCue.setAttribute('aria-label',navigationCue.disabled?`${navigationCue.textContent}. Details unavailable in this Race mode.`:$('#raceTelemetryCue').getAttribute('aria-label'));
   const prediction=Race.cornerTracePrediction||RACE_CORNER_TRACE.predict();if(!prediction)return;
   const P=Race.P(),venue=RACE_SYSTEMS.venue(Race.opt.venue),car=Race.st,heading=car.th||0;
   const local=p=>{const dx=p.x-car.x,dy=p.y-car.y;return{forward:dx*Math.cos(heading)+dy*Math.sin(heading),side:-dx*Math.sin(heading)+dy*Math.cos(heading)};};

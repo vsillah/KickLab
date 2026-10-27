@@ -13,7 +13,7 @@ function applyPauseSnapshot(snapshot,{notify=true}={}){
   const was=PAUSE.on;PAUSE.on=snapshot.paused;PAUSE.why=pauseReason(snapshot);PAUSE.resumeT=0;
   if(PAUSE.on){if(M===Race&&RACE_FINISHES.enabled)RACE_FINISHES.cancel(Race.signatureFinish,'paused');ENGINE.off();RACE_SUPERCAR_AUDIO.stop();if(M&&M.inp){M.inp.gas=false;M.inp.brake=false;M.inp.left=false;M.inp.right=false;if(M===Race&&RACE_SYSTEMS.enabled()){RACE_SYSTEMS.cancelInput(M.inp);if(RACE_TELEMETRY.enabled){RACE_TELEMETRY.cancel(Race.telemetry);renderRaceTelemetry();}}}if(M&&M.key==='fight'){Fight.blocking=false;Fight.ducking=false;Fight.queued=null;}document.querySelectorAll('#pad .on').forEach(button=>button.classList.remove('on'));}
   else if(was&&M&&M.onResume)M.onResume();
-  if(notify)renderPausedOverlay();return snapshot;
+  if(M===Race&&RACE_COACH_PERSONAS.enabled&&was!==PAUSE.on)raceCoachPersonaExpression(PAUSE.on?'pause':'recovery');if(notify)renderPausedOverlay();return snapshot;
 }
 function resetPauseOwnership(){PAUSE_OWNERS.reset();return applyPauseSnapshot(PAUSE_OWNERS.snapshot());}
 function claimPauseOwner(owner){

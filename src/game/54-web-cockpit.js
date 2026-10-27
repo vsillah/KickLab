@@ -16,7 +16,7 @@ function renderRaceCoachHistory(){
   const list=$('#raceCoachHistoryList');list.replaceChildren();
   for(const item of [...RACE_PHONE_NOTICE.entries].reverse()){
     const row=document.createElement('li'),icon=document.createElement('span'),copy=document.createElement('span'),order=document.createElement('small');
-    icon.className='race-coach-history-icon';icon.textContent=item.mood==='warn'?'!':'✦';icon.setAttribute('aria-hidden','true');
+    icon.className='race-coach-history-icon';icon.textContent=item.mood==='warn'?'!':'✦';icon.setAttribute('aria-hidden','true');if(RACE_COACH_PERSONAS.enabled)raceCoachPersonaPaint(icon,item.expression);
     copy.textContent=item.text;order.textContent=`Cue ${item.sequence}`;
     row.append(icon,copy,order);list.append(row);
   }
@@ -40,23 +40,24 @@ function showRaceCoachNotice(item){
   if(document.hidden||gameStage.classList.contains('has-game-overlay')||racePhoneTools.getAttribute('aria-expanded')==='true')return;
   const note=$('#raceCoachNotice');clearTimeout(RACE_PHONE_NOTICE.exitTimer);clearTimeout(RACE_PHONE_NOTICE.timer);
   note.classList.remove('is-leaving');note.hidden=false;
-  $('#raceCoachNoticeIcon').textContent=item.mood==='warn'?'!':'✦';
+  $('#raceCoachNoticeIcon').textContent=item.mood==='warn'?'!':'✦';if(RACE_COACH_PERSONAS.enabled)raceCoachPersonaPaint($('#raceCoachNoticeIcon'),item.expression);
   $('#raceCoachNoticeText').textContent=item.text;note.title=item.text;
-  note.setAttribute('aria-label',`Coach Nia, cue ${item.sequence}: ${item.text}`);
+  note.setAttribute('aria-label',`${RACE_COACH_PERSONAS.enabled?raceCoachName():'Coach Nia'}, cue ${item.sequence}: ${item.text}`);
   note.dataset.mood=item.mood;note.classList.remove('is-entering');void note.offsetWidth;note.classList.add('is-entering');
   const epoch=++RACE_PHONE_NOTICE.epoch;
   RACE_PHONE_NOTICE.timer=setTimeout(()=>{if(epoch===RACE_PHONE_NOTICE.epoch)retractRaceCoachNotice();},3900);
 }
 function racePhoneNotice(message,mood='tip'){
   if(!racePhoneToolsActive()||M!==Race||Race.state!=='run'||RP.on)return;
-  const text=String(message).replace(/^Coach Nia:\s*/i,'').trim().split(/(?<=[.!?])\s+/)[0].slice(0,72);
+  const text=(RACE_COACH_PERSONAS.enabled?RACE_COACH_PERSONAS.canonical(message):String(message).replace(/^Coach Nia:\s*/i,'')).trim().split(/(?<=[.!?])\s+/)[0].slice(0,72);
   if(!text||text==='Coach Nia on the radio.')return;
   const now=performance.now();
   if(RACE_PHONE_NOTICE.seen.includes(text))return;
   const present=mood==='warn'||now-RACE_PHONE_NOTICE.at>=3600;
   RACE_PHONE_NOTICE.text=text;if(present)RACE_PHONE_NOTICE.at=now;
   RACE_PHONE_NOTICE.seen.push(text);if(RACE_PHONE_NOTICE.seen.length>64)RACE_PHONE_NOTICE.seen.shift();
-  const item={text,mood,sequence:++RACE_PHONE_NOTICE.sequence};
+  const expression=mood==='warn'?'mistake':mood==='hype'?'correct':/recover|steady|cool/i.test(text)?'recovery':'instruction';
+  const item={text,mood,expression,sequence:++RACE_PHONE_NOTICE.sequence};if(RACE_COACH_PERSONAS.enabled)raceCoachPersonaExpression(expression);
   RACE_PHONE_NOTICE.entries.push(item);if(RACE_PHONE_NOTICE.entries.length>12)RACE_PHONE_NOTICE.entries.shift();
   renderRaceCoachHistory();
   if(!present)return;
