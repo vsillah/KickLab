@@ -25,7 +25,9 @@ test('shallow rail rub gives one bounded scrape without an outward ricochet',()=
 
 test('low speed normal impact dents, high energy impact opens a local rail gap',()=>{
   const dent=contact({y:8.8,from:8.76,v:9,th:-.5});assert.equal(dent.event.type,'dent');assert.ok(dent.event.depth>0&&dent.event.depth<=.55);assert.ok(dent.s.v<9);assert.ok(Math.abs(dent.s.e)<=8.3);
-  const hit=contact({y:8.8,from:8.70,v:22,th:-.7});assert.equal(hit.event.type,'break');assert.equal(hit.q.broken.size,1);assert.equal(hit.s.y,8.8);const next=rail.step(hit.q,hit.s,{x:40,y:8.7},P,venue,7,.004);assert.equal(next,null);
+  const hit=contact({y:8.8,from:8.70,v:22,th:-.7});assert.equal(hit.event.type,'break');assert.equal(hit.q.broken.size,1);assert.ok(Math.abs(hit.s.e)<8.25);assert.ok(hit.q.impact.hold>0);
+  const held=hit.s.y;for(let i=0;i<40;i++)rail.step(hit.q,hit.s,{x:hit.s.x,y:hit.s.y},P,venue,7,.004);assert.equal(hit.s.y,held);
+  for(let i=0;i<55;i++)rail.step(hit.q,hit.s,{x:hit.s.x,y:hit.s.y},P,venue,7,.004);assert.equal(hit.q.impact,null);assert.ok(Math.abs(hit.s.e)>10.5);
   const noBreak=contact({y:8.8,from:8.75,v:11,th:-.5});assert.notEqual(noBreak.event.type,'break');
 });
 

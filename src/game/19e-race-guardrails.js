@@ -2,12 +2,18 @@
 const RACE_GUARDRAILS=(()=>{
   const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
   const angle=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));
-  const initial=()=>({events:[],broken:new Map(),dents:new Map(),contact:false,breached:false,breach:null,lastCue:-10,problemTime:0,recovering:0,recoveries:0,contacts:0,serial:0,last:null});
+  const initial=()=>({events:[],broken:new Map(),dents:new Map(),contact:false,breached:false,breach:null,impact:null,lastCue:-10,problemTime:0,recovering:0,recoveries:0,contacts:0,serial:0,last:null});
   function emit(q,event){q.events.push({id:++q.serial,...event});if(q.events.length>24)q.events.shift();return q.events.at(-1);}
   function center(s,P,venue){const p=RACE_SYSTEMS.path(s.x,s.y,P,venue),nx=-Math.sin(p.phi),ny=Math.cos(p.phi);return{p,x:s.x+p.e*nx,y:s.y+p.e*ny,nx,ny};}
   function segment(c,side){return `${Math.round(c.x/3)},${Math.round(c.y/3)},${side}`;}
   function step(q,s,previous,P,venue,halfWidth,dt){
     if(q.recovering)return null;
+    if(q.impact){
+      const impact=q.impact;
+      if(impact.hold>0){impact.hold=Math.max(0,impact.hold-dt);s.x=impact.x;s.y=impact.y;s.v=Math.min(s.v,impact.speed*.48);}
+      else{impact.transit=Math.max(0,impact.transit-dt);const progress=1-impact.transit/.22;s.x=impact.x+impact.nx*2.9*progress;s.y=impact.y+impact.ny*2.9*progress;s.v=Math.min(s.v,impact.speed*.6);if(!impact.transit)q.impact=null;}
+      s.e=RACE_SYSTEMS.path(s.x,s.y,P,venue).e;return null;
+    }
     const c=center(s,P,venue),side=Math.sign(c.p.e)||1,rail=halfWidth+2.4,clearance=1.15,bound=rail-clearance,offset=Math.abs(c.p.e),key=segment(c,side);
     if(offset<bound-.38)q.contact=false;
     const offCourse=q.breached&&offset>rail+.2||offset>rail+2.2||Math.abs(angle(s.th,c.p.phi))>2.25&&offset>halfWidth||s.v<.65&&offset>halfWidth+.3;
@@ -25,7 +31,11 @@ const RACE_GUARDRAILS=(()=>{
     const breaking=normalSpeed>=12&&energy>=85000;
     const scrape=normalSpeed<3.5&&tangentSpeed>4;
     const type=breaking?'break':scrape?'scrape':'dent';
-    if(breaking){const point={x:c.x-c.nx*side*rail,y:c.y-c.ny*side*rail};q.broken.set(key,point);q.breached=true;q.breach=point;}
+    if(breaking){const point={x:c.x-c.nx*side*rail,y:c.y-c.ny*side*rail};q.broken.set(key,point);q.breached=true;q.breach=point;
+      const inside=bound-.08,penetration=offset-inside,nx=-c.nx*side,ny=-c.ny*side;
+      s.x-=nx*penetration;s.y-=ny*penetration;s.e=RACE_SYSTEMS.path(s.x,s.y,P,venue).e;
+      q.impact={x:s.x,y:s.y,nx,ny,speed:s.v,hold:.16,transit:.22};
+    }
     else{
       const penetration=Math.min(offset-bound,Math.max(.1,s.v*dt+1));
       s.x+=c.nx*side*penetration;s.y+=c.ny*side*penetration;
@@ -42,6 +52,6 @@ const RACE_GUARDRAILS=(()=>{
     q.last=event;return event;
   }
   function tickRecovery(q,s,P,venue,dt){if(!q.recovering)return false;q.recovering=Math.max(0,q.recovering-dt);if(q.recovering)return false;
-    const c=center(s,P,venue);s.x=c.x;s.y=c.y;s.th=c.p.phi;s.v=2;s.latV=0;s.yawRate=0;s.slipAngle=0;s.axleActive=false;s.handbrakeCommitted=false;s.driftMode='none';s.slide=false;s.drift=false;s.skidTime=0;s.e=0;s.zone=c.p.zone;s.nitroActive=false;s.nitroDelivered=false;q.problemTime=0;q.contact=false;q.breached=false;q.breach=null;emit(q,{type:'recovery-end',x:s.x,y:s.y});return true;}
+    const c=center(s,P,venue);s.x=c.x;s.y=c.y;s.th=c.p.phi;s.v=2;s.latV=0;s.yawRate=0;s.slipAngle=0;s.axleActive=false;s.handbrakeCommitted=false;s.driftMode='none';s.slide=false;s.drift=false;s.skidTime=0;s.e=0;s.zone=c.p.zone;s.nitroActive=false;s.nitroDelivered=false;q.problemTime=0;q.contact=false;q.breached=false;q.breach=null;q.impact=null;emit(q,{type:'recovery-end',x:s.x,y:s.y});return true;}
   return Object.freeze({initial,step,tickRecovery,center});
 })();
