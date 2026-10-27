@@ -21,6 +21,14 @@ function racePreflightDraft(){
   return{mode:fixed||Race.mode().id,vehicle:Race.vehicle().id,garage:{...Race.garage},control,steer:Race.opt.steer};
 }
 function racePreflightCanOpen(){return RACE_PREFLIGHT_ON&&M===Race&&Race.state==='grid'&&!PAUSE.on&&!RP.on&&!$('#game-cockpit').hidden&&$('#settingsDrawer').hidden&&$('#profileDialog').hidden&&!(typeof RACE_MULTI_UI!=='undefined'&&RACE_MULTI_UI.match);}
+function racePreflightPrepareHomeEntry(){
+  if(!RACE_PREFLIGHT_ON)return;
+  RACE_INSPECT.dispose();
+  Object.assign(RACE_PREFLIGHT,{phase:0,lastRenderedPhase:null,draft:null,profileId:null,lastEpoch:-1,committing:false,committed:false,arriving:false,pendingStart:false,lastRaceState:null,returnFocus:null,notice:'',focusPart:'tires',startControl:null});
+  $('#racePreflight').hidden=true;
+  document.documentElement.dataset.racePreflightOpen='false';
+  document.documentElement.dataset.racePreflightArriving='false';
+}
 function racePreflightOpen(trigger=null){
   if(!racePreflightCanOpen())return false;
   if(RACE_PREFLIGHT.profileId!==profileManager.active().id||!RACE_PREFLIGHT.draft){RACE_PREFLIGHT.draft=racePreflightDraft();RACE_PREFLIGHT.phase=0;RACE_PREFLIGHT.lastRenderedPhase=null;RACE_PREFLIGHT.focusPart='tires';RACE_PREFLIGHT.profileId=profileManager.active().id;}
@@ -42,7 +50,6 @@ function racePreflightMaybeOpen(){
   }
   if(M===Race&&RACE_PREFLIGHT.lastRaceState&&RACE_PREFLIGHT.lastRaceState!=='grid'&&Race.state==='grid'){RACE_PREFLIGHT.lastEpoch=-1;RACE_PREFLIGHT.committed=false;RACE_PREFLIGHT.draft=null;}
   RACE_PREFLIGHT.lastRaceState=M===Race?Race.state:null;
-  if(typeof RACE_MULTI!=='undefined'&&RACE_MULTI.enabled())return;
   if(!racePreflightCanOpen()||!$('#racePreflight').hidden||RACE_PREFLIGHT.committing||RACE_PREFLIGHT.committed||RACE_PREFLIGHT.lastEpoch===(Race.preflightEpoch||0)||RACE_3D.on&&!RACE_3D.orbit.done)return;
   RACE_PREFLIGHT.draft=null;
   racePreflightOpen($('#raceCoachSetupStart'));
