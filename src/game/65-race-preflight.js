@@ -136,6 +136,8 @@ function racePreflightRender(){if($('#racePreflight').hidden)return;const phase=
   if(RACE_PREFLIGHT.lastRenderedPhase!==phase){$('#racePreflight').scrollTop=0;RACE_PREFLIGHT.lastRenderedPhase=phase;}
   requestAnimationFrame(racePreflightSyncMedia);
   $('#racePreflightBack').textContent=phase?'Back':'Cancel';$('#racePreflightNext').textContent=phase===3?'Start heat':'Continue';
+  $('#racePreflightBack').disabled=RACE_PREFLIGHT.arriving||RACE_PREFLIGHT.committing;
+  $('#racePreflightNext').disabled=RACE_PREFLIGHT.arriving||RACE_PREFLIGHT.committing;
   if(phase===1)requestAnimationFrame(()=>{const roster=$('#racePreflight .race-preflight-roster'),selected=roster?.querySelector('[aria-pressed=\"true\"]');if(roster&&selected)roster.scrollLeft=selected.offsetLeft-roster.offsetLeft-(roster.clientWidth-selected.clientWidth)/2;});
 }
 function racePreflightCommit(){
