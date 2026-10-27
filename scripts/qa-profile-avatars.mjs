@@ -1,0 +1,53 @@
+import {createRequire} from 'node:module';
+import {mkdirSync,writeFileSync,existsSync} from 'node:fs';
+import {execFileSync} from 'node:child_process';
+import {resolve,join} from 'node:path';
+const {chromium}=createRequire(import.meta.url)('playwright');
+const head=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),base=process.argv[2]||'http://127.0.0.1:5271/kicklab.html';
+const out=resolve(process.argv[3]||`qa-artifacts/profile-avatars/${head.slice(0,12)}`);mkdirSync(out,{recursive:true});
+const report={head,cases:[],errors:[],external:[]};
+const browser=await chromium.launch({headless:true,executablePath:[process.env.KICKLAB_CHROMIUM_PATH,chromium.executablePath(),'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find(path=>path&&existsSync(path))});
+const flags={raceExpansion:'prototype',raceInstruments:'prototype',raceSystems:'proxy',raceTelemetry:'prototype',raceFinishes:'prototype',raceCoaching:'prototype',raceCoachPersonas:'prototype',raceMultiplayer:'prototype',racePrivateParty:'prototype',raceResultsQA:'1',racePreflight:'prototype',rev:head.slice(0,12)};
+async function run(width,height,{reduced=false,canvas=false}={}){
+  console.log(`Checking ${width}x${height}${reduced?' reduced':''}${canvas?' Canvas':''}`);
+  const record=!!process.env.QA_VIDEO&&width===390&&!reduced&&!canvas;
+  const context=await browser.newContext({viewport:{width,height},deviceScaleFactor:1,reducedMotion:reduced?'reduce':'no-preference',hasTouch:width===390,...(record?{recordVideo:{dir:out,size:{width,height}}}:{})});
+  await context.addInitScript(useCanvas=>{localStorage.setItem('impactlab.v1',JSON.stringify({gfx:useCanvas?'2d':'3d',ch:{fight:0,race:0,kick:0},play:{fight:'ch',race:'ch',kick:'ch'}}));localStorage.setItem('impactlab.nick','QA Driver');},canvas);
+  const page=await context.newPage(),url=new URL(base);page.setDefaultTimeout(8000);for(const [key,value] of Object.entries(flags))url.searchParams.set(key,value);
+  page.on('pageerror',error=>report.errors.push(`${width}: ${error.message}`));
+  await page.route('**/*',route=>{const target=route.request().url();if(target.startsWith(url.origin+'/')||target.startsWith('data:')||target.startsWith('blob:'))return route.continue();report.external.push(`${width}: ${target}`);return route.abort();});
+  try{
+    await page.goto(url.toString(),{waitUntil:'domcontentloaded'});if(await page.locator('#profileClose').isVisible())await page.click('#profileClose');
+    await page.screenshot({path:join(out,`home-${width}${reduced?'-reduced':''}${canvas?'-canvas':''}.png`)});if(record)await page.waitForTimeout(1200);
+    await page.click('#homeProfileButton');await page.locator('#profileDialog').waitFor({state:'visible'});await page.click('#profileEdit');
+    await page.locator('#profileAvatarPreview').waitFor({state:'visible'});await page.screenshot({path:join(out,`creator-${width}${reduced?'-reduced':''}${canvas?'-canvas':''}.png`)});if(record)await page.waitForTimeout(1800);
+    await page.locator('[data-avatar="wiz"]').click();await page.locator('[data-look-key="skin"][data-look-value="deep"]').click();await page.locator('[data-look-key="hair"][data-look-value="wrap"]').click();await page.locator('[data-look-key="face"][data-look-value="angular"]').click();await page.locator('[data-look-key="detail"][data-look-value="glasses"]').click();await page.locator('[data-look-key="outfit"][data-look-value="amber"]').click();await page.locator('[data-look-key="expression"][data-look-value="focus"]').click();
+    await page.fill('#profileNickname','QA Driver');const preview=await page.locator('#profileAvatarPreview').getAttribute('aria-label');if(!preview?.includes('Headwrap')&&!preview?.includes('headwrap'))throw Error('creator preview did not update');
+    await page.screenshot({path:join(out,`custom-${width}${reduced?'-reduced':''}${canvas?'-canvas':''}.png`)});if(record)await page.waitForTimeout(1800);
+    await page.click('#profileFormCancel');let stored=await page.evaluate(()=>JSON.parse(localStorage.getItem('kicklab.profiles.v1')).profiles[0]);if(stored.avatar!=='rocket')throw Error('Cancel changed profile');
+    await page.click('#profileEdit');await page.locator('[data-avatar="wiz"]').click();await page.locator('[data-look-key="skin"][data-look-value="deep"]').click();await page.locator('[data-look-key="hair"][data-look-value="wrap"]').click();await page.click('#profileFormSave');stored=await page.evaluate(()=>JSON.parse(localStorage.getItem('kicklab.profiles.v1')).profiles[0]);if(stored.avatar!=='wiz'||stored.avatarLook.skin!=='deep'||stored.avatarLook.hair!=='wrap')throw Error('Save did not persist portrait');
+    await page.locator('[data-profile-lab="race"]').click();await page.locator('.profile-race-duo').waitFor({state:'visible'});const duo=await page.locator('.profile-race-duo').textContent();if(!duo.includes('QA Driver')||!duo.includes('Coach Nia'))throw Error(`Race identity missing ${duo}`);await page.waitForFunction(()=>document.querySelector('.profile-coach-portrait img')?.naturalWidth>0,null,{timeout:8000});await page.screenshot({path:join(out,`race-profile-${width}${reduced?'-reduced':''}${canvas?'-canvas':''}.png`)});if(record)await page.waitForTimeout(2200);
+    await page.click('#profileClose');await page.click('#lab-tab-race');await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});await page.locator('#racePreflightCoach').waitFor({state:'visible',timeout:20000});await page.click('#racePreflightCoach');await page.locator('[data-coach-id="imani"]').click();await page.click('#raceCoachRosterClose');await page.click('#racePreflightClose');
+    if(!canvas){try{await page.locator('.race-orbit-panel button').waitFor({state:'visible',timeout:10000});await page.click('.race-orbit-panel button');}catch(_){}}
+    await page.reload({waitUntil:'domcontentloaded'});if(await page.locator('#profileClose').isVisible())await page.click('#profileClose');
+    await page.click('#homeProfileButton');await page.locator('[data-profile-lab="race"]').click();const coachImage=await page.locator('.profile-coach-portrait img').getAttribute('src');if(!coachImage?.includes('imani.webp'))throw Error(`Coach portrait ${coachImage}`);await page.screenshot({path:join(out,`imani-profile-${width}${reduced?'-reduced':''}${canvas?'-canvas':''}.png`)});if(record)await page.waitForTimeout(2200);
+    const overflow=await page.evaluate(()=>Math.max(0,document.documentElement.scrollWidth-innerWidth));if(overflow)throw Error(`horizontal overflow ${overflow}`);
+    if(width===390&&!reduced&&!canvas){
+      await page.click('#profileCreate');await page.fill('#profileNickname','Second Driver');await page.locator('[data-avatar="tower"]').click();await page.click('#profileFormSave');const second=await page.evaluate(()=>JSON.parse(localStorage.getItem('kicklab.profiles.v1')).profiles.at(-1));if(second.avatarLook.face!=='angular'||second.progress.raceCoachId)throw Error('second profile leaked identity or Coach');
+      const first=await page.evaluate(()=>JSON.parse(localStorage.getItem('kicklab.profiles.v1')).profiles[0]);await page.locator(`[data-profile-id="${first.id}"]`).click();const restored=await page.evaluate(()=>JSON.parse(localStorage.getItem('kicklab.profiles.v1')).profiles.find(p=>p.id===JSON.parse(localStorage.getItem('kicklab.profiles.v1')).activeId));if(restored.avatarLook.hair!=='wrap'||restored.progress.raceCoachId!=='imani')throw Error('profile switch lost isolation');
+      await page.click('#profileClose');await page.reload({waitUntil:'domcontentloaded'});await page.waitForFunction(()=>document.querySelector('#homeProfileAvatar .driver-avatar-svg'));
+      await page.click('#homeProfileButton');await page.locator('[data-profile-lab="race"]').click();if(!await page.locator('.profile-coach-portrait img').getAttribute('src').then(value=>value?.includes('imani.webp')))throw Error('reload lost Coach portrait');
+      for(const lab of ['fight','kick','race']){await page.locator(`[data-profile-lab="${lab}"]`).click();if(await page.locator(`[data-profile-lab="${lab}"]`).getAttribute('aria-current')!=='true')throw Error(`${lab} profile not selected`);}
+      await page.click('#profileClose');await page.click('#lab-tab-race');await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});if(await page.locator('#racePreflight').isVisible())await page.click('#racePreflightClose');
+      await page.evaluate(()=>document.querySelector('#raceMultiCouch').click());const couch=await page.locator('#raceIdentitySeats').textContent();if(!couch.includes('QA Driver')||!couch.includes('Second Driver'))throw Error(`Couch identities ${couch}`);
+      await page.evaluate(()=>document.querySelector('#raceMultiComputer').click());const computer=await page.locator('#raceIdentitySeats').textContent();if(!computer.includes('Computer')||!computer.includes('QA Driver'))throw Error(`Computer identities ${computer}`);
+      await page.evaluate(()=>document.querySelector('#raceMultiQuick').click());const quick=await page.locator('#raceIdentitySeats').textContent();if(!quick.includes('Challenger')||!quick.includes('QA Driver'))throw Error(`Quick identities ${quick}`);
+      await page.evaluate(()=>document.querySelector('#raceMultiParty').click());const party=await page.locator('#raceIdentitySeats').textContent();if(!party.includes('Party challenger')||!party.includes('QA Driver'))throw Error(`Party identities ${party}`);
+      report.cases.push({identityViews:true,couch,computer,quick,party});
+    }
+    report.cases.push({width,height,reduced,canvas,avatar:stored.avatar,look:stored.avatarLook,overflow});
+  }catch(error){report.errors.push(`${width}${reduced?'/reduced':''}${canvas?'/canvas':''}: ${error.stack||error}`);}finally{await context.close();if(record){const videoPath=await page.video().path();execFileSync('ffmpeg',['-y','-loglevel','error','-i',videoPath,'-c:v','libx264','-pix_fmt','yuv420p','-movflags','+faststart',join(out,'walkthrough-phone.mp4')]);}}
+}
+for(const [width,height] of (process.env.QA_ONE||process.env.QA_VIDEO?[[390,844]]:[[390,844],[768,1024],[1113,834],[1440,900]]))await run(width,height);
+if(!process.env.QA_ONE&&!process.env.QA_VIDEO){await run(390,844,{reduced:true});await run(390,844,{canvas:true});}
+await browser.close();writeFileSync(join(out,'report.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report,null,2));if(report.errors.length||report.external.length)process.exitCode=1;

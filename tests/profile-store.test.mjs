@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
+await import('../src/shared/profile-avatar-art.js');
 await import('../src/shared/profile-store.js');
 
 const { PROFILE_KEY, createManager } = globalThis.KickLabProfiles;
@@ -31,6 +32,16 @@ test('fails local and recovers from malformed profile and legacy storage', () =>
   assert.deepEqual(manager.active().progress, {});
   assert.equal(manager.active().nickname, 'Lab Kid');
   assert.equal(manager.list().length, 1);
+});
+
+test('migrates legacy avatar presets additively and isolates edited portrait choices',()=>{
+  const seed={version:1,activeId:'a',legacyProfileId:'a',profiles:[{id:'a',nickname:'First',avatar:'wiz',color:'mint',progress:{xp:7}},{id:'b',nickname:'Second',avatar:'tower',color:'sky',progress:{xp:9}}]};
+  const storage=memoryStorage({[PROFILE_KEY]:JSON.stringify(seed)}),manager=createManager(storage,{now:()=>100});
+  const first=manager.active();assert.equal(first.avatar,'wiz');assert.equal(first.avatarLook.hair,'sweep');assert.deepEqual(first.progress,{xp:7});
+  manager.updateActive({avatarLook:{skin:'deep',hair:'wrap',face:'angular',detail:'freckles',outfit:'amber',expression:'focus'}});
+  assert.equal(manager.active().avatar,'wiz');assert.equal(manager.active().avatarLook.hair,'wrap');
+  manager.switchTo('b');assert.equal(manager.active().avatarLook.hair,'coils');assert.deepEqual(manager.active().progress,{xp:9});
+  const reloaded=createManager(storage,{now:()=>101});assert.equal(reloaded.active().avatarLook.hair,'coils');reloaded.switchTo('a');assert.equal(reloaded.active().avatarLook.hair,'wrap');
 });
 
 test('isolates multiple profiles and mirrors the active profile for legacy builds', () => {
