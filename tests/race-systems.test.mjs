@@ -95,6 +95,19 @@ test('opposite steering arrests a committed slide without snapping yaw',()=>{
   assert.ok(maxYawStep<.015,`bounded yaw step ${maxYawStep}`);
 });
 
+test('unwinding a still-positive wheel begins recovery before center crossing',()=>{
+  const physics={...P,expansionCourse:'straight',stability:1,recovery:1};
+  const s=state({x:95,v:11});
+  for(let i=0;i<.9/.004;i++)api.step(s,physics,{gas:0,wheel:120,handbrake:true},.004);
+  const held={...s},unwound={...s};
+  for(let i=0;i<.2/.004;i++){
+    api.step(held,physics,{gas:0,wheel:120,handbrake:false},.004);
+    api.step(unwound,physics,{gas:0,wheel:120-i*1.2,handbrake:false},.004);
+  }
+  assert.ok(unwound.yawRate<held.yawRate-.2,`unwound ${unwound.yawRate}, held ${held.yawRate}`);
+  assert.ok(unwound.yawRate>-.4&&Number.isFinite(unwound.slipAngle));
+});
+
 test('prolonged handbrake misuse can spin without unbounded per-step yaw',()=>{
   const s=state({x:0}),physics={...P,expansionCourse:'straight'};let previous=s.th,maxStep=0;
   for(let i=0;i<800;i++){api.step(s,physics,{gas:.3,wheel:90,handbrake:true},.004);maxStep=Math.max(maxStep,Math.abs(s.th-previous));previous=s.th;}
