@@ -1851,10 +1851,11 @@ html[data-race-preflight="prototype"] #raceCoachSetup .race-coach-setup-actions{
 .race-preflight-header button,.race-preflight-footer button,.race-preflight-control-options button,#racePreflightSteer{min-height:46px;border:1px solid #678b8c;background:#17323d;border-radius:12px;padding:10px 18px}
 .race-preflight-header button:hover,.race-preflight-footer button:hover,.race-preflight-control-options button:hover,#racePreflightSteer:hover{background:#255564}
 .race-preflight-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-.race-preflight-steps button{border:1px solid #456369;background:#11252f;border-radius:12px;min-height:55px;display:flex;align-items:center;gap:10px;padding:8px 12px;text-align:left}
+.race-preflight-steps button{min-width:0;border:1px solid #456369;background:#11252f;border-radius:12px;min-height:55px;display:flex;align-items:center;gap:10px;padding:8px 12px;text-align:left}
 .race-preflight-steps button[aria-current=step]{background:#1f5a60;border-color:#a6efe0}
 .race-preflight-steps button:disabled{opacity:.6;cursor:default}
 .race-preflight-steps b{display:grid;place-items:center;flex:none;width:28px;height:28px;border-radius:50%;background:#2c5960}
+.race-preflight-steps span{min-width:0;line-height:1.15;overflow-wrap:anywhere}
 .race-preflight-status{margin:0;min-height:22px;color:#b6e3da;font-size:13px}
 .race-preflight-content{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden}
 .race-preflight-intro{display:flex;align-items:stretch;justify-content:space-between;gap:18px;margin-bottom:16px}
@@ -1962,7 +1963,8 @@ html[data-race-preflight-arriving="true"] .race-preflight-grid-rev i:nth-of-type
 .race-preflight-footer{position:sticky;bottom:0;padding:12px 0 calc(12px + env(safe-area-inset-bottom));background:#08121f;border-top:1px solid #50696c}
 .race-preflight-footer #racePreflightNext{background:#2b705f;border-color:#a6edc6;font-weight:800;min-width:160px}
 @media(max-width:850px){.race-preflight-route-list{grid-template-columns:repeat(2,minmax(0,1fr))}.race-preflight-showroom,.race-preflight-tune-layout,.race-preflight-grid{grid-template-columns:1fr}.race-preflight-roster button{flex-basis:calc((100% - 12px)/2)}.race-preflight-feature img,.race-preflight-grid-car img{max-height:280px}.race-inspection-stage{height:clamp(320px,55vw,480px)}}
-@media(max-width:520px){.race-preflight-shell{gap:10px;padding:12px}.race-preflight h2{font-size:28px}.race-preflight-header button{padding:8px 10px}.race-preflight-steps{gap:4px}.race-preflight-steps button{min-height:50px;justify-content:center;padding:4px}.race-preflight-intro{flex-direction:column;gap:8px}.race-preflight-route-list{grid-template-columns:1fr}.race-preflight-route{min-height:0;display:grid;grid-template-columns:110px 1fr}.race-preflight-route-art{height:100%}.race-preflight-route-copy strong{font-size:18px}.race-preflight-route-copy{padding:10px}.race-preflight-specs{grid-template-columns:1fr 1fr}.race-preflight-roster button{flex-basis:calc((100% - 12px)/2);min-height:78px;padding:6px;gap:5px}.race-preflight-roster img{width:52px;height:54px}.race-preflight-part-options{grid-template-columns:1fr 1fr}.race-preflight-grid-brief{padding:13px}.race-preflight-footer button{flex:1}}
+@media(max-width:700px){.race-preflight-steps{gap:5px}.race-preflight-steps button{min-height:58px;flex-direction:column;justify-content:center;gap:3px;padding:5px 3px;text-align:center}.race-preflight-steps b{width:25px;height:25px}.race-preflight-steps span{font-size:10px}}
+@media(max-width:520px){.race-preflight-shell{gap:10px;padding:12px}.race-preflight h2{font-size:28px}.race-preflight-header button{padding:8px 10px}.race-preflight-steps{gap:4px}.race-preflight-steps button{min-height:50px;padding:4px 2px}.race-preflight-steps b{width:23px;height:23px}.race-preflight-steps span{display:none}.race-preflight-steps button::after{content:attr(data-short);font:700 9px/1 var(--f-body);white-space:nowrap}.race-preflight-intro{flex-direction:column;gap:8px}.race-preflight-route-list{grid-template-columns:1fr}.race-preflight-route{min-height:0;display:grid;grid-template-columns:110px 1fr}.race-preflight-route-art{height:100%}.race-preflight-route-copy strong{font-size:18px}.race-preflight-route-copy{padding:10px}.race-preflight-specs{grid-template-columns:1fr 1fr}.race-preflight-roster button{flex-basis:calc((100% - 12px)/2);min-height:78px;padding:6px;gap:5px}.race-preflight-roster img{width:52px;height:54px}.race-preflight-part-options{grid-template-columns:1fr 1fr}.race-preflight-grid-brief{padding:13px}.race-preflight-footer button{flex:1}}
 @media(prefers-reduced-motion:reduce){.race-preflight *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 @media(max-width:520px){.race-inspection-stage{height:330px;min-height:330px}.race-preflight-tune-layout{gap:12px}.race-preflight-deltas{padding:9px;gap:6px}.race-preflight-deltas span{padding:8px}.race-preflight-tune-focus{align-items:flex-start;flex-direction:column}}
 
@@ -2152,7 +2154,7 @@ html[data-kicklab-mode="race"] .race-coach-notice:not([hidden]){position:absolut
 html[data-kicklab-mode="race"] .stage.has-game-overlay .race-coach-notice{display:none!important}
 .race-coach-notice[data-mood="warn"]{border-color:#ffc178!important}
 .race-coach-notice-icon{flex:none;display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#28798a;color:#fff;font:900 11px/1 var(--f-body)}
-.race-coach-notice[data-mood="warn"] .race-coach-notice-icon{background:#b65e31}
+.race-coach-notice[data-mood="warn"] .race-coach-notice-icon{background-color:#b65e31}
 .race-coach-notice-text{min-width:0;flex:1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font:700 9px/1.14 var(--f-body)}
 #raceCoachNoticeDismiss{flex:none;width:18px;height:24px;padding:0;border:0;background:transparent;color:#fff;font:700 16px/1 var(--f-body);cursor:pointer}
 #raceCoachNoticeDismiss:focus-visible{outline:2px solid #ffcb79;outline-offset:1px}
@@ -2174,8 +2176,8 @@ html[data-kicklab-mode="race"] #gameGuidanceHud #coach .coach-copy{padding-right
 .race-coach-history ol{display:grid;gap:5px;max-height:176px;overflow-y:auto;margin:7px 0 0;padding:0;list-style:none}
 .race-coach-history li{display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:5px;align-items:start;padding:5px;border-radius:7px;background:rgba(6,26,40,.75);font-weight:600;overflow-wrap:anywhere}
 .race-coach-history-icon{color:#8de8ee}.race-coach-history li small{color:#aad1dc;white-space:nowrap;font:700 8px var(--f-mono)}
-@media(max-width:520px){html[data-kicklab-mode="race"] .stage{--race-progress-width:160px}html[data-kicklab-mode="race"] .race-phone-progress:not([hidden]){width:160px;gap:2px;padding:5px}html[data-kicklab-mode="race"] .race-phone-progress-node{width:15px;height:15px;font-size:8px}html[data-kicklab-mode="race"] .race-phone-progress-node[data-state="current"]{width:20px;height:20px}html[data-kicklab-mode="race"] .race-phone-progress-count{font-size:8px}html[data-kicklab-mode="race"] .race-phone-progress-finish{font-size:14px}html[data-kicklab-mode="race"] .race-coach-notice:not([hidden]){height:52px}.race-coach-notice-icon{width:14px;height:14px;font-size:9px}.race-coach-notice-text{font-size:9px;-webkit-line-clamp:3}#raceCoachNoticeDismiss{width:13px}}
-@media(max-width:360px){html[data-kicklab-mode="race"] .stage{--race-progress-width:120px}html[data-kicklab-mode="race"] .race-phone-progress:not([hidden]){width:120px;padding:3px}html[data-kicklab-mode="race"] .race-phone-progress-node{width:13px;height:13px}html[data-kicklab-mode="race"] .race-phone-progress-node[data-state="current"]{width:18px;height:18px}html[data-kicklab-mode="race"] .race-phone-progress-finish{display:none}}
+@media(max-width:520px){html[data-kicklab-mode="race"] .stage{--race-progress-width:clamp(148px,41vw,160px)}html[data-kicklab-mode="race"] .race-phone-progress:not([hidden]){width:var(--race-progress-width);gap:2px;padding:5px}html[data-kicklab-mode="race"] .race-phone-progress-node{width:15px;height:15px;font-size:8px}html[data-kicklab-mode="race"] .race-phone-progress-node[data-state="current"]{width:20px;height:20px}html[data-kicklab-mode="race"] .race-phone-progress-count{font-size:8px}html[data-kicklab-mode="race"] .race-phone-progress-finish{font-size:14px}html[data-kicklab-mode="race"] .race-coach-notice:not([hidden]){height:52px}.race-coach-notice-text{font-size:9px;-webkit-line-clamp:3}#raceCoachNoticeDismiss{width:13px}}
+@media(max-width:360px){html[data-kicklab-mode="race"] .stage{--race-progress-width:clamp(132px,41vw,148px)}html[data-kicklab-mode="race"] .race-phone-progress:not([hidden]){width:var(--race-progress-width);padding:3px}html[data-kicklab-mode="race"] .race-phone-progress-node{width:13px;height:13px}html[data-kicklab-mode="race"] .race-phone-progress-node[data-state="current"]{width:18px;height:18px}html[data-kicklab-mode="race"] .race-phone-progress-finish{display:none}}
 /* The wheel-anchored live dashboard occupies the band below the fixed progress and radio controls. */
 @media(max-width:480px){html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] #raceNavigation:not([hidden]){display:block!important}}
 @media(max-width:480px){
@@ -2346,6 +2348,7 @@ html[data-race-telemetry="prototype"] #raceCoachSetup>.race-setup-instrument{dis
 html[data-race-coach-personas="prototype"] .race-persona-avatar{background-repeat:no-repeat;background-size:500% 100%;border-radius:10px}
 html[data-race-coach-personas="prototype"] #coachAv{width:48px;height:48px;font-size:0}
 html[data-race-coach-personas="prototype"] #raceCoachNoticeIcon{width:36px;height:36px;font-size:0}
+html[data-race-coach-personas="prototype"] #raceCoachNoticeIcon.race-persona-avatar{background-repeat:no-repeat;background-size:500% 100%}
 html[data-race-coach-personas="prototype"] .race-coach-history-icon{width:28px;height:28px;font-size:0}
 html[data-race-coach-personas="prototype"] #raceTelemetry .race-telemetry-coach{width:36px;height:36px;font-size:0}
 html[data-race-coach-personas="prototype"] #rvAv{width:48px;height:48px;font-size:0}
@@ -2370,6 +2373,7 @@ html[data-race-coach-personas="prototype"] #rvAv{width:48px;height:48px;font-siz
 #raceCoachRosterStatus{margin-top:13px;color:#b9f0d8}
 .race-coach-roster button:focus-visible,.race-coach-choose:focus-visible,#racePreflightCoach:focus-visible{outline:3px solid #ffdb7d;outline-offset:3px}
 @media(max-width:680px){.race-coach-roster-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.race-coach-roster-panel{max-height:94vh}.race-coach-roster-card{min-height:188px}.race-coach-roster-card .race-persona-avatar{width:53px;height:53px}}
+@media(max-width:520px){html[data-race-coach-personas="prototype"] #raceCoachNoticeIcon{width:30px;height:30px}}
 @media(max-width:390px){.race-coach-roster{padding:8px}.race-coach-roster-panel{padding:12px}.race-coach-roster-cards{gap:6px}.race-coach-roster-card{padding:8px 5px}}
 @media(prefers-reduced-motion:reduce){.race-coach-roster *,.race-persona-avatar{animation:none!important;transition:none!important}}
 

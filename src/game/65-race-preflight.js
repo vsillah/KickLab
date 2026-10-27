@@ -3,6 +3,7 @@ const RACE_PREFLIGHT_ON=Race.expansionActive()&&globalThis.KickLabRaceOrigin.tru
 if(RACE_PREFLIGHT_ON)document.documentElement.dataset.racePreflight='prototype';
 const RACE_PREFLIGHT={phase:0,lastRenderedPhase:null,draft:null,profileId:null,lastEpoch:-1,committing:false,committed:false,arriving:false,pendingStart:false,lastRaceState:null,returnFocus:null,notice:'',focusPart:'tires'};
 const RACE_PREFLIGHT_PHASES=['Location','Vehicle','Garage tuning','Starting grid'];
+const RACE_PREFLIGHT_PHASE_SHORT=['Track','Car','Garage','Grid'];
 const RACE_ROUTE_TRAITS={
   drag:['Straight · 240 m','Highland road · weather fixed','Launch, shifts and heat','Intro'],
   drift:['Two linked curves','Highland road · weather fixed','Controlled slide and recovery','Technical'],
@@ -136,7 +137,7 @@ function racePreflightRender(){if($('#racePreflight').hidden)return;const phase=
   if(phase===2)RACE_INSPECT.detach();else RACE_INSPECT.dispose();
   const setup=racePreflightMatchStage(),seat=setup?.stage==='b'?(setup.kind==='computer'?'Computer':'Racer 2'):'Racer 1';
   $('#racePreflightTitle').textContent=(setup?`${seat} · `:'')+['Choose your location','Choose your vehicle','Tune in the Garage','Take your place on the grid'][phase];
-  $('#racePreflightSteps').innerHTML=RACE_PREFLIGHT_PHASES.map((name,index)=>`<button type="button" data-preflight-step="${index}" ${index>phase?'disabled':''} aria-current="${index===phase?'step':'false'}"><b>${index+1}</b><span>${name}</span></button>`).join('');
+  $('#racePreflightSteps').innerHTML=RACE_PREFLIGHT_PHASES.map((name,index)=>`<button type="button" data-preflight-step="${index}" data-short="${RACE_PREFLIGHT_PHASE_SHORT[index]}" ${index>phase?'disabled':''} aria-label="Step ${index+1} of ${RACE_PREFLIGHT_PHASES.length}: ${name}" aria-current="${index===phase?'step':'false'}"><b>${index+1}</b><span>${name}</span></button>`).join('');
   $('#racePreflightStatus').textContent=RACE_PREFLIGHT.notice;
   $('#racePreflightContent').innerHTML=[racePreflightLocation,racePreflightVehicle,racePreflightTuning,racePreflightGrid][phase]();
   if(phase===2){const P=racePreflightParams(RACE_PREFLIGHT.draft.garage);RACE_INSPECT.mount($('#raceInspectionStage'),racePreflightCar(),RACE_PREFLIGHT.focusPart,{transfer:P.transfer,recovery:P.recovery,tireHeat:P.tireHeat,brakeHeat:P.brakeHeat});}

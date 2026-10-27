@@ -4,6 +4,7 @@ import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 
 const source=readFileSync(new URL('../src/shared/race-coach-personas.js',import.meta.url),'utf8');
+const styles=readFileSync(new URL('../src/styles.css',import.meta.url),'utf8');
 const flags='?raceExpansion=prototype&raceInstruments=prototype&raceCoaching=prototype&raceCoachPersonas=prototype';
 function load(search='',trusted=true){const context={location:{search},URLSearchParams,globalThis:{KickLabRaceOrigin:{trusted:()=>trusted}}};vm.runInNewContext(source,context);return context.globalThis.KickLabRaceCoachPersonas;}
 
@@ -82,4 +83,9 @@ test('four local v2 Coach sheets retain five equal transparent frames under the 
     assert.equal(1+data.readUIntLE(24,3),1280);assert.equal(1+data.readUIntLE(27,3),256);
     assert.ok(data.includes(Buffer.from('ALPH')),'alpha chunk');
   }
+});
+test('live Coach notice preserves the five-frame portrait crop in every mood',()=>{
+  assert.match(styles,/#raceCoachNoticeIcon\.race-persona-avatar\{background-repeat:no-repeat;background-size:500% 100%\}/);
+  assert.match(styles,/\[data-mood="warn"\] \.race-coach-notice-icon\{background-color:#b65e31\}/);
+  assert.doesNotMatch(styles,/\[data-mood="warn"\] \.race-coach-notice-icon\{background:/);
 });
