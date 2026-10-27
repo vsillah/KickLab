@@ -22,7 +22,7 @@ async function drive(seat){
     if(shifted<thresholds.length&&last.speedKmh>=thresholds[shifted]&&await page.locator('#raceTelemetryShift').isEnabled()){await page.locator('#raceTelemetryShift').click();shifted++;}
     if(last.heat>.86&&held){await page.keyboard.up('Space');held=false;}else if(last.heat<.58&&!held){await page.keyboard.down('Space');held=true;}
   }
-  if(held)await page.keyboard.up('Space');if(phase.startsWith('retry'))throw Error(`Seat ${seat} did not pass actual Drag: ${JSON.stringify(last)}`);if(seat==='A'&&phase!=='handoff'||seat==='B'&&phase!=='result')throw Error(`Seat ${seat} did not resolve: ${phase} ${JSON.stringify(last)}`);
+  if(held)await page.keyboard.up('Space');if(phase.startsWith('retry'))throw Error(`Racer ${seat==='A'?'1':'2'} did not pass actual Drag: ${JSON.stringify(last)}`);if(seat==='A'&&phase!=='handoff'||seat==='B'&&phase!=='result')throw Error(`Racer ${seat==='A'?'1':'2'} did not resolve: ${phase} ${JSON.stringify(last)}`);
   await page.waitForTimeout(900);
 }
 try{

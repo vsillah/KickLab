@@ -116,11 +116,11 @@ async function phoneExtras(page,original){
   await page.selectOption('#raceMultiplayerOpponent',second.profileId);
   const soloBefore=(await read(page)).progress;
   await page.click('#raceMultiplayerStart');
-  const matchTitle=await page.locator('#raceMultiplayerTitle').innerText();
-  const matchStatus=await page.locator('#raceMultiplayerStatus').innerText();
-  if(!matchTitle.includes('ready')||!matchStatus.includes('Seat A'))fail('Local match did not reach Seat A',{matchTitle,matchStatus});
-  await page.click('#raceMultiplayerAbandon');
-  await page.locator('[data-close-detail="orientation"]').click();
+  await page.locator('#racePreflight').waitFor({state:'visible'});
+  const matchTitle=await page.locator('#racePreflightTitle').innerText();
+  if(!matchTitle.includes('Racer 1 · Choose your location'))fail('Local match did not reach Racer 1 preparation',{matchTitle});
+  await page.click('#racePreflightClose');
+  if(await page.locator('[data-close-detail="orientation"]').isVisible())await page.locator('[data-close-detail="orientation"]').click();
   const matchReturn=await read(page),soloAfter=matchReturn.progress;
   if(!await page.locator('#raceMultiplayerTitle').innerText().then(text=>text.includes('setup'))||matchReturn.profileId!==original||JSON.stringify(soloBefore.raceModes?.best)!==JSON.stringify(soloAfter.raceModes?.best)||soloBefore.xp!==soloAfter.xp)fail('Local match abandon retained match or changed solo rewards',{matchReturn,soloBefore,matchTitle});
   return{secondPlayer:second.profileId,matchTitle};
