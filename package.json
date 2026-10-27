@@ -15,6 +15,7 @@
     "qa:live-physics-combo": "node scripts/qa-live-physics-combo.mjs",
     "qa:fight-controller-safety": "node scripts/qa-fight-controller-safety.mjs",
     "qa:near-stand": "node scripts/qa-near-stand.mjs",
+    "qa:race-comparative": "node scripts/qa-race-comparative.mjs",
     "pages:prepare": "node scripts/prepare-pages.mjs",
     "pages:check": "node scripts/check-pages-prepare.mjs",
     "mobile:prepare": "node scripts/build.mjs --emit-game && node scripts/prepare-mobile.mjs",
