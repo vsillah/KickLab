@@ -5,7 +5,22 @@ import vm from 'node:vm';
 
 const read=path=>readFileSync(new URL(`../${path}`,import.meta.url),'utf8');
 const guide=vm.runInNewContext(read('src/shared/race-preflight-guide.js')+'\nglobalThis.KickLabRacePreflightGuide',{});
+const preflightUi=read('src/game/65-race-preflight.js'),styles=read('src/styles.css');
 const cleared={raceModes:{version:1,best:{drag:1200,circuit:850}}};
+
+test('the four-step Race lifecycle keeps full accessible names and compact responsive labels',()=>{
+  assert.match(preflightUi,/RACE_PREFLIGHT_PHASE_SHORT=\['Track','Car','Garage','Grid'\]/);
+  assert.match(preflightUi,/aria-label="Step \$\{index\+1\} of \$\{RACE_PREFLIGHT_PHASES\.length\}: \$\{name\}"/);
+  assert.match(styles,/\.race-preflight-steps button::after\{content:attr\(data-short\)/);
+});
+
+test('every attributed preflight Coach comment carries the selected Coach avatar',()=>{
+  assert.match(preflightUi,/function racePreflightCoachComment\(message,compact=false\)/);
+  assert.match(preflightUi,/race-preflight-coach-avatar race-persona-avatar/);
+  assert.doesNotMatch(preflightUi,/<aside><b>Coach Nia/);
+  assert.doesNotMatch(preflightUi,/<p><b>Coach Nia:/);
+  assert.match(styles,/\.race-preflight-coach-avatar\{/);
+});
 
 test('each inspection category and option has a unique, nonempty local icon',()=>{
   const keys=['whole','suspension','suspension:soft','suspension:balanced','suspension:firm','tires','tires:narrow','tires:balanced','tires:wide','brakes','brakes:standard','brakes:sport','brakes:endurance'];

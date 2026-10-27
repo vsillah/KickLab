@@ -4,6 +4,7 @@ import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 
 await import('../src/shared/profile-race-records.js');
+await import('../src/shared/profile-avatar-art.js');
 await import('../src/shared/profile-store.js');
 const records=globalThis.KickLabProfileRaceRecords;
 const source=readFileSync(new URL('../src/game/49-profiles.js',import.meta.url),'utf8');

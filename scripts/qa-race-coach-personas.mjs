@@ -19,7 +19,7 @@ async function caseRun(width,height,reduced=false,canvas=false){
     await page.goto(url.toString(),{waitUntil:'domcontentloaded'});
     if(await page.locator('#profileClose').isVisible())await page.click('#profileClose');
     await page.locator('#lab-tab-race').click();await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});
-    const skip=page.locator('.race-orbit-panel button');if(await skip.isVisible())await skip.click();
+    const skip=page.locator('.race-orbit-panel button');if(await skip.isVisible()&&!await page.locator('#racePreflight').isVisible())await skip.click();
     await page.locator('#racePreflightCoach').waitFor({state:'visible',timeout:20000}).catch(()=>{});
     const button=await page.locator('#racePreflightCoach').isVisible()?'#racePreflightCoach':'#raceCoachChoose';
     if(button==='#raceCoachChoose'&&await page.locator('#racePhoneToolsToggle').isVisible())await page.click('#racePhoneToolsToggle');

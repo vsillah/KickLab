@@ -4,13 +4,17 @@ This local prototype requires a trusted origin and `raceExpansion=prototype&race
 
 All Race Coaches receive the same canonical instructions, safety rules, timing windows, score interpretations, and next actions. A deterministic display layer adds short, intent-specific phrasing to each Coach's live cues, history, setup, and result themes; the canonical message stays intact in full-detail surfaces. The live cue is capped at one concise sentence and 72 characters, with the canonical first sentence retained when a style opener would exceed that bound. The roster offers a distinct manner preview, name, and expression art. Expression transitions are presentation only: setup → ready; correct action, award, or win → celebrate; mistake or missed timing → supportive concern; recovery, loss, or pause → calm encouragement; instruction → focus. A loss never shows anger or shame. The phrasing layer does not alter game state, scores, safety advice, or Coach timing.
 
+Every visible message attributed to a Race Coach must show that selected Coach's corresponding avatar beside the comment. This applies to preflight recommendations, live notifications, history, results, and detailed review. Generic system status may remain avatar-free only when it is not presented as Coach speech or advice.
+
 ## Voice boundary
 
 The current audio engine synthesizes game tones and car sound locally with Web Audio (`src/game/03-audio-fx-engine.js`, `19c-race-speed-audio.js`, `19d-race-supercar-audio.js`). It has no speech voice files or proven commercially redistributable speech model. Platform speech synthesis varies by device and does not establish redistribution rights. The prototype therefore ships no spoken Coach audio, speech provider, voice clone, downloaded voice, or runtime speech request. The local voice-style contract is: Nia clear and practical, Imani warm and steady, Mateo brief and technical, Arun bright and energetic. A future speech lane must prove commercial redistribution rights, local execution, zero egress, intelligibility, lifecycle cancellation, and user mute before activation.
 
 ## Art provenance
 
-The four transparent expression sheets were generated with the built-in image generation skill on 2026-10-27 and converted locally to WebP with `cwebp -q 82 -alpha_q 90`. Each sheet has five left-to-right portraits: ready, celebration, supportive concern, focused instruction, calm encouragement. The source PNGs remain under the Codex generated-images directory; the selected optimized assets are in `src/assets/coaches/v1/`.
+The current semi-real portrait sheets and all 20 source-frame checksums are documented in [Race Coach portrait art, v2](race-coach-art-v2.md). The earlier generation record below is retained for historical provenance; its WebP files now live in `docs/art-archive/coaches/v1/`.
+
+The original four transparent expression sheets were generated with the built-in image generation skill on 2026-10-27 and converted locally to WebP with `cwebp -q 82 -alpha_q 90`. Each sheet has five left-to-right portraits: ready, celebration, supportive concern, focused instruction, calm encouragement. The source PNGs remain under the Codex generated-images directory; the archived optimized assets are in `docs/art-archive/coaches/v1/`.
 
 Shared prompt: “Premium modern animated-feature cartoon half-body Race Coach expression sheet, five side-by-side transparent panels, identical face, hair, jacket, framing, lighting, proportions and rendering; ready, restrained celebration, supportive concern after missed timing, focused instruction, calm encouragement. Painterly dimensional shading for ages 9–15; no text, logo, watermark, caricature, shame or anger.” Character details varied by sheet:
 

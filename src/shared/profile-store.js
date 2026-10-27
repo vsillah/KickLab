@@ -7,6 +7,7 @@
   const VERSION = 1;
   const AVATARS = Object.freeze(['rocket', 'wiz', 'tower', 'trick', 'cannon']);
   const COLORS = Object.freeze(['sky', 'mint', 'sun', 'coral', 'violet']);
+  const avatarArt=root.KickLabProfileAvatarArt;
 
   const safeObject = value => value && typeof value === 'object' && !Array.isArray(value) ? value : {};
   const clone = value => JSON.parse(JSON.stringify(value));
@@ -30,6 +31,7 @@
       id,
       nickname: nickname(source.nickname) || `Lab Rookie ${index + 1}`,
       avatar: choice(source.avatar, AVATARS, AVATARS[index % AVATARS.length]),
+      avatarLook: avatarArt.normalize(source.avatarLook,choice(source.avatar,AVATARS,AVATARS[index % AVATARS.length])),
       color: choice(source.color, COLORS, COLORS[index % COLORS.length]),
       progress: clone(safeObject(source.progress)),
       needsSetup: !!source.needsSetup,
@@ -141,8 +143,11 @@
       },
       updateActive(input = {}) {
         const profile = active();
+        const previousAvatar = profile.avatar;
         profile.nickname = nickname(input.nickname == null ? profile.nickname : input.nickname) || profile.nickname;
         profile.avatar = choice(input.avatar, AVATARS, profile.avatar);
+        const lookInput=input.avatarLook==null&&profile.avatar!==previousAvatar?null:input.avatarLook??profile.avatarLook;
+        profile.avatarLook = avatarArt.normalize(lookInput,profile.avatar);
         profile.color = choice(input.color, COLORS, profile.color);
         profile.needsSetup = false;
         profile.updatedAt = now();

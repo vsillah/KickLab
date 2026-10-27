@@ -4,7 +4,7 @@ const RACE_PERSONA_UI={expression:'ready',trigger:null,profileId:null,selection:
 if(RACE_COACH_PERSONAS.enabled){document.documentElement.dataset.raceCoachPersonas='prototype';$('#raceCoachChoose').hidden=false;$('#racePreflightCoach').hidden=false;}
 function raceCoachPersona(){return RACE_COACH_PERSONAS.get(RACE_COACH_PERSONAS.enabled?best.raceCoachId:'nia');}
 function raceCoachName(){return raceCoachPersona().name;}
-function raceCoachPersonaAsset(){return`assets/coaches/v1/${raceCoachPersona().id}.webp`;}
+function raceCoachPersonaAsset(){return`assets/coaches/v2/${raceCoachPersona().id}.webp`;}
 function raceCoachPersonaPaint(node,event='setup'){
   if(!RACE_COACH_PERSONAS.enabled||!node)return;
   const coach=raceCoachPersona(),expression=RACE_COACH_PERSONAS.expressionFor(event),index=RACE_COACH_PERSONAS.expressions.indexOf(expression);
@@ -15,6 +15,7 @@ function raceCoachPersonaExpression(event){
   if(!RACE_COACH_PERSONAS.enabled)return;
   RACE_PERSONA_UI.expression=event;
   for(const selector of ['#coachAv','#raceTelemetry .race-telemetry-coach','#raceCoachNoticeIcon','#raceResultCoachAvatar','#rvAv'])raceCoachPersonaPaint($(selector),event);
+  for(const avatar of document.querySelectorAll('.race-preflight-coach-avatar.race-persona-avatar'))raceCoachPersonaPaint(avatar,event);
 }
 function raceCoachPersonaMessage(message){return RACE_COACH_PERSONAS.present(message,raceCoachPersona().id);}
 function raceCoachPersonaSync(){
@@ -42,7 +43,7 @@ function renderRaceCoachRoster(){
   const current=raceCoachPersona().id;
   for(const coach of RACE_COACH_PERSONAS.roster){
     const button=document.createElement('button');button.type='button';button.className='race-coach-roster-card';button.dataset.coachId=coach.id;button.setAttribute('aria-pressed',String(coach.id===current));button.setAttribute('aria-label',`${coach.name}. ${coach.style}. ${coach.description}${coach.id===current?' Selected.':''}`);
-    const avatar=document.createElement('span');avatar.className='race-persona-avatar';avatar.style.backgroundImage=`url("assets/coaches/v1/${coach.id}.webp")`;avatar.style.backgroundPosition='0% center';avatar.setAttribute('role','img');avatar.setAttribute('aria-label',`${coach.name}, ready`);
+    const avatar=document.createElement('span');avatar.className='race-persona-avatar';avatar.style.backgroundImage=`url("assets/coaches/v2/${coach.id}.webp")`;avatar.style.backgroundPosition='0% center';avatar.setAttribute('role','img');avatar.setAttribute('aria-label',`${coach.name}, ready`);
     const copy=document.createElement('span'),name=document.createElement('b'),style=document.createElement('small'),sample=document.createElement('q'),description=document.createElement('em');name.textContent=coach.name;style.textContent=coach.style;sample.textContent=coach.sample;description.textContent=coach.description;copy.append(name,style,sample,description);button.append(avatar,copy);box.append(button);
   }
   $('#raceCoachRosterStatus').textContent=`${raceCoachPersona().name} selected for this local player. All Coaches use the same Race guidance.`;

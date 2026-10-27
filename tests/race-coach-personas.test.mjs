@@ -4,6 +4,8 @@ import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 
 const source=readFileSync(new URL('../src/shared/race-coach-personas.js',import.meta.url),'utf8');
+const styles=readFileSync(new URL('../src/styles.css',import.meta.url),'utf8');
+const ui=readFileSync(new URL('../src/game/54a-race-coach-personas.js',import.meta.url),'utf8');
 const flags='?raceExpansion=prototype&raceInstruments=prototype&raceCoaching=prototype&raceCoachPersonas=prototype';
 function load(search='',trusted=true){const context={location:{search},URLSearchParams,globalThis:{KickLabRaceOrigin:{trusted:()=>trusted}}};vm.runInNewContext(source,context);return context.globalThis.KickLabRaceCoachPersonas;}
 
@@ -71,4 +73,24 @@ test('canonical Race events map to supportive expressions',()=>{
   const api=load(flags);
   assert.deepEqual(['setup','correct','mistake','recovery','award','win','loss','pause','instruction'].map(event=>api.expressionFor(event)),['ready','celebrate','concern','encourage','celebrate','celebrate','encourage','encourage','focus']);
   assert.equal(api.expressionFor('unknown'),'ready');
+});
+test('four local v2 Coach sheets retain five equal transparent frames under the mobile budget',()=>{
+  for(const id of ['nia','imani','mateo','arun']){
+    const path=new URL(`../src/assets/coaches/v2/${id}.webp`,import.meta.url);
+    const data=readFileSync(path);
+    assert.ok(data.length<85_000,`${id} portrait sheet exceeds budget`);
+    assert.equal(data.toString('ascii',0,4),'RIFF');assert.equal(data.toString('ascii',8,12),'WEBP');
+    assert.equal(data.toString('ascii',12,16),'VP8X');assert.ok(data[20]&0x10,'alpha flag');
+    assert.equal(1+data.readUIntLE(24,3),1280);assert.equal(1+data.readUIntLE(27,3),256);
+    assert.ok(data.includes(Buffer.from('ALPH')),'alpha chunk');
+  }
+});
+test('live Coach notice preserves the five-frame portrait crop in every mood',()=>{
+  assert.match(styles,/#raceCoachNoticeIcon\.race-persona-avatar\{background-repeat:no-repeat;background-size:500% 100%\}/);
+  assert.match(styles,/\[data-mood="warn"\] \.race-coach-notice-icon\{background-color:#b65e31\}/);
+  assert.doesNotMatch(styles,/\[data-mood="warn"\] \.race-coach-notice-icon\{background:/);
+});
+test('changing Coach refreshes every visible preflight comment avatar',()=>{
+  assert.match(ui,/querySelectorAll\('\.race-preflight-coach-avatar\.race-persona-avatar'\)/);
+  assert.match(ui,/raceCoachPersonaPaint\(avatar,event\)/);
 });
