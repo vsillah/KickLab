@@ -15,7 +15,7 @@ const core=context.KickLabGameCore;
 function normalizeProgress(input){
   const source=read('src/game/01-progress.js');
   const body=source.slice(source.indexOf('function normalizedProgress('),source.indexOf('const store='));
-  const scope={GAME_CORE:core,globalThis:{KickLabRaceGarage:{normalize:()=>({})},KickLabRaceProgression:{normalize:()=>({})},KickLabRaceModes:{enabled:()=>false},KickLabRaceCompetition:{enabled:()=>false},KickLabRaceChampionship:{enabled:()=>false}}};
+  const scope={GAME_CORE:core,globalThis:{KickLabRaceGarage:{normalize:()=>({})},KickLabProfileRaceRecords:{normalize:()=>({version:1,topKmh:null,dragSeconds:null,driftPoints:null})},KickLabRaceProgression:{normalize:()=>({})},KickLabRaceModes:{enabled:()=>false},KickLabRaceCompetition:{enabled:()=>false},KickLabRaceChampionship:{enabled:()=>false}}};
   const run={...scope,input};vm.runInNewContext(`${body}\nthis.result=normalizedProgress(input);`,run);return run.result;
 }
 

@@ -21,7 +21,7 @@ for(const [viewport,activation] of [[{width:390,height:844},'touch'],[{width:768
     await page.goto(url.toString(),{waitUntil:'domcontentloaded'});
     if(await page.locator('#profileFormSave').isVisible())await page.click('#profileFormSave');
     if(await page.locator('#profileClose').isVisible())await page.click('#profileClose');
-    await page.click('#lab-tab-race');await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});
+    await page.click('#lab-tab-race');await page.locator('#game-cockpit').waitFor({state:'visible',timeout:20000});await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});if(await page.locator('#racePreflightClose').isVisible())await page.click('#racePreflightClose');
     for(const sample of [{outcome:'fail',achievement:'none',replay:'both',context:'standalone'},{outcome:'pass',achievement:'collectible',replay:'both',context:'standalone'}]){
       const fixture=await page.evaluate(value=>window.__KICKLAB_RACE_RESULTS_QA__.scenario(value),sample);
       const before=await page.evaluate(id=>({progress:JSON.stringify(JSON.parse(localStorage.getItem('kicklab.profiles.v1')).profiles.find(profile=>profile.id===id).progress),record:window.__KICKLAB_RACE_RESULTS_QA__.state()}),fixture.profileId);
@@ -37,7 +37,7 @@ for(const [viewport,activation] of [[{width:390,height:844},'touch'],[{width:768
       const sameScore=(newProgress.xp||0)===(oldProgress.xp||0)&&(newProgress.stats?.plays?.race||0)===(oldProgress.stats?.plays?.race||0)&&(newProgress.stats?.wins?.race||0)===(oldProgress.stats?.wins?.race||0);
       if(!after.home||after.results||after.drawer||!sameAwards||!sameBadges||!sameScore||after.record.recordId!==before.record.recordId||after.record.recordMoves!==before.record.recordMoves||after.record.recordFrames!==before.record.recordFrames)report.errors.push(`${label}: exit changed saved state or discarded recording ${JSON.stringify({sample,before,after})}`);
       report.checks.push({label,sample,summary,home:after.home,recordMoves:after.record.recordMoves,recordFrames:after.record.recordFrames,persisted:sameAwards&&sameBadges&&sameScore});
-      await page.click('#lab-tab-race');await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});
+      await page.click('#lab-tab-race');await page.locator('#game-cockpit').waitFor({state:'visible',timeout:20000});await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});if(await page.locator('#racePreflightClose').isVisible())await page.click('#racePreflightClose');
       const reopened=await page.evaluate(()=>window.__KICKLAB_RACE_RESULTS_QA__.state());
       if(reopened.recordId!==before.record.recordId||reopened.recordMoves!==before.record.recordMoves||reopened.recordFrames!==before.record.recordFrames)report.errors.push(`${label}: reopening Race lost the recorded run ${JSON.stringify(reopened)}`);
     }
