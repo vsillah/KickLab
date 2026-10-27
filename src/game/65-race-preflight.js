@@ -140,7 +140,7 @@ function racePreflightRender(){if($('#racePreflight').hidden)return;const phase=
   $('#racePreflightStatus').textContent=RACE_PREFLIGHT.notice;
   $('#racePreflightContent').innerHTML=[racePreflightLocation,racePreflightVehicle,racePreflightTuning,racePreflightGrid][phase]();
   if(phase===2){const P=racePreflightParams(RACE_PREFLIGHT.draft.garage);RACE_INSPECT.mount($('#raceInspectionStage'),racePreflightCar(),RACE_PREFLIGHT.focusPart,{transfer:P.transfer,recovery:P.recovery,tireHeat:P.tireHeat,brakeHeat:P.brakeHeat});}
-  if(RACE_PREFLIGHT.lastRenderedPhase!==phase){$('#racePreflight').scrollTop=0;RACE_PREFLIGHT.lastRenderedPhase=phase;}
+  if(RACE_PREFLIGHT.lastRenderedPhase!==phase){$('#racePreflight').scrollTop=0;$('#racePreflightContent').scrollTop=0;RACE_PREFLIGHT.lastRenderedPhase=phase;}
   requestAnimationFrame(racePreflightSyncMedia);
   $('#racePreflightBack').textContent=phase?'Back':'Cancel';$('#racePreflightNext').textContent=phase===3?(setup?'Confirm setup':'Start heat'):'Continue';
   $('#racePreflightBack').disabled=RACE_PREFLIGHT.arriving||RACE_PREFLIGHT.committing;

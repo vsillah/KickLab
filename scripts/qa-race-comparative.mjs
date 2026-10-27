@@ -23,9 +23,30 @@ async function ready(page){
   if(await page.locator('#racePreflight').isVisible())await page.click('#racePreflightClose');
   await page.click('#racePhoneProgress');
 }
-async function preflight(page,{mode,car,part,value,control,first=false}){
+async function assertPreflightClearance(page,label,caseName){
+  if(page.video())await page.waitForTimeout(900);
+  const geometry=await page.evaluate(()=>{
+    const content=document.querySelector('#racePreflightContent'),footer=document.querySelector('.race-preflight-footer');
+    const cards=content.querySelectorAll('.race-preflight-route'),card=cards[3]||cards[cards.length-1]||content.querySelector('.race-preflight-footnote');
+    const box=node=>node.getBoundingClientRect();
+    const reachable=node=>{const r=box(node),hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return hit===node||node.contains(hit)};
+    const initial={contentBottom:box(content).bottom,footerTop:box(footer).top,scrollable:content.scrollHeight>content.clientHeight,cancel:reachable(document.querySelector('#racePreflightBack')),continue:reachable(document.querySelector('#racePreflightNext'))};
+    content.scrollTop=content.scrollHeight;
+    const cardBox=box(card),contentBox=box(content);
+    const bottom={cardTop:cardBox.top,cardBottom:cardBox.bottom,contentTop:contentBox.top,contentBottom:contentBox.bottom,cardReachable:reachable(card),cancel:reachable(document.querySelector('#racePreflightBack')),continue:reachable(document.querySelector('#racePreflightNext'))};
+    return{title:document.querySelector('#racePreflightTitle').textContent,initial,bottom};
+  });
+  assert(geometry.title.includes(label),`${label}: preflight title ${geometry.title}`);
+  assert(geometry.initial.contentBottom<=geometry.initial.footerTop&&(label!=='Seat A'||geometry.initial.scrollable)&&geometry.initial.cancel&&geometry.initial.continue,`${label}: initial footer clearance ${JSON.stringify(geometry)}`);
+  assert(geometry.bottom.cardTop>=geometry.bottom.contentTop-1&&geometry.bottom.cardBottom<=geometry.bottom.contentBottom+1&&geometry.bottom.cardReachable&&geometry.bottom.cancel&&geometry.bottom.continue,`${label}: route or actions clipped ${JSON.stringify(geometry)}`);
+  await page.screenshot({path:join(output,`${caseName}-${label.toLowerCase().replaceAll(' ','-')}-preflight-1280x720.png`)});
+  if(page.video())await page.waitForTimeout(1300);
+}
+async function preflight(page,{mode,car,part,value,control,first=false,layoutLabel,caseName}){
+  if(layoutLabel)await assertPreflightClearance(page,layoutLabel,caseName);
   if(first&&mode!=='drag')await page.click(`[data-preflight-mode="${mode}"]`);
   if(first)await page.click('#racePreflightNext');
+  if(layoutLabel==='Seat A')assert(await page.evaluate(()=>document.querySelector('#racePreflightContent').scrollTop===0),`${caseName}: vehicle step starts at top`);
   await page.click(`[data-preflight-vehicle="${car}"]`);await page.click('#racePreflightNext');
   await page.click(`[data-preflight-part="${part}"][data-preflight-value="${value}"]`);
   await page.click('#racePreflightNext');if(control)await page.click(`[data-preflight-control="${control}"]`);await page.click('#racePreflightNext');
@@ -49,11 +70,11 @@ async function run({kind,mode,width,height,canvas=false,record=false,realCompute
     const before=await storage(page),soloSteer=(await state(page)).activeSteer;
     if(kind==='computer')await page.click('#raceMultiComputer');else await page.selectOption('#raceMultiplayerOpponent','seat-b');
     await page.click('#raceMultiplayerStart');
-    await preflight(page,{mode,car:kind==='computer'?'cobalt':'kestrel',part:'tires',value:'wide',control:aControl,first:true});
+    await preflight(page,{mode,car:kind==='computer'?'cobalt':'kestrel',part:'tires',value:'wide',control:aControl,first:true,layoutLabel:width===1280&&height===720?'Seat A':undefined,caseName:name});
     let q=await state(page);assert(q.setup?.stage===(kind==='computer'?'opponent':'handoff'),`${name}: Seat A setup`);
     if(kind==='couch')await switchProfile(page,'seat-b','#raceComparativeProfiles');
     await page.click('#raceComparativeContinue');
-    await preflight(page,{mode,car:kind==='computer'?'kestrel':'aegis',part:'brakes',value:'sport',control:aControl&&kind==='couch'?'classic':undefined});
+    await preflight(page,{mode,car:kind==='computer'?'kestrel':'aegis',part:'brakes',value:'sport',control:aControl&&kind==='couch'?'classic':undefined,layoutLabel:width===1280&&height===720?kind==='computer'?'Computer':'Seat B':undefined,caseName:name});
     q=await state(page);assert(q.setup?.stage==='confirm'&&q.setup.a.garage.body!==q.setup.b.garage.body,`${name}: distinct builds`);
     if(kind==='couch')await switchProfile(page,'seat-a','#raceComparativeProfiles');
     await page.screenshot({path:join(output,`${name}-overview.png`)});
@@ -95,7 +116,9 @@ const cases=quick?[{kind:'couch',mode:'drag',width:390,height:844},{kind:'comput
   {kind:'couch',mode:'circuit',width:390,height:844,aControl:'analog'},
   {kind:'couch',mode:'hill',width:768,height:1024,canvas:true},
   {kind:'couch',mode:'endurance',width:1113,height:900},
+  {kind:'couch',mode:'drag',width:1280,height:720},
   {kind:'computer',mode:'drag',width:1440,height:900,realComputer:true},
+  {kind:'computer',mode:'drag',width:1280,height:720},
   {kind:'computer',mode:'circuit',width:390,height:844,canvas:true}
 ];
 const only=process.argv.find(arg=>arg.startsWith('--case='))?.slice('--case='.length);
