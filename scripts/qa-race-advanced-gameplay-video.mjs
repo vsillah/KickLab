@@ -15,7 +15,7 @@ try{
   const size={width:1440,height:900};
   const context=await browser.newContext({viewport:size,recordVideo:{dir:out,size},reducedMotion:'no-preference'});
   await context.addInitScript(()=>{localStorage.setItem('impactlab.nick','QA Driver');localStorage.setItem('impactlab.v1',JSON.stringify({gfx:'3d',raceMastery:{version:1,cleared:['drag','drift','circuit']}}));});
-  const page=await context.newPage(),recording=page.video(),url=new URL(base);url.searchParams.set('raceExpansion','prototype');url.searchParams.set('raceTelemetry','prototype');url.searchParams.set('rev',revision);
+  const page=await context.newPage(),recording=page.video(),url=new URL(base);url.searchParams.set('raceExpansion','prototype');url.searchParams.set('raceTelemetry','prototype');url.searchParams.set('racePreflight','prototype');url.searchParams.set('rev',revision);
   page.on('pageerror',e=>report.errors.push(`${id}: ${e.message}`));
   await page.route('**/*',route=>{const target=new URL(route.request().url());if(target.origin===url.origin||['blob:','data:'].includes(target.protocol))return route.continue();report.external.push(target.href);return route.abort();});
   try{
@@ -23,17 +23,18 @@ try{
    if(await page.locator('#profileFormSave').isVisible())await page.click('#profileFormSave');
    if(await page.locator('#profileClose').isVisible())await page.click('#profileClose');
    await page.click('#lab-tab-race');await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});
-   if(await page.locator('#racePreflightClose').isVisible())await page.click('#racePreflightClose');
-   const garage=page.locator('#raceCoachSetupGarage');if(await garage.isVisible())await garage.click();else{await page.click('#racePhoneToolsToggle');await page.click('#raceToolsGarage');}
-   await page.locator(`#raceGarage [data-garage-part="body"][data-garage-value="${id}"]`).click();
-   await page.waitForFunction(vehicle=>{const s=window.__KICKLAB_RACE_3D__;return s?.status==='rendering'&&s.vehicle===true&&s.vehicleId===vehicle&&s.canvasFallback===false;},id,{timeout:25000});
-   await page.click('#settingsClose');
-   if(await page.locator('#racePreflightClose').isVisible())await page.click('#racePreflightClose');
+   await page.waitForFunction(()=>window.__KICKLAB_RACE_PREFLIGHT_QA__?.state().open,null,{timeout:20000});
+   await page.locator('[data-preflight-mode="endurance"]').click();
+   await page.click('#racePreflightNext');
+   await page.locator(`[data-preflight-vehicle="${id}"]`).click();
+   if(await page.locator(`[data-preflight-vehicle="${id}"]`).getAttribute('aria-pressed')!=='true')throw Error(`${id} preflight selection failed`);
+   await page.click('#racePreflightNext');
+   await page.click('#racePreflightNext');
+   await page.click('#racePreflightNext');
+   await page.waitForFunction(()=>!window.__KICKLAB_RACE_PREFLIGHT_QA__?.state().open,null,{timeout:12000});
    const skip=page.locator('.race-orbit-panel button');if(await skip.isVisible())await skip.click();
-   await page.locator('#raceCoachSetupStart').waitFor({state:'visible',timeout:20000});
-   await page.locator('.stage:visible').first().scrollIntoViewIfNeeded();
-   await page.click('#raceCoachSetupStart');
-   await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.dynamics?.state==='run',null,{timeout:12000});
+   await page.waitForFunction(vehicle=>{const s=window.__KICKLAB_RACE_3D__;return s?.status==='rendering'&&s.vehicleId===vehicle&&s.vehicleAudit?.ok&&s.vehicle&&!s.canvasFallback;},id,{timeout:25000});
+   await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.dynamics?.state==='run',null,{timeout:25000});
    const samples=[];
    const sample=async()=>samples.push(await page.evaluate(()=>{const s=window.__KICKLAB_RACE_3D__;return{vehicle:s?.vehicleId,status:s?.status,vehicleVisible:s?.vehicle,canvasFallback:s?.canvasFallback,state:s?.dynamics?.state,x:s?.dynamics?.x,track:s?.trackKey,asset:s?.assetUrl};}));
    await sample();await page.keyboard.down('Space');
