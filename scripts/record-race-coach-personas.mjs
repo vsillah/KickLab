@@ -61,12 +61,14 @@ try{
     }
   }
   if(await page.locator('#racePreflight').isVisible())await page.click('#racePreflightClose');await page.click('#racePhoneToolsToggle');await page.click('#raceCoachChoose');await page.locator('[data-coach-id="imani"]').click();await page.click('#raceCoachRosterClose');await page.click('#racePhoneToolsToggle');
+  await page.waitForTimeout(120);
   if(await collapse.isVisible()&&await collapse.getAttribute('aria-expanded')==='true')await collapse.click();
   await page.evaluate(()=>{window.__KICKLAB_RACE_COACH_QA__.clear();window.__KICKLAB_RACE_COACH_QA__.start();window.__KICKLAB_RACE_COACH_QA__.preview('Shift in the bright band.','hype');window.__KICKLAB_RACE_COACH_QA__.hold();});await page.waitForTimeout(1000);
   const imaniCue=await page.locator('#raceCoachNoticeText').textContent(),imaniExpression=await page.locator('#raceCoachNoticeIcon').getAttribute('aria-label');
   await page.click('#racePhoneToolsToggle');await page.locator('#raceCoachHistory summary').click();await page.waitForTimeout(1000);const imaniHistory=await page.locator('#raceCoachHistoryList').textContent();
   await page.locator('#raceCoachHistory summary').click();await page.click('#raceCoachChoose');await page.locator('[data-coach-id="mateo"]').click();await page.waitForTimeout(700);
   const mateoHistory=await page.locator('#raceCoachHistoryList').textContent();await page.click('#raceCoachRosterClose');await page.click('#racePhoneToolsToggle');
+  await page.waitForTimeout(120);
   if(await collapse.isVisible()&&await collapse.getAttribute('aria-expanded')==='true')await collapse.click();
   await page.evaluate(()=>{window.__KICKLAB_RACE_COACH_QA__.clear();window.__KICKLAB_RACE_COACH_QA__.start();window.__KICKLAB_RACE_COACH_QA__.preview('Shift in the bright band.','hype');window.__KICKLAB_RACE_COACH_QA__.hold();});await page.waitForTimeout(1000);
   const mateoCue=await page.locator('#raceCoachNoticeText').textContent(),mateoExpression=await page.locator('#raceCoachNoticeIcon').getAttribute('aria-label');
