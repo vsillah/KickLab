@@ -47,3 +47,15 @@ test('three vehicle masses use the same bounded energy rule and reset clears dam
     const next=rail.initial();assert.equal(next.broken.size,0);assert.equal(next.dents.size,0);assert.equal(next.contacts,0);
   }
 });
+
+test('one break-through remains one local gap while the car travels outside',()=>{
+  const q=rail.initial(),s=state(8.8,23,.35);s.t=.4;
+  const first=rail.step(q,s,{x:40,y:8.70},P,venue,7,.004);
+  assert.equal(first.type,'break');assert.equal(q.breached,true);
+  for(let i=0;i<200;i++){const old={x:s.x,y:s.y};s.x+=.08;s.y+=.04;s.t+=.004;rail.step(q,s,old,P,venue,7,.004);}
+  assert.equal(q.contacts,1);assert.equal(q.broken.size,1);assert.equal(q.events.filter(event=>event.type==='break').length,1);
+  for(let i=0;i<150&&!q.recovering;i++){const old={x:s.x,y:s.y};s.x+=.05;s.t+=.004;rail.step(q,s,old,P,venue,7,.004);}
+  assert.equal(q.recoveries,1);assert.ok(q.recovering>0);
+  for(let i=0;i<81;i++)rail.tickRecovery(q,s,P,venue,.004);
+  assert.equal(q.breached,false);assert.equal(s.y,0);assert.equal(s.v,2);
+});
