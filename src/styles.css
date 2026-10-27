@@ -2242,6 +2242,7 @@ html[data-kicklab-mode="race"] #gameGuidanceHud #coach .coach-copy{padding-right
 .control-deck.race-instruments-live.simulator-active .sim-controls{min-height:120px;grid-template-columns:44px minmax(0,1fr) 120px 44px;gap:6px}
 .control-deck.race-instruments-live.simulator-active #simGas{display:none!important}
 .control-deck.race-instruments-live.simulator-active #raceActionDial{grid-column:3;grid-row:1;justify-self:center}
+.control-deck.race-instruments-idle .pad{display:none!important}
 @media(max-width:480px){.control-deck.race-instruments-live #padR{width:170px!important}.control-deck.race-instruments-live #padR .arcade{grid-template-columns:44px 120px!important;gap:2px!important}.control-deck.race-instruments-live.simulator-active .sim-controls{grid-template-columns:44px minmax(0,1fr) 120px 44px;gap:4px}}
 @media(prefers-reduced-motion:reduce){.race-action-dial *{transition:none!important;animation:none!important}}
 
