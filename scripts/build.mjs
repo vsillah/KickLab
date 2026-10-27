@@ -11,10 +11,11 @@ const src = (p) => readFileSync(join(root, 'src', p), 'utf8');
 
 const gameDir = join(root, 'src', 'game');
 const parts = readdirSync(gameDir).filter((f) => f.endsWith('.js')).sort();
-const shared = ['profile-store.js', 'game-core.js', 'gameplay-pacing.js', 'live-physics-combo.js', 'race-garage.js', 'race-origin.js', 'race-competition.js', 'race-multiplayer.js', 'race-progression.js', 'race-vehicle-catalog.js', 'race-modes.js', 'race-quick-challenge.js', 'race-finishes.js', 'race-effects-contracts.js', 'race-championship.js', 'race-preflight-guide.js', 'race-speed-perception.js', 'race-simulator.js', 'race-contextual-coach.js'].map((file) => src(`shared/${file}`).replace(/\n$/, '')).join('\n');
+const shared = ['profile-store.js', 'game-core.js', 'gameplay-pacing.js', 'live-physics-combo.js', 'race-garage.js', 'race-origin.js', 'race-competition.js', 'race-multiplayer.js', 'race-progression.js', 'race-vehicle-catalog.js', 'race-modes.js', 'race-quick-challenge.js', 'race-private-party.js', 'race-finishes.js', 'race-effects-contracts.js', 'race-championship.js', 'race-preflight-guide.js', 'race-speed-perception.js', 'race-simulator.js', 'race-contextual-coach.js'].map((file) => src(`shared/${file}`).replace(/\n$/, '')).join('\n');
 const game = shared + '\n' + parts.map((f) => readFileSync(join(gameDir, f), 'utf8').replace(/\n$/, '')).join('\n') + '\n';
 
 const vendor = src('vendor/three.min.js');
+const qrVendor = readFileSync(join(root,'node_modules','qrcode-generator','qrcode.js'),'utf8');
 const packageJson = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
 const threeVersion = packageJson.devDependencies.three;
 const threeRevision = threeVersion.split('.')[1];
@@ -27,6 +28,7 @@ const { metrics: assetMetrics } = await validateAssetSet();
 
 mkdirSync(join(root, 'dist'), { recursive: true });
 writeFileSync(join(root, 'dist', 'kicklab.html'), html);
+writeFileSync(join(root, 'dist', 'party-qr.js'), qrVendor);
 rmSync(join(root, 'dist', 'media'), { recursive: true, force: true });
 cpSync(join(root, 'src', 'media'), join(root, 'dist', 'media'), { recursive: true });
 rmSync(join(root, 'dist', 'assets'), { recursive: true, force: true });
