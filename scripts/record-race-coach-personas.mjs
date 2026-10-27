@@ -43,6 +43,10 @@ try{
   const saved=await page.evaluate(()=>{const data=JSON.parse(localStorage.getItem('kicklab.profiles.v1'));return data.profiles.find(profile=>profile.id===data.activeId)?.progress.raceCoachId;});if(saved!=='imani')throw Error(`Save & Exit lost Coach: ${saved}`);
   await page.reload({waitUntil:'domcontentloaded'});await page.waitForFunction(()=>document.querySelector('#raceCoachChoose')?.textContent.includes('Imani'));report.events.push('Coach Imani restored after reload');await page.waitForTimeout(900);
   await page.click('#lab-tab-race');await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});if(await page.locator('#racePreflight').isVisible())await page.click('#racePreflightClose');
+  const collapse=page.locator('#controllerCollapseButton');
+  if(await collapse.isVisible()&&await collapse.getAttribute('aria-expanded')==='true')await collapse.click();
+  if(await collapse.getAttribute('aria-expanded')!=='false')throw Error('expression showcase did not collapse inactive controls');
+  report.events.push('non-gameplay Coach expression showcase keeps controls collapsed');
   for(const [coach,select] of [['Imani',false],['Mateo',true]]){
     if(select){if(await page.locator('#racePreflight').isVisible())await page.click('#racePreflightClose');await page.click('#racePhoneToolsToggle');await page.click('#raceCoachChoose');await page.locator('[data-coach-id="mateo"]').click();await page.click('#raceCoachRosterClose');await page.click('#racePhoneToolsToggle');}
     for(const [outcome,expected] of [['success','celebrating'],['miss','supportive concern']]){
