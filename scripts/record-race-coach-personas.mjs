@@ -9,7 +9,7 @@ const browser=await chromium.launch({headless:true,executablePath:[process.env.K
 const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:1,recordVideo:{dir:out,size:{width:390,height:844}}});
 await context.addInitScript(()=>{localStorage.setItem('impactlab.v1',JSON.stringify({gfx:'3d',ch:{fight:0,race:0,kick:0},play:{fight:'ch',race:'ch',kick:'ch'}}));localStorage.setItem('impactlab.nick','QA Player');});
 const page=await context.newPage(),video=page.video(),url=new URL(base),report={head,errors:[],external:[],events:[]};
-for(const [key,value] of Object.entries({raceExpansion:'prototype',raceInstruments:'prototype',raceSystems:'proxy',raceTelemetry:'prototype',raceFinishes:'prototype',raceCoaching:'prototype',raceCoachPersonas:'prototype',rev:head.slice(0,12)}))url.searchParams.set(key,value);
+for(const [key,value] of Object.entries({raceExpansion:'prototype',raceInstruments:'prototype',raceSystems:'proxy',raceTelemetry:'prototype',raceFinishes:'prototype',raceCoaching:'prototype',raceCoachPersonas:'prototype',raceCoachQA:'1',rev:head.slice(0,12)}))url.searchParams.set(key,value);
 page.on('pageerror',error=>report.errors.push(error.message));
 await page.route('**/*',route=>{const target=route.request().url();if(target.startsWith(url.origin+'/')||target.startsWith('data:')||target.startsWith('blob:'))return route.continue();report.external.push(target);return route.abort();});
 try{
@@ -42,6 +42,16 @@ try{
   if(await page.locator('#rRaceGarage').isVisible()){await page.click('#rRaceGarage');await page.locator('#modeHome').waitFor({state:'visible'});report.events.push('Save & Exit returned home');}
   const saved=await page.evaluate(()=>{const data=JSON.parse(localStorage.getItem('kicklab.profiles.v1'));return data.profiles.find(profile=>profile.id===data.activeId)?.progress.raceCoachId;});if(saved!=='imani')throw Error(`Save & Exit lost Coach: ${saved}`);
   await page.reload({waitUntil:'domcontentloaded'});await page.waitForFunction(()=>document.querySelector('#raceCoachChoose')?.textContent.includes('Imani'));report.events.push('Coach Imani restored after reload');await page.waitForTimeout(900);
+  await page.click('#lab-tab-race');await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});if(await page.locator('#racePreflight').isVisible())await page.click('#racePreflightClose');
+  await page.evaluate(()=>{window.__KICKLAB_RACE_COACH_QA__.clear();window.__KICKLAB_RACE_COACH_QA__.start();window.__KICKLAB_RACE_COACH_QA__.preview('Shift in the bright band.','hype');window.__KICKLAB_RACE_COACH_QA__.hold();});await page.waitForTimeout(1000);
+  const imaniCue=await page.locator('#raceCoachNoticeText').textContent(),imaniExpression=await page.locator('#raceCoachNoticeIcon').getAttribute('aria-label');
+  await page.click('#racePhoneToolsToggle');await page.locator('#raceCoachHistory summary').click();await page.waitForTimeout(1000);const imaniHistory=await page.locator('#raceCoachHistoryList').textContent();
+  await page.locator('#raceCoachHistory summary').click();await page.click('#raceCoachChoose');await page.locator('[data-coach-id="mateo"]').click();await page.waitForTimeout(700);
+  const mateoHistory=await page.locator('#raceCoachHistoryList').textContent();await page.click('#raceCoachRosterClose');await page.click('#racePhoneToolsToggle');
+  await page.evaluate(()=>{window.__KICKLAB_RACE_COACH_QA__.clear();window.__KICKLAB_RACE_COACH_QA__.start();window.__KICKLAB_RACE_COACH_QA__.preview('Shift in the bright band.','hype');window.__KICKLAB_RACE_COACH_QA__.hold();});await page.waitForTimeout(1000);
+  const mateoCue=await page.locator('#raceCoachNoticeText').textContent(),mateoExpression=await page.locator('#raceCoachNoticeIcon').getAttribute('aria-label');
+  if(imaniCue===mateoCue||!imaniHistory.includes('You’ve got this:')||!mateoHistory.includes('Timing:')||!imaniExpression.includes('celebrating')||!mateoExpression.includes('celebrating'))throw Error(`controlled parity evidence failed: ${JSON.stringify({imaniCue,mateoCue,imaniHistory,mateoHistory,imaniExpression,mateoExpression})}`);
+  report.events.push({controlledSameCanonicalCue:'Shift in the bright band.',imaniCue,mateoCue,imaniHistory,mateoHistory,imaniExpression,mateoExpression});
 }catch(error){report.errors.push(error.stack||String(error));}
 await context.close();await browser.close();
 const source=await video.path(),target=join(out,`race-coach-personas-${head.slice(0,12)}.mp4`);

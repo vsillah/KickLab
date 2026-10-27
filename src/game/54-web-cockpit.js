@@ -17,7 +17,7 @@ function renderRaceCoachHistory(){
   for(const item of [...RACE_PHONE_NOTICE.entries].reverse()){
     const row=document.createElement('li'),icon=document.createElement('span'),copy=document.createElement('span'),order=document.createElement('small');
     icon.className='race-coach-history-icon';icon.textContent=item.mood==='warn'?'!':'✦';icon.setAttribute('aria-hidden','true');if(RACE_COACH_PERSONAS.enabled)raceCoachPersonaPaint(icon,item.expression);
-    copy.textContent=item.text;order.textContent=`Cue ${item.sequence}`;
+    copy.textContent=RACE_COACH_PERSONAS.enabled?RACE_COACH_PERSONAS.present(item.canonical||item.text,raceCoachPersona().id):item.text;order.textContent=`Cue ${item.sequence}`;
     row.append(icon,copy,order);list.append(row);
   }
   list.hidden=!RACE_PHONE_NOTICE.entries.length;$('#raceCoachHistoryEmpty').hidden=!!RACE_PHONE_NOTICE.entries.length;
@@ -36,13 +36,14 @@ function retractRaceCoachNotice(){
   clearTimeout(RACE_PHONE_NOTICE.exitTimer);
   RACE_PHONE_NOTICE.exitTimer=setTimeout(()=>{if(epoch===RACE_PHONE_NOTICE.epoch){note.hidden=true;note.classList.remove('is-leaving');}},280);
 }
-function showRaceCoachNotice(item){
-  if(document.hidden||gameStage.classList.contains('has-game-overlay')||racePhoneTools.getAttribute('aria-expanded')==='true')return;
+function showRaceCoachNotice(item,force=false){
+  if(!force&&(document.hidden||gameStage.classList.contains('has-game-overlay')||racePhoneTools.getAttribute('aria-expanded')==='true'))return;
   const note=$('#raceCoachNotice');clearTimeout(RACE_PHONE_NOTICE.exitTimer);clearTimeout(RACE_PHONE_NOTICE.timer);
   note.classList.remove('is-leaving');note.hidden=false;
   $('#raceCoachNoticeIcon').textContent=item.mood==='warn'?'!':'✦';if(RACE_COACH_PERSONAS.enabled)raceCoachPersonaPaint($('#raceCoachNoticeIcon'),item.expression);
-  $('#raceCoachNoticeText').textContent=item.text;note.title=item.text;
-  note.setAttribute('aria-label',`${RACE_COACH_PERSONAS.enabled?raceCoachName():'Coach Nia'}, cue ${item.sequence}: ${item.text}`);
+  const display=RACE_COACH_PERSONAS.enabled?RACE_COACH_PERSONAS.live(item.canonical||item.text,raceCoachPersona().id):item.text;
+  $('#raceCoachNoticeText').textContent=display;note.title=display;
+  note.setAttribute('aria-label',`${RACE_COACH_PERSONAS.enabled?raceCoachName():'Coach Nia'}, cue ${item.sequence}: ${display}`);
   note.dataset.mood=item.mood;note.classList.remove('is-entering');void note.offsetWidth;note.classList.add('is-entering');
   const epoch=++RACE_PHONE_NOTICE.epoch;
   RACE_PHONE_NOTICE.timer=setTimeout(()=>{if(epoch===RACE_PHONE_NOTICE.epoch)retractRaceCoachNotice();},3900);
@@ -57,7 +58,7 @@ function racePhoneNotice(message,mood='tip'){
   RACE_PHONE_NOTICE.text=text;if(present)RACE_PHONE_NOTICE.at=now;
   RACE_PHONE_NOTICE.seen.push(text);if(RACE_PHONE_NOTICE.seen.length>64)RACE_PHONE_NOTICE.seen.shift();
   const expression=mood==='warn'?'mistake':mood==='hype'?'correct':/recover|steady|cool/i.test(text)?'recovery':'instruction';
-  const item={text,mood,expression,sequence:++RACE_PHONE_NOTICE.sequence};if(RACE_COACH_PERSONAS.enabled)raceCoachPersonaExpression(expression);
+  const item={text,mood,expression,canonical:RACE_COACH_PERSONAS.enabled?RACE_COACH_PERSONAS.canonical(message):text,sequence:++RACE_PHONE_NOTICE.sequence};if(RACE_COACH_PERSONAS.enabled)raceCoachPersonaExpression(expression);
   RACE_PHONE_NOTICE.entries.push(item);if(RACE_PHONE_NOTICE.entries.length>12)RACE_PHONE_NOTICE.entries.shift();
   renderRaceCoachHistory();
   if(!present)return;
@@ -67,7 +68,10 @@ function racePhoneNotice(message,mood='tip'){
 $('#raceCoachNoticeDismiss').addEventListener('click',retractRaceCoachNotice);
 if(['localhost','127.0.0.1'].includes(location.hostname)&&new URLSearchParams(location.search).get('raceCoachQA')==='1')globalThis.__KICKLAB_RACE_COACH_QA__=Object.freeze({
   start(){Race.reset();Race.state='run';return true;},
+  clear:()=>resetRaceCoachHistory(),
   emit:(message,mood='tip')=>racePhoneNotice(message,mood),
+  preview(message,mood='tip'){racePhoneNotice(message,mood);const item=RACE_PHONE_NOTICE.entries.at(-1);if(item)showRaceCoachNotice(item,true);},
+  hold:()=>{Race.state='done';},
   finish(){Race.state='done';clearRacePhoneNotices();},
   state:()=>({entries:RACE_PHONE_NOTICE.entries.map(item=>({...item})),visible:!$('#raceCoachNotice').hidden,sequence:RACE_PHONE_NOTICE.sequence,profileId:profileManager.active().id})
 });

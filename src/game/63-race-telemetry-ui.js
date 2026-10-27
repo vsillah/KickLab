@@ -72,6 +72,7 @@ function renderRaceTelemetry(){
   renderRaceToolTruth();
   if(setupPreview){if(Race.expansionActive()){const mode=Race.mode(),car=Race.vehicle();$('#raceCoachSetupTitle').textContent=mode.name;$('#raceCoachSetupTargets').textContent=mode.target;$('#raceCoachSetupRecommendation').textContent=preflightSetup?`Current setup: ${preflightSetup}.`:`Suggested: ${car.name} · ${RACE_SETUP_RECOMMENDATIONS[mode.id]}.`;$('#raceCoachSetupStart').textContent='Start heat';$('#simStart span').textContent='Start heat';}else{const level=Race.progressionLevel();$('#raceCoachSetupTitle').textContent=level.name;$('#raceCoachSetupTargets').textContent=`Pass: ≤${level.time} s · slide ≤${level.slide} s · entry ≥${level.entry} km/h`;$('#raceCoachSetupRecommendation').textContent=`Suggested: ${RACE_PROGRESSION.setup(level)}.`;$('#raceCoachSetupStart').textContent='Start heat';$('#simStart span').textContent='Start heat';}}
   if(setupPreview&&typeof RACE_CHAMP_UI!=='undefined'&&RACE_CHAMP_UI.active)raceChampionshipApplySetup();
+  if(setupPreview&&RACE_COACH_PERSONAS.enabled&&!$('#raceCoachSetupRecommendation').hidden){const node=$('#raceCoachSetupRecommendation');node.textContent=RACE_COACH_PERSONAS.frame(node.textContent,raceCoachPersona().id);}
   if(setupPreview&&$('#raceCoachSetupTitle').textContent.startsWith('Coach Nia · '))$('#raceCoachSetupTitle').textContent=$('#raceCoachSetupTitle').textContent.slice(12);
   if(resultReview)clearRacePhoneNotices();
   $('#raceCoachResult').hidden=!resultReview;

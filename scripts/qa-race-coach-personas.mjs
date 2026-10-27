@@ -35,6 +35,16 @@ async function caseRun(width,height,reduced=false,canvas=false){
     if(width===390){
       const expressions=await page.evaluate(()=>{const qa=window.__KICKLAB_RACE_CONTEXTUAL_QA__;qa.result('shift','success','Optimal timing.');const positive=document.querySelector('#coachAv').getAttribute('aria-label');qa.result('shift','miss','Timing missed.');const negative=document.querySelector('#coachAv').getAttribute('aria-label');return{positive,negative,history:document.querySelector('#raceCoachHistoryList').textContent};});
       if(!expressions.positive?.includes('celebrating')||!expressions.negative?.includes('supportive concern')||!expressions.history.includes('Shift confirmed')||!expressions.history.includes('Shift missed'))throw Error(`event expression parity ${JSON.stringify(expressions)}`);
+      if(await page.locator('#racePreflight').isVisible())await page.click('#racePreflightClose');
+      await page.evaluate(()=>{window.__KICKLAB_RACE_COACH_QA__.clear();window.__KICKLAB_RACE_COACH_QA__.start();window.__KICKLAB_RACE_COACH_QA__.preview('Shift in the bright band.','tip');});
+      const imani=await page.locator('#raceCoachNoticeText').textContent(),imaniHistory=await page.locator('#raceCoachHistoryList').textContent();
+      await page.click('#racePhoneToolsToggle');await page.click('#raceCoachChoose');await page.locator('[data-coach-id="mateo"]').click();await page.click('#raceCoachRosterClose');
+      const mateoHistory=await page.locator('#raceCoachHistoryList').textContent();await page.click('#racePhoneToolsToggle');
+      await page.evaluate(()=>{window.__KICKLAB_RACE_COACH_QA__.clear();window.__KICKLAB_RACE_COACH_QA__.preview('Shift in the bright band.','tip');});
+      const mateo=await page.locator('#raceCoachNoticeText').textContent();
+      if(imani===mateo||!imani.includes('Shift in the bright band.')||!mateo.includes('Shift in the bright band.')||!imaniHistory.includes('You’ve got this:')||!mateoHistory.includes('Timing:'))throw Error(`persona speech parity ${JSON.stringify({imani,mateo,imaniHistory,mateoHistory})}`);
+      report.cases.push({speech:true,imani,mateo,imaniHistory,mateoHistory});
+      await page.click('#racePhoneToolsToggle');await page.click('#raceCoachChoose');await page.locator('[data-coach-id="imani"]').click();await page.click('#raceCoachRosterClose');await page.click('#racePhoneToolsToggle');
     }
     if(width===390&&!reduced&&!canvas){
       await page.reload({waitUntil:'domcontentloaded'});
