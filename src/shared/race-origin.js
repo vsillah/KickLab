@@ -9,7 +9,7 @@
       (pathname==='/KickLab/'||pathname==='/KickLab/index.html');
   }
   // These are the device-local Race features already shipped in this build.
-  const HOME_FLAGS=Object.freeze({raceSystems:'proxy',raceTelemetry:'prototype',raceCornerTrace:'prototype',raceProgression:'prototype',raceExpansion:'prototype',raceCompetition:'prototype',raceChampionship:'prototype',raceMultiplayer:'prototype',raceSimulator:'prototype'});
+  const HOME_FLAGS=Object.freeze({raceSystems:'proxy',raceTelemetry:'prototype',raceCornerTrace:'prototype',raceProgression:'prototype',raceExpansion:'prototype',raceCompetition:'prototype',raceChampionship:'prototype',raceMultiplayer:'prototype',raceSimulator:'prototype',racePreflight:'prototype'});
   const ENTRY_KEY='kicklab.race.home-entry.v1';
   function homeUrl(loc=typeof location==='undefined'?null:location){
     if(!trusted(loc))return null;

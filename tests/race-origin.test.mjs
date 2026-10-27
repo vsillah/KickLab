@@ -34,6 +34,7 @@ test('Race prototypes trust the canonical Pages path and local development only'
 test('unflagged load remains default-off until home Race entry on trusted origins',()=>{
   for(const href of ['http://localhost:4173/kicklab.html?qa=home&rev=abc','http://127.0.0.1:4173/kicklab.html','https://vsillah.github.io/KickLab/?qa=home&rev=abc']){
     const h=homeHarness(href);
+    assert.equal(h.origin.HOME_FLAGS.racePreflight,'prototype');
     assert.equal(h.origin.consumeHomeEntry(h.location,h.storage),false);
     assert.equal(h.enter(),true);
     const destination=new URL(h.navigated());
