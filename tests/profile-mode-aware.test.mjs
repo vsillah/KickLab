@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import {runInNewContext} from 'node:vm';
 
 await import('../src/shared/profile-race-records.js');
 await import('../src/shared/profile-store.js');
@@ -34,6 +35,18 @@ test('Race records stay inside the active local profile and legacy mirror',()=>{
   assert.deepEqual(manager.active().progress,{xp:9,goals:4});
   assert.equal(JSON.parse(data.get('impactlab.v1')).raceProfileRecords,undefined);
   assert.equal(manager.list().find(item=>item.id==='second').progress.raceProfileRecords.topKmh,140);
+});
+
+test('Race control style reports the live selection from home and active Race',()=>{
+  const helper=source.match(/function profileRaceControlStyle\(\)\{[^}]+\}/)?.[0];
+  assert.ok(helper);
+  for(const activeLab of [null,'race']){
+    for(const [simulator,analog,expected] of [[false,false,'Classic'],[false,true,'Analog'],[true,false,'Simulator']]){
+      const actual=runInNewContext(`${helper};profileRaceControlStyle()`,{M:activeLab,RACE_SIMULATOR:{active:simulator},ANALOG_CONTROL:{enabled:analog}});
+      assert.equal(actual,expected,`${activeLab||'home'} should report ${expected}`);
+    }
+  }
+  assert.match(source,/control=profileRaceControlStyle\(\)/);
 });
 
 test('profile sections keep lab metrics in their own renderers',()=>{

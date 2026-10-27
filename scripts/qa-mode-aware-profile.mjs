@@ -22,12 +22,20 @@ try{
     page.on('pageerror',error=>pageErrors.push(error.message));
     await page.route('**/*',route=>{const target=route.request().url();if(target.startsWith(url.origin+'/')||target.startsWith('data:')||target.startsWith('blob:'))route.continue();else{report.external.push(`${name}: ${target}`);route.abort();}});
     const activate=async selector=>{const item=page.locator(selector);if(input==='touch')await item.tap();else if(input==='keyboard'){await item.focus();await page.keyboard.press('Enter');}else await item.click();};
+    const readControlStyle=()=>page.evaluate(()=>Array.from(document.querySelectorAll('#profileSummary .profile-stat')).find(node=>node.querySelector('span')?.textContent==='Control style')?.querySelector('b')?.textContent);
     try{
       await page.goto(url.toString(),{waitUntil:'domcontentloaded'});
       await activate('#homeProfileButton');
       const overview=await page.locator('#profileSummary').innerText();
       if(!overview.includes('Three labs, one player')||!overview.includes('Fight')||!overview.includes('Race')||!overview.includes('Kick'))throw Error('home overview missing labs');
       await page.screenshot({path:join(out,`${name}-overview.png`)});
+      await activate('#profileLabs [data-profile-lab="race"]');
+      const homeControl=await readControlStyle();
+      if(homeControl!=='Classic')throw Error(`home Race control style: ${homeControl}`);
+      await page.screenshot({path:join(out,`${name}-home-race.png`)});
+      report.checks.push({name,lab:'home-race',control:homeControl});
+      if(name==='desktop')await page.waitForTimeout(900);
+      await activate('#profileLabs [data-profile-lab="overview"]');
       if(name==='desktop')await page.waitForTimeout(900);
       await activate('#profileClose');
       if(input==='keyboard')await page.waitForTimeout(120);
@@ -42,6 +50,7 @@ try{
         const state=await page.evaluate(()=>({lab:document.querySelector('#profileLabs [aria-current="true"]')?.dataset.profileLab,text:document.querySelector('#profileSummary').innerText,panel:document.querySelector('.profile-panel').getBoundingClientRect().toJSON(),overflow:document.documentElement.scrollWidth-innerWidth,inside:document.querySelector('#profileSummary').scrollWidth-document.querySelector('#profileSummary').clientWidth,canvas:document.querySelector('#cv')?.getContext('2d')!==null,profileId:JSON.parse(localStorage.getItem('kicklab.profiles.v1')).activeId}));
         if(state.lab!==lab||state.overflow>1||state.inside>1)throw Error(`${lab} layout ${JSON.stringify(state)}`);
         if(lab==='race'&&(/\bball\b|\bboots\b|\bgoals\b|crossbar/i.test(state.text)||!state.text.includes('Selected vehicle')||!state.text.includes('Drag time')||!state.text.includes('Top speed')))throw Error(`Race content leak ${state.text}`);
+        if(lab==='race'&&await readControlStyle()!=='Classic')throw Error('active Race control style does not match default Classic');
         if(lab==='fight'&&!state.text.includes('Glove style')||lab==='kick'&&!state.text.includes('Boots'))throw Error(`${lab} content missing`);
         await page.screenshot({path:join(out,`${name}-${lab}.png`)});
         if(name==='desktop'){await page.waitForTimeout(900);await page.locator('.profile-panel').evaluate(panel=>panel.scrollTop=panel.scrollHeight);await page.waitForTimeout(900);}
