@@ -59,6 +59,7 @@ cpSync(join(root, 'dist', 'media'), join(outputDir, 'media'), { recursive: true 
 rmSync(join(outputDir, 'assets'), { recursive: true, force: true });
 cpSync(join(root, 'dist', 'assets'), join(outputDir, 'assets'), { recursive: true });
 cpSync(join(root, 'dist', 'build-metrics.json'), join(outputDir, 'build-metrics.json'));
+cpSync(join(root, 'dist', 'party-qr.js'), join(outputDir, 'party-qr.js'));
 
 const manifest = {
   schemaVersion: contract.schemaVersion,

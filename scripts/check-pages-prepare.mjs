@@ -9,7 +9,7 @@ const workflow = readFileSync(workflowPath, 'utf8');
 const pagesRoot = join(root, 'dist', 'pages');
 const pagesEntries = readdirSync(pagesRoot).sort();
 
-assert.deepEqual(pagesEntries, ['assets', 'build-metrics.json', 'index.html', 'media'], 'Pages root must contain the entry point, reviewed local assets, and build metrics');
+assert.deepEqual(pagesEntries, ['assets', 'build-metrics.json', 'index.html', 'media', 'party-qr.js'], 'Pages root must contain the entry point, reviewed local assets, and build metrics');
 assert.ok(!lstatSync(join(pagesRoot, 'index.html')).isSymbolicLink(), 'Pages entry point must be a regular file');
 assert.equal(
   readFileSync(join(pagesRoot, 'index.html'), 'utf8'),
@@ -26,6 +26,7 @@ for(const file of [
   'assets/3d/kicklab-direction-c-athlete/v1/kicklab-direction-c-athlete.glb',
   'assets/3d/kicklab-direction-c-athlete/v1/asset-manifest.json',
   'build-metrics.json',
+  'party-qr.js',
 ]){
   assert.ok(!lstatSync(join(pagesRoot,file)).isSymbolicLink(),`${file} must be a regular local artifact`);
   assert.equal(readFileSync(join(pagesRoot,file)).compare(readFileSync(join(root,'dist',file))),0,`${file} must match the checked build`);
