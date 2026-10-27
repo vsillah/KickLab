@@ -20,6 +20,7 @@ async function run(width,height,{reduced=false,canvas=false,video=false,vehicle=
   await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});
   await page.locator('#raceCoachSetupStart').waitFor({state:'visible',timeout:20000});
   if(vehicle!=='cobalt'){if(await page.locator('#raceCoachSetupGarage').isVisible())await page.locator('#raceCoachSetupGarage').click();else{await page.locator('#racePhoneToolsToggle').click();await page.locator('#raceToolsGarage').click();}await page.locator(`#raceGarage [data-garage-part="body"][data-garage-value="${{kestrel:'kart',aegis:'race'}[vehicle]}"]`).click();await page.locator('#settingsClose').click();if(await page.locator('#racePhoneToolsToggle').getAttribute('aria-expanded')==='true')await page.locator('#racePhoneToolsToggle').click();const skip=page.locator('.race-orbit-panel button');if(await skip.isVisible())await skip.click();await page.locator('#raceCoachSetupStart').waitFor({state:'visible',timeout:20000});}
+  if(!canvas)await page.waitForFunction(expected=>{const race=window.__KICKLAB_RACE_3D__;return race?.status==='rendering'&&race.vehicle===true&&race.vehicleId===expected&&race.orbit?.done===true&&race.dynamics?.state==='grid'&&!document.querySelector('#raceCoachSetupStart')?.hidden;},vehicle,{timeout:20000});
   await page.evaluate(()=>window.scrollTo(0,document.querySelector('.stage').getBoundingClientRect().top+scrollY-12));
   const startedAt=Date.now();
   await page.locator('#raceCoachSetupStart').click();
