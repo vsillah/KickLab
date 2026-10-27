@@ -20,6 +20,7 @@ async function open(name){
   await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});await page.locator('#raceCoachSetupStart').waitFor({state:'visible',timeout:20000});
   await page.evaluate(()=>window.scrollTo(0,document.querySelector('.stage').getBoundingClientRect().top+scrollY-8));
   const startedAt=Date.now();await page.locator('#raceCoachSetupStart').click();await page.waitForFunction(()=>globalThis.__KICKLAB_RACE_3D__?.dynamics?.state==='run',null,{timeout:12000});
+  await page.evaluate(label=>{const tag=document.createElement('div');tag.textContent=label;Object.assign(tag.style,{position:'fixed',top:'18px',left:'50%',transform:'translateX(-50%)',zIndex:'2147483647',padding:'8px 16px',borderRadius:'8px',background:'rgba(7,21,37,.85)',color:'#fff',font:'700 24px Arial,sans-serif',pointerEvents:'none'});document.body.append(tag);},{scrape:'01  SHALLOW SCRAPE',dent:'02  LOW-SPEED DENT',break:'03  HIGH-ENERGY BREAK-THROUGH'}[name]);
   return{context,page,video,url:url.toString(),startedAt};
 }
 async function close(name,session,contact,after,trace){
@@ -28,8 +29,8 @@ async function close(name,session,contact,after,trace){
   if(contact?.status!=='rendering'||!contact.vehicle||!contact.canvas||contact.dynamics?.state!=='run')report.errors.push(`${name}: contact did not occur in running 3D`);
   if(storage.some(key=>!['impactlab.v1','impactlab.nick','kicklab.profiles.v1'].includes(key)))report.errors.push(`${name}: unexpected storage`);
   await context.close();const source=await video.path(),sourceProbe=spawnSync('ffprobe',['-v','error','-show_entries','format=duration','-of','json',source],{encoding:'utf8'});if(sourceProbe.status!==0)throw Error(sourceProbe.stderr);
-  const sourceDuration=Number(JSON.parse(sourceProbe.stdout).format.duration),trim=Math.max(0,sourceDuration-(endedAt-startedAt)/1000-.45),clip=join(out,`${name}-${head.slice(0,12)}.mp4`),label={scrape:'01  SHALLOW SCRAPE',dent:'02  LOW-SPEED DENT',break:'03  HIGH-ENERGY BREAK-THROUGH'}[name];
-  const filter=`fps=30,drawtext=fontfile=/System/Library/Fonts/Supplemental/Arial.ttf:text='${label}':x=(w-text_w)/2:y=18:fontsize=26:fontcolor=white:box=1:boxcolor=0x071525CC:boxborderw=10`;
+  const sourceDuration=Number(JSON.parse(sourceProbe.stdout).format.duration),trim=Math.max(0,sourceDuration-(endedAt-startedAt)/1000-.45),clip=join(out,`${name}-${head.slice(0,12)}.mp4`);
+  const filter='fps=30';
   const encoded=spawnSync('ffmpeg',['-y','-ss',trim.toFixed(3),'-i',source,'-vf',filter,'-an','-c:v','libx264','-preset','medium','-crf','20','-pix_fmt','yuv420p','-movflags','+faststart',clip],{encoding:'utf8'});if(encoded.status!==0)throw Error(encoded.stderr.slice(-1800));
   row.clip=clip;row.trim=trim;report.cases.push(row);clips.push(clip);
 }
