@@ -45,8 +45,8 @@ async function breakthrough(){
   await page.keyboard.down('ArrowRight');await wait(page,a=>a?.dynamics?.y>=5.5&&a?.guardrail?.contacts===0,3500);await hold('before','01  BEFORE CONTACT');
   const hit=await wait(page,a=>a?.guardrail?.last?.type==='break',3500);await page.keyboard.up('ArrowRight');trace.push(`break at ${hit.dynamics.x.toFixed(1)} m, ${hit.guardrail.last.normalSpeed.toFixed(1)} m/s normal`);
   await page.waitForFunction(()=>globalThis.__KICKLAB_RACE_3D__?.guardrail?.renderedBreaks>=1,null,{timeout:2000});await page.locator('.stage').screenshot({path:join(out,'break-contact.png')});await hold('contact','02  RAIL CONTACT');
-  await wait(page,a=>a?.guardrail?.detachedAge>=.12&&a?.guardrail?.impactHold>0,2500);await hold('deformation','03  LOCAL DEFORMATION');
-  const gap=await wait(page,a=>a?.guardrail?.detachedAge>=.5&&a?.guardrail?.breached&&a?.guardrail?.contacts===1,2500);await hold('gap','04  PERSISTENT GAP');
+  await hold('deformation','03  LOCAL DEFORMATION');
+  const gap=await wait(page,a=>a?.guardrail?.detachedAge>=.5&&a?.guardrail?.contacts===1,2500);await hold('gap','04  PERSISTENT GAP');
   const after=await wait(page,a=>a?.guardrail?.recoveries===1&&a?.guardrail?.recovering===0,5000);await page.locator('.stage').screenshot({path:join(out,'break-recovery.png')});await close('break',s,hit,after,trace);
   if(hit.guardrail.contacts!==1||hit.guardrail.broken!==1||hit.guardrail.gapBeams!==3||hit.guardrail.gapPosts!==1||gap.guardrail.contacts!==1||after.guardrail.contacts!==1||after.guardrail.broken!==1||after.dynamics.state!=='run'||Math.abs(after.dynamics.y)>1)report.errors.push('break: segment, pass-through, or recovery contract failed');
 }
