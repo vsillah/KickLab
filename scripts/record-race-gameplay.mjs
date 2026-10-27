@@ -15,7 +15,7 @@ async function open(width,height){
   page.on('pageerror',error=>report.errors.push(error.message));page.on('request',request=>{if(new URL(request.url()).origin!==url.origin)report.external.push(request.url());});
   await page.goto(url.toString(),{waitUntil:'networkidle'});if(await page.locator('#profileClose').isVisible())await page.locator('#profileClose').click();
   await page.locator('#lab-tab-race').click();const orbit=page.locator('.race-orbit-panel button');await orbit.waitFor({state:'visible',timeout:5000}).catch(()=>{});if(await orbit.isVisible())await orbit.click();
-  await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});await page.locator('#raceCoachSetupStart').waitFor({state:'visible',timeout:20000});
+  await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.orbit?.done,null,{timeout:20000});await page.locator('#raceCoachSetupStart').waitFor({state:'visible',timeout:20000});
   return{context,page,video,url};
 }
 async function encode(run,context,video,startedAt,width,height){
@@ -44,18 +44,22 @@ async function drag(width,height){
 }
 async function drift(width,height){
   const {context,page,video,url}=await open(width,height);
-  await page.locator('#raceCoachSetupGarage').click();await page.locator('#raceGarage [data-race-mode="drift"]').click();await page.locator('#settingsClose').click();await page.locator('#raceCoachSetupSimulator').click();await page.locator('#simStart').waitFor({state:'visible',timeout:10000});
+  if(await page.locator('#raceCoachSetupGarage').isVisible())await page.locator('#raceCoachSetupGarage').click();else{await page.locator('#racePhoneToolsToggle').click();await page.locator('#raceToolsGarage').click();}
+  await page.locator('#raceGarage [data-race-mode="drift"]').click();await page.locator('#settingsClose').click();
+  if(await page.locator('#raceCoachSetupSimulator').isVisible())await page.locator('#raceCoachSetupSimulator').click();else await page.locator('#simulatorControlsButton').click();
+  if(await page.locator('#racePhoneToolsToggle').getAttribute('aria-expanded')==='true')await page.locator('#racePhoneToolsToggle').click();
+  await page.locator('#simStart').waitFor({state:'visible',timeout:10000});
   await page.locator('.stage').scrollIntoViewIfNeeded();const startedAt=Date.now();await page.locator('#simStart').click();await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.dynamics?.state==='run',null,{timeout:12000});if(width<500)await page.evaluate(()=>window.scrollTo(0,210));
   const gas=await page.locator('#simGas').boundingBox();await page.mouse.move(gas.x+gas.width/2,gas.y+gas.height/2);await page.mouse.down();
   let stage='accelerate',peakEnergy=0,peakSmoke=0,peakMarks=0,countersteered=false,recovered=false,peakDriftTime=0,everDriftArmed=false;
-  for(let i=0;i<150;i++){
-    await page.waitForTimeout(140);const row=await sample(page),d=row.dynamics;peakEnergy=Math.max(peakEnergy,row.fx?.driftEnergy||0);peakSmoke=Math.max(peakSmoke,row.fx?.tireSmoke||0);peakMarks=Math.max(peakMarks,row.fx?.markEmissions||0);peakDriftTime=Math.max(peakDriftTime,row.milestones?.driftTime||0);everDriftArmed ||= !!row.milestones?.driftArmed;
+  for(let i=0;i<300;i++){
+    await page.waitForTimeout(70);const row=await sample(page),d=row.dynamics;peakEnergy=Math.max(peakEnergy,row.fx?.driftEnergy||0);peakSmoke=Math.max(peakSmoke,row.fx?.tireSmoke||0);peakMarks=Math.max(peakMarks,row.fx?.markEmissions||0);peakDriftTime=Math.max(peakDriftTime,row.milestones?.driftTime||0);everDriftArmed ||= !!row.milestones?.driftArmed;
     if(stage==='accelerate'&&d.x>40){await page.mouse.up();const brake=await page.locator('#simBrake').boundingBox();await page.mouse.move(brake.x+brake.width/2,brake.y+brake.height/2);await page.mouse.down();stage='brake';}
     if(stage==='brake'&&d.v<14){await page.mouse.up();stage='coast';}
     if(stage==='coast'&&d.x>86){await page.keyboard.down('ArrowRight');await page.waitForTimeout(550);await page.keyboard.up('ArrowRight');stage='steer';}
-    if(stage==='steer'&&d.x>90){await page.locator('#simHandbrake').focus();await page.keyboard.press('Space');stage='drift';}
-    if(stage==='drift'&&d.y>17){await page.keyboard.down('ArrowLeft');await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.dynamics?.wheel< -5,null,{timeout:1500});await page.keyboard.up('ArrowLeft');countersteered=true;stage='counter';}
-    if(stage==='counter'&&d.y>24){await page.locator('#simHandbrake').focus();await page.keyboard.press('Space');stage='recover';}
+    if(stage==='steer'&&d.x>86){await page.locator('#simHandbrake').focus();await page.keyboard.press('Space');stage='drift';}
+    if(stage==='drift'&&(row.milestones?.driftArmed||d.y>5.5)){await page.locator('#simHandbrake').focus();await page.keyboard.press('Space');await page.keyboard.down('ArrowLeft');await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.dynamics?.wheel< -5,null,{timeout:1500});await page.keyboard.up('ArrowLeft');countersteered=true;stage='counter';}
+    if(stage==='counter'&&d.y>8){stage='recover';}
     if(stage==='recover'&&row.modes?.zone===2&&d.x>117){await page.keyboard.down('ArrowRight');await page.waitForTimeout(550);await page.keyboard.up('ArrowRight');stage='follow';}
     if(stage==='follow'&&d.y>55&&d.state==='run'&&d.mode==='none'&&!d.inputs.drift){recovered=true;break;}
     if(['crashed','done'].includes(d.state))break;
