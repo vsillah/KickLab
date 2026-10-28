@@ -32,6 +32,15 @@ test('every existing player identity has complete local Fight, Race, and Kick wa
   assert.equal(art.asset('../../elsewhere','../../x'),art.asset('rocket','race'));
 });
 
+test('gameplay appearance follows the saved portrait ID with distinct visible traits',()=>{
+  const looks=ids.map(id=>art.gameplay(id,'kick'));
+  assert.deepEqual(looks.map(look=>look.avatar),ids);
+  for(const key of ['skin','hairStyle','kit','build'])assert.ok(new Set(looks.map(look=>look[key])).size>=4,key);
+  assert.equal(art.gameplay('wiz','fight').glasses,true);
+  assert.equal(art.gameplay('trick','fight').freckles,true);
+  assert.equal(art.gameplay('missing').avatar,'rocket');
+});
+
 test('legacy look choices remain bounded and persist independently of curated portrait mapping',()=>{
   const expected=art.normalize(null,'wiz');
   assert.deepEqual(art.normalize({skin:'bad',hair:'<img>',face:'?',detail:'?',outfit:'?',expression:'?'},'wiz'),expected);

@@ -19,7 +19,7 @@ const PLAYERS={you:{n:'You',d:'set every dial yourself',h:1.80,m:75,top:0,agil:1
   trick:{n:'The Trickster',d:'every skill move, fast feet',h:1.75,m:68,top:9.7,agil:1.2,shot:27,jump:2.8,skill:0.7,num:'11',kit:'#c2366b',all:true,why:'quick feet: each skill move takes 30% less time'},
   cannon:{n:'The Cannon',d:'huge leap, knuckleball king',h:1.87,m:84,top:9.9,agil:0.95,shot:33,jump:3.6,skill:1.0,num:'17',kit:'#c0392b',kn:1.6,why:'jump take-off 3.6 m/s: h = v₀²÷2g ≈ 0.66 m of air'}};
 function PLY(){return PLAYERS[Kick.opt.pl]||PLAYERS.you;}
-function playerLook(id=Kick.opt.pl,overrides={}){const P=PLAYERS[id]||PLAYERS.you,A=GAME_CORE.playerAppearance(id,overrides);return Object.assign({},A,{kit:overrides.kit||P.kit||A.kit,hs:P.h/1.8,ws:Math.sqrt(P.m/75)*1.8/P.h});}
+function playerLook(id=Kick.opt.pl,overrides={}){const P=PLAYERS[id]||PLAYERS.you,A=GAME_CORE.playerAppearance(id,overrides),identity=globalThis.KickLabProfileAvatarArt.gameplay(profileManager.active().avatar,'kick');return Object.assign({},A,identity,overrides,{kit:overrides.kit||identity.kit,hs:identity.build,ws:identity.build});}
 function applyPlayer(){const P=PLY();if(Kick.opt.pl==='you')return;const set=(k,v)=>{if(!isLocked('kick',k))Kick.V[k]=v;};set('run',+(Math.min(9,P.top/1.22)).toFixed(1));set('vs',P.shot);set('jv',P.jump);}
 const STADIUMS={home:{n:'Home ground',d:'sea level',g:9.81,rho:1.2,sky:['#070d1d','#1a2a4a']},alt:{n:'High altitude',d:'2,240 m up · thin air',g:9.78,rho:0.96,sky:['#0b1430','#2a4370']},mars:{n:'Mars dome',d:'g 3.71 · almost no air',g:3.71,rho:0.02,sky:['#1f0c08','#6b2e1c']},moon:{n:'Moon',d:'g 1.62 · no air at all',g:1.62,rho:0,sky:['#000000','#0b0f1a']}};
 // Presentation only. These values never enter stadium, weather, or ball equations.
