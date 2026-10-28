@@ -1,12 +1,21 @@
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
-import {existsSync,mkdirSync,writeFileSync} from 'node:fs';
+import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {join,resolve} from 'node:path';
+import {execFileSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
 
 const {chromium}=createRequire(import.meta.url)('playwright');
 const base=process.argv[2]||'http://127.0.0.1:5917/kicklab.html';
 const output=resolve(process.argv[3]||'qa-artifacts/locked-states');
-const head=process.env.KICKLAB_QA_HEAD||'working';
+const head=process.env.KICKLAB_QA_HEAD;
+if(!/^[0-9a-f]{40}$/.test(head||''))throw Error('Set KICKLAB_QA_HEAD to the full exact commit.');
+if(execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()!==head||execFileSync('git',['status','--porcelain'],{encoding:'utf8'}).trim())throw Error('Exact-head QA requires a clean checkout at KICKLAB_QA_HEAD.');
+const reviewUrl=new URL(base);reviewUrl.searchParams.set('rev',head);
+const response=await fetch(reviewUrl);
+const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
+const artifactSha256=sha(readFileSync(resolve('dist/kicklab.html')));
+if(!response.ok||sha(Buffer.from(await response.arrayBuffer()))!==artifactSha256)throw Error('Localhost does not serve the exact built KickLab artifact.');
 const viewports=[{width:360,height:780},{width:390,height:844},{width:768,height:1024},{width:1113,height:900},{width:1440,height:900}];
 mkdirSync(output,{recursive:true});
 const browser=await chromium.launch({headless:true,executablePath:[process.env.KICKLAB_CHROMIUM_PATH,chromium.executablePath(),'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find(path=>path&&existsSync(path))});
@@ -14,12 +23,12 @@ const errors=[],external=[],checks=[];
 
 async function open(viewport,race=false){
   const context=await browser.newContext({viewport,deviceScaleFactor:1,reducedMotion:'reduce'});
-  await context.addInitScript(()=>localStorage.setItem('kicklab.profiles.v1',JSON.stringify({version:1,activeId:'locked-qa',legacyProfileId:'locked-qa',profiles:[{id:'locked-qa',nickname:'Local QA',avatar:'rocket',color:'sky',progress:{xp:0,ch:{kick:1},raceCompetition:{version:1,bests:{},awards:{}}}}]})));
+  await context.addInitScript(()=>{if(sessionStorage.getItem('kicklab.locked.qa.init'))return;localStorage.setItem('kicklab.profiles.v1',JSON.stringify({version:1,activeId:'locked-qa',legacyProfileId:'locked-qa',profiles:[{id:'locked-qa',nickname:'Local QA',avatar:'rocket',color:'sky',progress:{xp:0,ch:{kick:1},raceCompetition:{version:1,bests:{},awards:{}}}}]}));sessionStorage.setItem('kicklab.locked.qa.init','1');});
   const page=await context.newPage();
   page.on('pageerror',error=>errors.push(`${viewport.width}: ${error.message}`));
   await page.route('**/*',route=>{const url=route.request().url();if(url.startsWith(new URL(base).origin)||url.startsWith('data:')||url.startsWith('blob:'))route.continue();else{external.push(`${viewport.width}: ${url}`);route.abort();}});
   const url=new URL(base);url.searchParams.set('rev',head);
-  if(race)for(const [key,value] of Object.entries({raceCompetition:'prototype',racePreflight:'prototype',raceChampionship:'prototype',raceMultiplayer:'prototype',raceExpansion:'prototype'}))url.searchParams.set(key,value);
+  if(race)for(const [key,value] of Object.entries({raceCompetition:'prototype',racePreflight:'prototype',raceChampionship:'prototype',raceMultiplayer:'prototype',raceExpansion:'prototype',raceProgression:'prototype'}))url.searchParams.set(key,value);
   await page.goto(url.toString(),{waitUntil:'domcontentloaded'});
   if(await page.locator('#profileFormSave').isVisible())await page.locator('#profileFormSave').click();
   if(await page.locator('#profileClose').isVisible())await page.locator('#profileClose').click();
@@ -43,6 +52,14 @@ async function inspectLock(locator,{name,requirement=false,disabled=false}={}){
   if(disabled)assert.ok(state.disabled,`${name}: disabled selection semantics`);
   return state;
 }
+async function inspectVivid(locator,name){
+  const state=await locator.evaluate(node=>({filter:getComputedStyle(node).filter,opacity:getComputedStyle(node).opacity,locked:node.classList.contains('kl-locked'),mask:getComputedStyle(node,'::after').maskImage,disabled:node.disabled}));
+  assert.equal(state.filter,'none',`${name}: no desaturation`);
+  assert.equal(state.opacity,'1',`${name}: full opacity`);
+  assert.equal(state.locked,false,`${name}: no progression-lock class`);
+  assert.doesNotMatch(state.mask,/data:image\/svg\+xml/,`${name}: no centered lock`);
+  assert.equal(state.disabled,false,`${name}: selectable`);
+}
 
 async function run(viewport){
   const label=`${viewport.width}x${viewport.height}`;
@@ -56,6 +73,20 @@ async function run(viewport){
       await page.locator('#fbClose').click();
       await page.locator('#lab-tab-race').click();
       await page.locator('#racePreflight').waitFor({state:'visible',timeout:20000});
+      assert.equal(await page.locator('.race-preflight-venue.kl-locked').count(),2,`${label}: Marine and Forest begin locked`);
+      await inspectVivid(page.locator('[data-preflight-venue="highland"]'),`${label} Highland`);
+      for(const venue of ['marine','forest']){
+        const card=page.locator(`[data-preflight-venue="${venue}"]`);
+        await inspectLock(card,{name:`${label} ${venue} venue`,requirement:true,disabled:true});
+        assert.match(await card.innerText(),/Clear .* to unlock/i,`${label} ${venue}: specific requirement`);
+      }
+      const beforeVenue=await page.evaluate(()=>localStorage.getItem('kicklab.profiles.v1'));
+      await clickAriaDisabled(page,page.locator('[data-preflight-venue="marine"]'));
+      assert.equal(await page.locator('[data-preflight-venue="highland"]').getAttribute('aria-pressed'),'true',`${label}: locked Marine cannot be selected`);
+      assert.equal(await page.evaluate(()=>localStorage.getItem('kicklab.profiles.v1')),beforeVenue,`${label}: locked venue does not mutate profile`);
+      await page.locator('#racePreflight').screenshot({path:join(output,`${label}-venues-locked.png`)});
+      await page.locator('[data-preflight-venue="highland"]').click();
+      assert.equal(await page.locator('[data-preflight-mode]').count(),5,`${label}: Highland keeps five formats`);
       await page.locator('#racePreflightNext').click();
       const lockedCar=page.locator('[data-preflight-vehicle="vesper"]');
       await inspectLock(lockedCar,{name:`${label} vehicle`,requirement:true,disabled:true});
@@ -84,6 +115,17 @@ async function run(viewport){
       checks.push({label,surface:'race',awards:5,lockedVehicles:await page.locator('[data-preflight-vehicle].kl-locked').count(),championship:4,profileUnchanged:true});
     }finally{await context.close();}
   }
+  {
+    const {context,page}=await open(viewport,true);
+    try{
+      await page.evaluate(()=>window.__KICKLAB_RACE_PROGRESSION_QA__.unlockForQA(2));
+      await page.locator('#lab-tab-race').click();
+      await page.locator('#racePreflight').waitFor({state:'visible',timeout:20000});
+      for(const venue of ['highland','marine','forest'])await inspectVivid(page.locator(`[data-preflight-venue="${venue}"]`),`${label} unlocked ${venue}`);
+      await page.locator('#racePreflight').screenshot({path:join(output,`${label}-venues-unlocked.png`)});
+      checks.push({label,surface:'race-unlocked-venues',vivid:3});
+    }finally{await context.close();}
+  }
   for(const lab of ['fight','kick']){
     const {context,page}=await open(viewport);
     try{
@@ -109,6 +151,6 @@ async function run(viewport){
 
 for(const viewport of viewports){try{await run(viewport);}catch(error){errors.push(`${viewport.width}x${viewport.height}: ${error.stack||error}`);}}
 await browser.close();
-const report={head,base,checks,errors,external};writeFileSync(join(output,'report.json'),JSON.stringify(report,null,2)+'\n');
+const report={head,artifactSha256,base,checks,errors,external};writeFileSync(join(output,'report.json'),JSON.stringify(report,null,2)+'\n');
 console.log(JSON.stringify({head,checks,errors,external,output},null,2));
 if(errors.length||external.length)process.exitCode=1;

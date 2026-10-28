@@ -18,8 +18,13 @@ if(!response.ok||sha(Buffer.from(await response.arrayBuffer()))!==sha(readFileSy
 mkdirSync(out,{recursive:true});
 const browser=await chromium.launch({headless:true,executablePath:[process.env.KICKLAB_CHROMIUM_PATH,chromium.executablePath(),'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find(path=>path&&existsSync(path)),args:['--enable-webgl']});
 const report={head,artifactSha256:sha(readFileSync('dist/pages/index.html')),cases:[],errors:[],external:[],httpErrors:[]};
-const sizes=[{width:390,height:844,input:'touch',gfx:'2d',motion:'reduce'},{width:768,height:1024,input:'keyboard',gfx:'3d',motion:'reduce'},{width:1113,height:834,input:'pointer',gfx:'3d',motion:'no-preference'},{width:1440,height:900,input:'pointer',gfx:'3d',motion:'no-preference'}];
+const sizes=[{width:360,height:780,input:'touch',gfx:'2d',motion:'reduce'},{width:390,height:844,input:'touch',gfx:'2d',motion:'reduce'},{width:768,height:1024,input:'keyboard',gfx:'3d',motion:'reduce'},{width:1113,height:834,input:'pointer',gfx:'3d',motion:'no-preference'},{width:1440,height:900,input:'pointer',gfx:'3d',motion:'no-preference'}];
 const fail=(message,data)=>{throw Error(`${message}: ${JSON.stringify(data)}`);};
+async function ordinaryControls(page,selectors,label){
+  const states=await page.evaluate(selectors=>selectors.map(selector=>{const node=document.querySelector(selector),style=getComputedStyle(node),icon=getComputedStyle(node,'::after');return{selector,locked:node.classList.contains('kl-locked'),filter:style.filter,mask:icon.maskImage,disabled:node.disabled};}),selectors);
+  if(states.some(state=>state.locked||state.filter==='grayscale(1)'||/data:image\/svg\+xml/.test(state.mask)))fail(`${label} received a progression lock`,states);
+  return states;
+}
 const read=page=>page.evaluate(()=>{
   const store=JSON.parse(localStorage.getItem('kicklab.profiles.v1')||'null'),active=store?.profiles?.find(profile=>profile.id===store.activeId),modes=window.__KICKLAB_RACE_MODES_QA__?.state(),multi=window.__KICKLAB_RACE_MULTIPLAYER_QA__?.state(),rect=id=>{const r=document.querySelector(id).getBoundingClientRect();return{x:r.x,y:r.y,width:r.width,height:r.height};};
   return{home:!document.querySelector('#modeHome').hidden,preflight:!document.querySelector('#racePreflight').hidden,phase:modes?.phase,pause:!document.querySelector('#gamePacingOverlay').hidden&&document.querySelector('#gamePacingOverlay').dataset.state==='paused',results:!document.querySelector('#results').hidden,profileId:store?.activeId,progress:active?.progress,mode:modes?.mode,vehicle:multi?.activeVehicle,garage:multi?.activeGarage,venue:window.__KICKLAB_RACE_3D__?.venue,steer:multi?.activeSteer,control:multi?.activeControl,renderer:window.__KICKLAB_RACE_3D__?.status,back:rect('#gamePacingResume'),exit:rect('#gamePacingSaveExit'),overflow:document.documentElement.scrollWidth-innerWidth};
@@ -37,6 +42,7 @@ async function pause(page,input){
     return{resume:a.textContent.trim(),exit:b.textContent.trim(),resumeName:a.getAttribute('aria-label'),exitName:b.getAttribute('aria-label'),previewName:document.querySelector('#gameControlPreview').getAttribute('aria-label'),widths:[ra.width,rb.width],heights:[ra.height,rb.height],fonts:[ca.font,cb.font],hits:[hit(ra)===a,hit(rb)===b],viewport:[innerWidth,innerHeight],rects:[{x:ra.x,y:ra.y,right:ra.right,bottom:ra.bottom},{x:rb.x,y:rb.y,right:rb.right,bottom:rb.bottom}]};
   });
   if(visual.resume!=='Resume'||visual.exit!=='Save & Exit'||visual.resumeName!=='Resume Race'||!visual.exitName.includes('KickLab home')||visual.previewName||Math.abs(visual.widths[0]-visual.widths[1])>1||Math.abs(visual.heights[0]-visual.heights[1])>1||visual.heights[0]<44||visual.fonts[0]!==visual.fonts[1]||visual.hits.some(hit=>!hit)||visual.rects.some(rect=>rect.x<0||rect.y<0||rect.right>visual.viewport[0]+1||rect.bottom>visual.viewport[1]+1))fail('Pause actions differ or are obstructed',visual);
+  await ordinaryControls(page,['#gamePacingResume','#gamePacingSaveExit'],'Pause actions');
   return visual;
 }
 async function enter(page,input){
@@ -56,7 +62,9 @@ async function start(page,{countdownPause=false}={}){
   await page.click('#racePreflightNext');
   const arrival=await page.evaluate(()=>({open:!document.querySelector('#racePreflight').hidden,back:document.querySelector('#racePreflightBack').disabled,next:document.querySelector('#racePreflightNext').disabled}));
   if(!arrival.open||!arrival.back||!arrival.next)fail('Starting-grid arrival navigation was not locked',arrival);
+  await ordinaryControls(page,['#racePreflightBack','#racePreflightNext'],'Starting-grid arrival controls');
   await page.locator('#racePreflight').waitFor({state:'hidden',timeout:16000});
+  await ordinaryControls(page,['#gamePacingOverlay','#gamePacingResume','#gamePacingSaveExit'],'Transition controls');
   const orbit=page.locator('.race-orbit-panel button');if(await orbit.isVisible())await orbit.click();
   if(countdownPause){
     await page.waitForFunction(()=>window.__KICKLAB_RACE_MODES_QA__?.state().phase==='count',null,{timeout:20000});
