@@ -35,8 +35,8 @@ for(const viewport of [{width:360,height:780},{width:390,height:844},{width:768,
     const state=await page.evaluate(()=>{
       const section=document.querySelector('#raceCompetition');
       const cards=[...section.querySelectorAll('.race-journey-card')].map(card=>{
-        const image=card.querySelector('img'),art=card.querySelector('.race-journey-art'),emblem=card.querySelector('.race-journey-emblem'),style=getComputedStyle(image),box=art.getBoundingClientRect(),icon=emblem?.getBoundingClientRect();
-        return{status:['earned','available','locked'].find(status=>card.classList.contains(status)),imageFilter:style.filter,imageOpacity:Number(style.opacity),imageAnimation:style.animationName,emblem:!!emblem,emblemWidth:icon?.width||0,emblemCenterOffset:icon?Math.abs((icon.left+icon.width/2)-(box.left+box.width/2)):null,textColors:['h4','p','small','.race-journey-chapter'].map(selector=>getComputedStyle(card.querySelector(selector)).color)};
+        const image=card.querySelector('img'),emblem=card.querySelector('.race-journey-emblem'),style=getComputedStyle(image),veil=getComputedStyle(card,'::before'),lock=getComputedStyle(card,'::after'),requirement=card.querySelector('.kl-unlock-requirement');
+        return{status:['earned','available','locked'].find(status=>card.classList.contains(status)),imageFilter:style.filter,imageOpacity:Number(style.opacity),imageAnimation:style.animationName,emblem:!!emblem,sharedLock:card.classList.contains('kl-locked'),componentFilter:getComputedStyle(card).filter,veil:veil.backgroundColor,lockColor:lock.backgroundColor,lockMask:lock.maskImage,requirement:requirement?.textContent||'',requirementColor:requirement?getComputedStyle(requirement).color:null,textColors:['h4','p','small','.race-journey-chapter'].map(selector=>getComputedStyle(card.querySelector(selector)).color)};
       });
       return{cards,overflow:section.scrollWidth-section.clientWidth,profileId:window.__KICKLAB_RACE_AWARDS_QA__.state().profileId};
     });
@@ -45,8 +45,8 @@ for(const viewport of [{width:360,height:780},{width:390,height:844},{width:768,
     if(JSON.stringify(statuses)!==JSON.stringify(step.expected))errors.push(`${label}: progression ${statuses.join(',')}`);
     if(state.profileId!=='progression'||state.overflow>1)errors.push(`${label}: profile or overflow ${JSON.stringify(state)}`);
     if(state.cards.some(card=>card.imageAnimation!=='none'))errors.push(`${label}: reduced motion is not static`);
-    if(state.cards.some(card=>card.status==='earned'&&!card.emblem||card.status==='available'&&card.emblem||card.status==='locked'&&(!card.emblem||card.imageOpacity>.5||!card.imageFilter.includes('grayscale(1)')||card.emblemWidth<80||card.emblemCenterOffset>2)))errors.push(`${label}: visual state contract ${JSON.stringify(state.cards)}`);
-    const minContrast=Math.min(...state.cards.flatMap(card=>card.textColors.map(color=>contrast(color,contrastBackground[card.status]))));
+    if(state.cards.some(card=>card.status==='earned'&&!card.emblem||card.status==='available'&&card.emblem||card.status==='locked'&&(card.emblem||!card.sharedLock||card.componentFilter!=='grayscale(1)'||!card.veil.includes('0.68')||!card.lockColor.includes('255, 255, 255')||!card.lockMask.includes('data:image/svg+xml')||!card.requirement||card.requirementColor!=='rgb(255, 255, 255)')))errors.push(`${label}: visual state contract ${JSON.stringify(state.cards)}`);
+    const minContrast=Math.min(...state.cards.filter(card=>card.status!=='locked').flatMap(card=>card.textColors.map(color=>contrast(color,contrastBackground[card.status]))));
     if(minContrast<4.5)errors.push(`${label}: text contrast ${minContrast.toFixed(2)}:1`);
     await page.locator('#raceCompetition').screenshot({path:join(output,`${label}.png`)});
     results.push({label,statuses,overflow:state.overflow,profileId:state.profileId,minTextContrast:+minContrast.toFixed(2)});
