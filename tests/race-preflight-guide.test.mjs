@@ -39,6 +39,9 @@ test('track and demonstrated Race clears determine beginner and practiced recomm
   assert.equal(guide.recommend('endurance',{}).parts.tires,'balanced');
   assert.equal(guide.recommend('endurance',cleared).parts.tires,'wide');
   assert.equal(guide.recommend('drift',cleared).parts.tires,'narrow');
+  assert.match(guide.recommend('marine',{}).reasons.vehicle,/damp corner/);
+  assert.match(guide.recommend('forest',cleared).reasons.brakes,/downhill braking/);
+  assert.doesNotMatch(guide.recommend('forest',{}).reasons.vehicle,/switchback/);
 });
 
 test('profile and track recomputation is read-only and never changes a selected setup',()=>{

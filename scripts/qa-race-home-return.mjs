@@ -25,7 +25,7 @@ const fail=(message,data)=>{throw Error(`${message}: ${JSON.stringify(data)}`);}
 const url=()=>{const target=new URL(base);target.searchParams.set('rev',revision);return target.toString();};
 const read=page=>page.evaluate(()=>{
   const dialog=document.querySelector('#racePreflight'),next=document.querySelector('#racePreflightNext'),box=next.getBoundingClientRect(),top=document.elementFromPoint(box.left+box.width/2,box.top+box.height/2),store=JSON.parse(localStorage.getItem('kicklab.profiles.v1')||'null'),active=store?.profiles?.find(profile=>profile.id===store.activeId),audit=window.__KICKLAB_RACE_3D__;
-  return{url:location.href,home:!document.querySelector('#modeHome').hidden,results:!document.querySelector('#results').hidden,pace:!document.querySelector('#gamePacingOverlay').hidden,preflight:!dialog.hidden,phase:[...document.querySelectorAll('#racePreflightSteps button')].findIndex(button=>button.getAttribute('aria-current')==='step'),title:document.querySelector('#racePreflightTitle').textContent,mode:document.querySelector('[data-preflight-mode][aria-pressed="true"]')?.dataset.preflightMode||null,vehicle:document.querySelector('[data-preflight-vehicle][aria-pressed="true"]')?.dataset.preflightVehicle||null,brakes:document.querySelector('[data-preflight-part="brakes"][aria-pressed="true"]')?.dataset.preflightValue||null,grid:document.querySelector('.race-preflight-grid-brief')?.innerText||'',control:document.querySelector('[data-preflight-control][aria-pressed="true"]')?.dataset.preflightControl||null,steer:document.querySelector('#racePreflightSteer')?.textContent||'',nextDisabled:next.disabled,backDisabled:document.querySelector('#racePreflightBack').disabled,nextHit:!!top?.closest('#racePreflightNext'),overflow:document.documentElement.scrollWidth-innerWidth,flags:new URLSearchParams(location.search).get('racePreflight'),preflightFlag:document.documentElement.dataset.racePreflight||null,arriving:document.documentElement.dataset.racePreflightArriving||null,profileId:store?.activeId,progress:active?.progress||{},renderer:audit?{status:audit.status,vehicle:audit.vehicle,canvas:audit.canvas}:null,runReadout:document.querySelector('#challengeHudSummary .hud-summary-cue')?.textContent||'',storageKeys:Object.keys(localStorage).sort(),qaHook:typeof window.__KICKLAB_RACE_PREFLIGHT_QA__};
+  return{url:location.href,home:!document.querySelector('#modeHome').hidden,results:!document.querySelector('#results').hidden,pace:!document.querySelector('#gamePacingOverlay').hidden,preflight:!dialog.hidden,phase:[...document.querySelectorAll('#racePreflightSteps button')].findIndex(button=>button.getAttribute('aria-current')==='step'),title:document.querySelector('#racePreflightTitle').textContent,venue:document.querySelector('[data-preflight-venue][aria-pressed="true"]')?.dataset.preflightVenue||null,mode:document.querySelector('[data-preflight-mode][aria-pressed="true"]')?.dataset.preflightMode||null,vehicle:document.querySelector('[data-preflight-vehicle][aria-pressed="true"]')?.dataset.preflightVehicle||null,brakes:document.querySelector('[data-preflight-part="brakes"][aria-pressed="true"]')?.dataset.preflightValue||null,grid:document.querySelector('.race-preflight-grid-brief')?.innerText||'',control:document.querySelector('[data-preflight-control][aria-pressed="true"]')?.dataset.preflightControl||null,steer:document.querySelector('#racePreflightSteer')?.textContent||'',nextDisabled:next.disabled,backDisabled:document.querySelector('#racePreflightBack').disabled,nextHit:!!top?.closest('#racePreflightNext'),overflow:document.documentElement.scrollWidth-innerWidth,flags:new URLSearchParams(location.search).get('racePreflight'),preflightFlag:document.documentElement.dataset.racePreflight||null,arriving:document.documentElement.dataset.racePreflightArriving||null,profileId:store?.activeId,progress:active?.progress||{},renderer:audit?{status:audit.status,vehicle:audit.vehicle,canvas:audit.canvas}:null,runReadout:document.querySelector('#challengeHudSummary .hud-summary-cue')?.textContent||'',storageKeys:Object.keys(localStorage).sort(),qaHook:typeof window.__KICKLAB_RACE_PREFLIGHT_QA__};
 });
 async function prepare(page,gfx){
   await page.addInitScript(value=>{if(!sessionStorage.getItem('kicklab.public.qa.init')){localStorage.setItem('impactlab.v1',JSON.stringify({gfx:value}));sessionStorage.setItem('kicklab.public.qa.init','1');}},gfx);
@@ -49,6 +49,7 @@ async function enter(page,input='pointer'){
 }
 async function setup(page,{mode='drag',vehicle='kestrel',brakes='sport'}={}){
   const before=(await read(page)).progress;
+  await page.locator('[data-preflight-venue="highland"]').click();
   await page.locator(`[data-preflight-mode="${mode}"]`).click();await page.click('#racePreflightNext');
   let s=await read(page);if(s.phase!==1||s.title!=='Choose your vehicle')fail('Vehicle phase missing',s);
   await page.locator(`[data-preflight-vehicle="${vehicle}"]`).click();await page.click('#racePreflightNext');
@@ -91,11 +92,12 @@ async function saveAndReturn(page,input){
   if(!await page.locator('#modeHome').isVisible())fail('Save & Exit did not reach home',await read(page));
   const after=(await read(page)).progress;
   if(JSON.stringify(before)!==JSON.stringify(after))fail('Save & Exit changed earned progress a second time',{before,after});
-  const s=await enter(page,input);if(s.mode!=='drag')fail('Return lost saved route',s);
+  const s=await enter(page,input);if(s.venue!=='highland')fail('Return lost saved venue',s);
+  await page.click('[data-preflight-venue="highland"]');
   await page.click('#racePreflightNext');const car=await read(page);
   await page.click('#racePreflightNext');const garage=await read(page);
   await page.click('#racePreflightNext');const grid=await read(page);
-  await page.click('#racePreflightBack');await page.click('#racePreflightBack');await page.click('#racePreflightBack');
+  await page.click('#racePreflightBack');await page.click('#racePreflightBack');await page.click('#racePreflightBack');await page.click('#racePreflightBack');
   if(car.vehicle!=='kestrel'||garage.brakes!=='sport'||grid.phase!==3||grid.control!=='classic'||grid.steer!=='You steer'||!grid.grid.includes('Kestrel')||!grid.grid.includes('Sport'))fail('Return lost saved car, Garage or controls',{car,garage,grid});
   return s;
 }
@@ -109,7 +111,7 @@ async function phoneExtras(page,original){
   await page.click('#racePreflightClose');await page.reload({waitUntil:'domcontentloaded'});
   if(await page.locator('#profileClose').isVisible())await page.click('#profileClose');
   await page.click('#homeProfileButton');await page.locator(`#profileList [data-profile-id="${original}"]`).click();await page.click('#profileClose');
-  const restored=await enter(page,'touch');if(restored.profileId!==original||restored.mode!=='drag'||restored.progress.raceGarage?.brakes!=='sport')fail('Reload/profile restore lost saved setup',restored);
+  const restored=await enter(page,'touch');if(restored.profileId!==original||restored.venue!=='highland'||restored.progress.raceGarage?.brakes!=='sport')fail('Reload/profile restore lost saved setup',restored);
   await page.click('#racePreflightClose');
   if(await page.locator('#racePhoneToolsToggle').isVisible())await page.click('#racePhoneToolsToggle');
   await page.click('#orientationDetailToggle');
@@ -136,7 +138,7 @@ for(const size of sizes.filter(item=>!process.env.KICKLAB_QA_SEASON_ONLY&&(!proc
     if(size.width===390||size.width===1440)await page.locator('#racePreflight').screenshot({path:join(out,`${size.width}-venue.png`)});
     await setup(page);if(size.width===390||size.width===1440)await page.locator('#racePreflight').screenshot({path:join(out,`${size.width}-grid.png`)});
     await start(page,size.gfx);await driveDrag(page,true);await saveAndReturn(page,size.input);
-    await page.click('#racePreflightNext');await page.click('#racePreflightNext');await page.click('#racePreflightNext');
+    await page.click('#racePreflightNext');await page.click('#racePreflightNext');await page.click('#racePreflightNext');await page.click('#racePreflightNext');
     await start(page,size.gfx);await driveDrag(page,false);await saveAndReturn(page,size.input);
     report.cases.push({label,passedAndFailed:true,saveAndExit:true,preservedRouteCarGarage:true,defaultOff:true,renderer:size.gfx,profile:original});
     if(size.width===390){const extra=await phoneExtras(page,original);report.cases.push({label,profileIsolation:true,reload:true,localMatchExit:true,...extra});}
@@ -150,8 +152,8 @@ if(!process.env.KICKLAB_QA_WIDTH||process.env.KICKLAB_QA_SEASON_ONLY){
     await page.click('#racePhoneToolsToggle');await page.click('#orientationDetailToggle');await page.click('#raceChampionshipToggle');
     await page.locator('[data-close-detail="orientation"]').click();
     await page.locator('#racePreflight').waitFor({state:'visible'});
-    const season=await read(page);if(season.mode!=='drag'||season.nextDisabled||season.backDisabled)fail('Championship opening event blocked preflight',season);
-    await page.click('#racePreflightNext');
+    const season=await read(page);if(season.venue!=='highland'||season.nextDisabled||season.backDisabled)fail('Championship opening event blocked preflight',season);
+    await page.click('[data-preflight-venue="highland"]');await page.click('#racePreflightNext');
     const vehicle=await read(page);if(vehicle.phase!==1||vehicle.nextDisabled||vehicle.backDisabled)fail('Championship Vehicle navigation failed',vehicle);
     await page.click('#racePreflightBack');await page.click('#racePreflightClose');
     const closed=await read(page);if(closed.preflight)fail('Championship preflight did not close',closed);

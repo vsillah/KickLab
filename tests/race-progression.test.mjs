@@ -90,3 +90,28 @@ test('repeated heats carry measured brake heat and make brake selection conseque
   assert.equal(progression.evaluate(level,second).pass,false);
   assert.ok(second.brakeFactor<first.brakeFactor,'sport brakes fade across heats');
 });
+
+test('Marine and Forest advance through distinct canonical-course events and retry the current event',()=>{
+  for(const [index,names] of [[1,['Damp Entry','Brake Consistency']],[2,['Descent Entry','Clean Left','Heat Control']]]){
+    const base=progression.LEVELS[index];
+    assert.equal(base.events.length,base.heats);
+    assert.deepEqual(Array.from(base.events,event=>event.name),names);
+    assert.equal(new Set(base.events.map(event=>[event.slide,event.entry,event.brakeFactor].join('/'))).size,base.heats);
+    let state={...progression.DEFAULT,selected:index,unlocked:index};
+    for(let eventIndex=0;eventIndex<base.heats;eventIndex++){
+      const event=progression.level(state);
+      assert.equal(event.venue,base.venue);
+      assert.equal(event.radius,base.radius);
+      assert.equal(event.grip,base.grip);
+      assert.equal(event.eventName,names[eventIndex]);
+      const failed=progression.advance(state,{ok:false,t:99,slideT:9,entryKmh:0,brakeFactor:0});
+      assert.equal(failed.state.heats,eventIndex,'a failed attempt retries the current event');
+      const passed=progression.advance(state,{ok:true,t:1,slideT:0,entryKmh:99,brakeFactor:1,brakeHeat:.4,tireHeat:.3});
+      assert.equal(passed.result.pass,true);
+      state=passed.state;
+      if(eventIndex<base.heats-1)assert.equal(state.heats,eventIndex+1);
+    }
+    assert.equal(state.unlocked,index+1);
+    assert.equal(state.heats,0);
+  }
+});

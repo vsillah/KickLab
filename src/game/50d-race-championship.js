@@ -23,7 +23,7 @@ function raceChampionshipLiveCue(){const event=RACE_CHAMP.EVENTS[RACE_CHAMP_UI.s
 
 if(RACE_CHAMP_ON)document.documentElement.dataset.raceChampionship='prototype';
 function raceChampionshipMode(){return RACE_CHAMP_UI.active?RACE_CHAMP.EVENTS[RACE_CHAMP_UI.selected].mode:null;}
-function raceChampionshipReset(skipOrbit=false){const viewed=RACE_3D.orbit.done;Race.reset();if(viewed||skipOrbit){RACE_3D.orbit.phase='done';RACE_3D.orbit.done=true;}}
+function raceChampionshipReset(skipOrbit=false){const viewed=RACE_3D.orbit.done;if(best.raceVenue!=='highland'){Race.opt.venue='highland';Race.V.mu=Race.highlandVars?.mu||.9;Race.V.R=Race.highlandVars?.R||32;}Race.reset();if(viewed||skipOrbit){RACE_3D.orbit.phase='done';RACE_3D.orbit.done=true;}}
 function raceChampionshipStopGhost(){if(RACE_CHAMP_UI.timer)clearInterval(RACE_CHAMP_UI.timer);RACE_CHAMP_UI.timer=null;$('#raceChampionshipGhost').hidden=true;}
 document.addEventListener('visibilitychange',()=>{if(document.hidden)raceChampionshipStopGhost();else if(RACE_CHAMP_UI.active&&M===Race&&!RACE_CHAMP_UI.timer)RACE_CHAMP_UI.timer=setInterval(raceChampionshipGhostTick,180);});
 function raceChampionshipExit({preserveResult=false}={}){if(!RACE_CHAMP_UI.active)return;RACE_CHAMP_UI.active=false;RACE_CHAMP_UI.last=null;raceChampionshipStopGhost();Race.loadGarage();if(M===Race&&!preserveResult){Race.reset();renderAll(false);}renderRaceChampionship();renderRaceMultiplayer();}
