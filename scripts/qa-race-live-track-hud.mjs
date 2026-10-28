@@ -23,7 +23,7 @@ const report={scriptHead:git('rev-parse','HEAD'),binding,cases:[],errors:[],egre
 const assert=(ok,message,detail)=>{if(!ok)throw Error(`${message}: ${JSON.stringify(detail)}`);};
 async function sample(page){return page.evaluate(()=>{
   const $=id=>document.querySelector(id),rect=id=>$(id)?.getBoundingClientRect().toJSON(),nav=$('#raceNavigation');
-  return{visible:!!nav&&!nav.hidden,stage:nav?.dataset.stage||'',turn:nav?.dataset.turn||'',label:nav?.getAttribute('aria-label')||'',mapLabel:$('#raceNavigationMap')?.getAttribute('aria-label')||'',progress:$('#raceNavigationProgress')?.textContent||'',lap:$('#raceNavigationProgressLabel')?.textContent||'',car:$('#raceNavigationCar')?.getAttribute('transform')||'',paths:Object.fromEntries(['Road','Travel','Brake','Turn','Apex','Exit','Finish'].map(name=>[name,{d:$(`#raceNavigation${name}`)?.getAttribute('d')||'',hidden:!!$(`#raceNavigation${name}`)?.hidden}])),navRect:rect('#raceNavigation'),mapRect:rect('#raceNavigationMap'),stageRect:rect('.stage'),progressRect:rect('#racePhoneProgress'),noticeRect:$('#raceCoachNotice')?.hidden?null:rect('#raceCoachNotice'),historyCount:Number($('#raceCoachHistoryCount')?.textContent)||0,history:$('#raceCoachHistoryList')?.textContent||'',vehicle:$('#raceCoachSetupVehicleName')?.textContent||'',control:$('#analogControlsButton')?.getAttribute('aria-pressed')==='true'?'analog':$('#simulatorControlsButton')?.getAttribute('aria-pressed')==='true'?'simulator':'classic',webgl:!!$('#race3')&&!$('#race3').hidden,canvas:$('.stage canvas')?.getBoundingClientRect().toJSON(),overflow:document.documentElement.scrollWidth-innerWidth,storage:Object.keys(localStorage).sort(),qaHook:typeof window.__KICKLAB_RACE_ENGINE_QA__};
+  return{visible:!!nav&&!nav.hidden,stage:nav?.dataset.stage||'',turn:nav?.dataset.turn||'',label:nav?.getAttribute('aria-label')||'',mapLabel:$('#raceNavigationMap')?.getAttribute('aria-label')||'',progress:$('#raceNavigationProgress')?.textContent||'',lap:$('#raceNavigationProgressLabel')?.textContent||'',car:$('#raceNavigationCar')?.getAttribute('transform')||'',paths:Object.fromEntries(['Road','Travel','Brake','Turn','Apex','Exit','Finish'].map(name=>[name,{d:$(`#raceNavigation${name}`)?.getAttribute('d')||'',hidden:!!$(`#raceNavigation${name}`)?.hidden}])),navRect:rect('#raceNavigation'),mapRect:rect('#raceNavigationMap'),stageRect:rect('.stage'),progressRect:rect('#racePhoneProgress'),noticeRect:$('#raceCoachNotice')?.hidden?null:rect('#raceCoachNotice'),historyCount:Number($('#raceCoachHistoryCount')?.textContent)||0,history:$('#raceCoachHistoryList')?.textContent||'',telemetry:$('#raceTelemetryPhase')?.textContent||'',vehicle:$('#raceCoachSetupVehicleName')?.textContent||'',control:$('#analogControlsButton')?.getAttribute('aria-pressed')==='true'?'analog':$('#simulatorControlsButton')?.getAttribute('aria-pressed')==='true'?'simulator':'classic',webgl:!!$('#race3')&&!$('#race3').hidden,canvas:$('.stage canvas')?.getBoundingClientRect().toJSON(),overflow:document.documentElement.scrollWidth-innerWidth,storage:Object.keys(localStorage).sort(),qaHook:typeof window.__KICKLAB_RACE_ENGINE_QA__};
 });}
 function check(state,mode){
   assert(state.visible&&state.paths.Road.d.startsWith('M')&&state.paths.Finish.d.startsWith('M'),'Route absent',state);
@@ -79,11 +79,33 @@ async function runCase({width,height,flag=true,mode='hill',vehicle='cobalt',cont
     }
     const imageA=hash(await page.locator('.stage').screenshot({path:join(out,`${name}-start.png`)}));
     const observations=[];
-    if(drive){await page.locator('.stage').focus();await page.keyboard.down('Space');for(let i=0;i<14;i++){await page.waitForTimeout(1200);const state=await sample(page);if(!state.visible)break;observations.push({stage:state.stage,turn:state.turn,progress:state.progress,lap:state.lap,car:state.car,historyCount:state.historyCount,label:state.label});}await page.keyboard.up('Space');assert(observations.some(state=>state.car!==first.car&&state.progress!==first.progress),'Real input did not move car and progress',observations);assert(observations.some(state=>state.historyCount>first.historyCount),'Coach did not transition with route',observations);if(mode==='hill')assert(new Set(observations.map(state=>state.stage)).size>=2,'Corner timing did not transition',observations);if(mode==='circuit')assert(observations.some(state=>state.lap.startsWith('LAP')),'Lap label absent',observations);}
+    if(drive){
+      await page.locator('.stage').focus();
+      const circuit=mode==='circuit',steps=circuit?120:14;
+      if(!circuit)await page.keyboard.down('Space');
+      for(let i=0;i<steps;i++){
+        const before=await sample(page);
+        if(circuit){
+          const speed=Number(before.label.match(/Current speed (\d+)/)?.[1]||0);
+          const bend=['brake','turn','apex'].includes(before.stage);
+          if(bend&&speed>68)await page.keyboard.press('b',{delay:550});
+          else if(speed<(bend?54:92))await page.keyboard.press('Space',{delay:550});
+          else await page.waitForTimeout(550);
+        }else await page.waitForTimeout(1200);
+        const state=await sample(page);if(!state.visible)break;
+        observations.push({stage:state.stage,turn:state.turn,progress:state.progress,lap:state.lap,car:state.car,historyCount:state.historyCount,history:state.history,telemetry:state.telemetry,label:state.label});
+        if(circuit&&state.lap==='LAP 2/2'&&Number.parseInt(state.progress)<20)break;
+      }
+      if(!circuit)await page.keyboard.up('Space');
+      assert(observations.some(state=>state.car!==first.car&&state.progress!==first.progress),'Real input did not move car and progress',observations);
+      assert(observations.some(state=>state.historyCount>first.historyCount),'Coach did not transition with route',observations);
+      if(mode==='hill')assert(new Set(observations.map(state=>state.stage)).size>=2,'Corner timing did not transition',observations);
+      if(circuit)assert(observations.some(state=>state.lap==='LAP 2/2')&&observations.some((state,index)=>index>0&&Number.parseInt(observations[index-1].progress)>80&&Number.parseInt(state.progress)<20),'Circuit did not wrap into lap 2',observations.map(state=>({progress:state.progress,lap:state.lap,stage:state.stage,label:state.label})));
+    }
     const last=await sample(page),imageB=hash(await page.locator('.stage').screenshot({path:join(out,`${name}-end.png`)}));
     if(drive)assert(imageA!==imageB,'Rendered stage static',name);if(last.visible)check(last,mode);
     if(name==='flag-hill-cobalt-classic-390'){await page.locator('.stage').focus();await page.keyboard.press('p');assert(await page.locator('#gamePacingOverlay').isVisible(),'Pause absent');await page.locator('#gamePacingResume').click();assert(!await page.locator('#gamePacingOverlay').isVisible(),'Pause recovery');const beforeHide=(await sample(page)).progress;await page.evaluate(()=>window.dispatchEvent(new Event('pagehide')));await page.waitForTimeout(600);assert((await sample(page)).progress===beforeHide,'Lifecycle retained route motion');}
-    const durationMs=Date.now()-started;assert(durationMs<45000,'Performance budget exceeded',durationMs);
+    const durationMs=Date.now()-started;assert(durationMs<(mode==='circuit'?110000:45000),'Performance budget exceeded',durationMs);
     report.cases.push({name,url:url.toString(),first:{stage:first.stage,progress:first.progress,car:first.car,historyCount:first.historyCount,canvas:first.canvas},last:{stage:last.stage,progress:last.progress,car:last.car,historyCount:last.historyCount},observations,imageA,imageB,requests,durationMs});
   }catch(error){const debug=await page.evaluate(()=>({preflight:document.querySelector('#racePreflight')?.hidden,orbit:document.querySelector('.race-orbit-panel')?.hidden,start:document.querySelector('#raceCoachSetupStart')?.hidden,nav:document.querySelector('#raceNavigation')?.hidden,overlay:document.querySelector('#gamePacingOverlay')?.hidden,stage:document.querySelector('.stage')?.className,body:document.body.innerText.slice(-800)})).catch(()=>null);report.errors.push(`${name}: ${error.stack||error}; debug=${JSON.stringify(debug)}`);console.error(`FAIL ${name}: ${error.message}; debug=${JSON.stringify(debug)}`);}finally{await context.close();console.log(`END ${name}`);}
 }
