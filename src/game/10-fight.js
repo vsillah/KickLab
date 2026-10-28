@@ -258,8 +258,8 @@ const Fight={
   drawFighter(c){const R=this.rig(),P=R.P,t=R.t,J=R.J,gr=this.gloveR(),guard=R.guard,punching=!guard,fist=R.fist;
     c.save();this.meFall(c);c.translate(this.meX,0);
     const armFront=!guard&&t!=='jab'&&P.pp>0.12;
-    const A=GAME_CORE.playerAppearance('you');
-    RIG.side(c,J,{u:150,skin:A.skin,hair:A.hair,hairStyle:A.hairStyle,eye:A.eye,brow:A.brow,mouth:A.mouth,kit:A.kit,accent:A.accent,shorts:A.shorts,sock:A.socks,boot:{color:'#10192d',accent:C.hot,sole:'flat',soleColor:'#e8eef9'},band:C.hot,belt:C.hot,glove:gr?gr*0.95:0,gloveCol:styleCol('fight'),armFront,chest:22,olw:2.4,headR:20});
+    const A=globalThis.KickLabProfileAvatarArt.gameplay(profileManager.active().avatar,'fight');
+    RIG.side(c,J,{u:150,skin:A.skin,hair:A.hair,hairStyle:A.hairStyle,eye:A.eye,brow:A.brow,mouth:A.mouth,face:A.face,glasses:A.glasses,freckles:A.freckles,kit:A.kit,accent:A.accent,shorts:A.shorts,sock:A.socks,sleeve:false,boot:{color:'#10192d',accent:A.accent,sole:'flat',soleColor:'#e8eef9'},belt:A.accent,glove:gr?gr*0.95:0,gloveCol:styleCol('fight'),armFront,chest:22*A.build,olw:2.4,headR:20});if(new URLSearchParams(location.search).get('qa')==='gameplay-identity-parity')window.__KICKLAB_FIGHT_IDENTITY_AUDIT__={avatar:A.avatar,skin:A.skin,hair:A.hairStyle,kit:A.kit,build:A.build,gear:'boxing-training'};
     if(punching&&this.state==='swing'&&this.p>0.2){const Fp=t==='jab'?J.haF:J.haR,L=Math.hypot(fist.dx,fist.dy)||1;c.save();c.strokeStyle='rgba(232,238,249,0.35)';c.lineWidth=2;for(let i=0;i<3;i++){const o=(i-1)*7;line(c,Fp.x-fist.dx/L*(30+i*8)-fist.dy/L*o,Fp.y-fist.dy/L*(30+i*8)+fist.dx/L*o,Fp.x-fist.dx/L*14-fist.dy/L*o,Fp.y-fist.dy/L*14+fist.dx/L*o);}c.restore();}
     if(guard){c.strokeStyle='rgba(127,220,255,0.8)';c.lineWidth=3;glow(c,C.xray,12);c.beginPath();c.arc(456+P.dx,208+P.dy,42,-1.1,1.1);c.stroke();c.shadowBlur=0;}
     c.restore();},

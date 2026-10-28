@@ -11,7 +11,7 @@ mkdirSync(out,{recursive:true});
 const browser=await chromium.launch({headless:true,executablePath:[process.env.KICKLAB_CHROMIUM_PATH,chromium.executablePath(),'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find(path=>path&&existsSync(path))});
 const report={head,base,checks:[],errors:[],external:[],videos:[]};
 const viewports=[['phone',390,844,'touch'],['tablet',768,1024,'keyboard'],['laptop',1113,834,'pointer'],['desktop',1440,900,'pointer']];
-const portraitPath=(lab,id)=>lab==='race'?`assets/drivers/v2/${id}.webp`:`assets/players/v1/${lab}/${id}.webp`;
+const portraitPath=(lab,id)=>lab==='race'?`assets/drivers/v2/${id}.webp`:`assets/players/${lab==='fight'?'v2':'v1'}/${lab}/${id}.webp`;
 async function inspect(page,selector,expected){
   const image=page.locator(`${selector} .driver-avatar-image`).first();
   await image.waitFor({state:'attached'});
