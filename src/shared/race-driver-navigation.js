@@ -11,7 +11,7 @@
     function curvature(distance){const a=at(distance-4),b=at(distance+4),cross=a.tx*b.ty-a.ty*b.tx,dot=a.tx*b.tx+a.ty*b.ty;return Math.atan2(cross,dot)/8;}
     return{points,lengths,total,closed,at,nearest,curvature};
   }
-  function plan({route:r,state:s,parameters:P,mode,grip,heat=0,brakeFactor=1,telemetry,input={},attempt}){
+  function plan({route:r,state:s,parameters:P,mode,grip,heat=0,brakeFactor=1,telemetry,input={},attempt,previousStage}){
     const here=r.nearest(s.x,s.y),progress=here.progress,speed=Math.max(0,s.v||0),isDrag=mode==='drag',isDrift=mode==='drift',origin=r.closed?0:r.nearest(4,0).progress,routeFraction=clamp((progress-origin)/Math.max(1,r.total-origin),0,1);
     if(isDrag){const finish=Math.max(0,(attempt?.distance||240)-s.x),shift=root.KickLabRaceModes?.shiftDisplay(attempt?.gear||1,speed,P.top),stage=finish<Math.max(20,speed*2)?'finish':shift?.timing==='optimal'?'shift':'prepare';return{stage,detail:stage==='finish'?`Finish in ${Math.round(finish)} metres.`:stage==='shift'?`Gear ${attempt?.gear||1}: shift in the bright band.`:'Build speed and watch the shift band.',progress:clamp(s.x/Math.max(1,attempt?.distance||240),0,1),lap:1,laps:1,heading:s.th||0,car:{x:s.x,y:s.y},markers:{},turn:'none',severity:'none',targetSpeed:0,brakeDistance:0,distance:finish,route:r};}
     const lookahead=mode==='circuit'?115:160,step=3;
@@ -35,7 +35,8 @@
     const distance=apex.offset,entryDistance=apex.entryOffset,brakeAt=apex.entry-brakeDistance-turnIn-3,turnAt=apex.entry-turnIn,exitAt=apex.distance+Math.max(12,speed*.55);
     const angleError=Math.atan2(Math.sin(Math.atan2(r.at(progress+3).ty,r.at(progress+3).tx)-(s.th||0)),Math.cos(Math.atan2(r.at(progress+3).ty,r.at(progress+3).tx)-(s.th||0)));
     const missed=distance<8&&speed>targetSpeed*1.15||Math.abs(s.e||0)>5.5;
-    let stage='prepare';if(recovery)stage='recover';else if(distance<-8)stage=Math.abs(angleError)<.2&&slip<.13&&speed<=targetSpeed*1.08?'accelerate':'turn';else if(Math.abs(distance)<=8)stage=missed?'brake':'apex';else if(entryDistance<=turnIn+3)stage=speed>targetSpeed*1.08?'brake':'turn';else if(entryDistance<=brakeDistance+turnIn+3&&speed>targetSpeed*1.04)stage='brake';
+    const needsBrake=speed>targetSpeed*(previousStage==='brake'?.99:1.06),brakeWindow=brakeDistance+turnIn+3+(previousStage==='brake'?12:0);
+    let stage='prepare';if(recovery)stage='recover';else if(distance<-8)stage=Math.abs(angleError)<.2&&slip<.13&&speed<=targetSpeed*1.08?'accelerate':'turn';else if(Math.abs(distance)<=8)stage=missed?'brake':'apex';else if(entryDistance<=turnIn+3)stage=needsBrake?'brake':'turn';else if(entryDistance<=brakeWindow&&needsBrake)stage='brake';
     // Hold the apex cue through its short window. Acceleration is offered only after
     // the apex, when heading, slip, and speed agree with the route.
     const turn=apex.k>=0?'left':'right',severity=radius<35?'sharp':radius<75?'medium':'gentle';
