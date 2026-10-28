@@ -133,7 +133,7 @@ for(const size of sizes.filter(item=>!process.env.KICKLAB_QA_WIDTH||String(item.
     if(returned.profileId!==before.profileId||returned.mode!=='drag'||returned.vehicle!=='kestrel'||returned.garage.brakes!=='sport'||returned.control!=='analog'||returned.steer!=='auto'||returned.phase!=='grid'||score(returned.progress)!==score(before.progress))fail('Reload and re-entry lost setup or restored stale run',{before,returned});
     report.cases.push({label,passed:true,visual,second,profile:returned.profileId,scoreUnchanged:true,renderer:returned.renderer,domContentLoadedMs:navigation});
     if(size.width===1113){await page.waitForTimeout(1100);await page.screenshot({path:join(out,`pause-return-${head.slice(0,8)}.png`)});}
-  }catch(error){report.errors.push(`${label}: ${error.stack||String(error)}`);}
+  }catch(error){const diagnostic=await page.evaluate(()=>({home:!document.querySelector('#modeHome').hidden,preflight:!document.querySelector('#racePreflight').hidden,game:!document.querySelector('#game-cockpit').hidden,profile:!document.querySelector('#profileDialog').hidden,pacing:!document.querySelector('#gamePacingOverlay').hidden,renderer:window.__KICKLAB_RACE_3D__?.status,orbit:window.__KICKLAB_RACE_3D__?.orbit,phase:window.__KICKLAB_RACE_MODES_QA__?.state()?.phase})).catch(()=>null);report.errors.push(`${label}: ${error.stack||String(error)}; state=${JSON.stringify(diagnostic)}`);}
   const video=page.video();
   await context.close();
   if(video&&size.width===1113&&!report.errors.some(error=>error.startsWith(label))){
