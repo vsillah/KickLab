@@ -139,7 +139,7 @@ function raceCoachCueAction(trigger){
   toast('Coach Nia',message,{action:'Garage & tuning',hold:30000,onAction:()=>{GARAGE_UI.active=Race.expansionActive()?Race.mode().preferred:RACE_PROGRESSION.category(Race.progressionOutcome?.failed||[])||'tires';GARAGE_UI.returnToRaceRetry=['done','crashed'].includes(Race.state);openSettings('garage',trigger);}});
 }
 for(const id of ['raceTelemetryCue','raceNavigationCue'])$('#'+id).addEventListener('click',event=>raceCoachCueAction(event.currentTarget));
-let raceNavigationAt=0,raceNavigationGauge='';
+let raceNavigationAt=0,raceNavigationGauge='',raceNavigationRouteKey='',raceNavigationRoute=null;
 function raceVisorPath(width,height,contentHeight,wingRight,phone){
   const w=width,h=height,r=14;
   if(phone){const shoulder=Math.min(contentHeight-8,h-29),tip=Math.max(86,wingRight-8);return `path("M 0 ${r} Q 0 0 ${r} 0 L ${w-r} 0 Q ${w} 0 ${w} ${r} L ${w} ${shoulder} C ${w} ${shoulder+14}, ${w-11} ${h} ${w-27} ${h} L ${tip+12} ${h} Q ${tip} ${h} ${tip} ${h-12} Q ${tip-16} ${h-23} 0 ${h-23} Z")`;}
@@ -150,8 +150,8 @@ function renderRaceNavigation({gauge,value,unit,fraction,phase,cue}){
   const panel=$('#raceNavigation'),cockpit=$('#raceCockpit');panel.hidden=!(RACE_CORNER_TRACE.enabled&&Race.state==='run'&&!RP.on&&!RACE_3D.shouldBlockInput());cockpit.hidden=panel.hidden;if(panel.hidden){if(globalThis.__KICKLAB_RACE_NAVIGATION__)globalThis.__KICKLAB_RACE_NAVIGATION__.visible=false;return;}
   const now=performance.now();if(now-raceNavigationAt<90&&gauge===raceNavigationGauge)return;raceNavigationAt=now;raceNavigationGauge=gauge;
   const navScale=(cv.clientWidth||960)/960,phone=cv.clientWidth<=480,left=8;
-  const width=phone?cv.clientWidth-16:Math.round(Math.min(390,Math.max(205,215+(cv.clientWidth-356)*.18)));
-  const contentHeight=phone?80:Math.max(88,Math.round((Race.WH.y-Race.WH.r)*navScale));
+  const width=phone?cv.clientWidth-16:Math.round(Math.min(460,Math.max(340,245+(cv.clientWidth-356)*.22)));
+  const contentHeight=phone?108:Math.max(94,Math.round((Race.WH.y-Race.WH.r)*navScale));
   const wheelX=Race.WH.x*navScale,wheelY=(Race.WH.y+(phone?104:0))*navScale,wheelRadius=Race.WH.r*(phone?1.5:1)*navScale;
   const progress=$('#racePhoneProgress').getBoundingClientRect(),stage=$('.stage').getBoundingClientRect();
   const top=Math.ceil(progress.top-stage.top+Math.max(progress.height,phone?52:44)+6);
@@ -175,33 +175,32 @@ function renderRaceNavigation({gauge,value,unit,fraction,phase,cue}){
   $('#raceNavigationGaugeFill').style.width=`${Math.round(fraction*100)}%`;
   const compactCue={RPM:'Hold RPM band.',Torque:'Feed throttle.',NOS:'Release a pulse.','Engine heat':'Watch temperature.',Brakes:'Brake early.','Drift angle':'Hold modest angle.','Grip recovery':'Unwind to recover.'},thermal=RACE_TELEMETRY.thermalStage(Race.telemetry),thermalCue={warming:'Engine warming.',hot:'Hot. Ease off.',critical:'Critical. Lift now.','power-loss':'Power low. Keep lifting.',cooling:Race.telemetry.phase==='recovered'?'Cooled. Power back.':'Cooling. Keep airflow.'};
   const navigationCue=$('#raceNavigationCue');navigationCue.textContent=`${RACE_COACH_PERSONAS.enabled?raceCoachName().split(' ')[1]:'Nia'}: ${matchMedia('(max-width:980px)').matches?(thermalCue[thermal]||compactCue[gauge]||cue):cue}`;navigationCue.disabled=!(Race.progressionActive()||Race.expansionActive());navigationCue.title=navigationCue.disabled?'Coach details open with Race progression or expansion.':cue;navigationCue.setAttribute('aria-label',navigationCue.disabled?`${navigationCue.textContent}. Details unavailable in this Race mode.`:$('#raceTelemetryCue').getAttribute('aria-label'));
-  const prediction=Race.cornerTracePrediction||RACE_CORNER_TRACE.predict();if(!prediction)return;
-  const P=Race.P(),venue=RACE_SYSTEMS.venue(Race.opt.venue),car=Race.st,heading=car.th||0;
-  const local=p=>{const dx=p.x-car.x,dy=p.y-car.y;return{forward:dx*Math.cos(heading)+dy*Math.sin(heading),side:-dx*Math.sin(heading)+dy*Math.cos(heading)};};
-  const end=prediction.points.at(-1),target={x:P.L+P.R,y:venue.turn*P.R},targetLocal=local(target);
-  const distance=Math.max(34,targetLocal.forward+8),mapScale=Math.min(64/distance,24/Math.max(8,Math.abs(targetLocal.side)));
-  const xy=p=>{const q=local(p);return`${Math.max(4,Math.min(156,80+q.side*mapScale*2.4)).toFixed(1)} ${Math.max(7,Math.min(80,77-q.forward*mapScale)).toFixed(1)}`;};
-  const sampled=prediction.points.filter((_,index)=>index%3===0||index===prediction.points.length-1);
-  const road=RACE_3D.trackPoints(P).map(point=>({x:point.x,y:point.z})).filter(point=>{const ahead=local(point).forward;return ahead>=-2&&ahead<=distance+5;});
-  $('#raceNavigationRoad').setAttribute('d',road.map((point,index)=>`${index?'L':'M'} ${xy(point)}`).join(' '));
-  const finish=Race.finishPoint(),finishAhead=local(finish).forward,finishLine=$('#raceNavigationFinish');
-  const showFinish=finishAhead>=-2&&finishAhead<=distance+5;
-  finishLine.setAttribute('d',showFinish?`M ${xy({x:finish.x+Race.HW*.82,y:finish.y})} L ${xy({x:finish.x-Race.HW*.82,y:finish.y})}`:'');
-  $('#raceNavigationTrace').setAttribute('d',sampled.map((point,index)=>`${index?'L':'M'} ${xy(point)}`).join(' '));
-  const [tx,ty]=xy(target).split(' ');$('#raceNavigationTarget').setAttribute('cx',tx);$('#raceNavigationTarget').setAttribute('cy',ty);
-  $('#raceNavigationCar').setAttribute('transform','translate(80 77)');
-  const error=RACE_SYSTEMS.path(end.x,end.y,P,venue).e,current=Math.round(Race.curWheel()),needed=Math.round(Race.needW()*venue.turn),state=prediction.state;
-  $('#raceNavigationError').textContent=`Δ ${error>=0?'+':''}${error.toFixed(1)} m`;
-  $('#raceSteeringCurrent').textContent=`Current ${current}°`;
-  $('#raceSteeringNeeded').textContent=`Needed ${needed}°`;
-  $('#raceSteeringCurrentTick').style.left=`${Math.max(7,Math.min(93,50+current*.46))}%`;
-  $('#raceSteeringNeededTick').style.left=`${Math.max(7,Math.min(93,50+needed*.46))}%`;
-  const selected=RACE_CORNER_TRACE.variable(),selectedValue=Race.V[selected.id];
-  $('#raceNavigationStatus').textContent=`${selected.name.split(' (')[0]} ${selected.sym} ${fmt(selectedValue,selected.d)}${selected.unit?' '+selected.unit:''}`;
-  $('#raceNavigationStatus').title=`${$('#raceNavigationStatus').textContent} · ${{safe:'Safe line',understeer:'Understeer',oversteer:'Oversteer'}[state]}`;
-  panel.dataset.state=state;
-  panel.setAttribute('aria-label',`Race cockpit. ${gauge} ${value} ${unit}. ${phase}. Car, predicted path, ${showFinish?'finish line, ':''}and target exit corridor. Current steering ${current} degrees. Needed steering ${needed} degrees. Projected signed line error ${error>=0?'plus':'minus'} ${Math.abs(error).toFixed(1)} metres. ${state}. Coach Nia: ${cue}`);
-  globalThis.__KICKLAB_RACE_NAVIGATION__={current,needed,error,state,target,endpoint:end,finish,finishVisible:showFinish,gauge,value,unit,visible:true};
+  const P=Race.P(),car=Race.st,mode=Race.expansionActive()?Race.mode().id:'hill',closed=P.expansionCourse==='oval',finish=Race.finishPoint();
+  const routeKey=[mode,Race.opt.venue,P.L,P.R,finish.x,finish.y].join(':');
+  if(routeKey!==raceNavigationRouteKey){const full=KickLabRaceDriverNavigation.route(RACE_3D.trackPoints(P),closed);if(closed)raceNavigationRoute=full;else{const startProgress=full.nearest(4,0).progress,finishProgress=full.nearest(finish.x,finish.y).progress,trimmed=[full.at(startProgress),...full.points.filter((_,i)=>full.lengths[i]>startProgress&&full.lengths[i]<finishProgress),full.at(finishProgress)];raceNavigationRoute=KickLabRaceDriverNavigation.route(trimmed,false);}raceNavigationRouteKey=routeKey;}
+  const route=raceNavigationRoute;
+  const venue=RACE_SYSTEMS.venue(Race.opt.venue),grip=RACE_SYSTEMS.grip(car,P,venue),brakeFactor=car.garageBrakeFactor||P.brakePower||1;
+  const nav=KickLabRaceDriverNavigation.plan({route,state:car,parameters:P,mode,grip,heat:Race.telemetry.heat,brakeFactor,telemetry:Race.telemetry,input:Race.inp,attempt:Race.modeAttempt});
+  const bounds=route.points.reduce((b,p)=>({minX:Math.min(b.minX,p.x),maxX:Math.max(b.maxX,p.x),minY:Math.min(b.minY,p.y),maxY:Math.max(b.maxY,p.y)}),{minX:Infinity,maxX:-Infinity,minY:Infinity,maxY:-Infinity});
+  const scale=Math.min(145/Math.max(1,bounds.maxX-bounds.minX),68/Math.max(1,bounds.maxY-bounds.minY));
+  const ox=80-(bounds.minX+bounds.maxX)*scale/2,oy=43+(bounds.minY+bounds.maxY)*scale/2;
+  const xy=p=>[ox+p.x*scale,oy-p.y*scale];
+  const point=p=>xy(p).map(n=>n.toFixed(1)).join(' ');
+  $('#raceNavigationRoad').setAttribute('d',route.points.map((p,i)=>`${i?'L':'M'} ${point(p)}`).join(' '));
+  const traveled=route.points.filter((_,i)=>route.lengths[i]<=(nav.routeProgress??nav.progress*route.total));traveled.push(route.at(nav.routeProgress??nav.progress*route.total));
+  $('#raceNavigationTravel').setAttribute('d',traveled.map((p,i)=>`${i?'L':'M'} ${point(p)}`).join(' '));
+  const finishLine=$('#raceNavigationFinish'),finishPoint=route.at(route.total),normal={x:-finishPoint.ty,y:finishPoint.tx};
+  finishLine.setAttribute('d',`M ${point({x:finish.x+normal.x*Race.HW*.65,y:finish.y+normal.y*Race.HW*.65})} L ${point({x:finish.x-normal.x*Race.HW*.65,y:finish.y-normal.y*Race.HW*.65})}`);
+  for(const [name,id] of [['brake','raceNavigationBrake'],['turn','raceNavigationTurn'],['apex','raceNavigationApex'],['exit','raceNavigationExit']]){const node=$('#'+id),marker=nav.markers[name];node.hidden=!marker;if(marker){const [x,y]=xy(marker);node.setAttribute('cx',x.toFixed(1));node.setAttribute('cy',y.toFixed(1));}}
+  const [cx,cy]=xy(nav.car);$('#raceNavigationCar').setAttribute('transform',`translate(${cx.toFixed(1)} ${cy.toFixed(1)}) rotate(${(90-nav.heading*180/Math.PI).toFixed(1)})`);
+  const labels={prepare:'PREPARE',brake:'BRAKE',turn:'TURN',apex:'APEX',accelerate:'GO',recover:'RECOVER',shift:'SHIFT',finish:'FINISH'},icons={prepare:'◌',brake:'▮▮',turn:nav.turn==='left'?'↶':'↷',apex:'◇',accelerate:'↗',recover:'↺',shift:'⇧',finish:'⚑'};
+  $('#raceNavigationStage').textContent=labels[nav.stage];$('#raceNavigationTurnCue').textContent=icons[nav.stage];$('#raceNavigationTurnCue').setAttribute('aria-label',`${nav.turn} ${nav.severity} turn, ${labels[nav.stage].toLowerCase()}`);
+  $('#raceNavigationDistance').textContent=nav.stage==='finish'?`${Math.round(nav.distance)} m`:nav.turn==='none'?'STRAIGHT':nav.distance<0?'EXIT':`${nav.severity.toUpperCase()} · ${Math.round(nav.distance)} m`;
+  $('#raceNavigationProgressLabel').textContent=nav.laps>1?`LAP ${nav.lap}/${nav.laps}`:'ROUTE';$('#raceNavigationProgress').textContent=`${Math.round(nav.progress*100)}%`;
+  $('#raceNavigationStatus').textContent=nav.stage==='recover'?'GRIP RECOVERY':`${Math.round(car.v*3.6)} / ${Math.round(nav.targetSpeed*3.6)} km/h`;
+  navigationCue.textContent=RACE_COACH_PERSONAS.enabled?raceCoachName().split(' ')[1]:'Nia';navigationCue.title=nav.detail;navigationCue.setAttribute('aria-label',`${raceCoachName()}. ${nav.detail} Open Coach history and plan.`);
+  panel.dataset.stage=nav.stage;panel.dataset.turn=nav.turn;panel.setAttribute('aria-label',`Race driver navigation. ${nav.laps>1?`Lap ${nav.lap} of ${nav.laps}`:'Route'} ${Math.round(nav.progress*100)} percent. ${nav.detail} Current speed ${Math.round(car.v*3.6)} kilometres per hour. ${gauge} ${value} ${unit}.`);
+  globalThis.__KICKLAB_RACE_NAVIGATION__={stage:nav.stage,turn:nav.turn,severity:nav.severity,distance:nav.distance,targetSpeed:nav.targetSpeed,brakeDistance:nav.brakeDistance,progress:nav.progress,lap:nav.lap,laps:nav.laps,grip:nav.grip,detail:nav.detail,finish,finishVisible:true,gauge,value,unit,visible:true};
 }
 if(RACE_CORNER_TRACE.enabled)globalThis.__KICKLAB_RACE_START_FINISH_QA__={
   useCanvas(){best.gfx='2d';},
