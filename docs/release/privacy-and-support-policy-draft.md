@@ -1,5 +1,7 @@
 # KickLab privacy, deletion, and support policy — draft
 
+**Current-main review, 2026-10-28:** At `fca347dc187ef513ec5d127c49cc839082a698ac`, the complete in-app deletion path is still absent and the separate Race highlight action still invokes `navigator.share`. The new Fight/Kick outfits and Marine/Forest preview media are bundled locally; they do not by themselves establish network collection. This draft remains unpublished. See [Phase 2 continuation](phase2-current-main-continuation.md) and [product briefs](phase2-product-remediation-briefs.md).
+
 **Internal draft, 2026-10-28. Do not publish until the bracketed fields and evidence gates are resolved.** Applies to the proposed paid-upfront mobile game for ages 9–15. The legal developer is **[confirm legal entity]** and the support contact is **[confirm guardian-facing address and policy URL]**.
 
 ## What the game keeps
