@@ -12,9 +12,24 @@ test('stable legacy IDs select five distinct bounded local portrait assets',()=>
     assert.equal(data.toString('ascii',0,4),'RIFF');
     assert.equal(data.toString('ascii',8,12),'WEBP');
     assert.ok(statSync(path).size<70_000,`${id} exceeds mobile portrait budget`);
-    assert.match(art.description(null,id),/driver in a racing suit/);
+    assert.match(art.description(null,id),/player in racing suit/);
   }
   assert.equal(art.asset('../../elsewhere'),'assets/drivers/v2/rocket.webp');
+});
+
+test('every existing player identity has complete local Fight, Race, and Kick wardrobes',()=>{
+  assert.deepEqual(art.labs,['fight','race','kick']);
+  for(const lab of art.labs){
+    assert.equal(new Set(ids.map(id=>art.asset(id,lab))).size,ids.length);
+    for(const id of ids){
+      const path=`src/${art.asset(id,lab)}`,data=readFileSync(path);
+      assert.equal(data.toString('ascii',0,4),'RIFF');
+      assert.equal(data.toString('ascii',8,12),'WEBP');
+      assert.ok(statSync(path).size<80_000,`${id}/${lab} exceeds mobile portrait budget`);
+      assert.match(art.description(null,id,lab),new RegExp(art.wardrobe[lab]));
+    }
+  }
+  assert.equal(art.asset('../../elsewhere','../../x'),art.asset('rocket','race'));
 });
 
 test('legacy look choices remain bounded and persist independently of curated portrait mapping',()=>{

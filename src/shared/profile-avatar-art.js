@@ -24,7 +24,14 @@
     const source=input&&typeof input==='object'&&!Array.isArray(input)?input:{},base=presets[portraitId(legacy)];
     return{version:1,skin:valid('skin',source.skin,base.skin),hair:valid('hair',source.hair,base.hair),face:valid('face',source.face,base.face),detail:valid('detail',source.detail,base.detail),outfit:valid('outfit',source.outfit,base.outfit),expression:valid('expression',source.expression,base.expression)};
   }
-  function asset(id){return`assets/drivers/v2/${portraitId(id)}.webp`;}
-  function description(_look,id){return`${labels[portraitId(id)]} driver in a racing suit`;}
-  root.KickLabProfileAvatarArt=Object.freeze({choices,presets,normalize,portraitId,asset,description});
+  const labs=Object.freeze(['fight','race','kick']);
+  const wardrobe=Object.freeze({fight:'protective training gear',race:'racing suit',kick:'soccer kit'});
+  function labId(value){return labs.includes(value)?value:'race';}
+  // Additive asset mapping: stored avatar IDs and profile schema never change.
+  function asset(id,lab='race'){
+    const portrait=portraitId(id),activity=labId(lab);
+    return activity==='race'?`assets/drivers/v2/${portrait}.webp`:`assets/players/v1/${activity}/${portrait}.webp`;
+  }
+  function description(_look,id,lab='race'){const activity=labId(lab);return`${labels[portraitId(id)]} player in ${wardrobe[activity]}`;}
+  root.KickLabProfileAvatarArt=Object.freeze({choices,presets,normalize,portraitId,labId,labs,wardrobe,asset,description});
 })(typeof globalThis!=='undefined'?globalThis:window);
