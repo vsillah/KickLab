@@ -2220,6 +2220,13 @@ html[data-race-corner-trace="prototype"] .race-navigation[data-stage="accelerate
 html[data-race-corner-trace="prototype"] .race-navigation-foot{margin-left:calc(var(--race-wheel-x) + var(--race-wheel-radius) + 2px);min-height:12px}
 html[data-race-corner-trace="prototype"] .race-navigation-foot :is(small,button){font-size:9px;line-height:11px}
 html[data-race-corner-trace="prototype"] .race-navigation-foot button{max-width:35%;color:#c8e7f2}
+/* One outer instrument shell follows the wheel, leaving the course and cue on its right wing. */
+html[data-race-corner-trace="prototype"] .race-navigation::before,html[data-race-corner-trace="prototype"] .race-navigation::after{display:none}
+html[data-race-corner-trace="prototype"] .race-navigation #raceNavigationShell{position:absolute;inset:0;width:100%;height:100%;max-height:none;min-height:0;overflow:visible;background:none;border:0;border-radius:0;filter:drop-shadow(0 7px 11px rgba(0,0,0,.38))}
+html[data-race-corner-trace="prototype"] .race-navigation-shell path{fill:url(#raceNavigationShellFill);stroke:rgba(153,229,243,.68);stroke-width:1.4;vector-effect:non-scaling-stroke;stroke-linejoin:round}
+html[data-race-corner-trace="prototype"] .race-navigation-wing{border:0;border-radius:0}
+html[data-race-corner-trace="prototype"] .race-navigation #raceNavigationMap{background:none;border:0;border-radius:0}
+html[data-race-corner-trace="prototype"] .race-navigation-foot{border:0}
 @media(max-width:480px){
  html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .race-navigation-wing{grid-template-rows:26px 3px minmax(0,1fr) 12px;gap:2px;padding:3px 5px 2px}
  html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .race-navigation-head{margin-left:calc(var(--race-wheel-x) + var(--race-wheel-radius) + 1px);grid-template-columns:minmax(0,1fr) 28px auto}
