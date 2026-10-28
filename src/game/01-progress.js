@@ -95,6 +95,7 @@ function showResults(m){hideResults();const el=$('#results'),rc=$('#rc');const r
   const steps=14;for(let k=1;k<=steps;k++)tallyTimers.push(setTimeout(()=>{$('#rTotal').textContent='+'+fmt(Math.round(m.tot*k/steps),0);if(k%3===0)SND.tick();if(k===steps){SND.total();const md=$('#medal');md.classList.remove('bump');void md.offsetWidth;md.classList.add('bump');}},start+k*40));
   if(race&&!$('#rNext').hidden)$('#rNext').textContent=RACE_MULTI_UI.match?'Match controls':$('#rNext').dataset.raceAction==='next'?'Continue to next':'Retry';
   if(m.auto){$('#racts').hidden=true;resultsTimer=setTimeout(()=>{$('#results').hidden=true;$('#results').classList.remove('mini');},2100);}}
+if(['localhost','127.0.0.1'].includes(location.hostname)&&new URLSearchParams(location.search).get('wardrobeResultsQA')==='1')globalThis.__KICKLAB_WARDROBE_RESULTS_QA__=Object.freeze({fixture:lab=>{if(!['fight','kick'].includes(lab)||M?.key!==lab)return false;showResults({grade:'A',rows:[],mult:1,tot:0,title:'QA WARDROBE RESULT',sub:'Device-local fixture',hint:'Player identity check'});return true;}});
 $('#rRaceGarage').addEventListener('click',event=>{event.stopPropagation();if(M!==Race||!resOpen())return;
   // Awards and progression have already been applied. This writes the same profile
   // through the canonical store and verifies it before leaving the result.

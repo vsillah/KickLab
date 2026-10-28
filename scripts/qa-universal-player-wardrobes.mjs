@@ -31,7 +31,7 @@ try{
     await context.addInitScript(()=>{localStorage.setItem('impactlab.nick','Pilot Fox');localStorage.setItem('impactlab.v1',JSON.stringify({gfx:'2d',xp:725,punch:2100,goals:3,stats:{plays:{fight:2,race:2,kick:2}},ch:{fight:0,race:0,kick:0}}));});
     const page=await context.newPage(),url=new URL(base),errors=[];
     url.searchParams.set('rev',head);url.searchParams.set('qa','universal-player-wardrobes');
-    url.searchParams.set('raceSystems','proxy');url.searchParams.set('raceExpansion','prototype');url.searchParams.set('racePreflight','prototype');url.searchParams.set('raceMultiplayer','prototype');url.searchParams.set('raceResultsQA','1');
+    url.searchParams.set('raceSystems','proxy');url.searchParams.set('raceExpansion','prototype');url.searchParams.set('racePreflight','prototype');url.searchParams.set('raceMultiplayer','prototype');url.searchParams.set('raceResultsQA','1');url.searchParams.set('wardrobeResultsQA','1');
     page.on('pageerror',error=>errors.push(error.message));
     await page.route('**/*',route=>{const target=route.request().url();if(target.startsWith(url.origin+'/')||target.startsWith('data:')||target.startsWith('blob:'))route.continue();else{report.external.push(`${name}: ${target}`);route.abort();}});
     try{
@@ -68,6 +68,11 @@ try{
           if(!result?.profileId)throw Error('Race result fixture unavailable');
           await inspect(page,'#resultPlayer',portraitPath('race','rocket'));
           if(name==='desktop')await page.screenshot({path:join(out,'desktop-race-result.png')});
+        }else{
+          const result=await page.evaluate(lab=>window.__KICKLAB_WARDROBE_RESULTS_QA__?.fixture(lab),lab);
+          if(!result)throw Error(`${lab} result fixture unavailable`);
+          await inspect(page,'#resultPlayer',portraitPath(lab,'rocket'));
+          if(name==='desktop')await page.screenshot({path:join(out,`desktop-${lab}-result.png`)});
         }
         report.checks.push({name,width,height,input,lab,portrait:true});
         await page.goto(url.toString(),{waitUntil:'domcontentloaded'});
