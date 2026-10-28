@@ -1,6 +1,6 @@
 # Race venue-first preflight contract
 
-This prototype keeps the existing Race flags and local profile storage. A player chooses a venue before its route. Highland offers the five existing Race formats. Marine offers the existing Marine Terrace two-heat damp-corner challenge. Forest offers the existing Forest Lantern Descent three-heat descending-turn challenge. Marine and Forest retain the progression unlock order; locked venues stay visible with an explanation. Championship and local comparative setup keep their Highland route contracts.
+This prototype keeps the existing Race flags and local profile storage. A player chooses a venue before its route. Highland offers the five existing Race formats. Marine offers the existing Marine Terrace two-heat damp-corner challenge. Forest offers the existing Forest Lantern Descent three-heat descending-turn challenge. Marine and Forest retain the progression unlock order; locked venues stay visible with an explanation. Clearing any solo Highland Race format unlocks Marine. Clearing Marine’s two heats unlocks Forest. Championship and local comparative setup keep their Highland route contracts.
 
 `raceVenue` is a profile-local default. Normalization sends an unknown or no-longer-unlocked venue back to Highland. A draft does not persist until Start heat. The chosen venue then supplies the existing canonical progression geometry, grip, grade, heat, scoring, and results for Marine or Forest. Save & Exit and profile reload restore the saved venue.
 

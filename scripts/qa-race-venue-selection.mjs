@@ -66,14 +66,14 @@ for(const item of cases){
     if(item.width===390){
       const original=await page.evaluate(()=>JSON.parse(localStorage.getItem('kicklab.profiles.v1')).activeId);
       await page.click('#racePreflightClose');
-      if(await page.locator('#racePhoneToolsToggle').isVisible())await page.click('#racePhoneToolsToggle');
-      await page.click('#orientationDetailToggle');await page.click('#modeHomeButton');
+      // Closing setup returns to the grid overlay, which hides phone tools. Use the
+      // existing Home action to set up a second profile for isolation checks.
+      await page.evaluate(()=>document.querySelector('#modeHomeButton').click());
       await page.click('#homeProfileButton');await page.click('#profileCreate');await page.fill('#profileNickname','QA Second');await page.click('#profileFormSave');await page.click('#profileClose');
       await race.tap();await page.locator('#racePreflight').waitFor({state:'visible'});
       if(await page.locator('[data-preflight-venue="highland"]').getAttribute('aria-pressed')!=='true')fail('Venue leaked into new profile');
       await page.click('#racePreflightClose');
-      if(await page.locator('#racePhoneToolsToggle').isVisible())await page.click('#racePhoneToolsToggle');
-      await page.click('#orientationDetailToggle');await page.click('#modeHomeButton');
+      await page.evaluate(()=>document.querySelector('#modeHomeButton').click());
       await page.click('#homeProfileButton');await page.locator(`#profileList [data-profile-id="${original}"]`).click();await page.click('#profileClose');
       await race.tap();await page.locator('#racePreflight').waitFor({state:'visible'});
       if(await page.locator(`[data-preflight-venue="${item.venue}"]`).getAttribute('aria-pressed')!=='true')fail('Original profile lost venue');

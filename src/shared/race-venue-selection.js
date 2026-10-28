@@ -10,5 +10,9 @@
     const unlocked=root.KickLabRaceProgression.normalize(progress).unlocked;
     return ROUTES[venue]&&unlocked>=['highland','marine','forest'].indexOf(venue)?venue:'highland';
   }
-  root.KickLabRaceVenueSelection=Object.freeze({ROUTES,compatible,normalize});
+  function clearHighland(progress,passed){
+    const state=root.KickLabRaceProgression.normalize(progress);
+    return passed&&state.unlocked<1?{...state,unlocked:1}:state;
+  }
+  root.KickLabRaceVenueSelection=Object.freeze({ROUTES,compatible,normalize,clearHighland});
 })(typeof globalThis!=='undefined'?globalThis:window);

@@ -7,7 +7,7 @@ const context={globalThis:{},location:{search:'?raceProgression=prototype'}};
 context.globalThis.KickLabRaceOrigin={trusted:()=>true};
 runInNewContext(readFileSync(new URL('../src/shared/race-progression.js',import.meta.url),'utf8'),context);
 runInNewContext(readFileSync(new URL('../src/shared/race-venue-selection.js',import.meta.url),'utf8'),context);
-const {ROUTES,compatible,normalize}=context.globalThis.KickLabRaceVenueSelection;
+const {ROUTES,compatible,normalize,clearHighland}=context.globalThis.KickLabRaceVenueSelection;
 
 test('only canonical venue and route combinations are offered',()=>{
   assert.deepEqual(Array.from(ROUTES.highland),['drag','drift','circuit','hill','endurance']);
@@ -24,4 +24,11 @@ test('stale or locked saved venues recover to Highland for the active profile',(
   assert.equal(normalize('unsupported',{version:1,unlocked:2,selected:2}),'highland');
   assert.equal(normalize('marine',{version:1,unlocked:1,selected:1}),'marine');
   assert.equal(normalize('forest',{version:1,unlocked:2,selected:2}),'forest');
+});
+
+test('a passed solo Highland format opens Marine without changing the selected route',()=>{
+  const initial={version:1,unlocked:0,selected:0,heats:0,brakeHeat:0,tireHeat:0};
+  assert.equal(clearHighland(initial,false).unlocked,0);
+  assert.equal(clearHighland(initial,true).unlocked,1);
+  assert.equal(clearHighland({...initial,unlocked:2,selected:1},true).selected,1);
 });
