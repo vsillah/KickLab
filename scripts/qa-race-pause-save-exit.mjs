@@ -53,6 +53,8 @@ async function start(page,{countdownPause=false}={}){
   await page.locator('[data-preflight-part="brakes"][data-preflight-value="sport"]').click();await page.click('#racePreflightNext');
   await page.locator('[data-preflight-control="analog"]').click();await page.click('#racePreflightSteer');
   await page.click('#racePreflightNext');
+  const arrival=await page.evaluate(()=>({open:!document.querySelector('#racePreflight').hidden,back:document.querySelector('#racePreflightBack').disabled,next:document.querySelector('#racePreflightNext').disabled}));
+  if(!arrival.open||!arrival.back||!arrival.next)fail('Starting-grid arrival navigation was not locked',arrival);
   await page.locator('#racePreflight').waitFor({state:'hidden',timeout:16000});
   const orbit=page.locator('.race-orbit-panel button');if(await orbit.isVisible())await orbit.click();
   if(countdownPause){
@@ -83,6 +85,8 @@ for(const size of sizes.filter(item=>!process.env.KICKLAB_QA_WIDTH||String(item.
   try{
     const caseUrl=new URL(url);if(size.width===768)caseUrl.searchParams.set('raceAudioQA','1');
     await page.goto(caseUrl.toString(),{waitUntil:'domcontentloaded'});
+    const navigation=await page.evaluate(()=>Math.round(performance.getEntriesByType('navigation')[0]?.domContentLoadedEventEnd||0));
+    if(navigation<=0||navigation>30000)fail('Initial page load exceeded performance bound',{navigation});
     if(await page.locator('#profileFormSave').isVisible())await page.click('#profileFormSave');
     if(await page.locator('#profileClose').isVisible())await page.click('#profileClose');
     if(!(await read(page)).home||new URL(page.url()).searchParams.has('racePreflight'))fail('Unflagged Race did not remain default off',await read(page));
@@ -117,7 +121,7 @@ for(const size of sizes.filter(item=>!process.env.KICKLAB_QA_WIDTH||String(item.
     await page.click('#profileClose');
     const returned=await enter(page,size.input);
     if(returned.profileId!==before.profileId||returned.mode!=='drag'||returned.vehicle!=='kestrel'||returned.garage.brakes!=='sport'||returned.control!=='analog'||returned.steer!=='auto'||returned.phase!=='grid'||score(returned.progress)!==score(before.progress))fail('Reload and re-entry lost setup or restored stale run',{before,returned});
-    report.cases.push({label,passed:true,visual,second,profile:returned.profileId,scoreUnchanged:true,renderer:returned.renderer});
+    report.cases.push({label,passed:true,visual,second,profile:returned.profileId,scoreUnchanged:true,renderer:returned.renderer,domContentLoadedMs:navigation});
     if(size.width===1113){await page.waitForTimeout(1100);await page.screenshot({path:join(out,`pause-return-${head.slice(0,8)}.png`)});}
   }catch(error){report.errors.push(`${label}: ${error.stack||String(error)}`);}
   const video=page.video();
