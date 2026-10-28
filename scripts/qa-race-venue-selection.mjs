@@ -37,6 +37,10 @@ for(const item of cases){
     await page.click(`[data-preflight-venue="${item.venue}"]`);
     const routes=await page.locator('[data-preflight-mode]').evaluateAll(nodes=>nodes.map(node=>node.dataset.preflightMode));
     if(routes.length!==1||routes[0]!==item.venue)fail('Unsupported route offered',routes);
+    const journey=await page.locator('.race-preflight-event-list li').allInnerTexts();
+    const expectedNames=item.venue==='marine'?['Damp Entry','Brake Consistency']:['Descent Entry','Clean Left','Heat Control'];
+    if(journey.length!==expectedNames.length||expectedNames.some((name,index)=>!journey[index].includes(name))||new Set(journey).size!==journey.length)fail('Venue event journey is missing or repeated',journey);
+    if(await page.locator('.race-preflight-event-list li[aria-current="step"]').count()!==1)fail('Current event is not identified');
     if(!await page.locator(`[data-preflight-mode="${item.venue}"] img`).getAttribute('src').then(src=>src.includes(`venue-${item.venue}-`)))fail('Venue preview source is misleading',routes);
     await page.click('#racePreflightNext');await page.click(`[data-preflight-vehicle="${item.car}"]`);
     if(/switchback|climb/i.test(await page.locator('.race-preflight-showroom').innerText()))fail('Venue vehicle copy fell back to Highland');
@@ -44,7 +48,7 @@ for(const item of cases){
     await page.click('#racePreflightNext');
     const grid=await page.locator('.race-preflight-grid-brief').innerText();
     if(!grid.includes(item.car==='kestrel'?'Kestrel':item.car==='aegis'?'Aegis':'Cobalt')||!grid.includes('Endurance'))fail('Grid lost vehicle or tune',grid);
-    const route=item.venue==='marine'?'Marine Terrace · Damp corner':'Forest Lantern Descent · Descending left turn';
+    const route=item.venue==='marine'?'Marine Terrace · Damp corner':'Forest Lantern Descent · Downhill approach';
     if(!grid.includes(route)||!grid.includes(item.venue==='marine'?'≤19s':'≤22s')||grid.includes('Switchback corner'))fail('Grid route or target does not match canonical venue',grid);
     await page.click('#racePreflightNext');await page.locator('#racePreflight').waitFor({state:'hidden',timeout:15000});
     const orbit=page.locator('.race-orbit-panel button');if(await orbit.isVisible())await orbit.click();
@@ -87,7 +91,7 @@ for(const item of cases){
       if(await page.locator(`[data-preflight-venue="${item.venue}"]`).getAttribute('aria-pressed')!=='true')fail('Reload lost venue');
       reload=true;
     }
-    report.cases.push({width:item.width,input:item.input,venue:item.venue,gfx:item.gfx,motion:item.motion,car:item.car,routeCount:1,saveExitReentry:true,profileIsolation,reload,overflow,performanceSample});
+    report.cases.push({width:item.width,input:item.input,venue:item.venue,gfx:item.gfx,motion:item.motion,car:item.car,routeCount:1,eventCount:journey.length,saveExitReentry:true,profileIsolation,reload,overflow,performanceSample});
   }catch(error){report.errors.push(`${item.width}: ${error.stack||String(error)}`);}
   await context.close();
 }

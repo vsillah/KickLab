@@ -30,6 +30,7 @@ try{
   await page.click('[data-preflight-mode="hill"]');await page.waitForTimeout(1400);
   await page.click('#racePreflightBack');await page.waitForTimeout(500);
   await page.click('[data-preflight-venue="marine"]');await page.waitForTimeout(1500);
+  if(await page.locator('.race-preflight-event-list li').count()!==2)throw Error('Marine event journey missing');
   await page.click('#racePreflightNext');await page.waitForTimeout(800);
   if(/switchback|climb/i.test(await page.locator('.race-preflight-showroom').innerText()))throw Error('Marine vehicle copy fell back to Highland');
   await page.click('#racePreflightNext');await page.waitForTimeout(800);
@@ -39,12 +40,13 @@ try{
   for(let step=0;step<4;step++)await page.click('#racePreflightBack');
   await page.waitForTimeout(650);
   await page.click('[data-preflight-venue="forest"]');await page.waitForTimeout(1500);
+  if(await page.locator('.race-preflight-event-list li').count()!==3)throw Error('Forest event journey missing');
   await page.click('#racePreflightNext');await page.waitForTimeout(700);
   if(/switchback|climb/i.test(await page.locator('.race-preflight-showroom').innerText()))throw Error('Forest vehicle copy fell back to Highland');
   await page.click('#racePreflightNext');await page.waitForTimeout(700);
   await page.click('#racePreflightNext');await page.waitForTimeout(1200);
   const forestGrid=await page.locator('.race-preflight-grid-brief').innerText();
-  if(!forestGrid.includes('Forest Lantern Descent · Descending left turn')||forestGrid.includes('Switchback corner'))throw Error('Forest grid route wording does not match its canonical venue');
+  if(!forestGrid.includes('Forest Lantern Descent · Downhill approach')||forestGrid.includes('Switchback corner'))throw Error('Forest grid route wording does not match its canonical venue');
   await page.click('#racePreflightNext');await page.locator('#racePreflight').waitFor({state:'hidden',timeout:15000});
   const orbit=page.locator('.race-orbit-panel button');if(await orbit.isVisible())await orbit.click();
   await page.waitForFunction(()=>window.__KICKLAB_RACE_PROGRESSION_QA__.state().raceState==='run',null,{timeout:25000});

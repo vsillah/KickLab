@@ -43,4 +43,6 @@ test('progression venues provide distinct route labels, targets, and guidance fo
   assert.match(marine.challenge,/damp terrace/);
   assert.match(forest.challenge,/descent.*left turn/);
   assert.doesNotMatch(`${marine.routeLabel} ${forest.routeLabel}`,/Switchback corner/);
+  assert.equal(progression.level({version:1,selected:1,unlocked:1,heats:1}).eventName,'Brake Consistency');
+  assert.equal(progression.level({version:1,selected:2,unlocked:2,heats:2}).eventName,'Heat Control');
 });
