@@ -104,7 +104,10 @@
               <strong class="game-pacing-phase" id="gamePacingPhase" aria-hidden="true">READY?</strong>
               <b class="game-pacing-activity" id="gamePacingActivity"></b>
               <div class="game-control-preview" id="gameControlPreview" aria-label="Controls for the next activity"></div>
-              <button type="button" class="game-pacing-resume" id="gamePacingResume" hidden>Resume game</button>
+              <div class="game-pacing-actions" id="gamePacingActions">
+                <button type="button" class="game-pacing-action game-pacing-resume" id="gamePacingResume" hidden>Resume game</button>
+                <button type="button" class="game-pacing-action game-pacing-save-exit" id="gamePacingSaveExit" aria-label="Save Race and exit to KickLab home" hidden>Save &amp; Exit</button>
+              </div>
             </div>
           </section>
           <section class="race-stage-start" id="raceStageStart" hidden aria-labelledby="raceCoachSetupTitle" aria-describedby="raceCoachSetupTargets raceCoachSetupRecommendation">

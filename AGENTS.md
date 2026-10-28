@@ -13,3 +13,5 @@ Race controller labels and live readouts must stay legible at narrow widths. Kee
 Keep Race telemetry and tuning-variable selection in the cockpit or wrench Math detail. The floating controller may show contextual actions such as Shift or Lock band, but must not reserve an empty selector row or show unlabeled paging arrows.
 
 Race results must separate Coach guidance into one evidence-backed "What worked" observation and one specific "Next focus" observation, each in its own visual theme. The actionable card opens a deeper review with the same two themes, metrics, events, and plan. A visual replay preview must use bounded, local frames from the canonical 3D race presentation; when 3D frames are unavailable, offer a text Replay action without showing a schematic substitute.
+
+Race safe exit points use the visible label "Save & Exit" and preserve the active device-local profile, selected setup, and already-earned progress before returning home. An incomplete run must not award a result or resume on re-entry. In the pause menu, Resume and Save & Exit have equal dimensions, typography, and accessible touch targets at every width.

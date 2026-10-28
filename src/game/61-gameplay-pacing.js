@@ -1,13 +1,38 @@
 /* ---------- canonical pause ownership + between-game pacing ---------- */
 const PAUSE_OWNERS=KickLabGameplayPacing.createPauseOwnership();
 const PACE={pending:null,activeMeta:null,replacing:false};
-const pacingOverlay=$('#gamePacingOverlay'),pacingPhase=$('#gamePacingPhase'),pacingActivity=$('#gamePacingActivity'),pacingResume=$('#gamePacingResume'),pacingA11y=$('#gamePacingA11y');
+const pacingOverlay=$('#gamePacingOverlay'),pacingPhase=$('#gamePacingPhase'),pacingActivity=$('#gamePacingActivity'),pacingResume=$('#gamePacingResume'),pacingSaveExit=$('#gamePacingSaveExit'),pacingActions=$('#gamePacingActions'),pacingA11y=$('#gamePacingA11y');
 
 function pauseReason(snapshot){if(snapshot.manual)return'manual';return snapshot.owners[0]||'';}
 function renderPausedOverlay(){
   const snapshot=PAUSE_OWNERS.snapshot(),manual=snapshot.manual&&!PACE_SEQUENCE.state().active;
-  if(!manual){if(!PACE_SEQUENCE.state().active)pacingOverlay.hidden=true;return;}
-  pacingOverlay.hidden=false;pacingOverlay.dataset.state='paused';pacingOverlay.dataset.presentation='card';$('#gamePacingKicker').textContent='Game paused';pacingPhase.textContent='PAUSED';pacingActivity.textContent='Tap the stage or press P to continue';$('#gameControlPreview').innerHTML='';pacingResume.hidden=false;pacingA11y.textContent='Game paused. Activate Resume game, tap the stage, or press P to continue.';
+  if(!manual){if(!PACE_SEQUENCE.state().active)pacingOverlay.hidden=true;pacingSaveExit.hidden=true;pacingActions.classList.remove('race-pause-actions');return;}
+  const race=M===Race;
+  pacingOverlay.hidden=false;pacingOverlay.dataset.state='paused';pacingOverlay.dataset.presentation='card';$('#gamePacingKicker').textContent='Game paused';pacingPhase.textContent='PAUSED';pacingActivity.textContent=race?'Resume this race or save your setup and return home':'Tap the stage or press P to continue';$('#gameControlPreview').innerHTML='';$('#gameControlPreview').removeAttribute('aria-label');pacingResume.hidden=false;pacingResume.textContent=race?'Resume':'Resume game';pacingResume.setAttribute('aria-label',race?'Resume Race':'Resume game');pacingSaveExit.hidden=!race;pacingActions.classList.toggle('race-pause-actions',race);pacingA11y.textContent=race?'Race paused. Resume continues this run. Save & Exit keeps your saved setup and progress, discards this incomplete run, and returns to KickLab home.':'Game paused. Activate Resume game, tap the stage, or press P to continue.';
+}
+function racePauseControlStyle(){return RACE_SIMULATOR.active?'simulator':$('#analogControlsButton').getAttribute('aria-pressed')==='true'?'analog':'classic';}
+function restoreRacePauseSetup({fallback=false}={}){
+  if(typeof RACE_MULTI_UI!=='undefined'&&(RACE_MULTI_UI.match||RACE_MULTI_UI.setup))return;
+  const saved=best.racePauseSetup;
+  if((!saved||typeof saved!=='object')&&!fallback)return;
+  const setup=saved&&typeof saved==='object'?saved:{steer:'you',control:'classic'};
+  if(setup.steer==='you'||setup.steer==='auto')Race.opt.steer=setup.steer;
+  if(Race.expansionActive()&&RACE_SYSTEMS.VENUES[best.raceVenue])Race.opt.venue=best.raceVenue;
+  if(setup.control==='simulator'&&typeof simFlag!=='undefined'&&simFlag)simSelect(true);
+  else if(setup.control==='classic'||setup.control==='analog'){if(RACE_SIMULATOR.active)simSelect(false);setPrototypeControls(setup.control==='analog');}
+}
+function saveAndExitPausedRace(){
+  if(M!==Race||!PAUSE_OWNERS.snapshot().manual||pacingOverlay.hidden)return false;
+  const solo=typeof RACE_MULTI_UI!=='undefined'&&RACE_MULTI_UI.soloSetup;
+  best.racePauseSetup={steer:solo?.steer||Race.opt.steer,control:solo?.control||racePauseControlStyle()};
+  if(!solo&&!(typeof RACE_CHAMP_UI!=='undefined'&&RACE_CHAMP_UI.active)&&Race.expansionActive()&&RACE_SYSTEMS.VENUES[Race.opt.venue])best.raceVenue=Race.opt.venue;
+  saveBest();
+  let persisted=false;
+  try{const saved=JSON.parse(localStorage.getItem(PROFILE_CORE.PROFILE_KEY));persisted=JSON.stringify(saved.profiles.find(profile=>profile.id===profileManager.active().id)?.progress)===JSON.stringify(best);}catch(_){}
+  if(!persisted){pacingActivity.textContent='Could not save on this device. Free up space or allow local storage, then try again.';pacingA11y.textContent=pacingActivity.textContent;return false;}
+  if(RECS.race?.on)stopRec('race');
+  showModeHome();
+  return true;
 }
 function applyPauseSnapshot(snapshot,{notify=true}={}){
   const was=PAUSE.on;PAUSE.on=snapshot.paused;PAUSE.why=pauseReason(snapshot);PAUSE.resumeT=0;
@@ -22,7 +47,7 @@ function claimPauseOwner(owner){
   return applyPauseSnapshot(PAUSE_OWNERS.claim(owner));
 }
 function releasePauseOwner(owner,{restart=true}={}){const snapshot=applyPauseSnapshot(PAUSE_OWNERS.release(owner));if(restart)maybeRestartGameTransition();return snapshot;}
-function setManualPause(on){if(on&&!pausable())return PAUSE_OWNERS.snapshot();const snapshot=applyPauseSnapshot(PAUSE_OWNERS.setManual(on));if(!on)maybeRestartGameTransition();return snapshot;}
+function setManualPause(on){if(on&&!pausable())return PAUSE_OWNERS.snapshot();const snapshot=applyPauseSnapshot(PAUSE_OWNERS.setManual(on));if(on&&M===Race&&PACE_SEQUENCE.state().active)cancelGameTransition('manual-pause',{retain:true});if(!on)maybeRestartGameTransition();return snapshot;}
 function resumePlayerPause(){
   let snapshot=PAUSE_OWNERS.snapshot();
   if(snapshot.manual)snapshot=setManualPause(false);
@@ -65,5 +90,6 @@ function stopGamePacing(reason='stopped'){PACE.pending=null;if(PACE_SEQUENCE.sta
 
 pacingOverlay.addEventListener('pointerdown',event=>{event.stopPropagation();if(event.target===pacingOverlay&&PAUSE_OWNERS.snapshot().manual){unlock();resumePlayerPause();}});
 pacingResume.addEventListener('click',event=>{event.stopPropagation();unlock();resumePlayerPause();});
+pacingSaveExit.addEventListener('click',event=>{event.stopPropagation();saveAndExitPausedRace();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)claimPauseOwner('document-hidden');});
 window.addEventListener('pagehide',()=>claimPauseOwner('document-hidden'));
