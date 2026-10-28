@@ -22,3 +22,18 @@ for(const kind of ['drive','arrival']){
   }
 }
 console.log(JSON.stringify({pairings:25,clips:50,totalMiB:Number((total/1048576).toFixed(2)),maxBytes:750000,sourceFramesMinimum:60,codec:'h264'}));
+let venueBytes=0;
+for(const kind of ['drive','arrival']){
+  const manifest=JSON.parse(readFileSync(resolve(base,'media/race-preflight',kind==='drive'?'venue-manifest.json':'venue-arrival-manifest.json'),'utf8'));
+  if(manifest.entries.length!==10||manifest.kind!==kind||manifest.venueCapture!==true||manifest.source!=='KickLab local Race 3D renderer')throw Error(`${kind} venue provenance incomplete`);
+  for(const mode of ['marine','forest'])for(const vehicle of vehicles){
+    const entry=manifest.entries.find(item=>item.mode===mode&&item.vehicle===vehicle);
+    if(!entry||!entry.course.startsWith(`${mode}/`)||!entry.course.includes('/legacy/'))throw Error(`Missing canonical ${kind} ${mode}/${vehicle}`);
+    const file=resolve(base,entry.video),poster=resolve(base,entry.poster),bytes=readFileSync(file),posterBytes=readFileSync(poster);
+    if(createHash('sha256').update(bytes).digest('hex')!==entry.sha256||createHash('sha256').update(posterBytes).digest('hex')!==entry.posterSha256||bytes.length!==entry.bytes||bytes.length>750000||posterBytes.length<1000||entry.sourceFrames<60)throw Error(`Invalid venue media ${file}`);
+    const probe=JSON.parse(execFileSync('ffprobe',['-v','error','-show_entries','format=duration:stream=codec_name,width,height','-of','json',file],{encoding:'utf8'}));
+    if(Number(probe.format?.duration)<4||Number(probe.format?.duration)>7||probe.streams?.[0]?.codec_name!=='h264'||probe.streams?.[0]?.width!==720)throw Error(`Invalid venue playback ${file}`);
+    venueBytes+=bytes.length;
+  }
+}
+console.log(JSON.stringify({venuePairings:10,venueClips:20,venueMiB:Number((venueBytes/1048576).toFixed(2)),maxBytes:750000,sourceFramesMinimum:60,codec:'h264'}));
