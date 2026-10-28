@@ -1,36 +1,100 @@
-import {existsSync,mkdirSync,writeFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {createRequire} from 'node:module';
 import {join,resolve} from 'node:path';
 import {execFileSync} from 'node:child_process';
+
 const {chromium}=createRequire(import.meta.url)('playwright');
-const base=process.argv[2]||'http://127.0.0.1:5289/kicklab.html';
-const out=resolve(process.argv[3]||'qa-artifacts/race-live-track-hud');mkdirSync(out,{recursive:true});
-const head=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
+const productCommit='17ebe450d4bcbb7f178f1fd1c645bbe8a5da8811';
+const origin='https://vsillah.github.io/KickLab/';
+const out=resolve(process.argv[2]||'qa-artifacts/race-live-track-hud-public');
+const hash=value=>createHash('sha256').update(value).digest('hex');
+const git=(...args)=>execFileSync('git',args,{encoding:'utf8'}).trim();
+const changed=new Set([...git('diff','--name-only',productCommit,'HEAD').split('\n'),...git('diff','--name-only').split('\n')].filter(Boolean));
+if([...changed].some(file=>file!=='scripts/qa-race-live-track-hud.mjs'))throw Error(`Scope expanded: ${[...changed].join(', ')}`);
+if(!existsSync('dist/pages/index.html'))throw Error('Run npm run check at the exact product commit before public smoke.');
+const response=await fetch(`${origin}?rev=${productCommit}`,{cache:'no-store'});
+if(!response.ok)throw Error(`Public Pages HTML: ${response.status}`);
+const binding={productCommit,local:hash(readFileSync('dist/pages/index.html')),public:hash(Buffer.from(await response.arrayBuffer()))};
+if(binding.local!==binding.public)throw Error(`Incorrect deployed product binding: ${JSON.stringify(binding)}`);
+mkdirSync(out,{recursive:true});
 const browser=await chromium.launch({headless:true,executablePath:[process.env.KICKLAB_CHROMIUM_PATH,chromium.executablePath(),'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find(p=>p&&existsSync(p))});
-const report={head,base,cases:[],errors:[],external:[]};
-async function inspect(width,height,mode,control='classic',canvas=false,reduced=false,vehicle='cobalt'){
-  const name=`${mode}-${control}-${width}${vehicle==='cobalt'?'':`-${vehicle}`}${canvas?'-canvas':''}${reduced?'-reduced':''}`,context=await browser.newContext({viewport:{width,height},deviceScaleFactor:1,reducedMotion:reduced?'reduce':'no-preference'});
-  await context.addInitScript(gfx=>localStorage.setItem('impactlab.v1',JSON.stringify({gfx,ch:{fight:0,race:0,kick:0},play:{fight:'ch',race:'ch',kick:'ch'}})),canvas?'2d':'3d');
-  const page=await context.newPage();page.on('pageerror',e=>report.errors.push(`${name}: ${e.message}`));
-  await page.route('**/*',route=>{const u=route.request().url();if(u.startsWith(new URL(base).origin)||u.startsWith('data:')||u.startsWith('blob:'))route.continue();else{report.external.push(`${name}: ${u}`);route.abort();}});
-  try{
-    const url=new URL(base);for(const key of ['raceExpansion','raceCornerTrace','raceTelemetry'])url.searchParams.set(key,'prototype');url.searchParams.set('raceEngineQA','1');if(['vesper','sable'].includes(vehicle))url.searchParams.set('racePreflightCapture','1');url.searchParams.set('rev',head);
-    await page.goto(url.toString(),{waitUntil:'domcontentloaded'});
-    if(await page.locator('#profileFormSave').isVisible())await page.locator('#profileFormSave').click();if(await page.locator('#profileClose').isVisible())await page.locator('#profileClose').click();
-    await page.locator('#lab-tab-race').click();if(await page.locator('#racePreflight').isVisible())await page.locator('#racePreflightClose').click();
-    await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});
-    const selected=await page.evaluate(({mode,vehicle})=>{if(['vesper','sable'].includes(vehicle))return window.__KICKLAB_RACE_PREFLIGHT_CAPTURE__.select(mode,vehicle);window.__KICKLAB_RACE_ENGINE_QA__.select(mode,vehicle);return true;},{mode,vehicle});if(!selected)throw Error(`Unable to select ${vehicle}`);
-    await page.evaluate(()=>window.__KICKLAB_RACE_ENGINE_QA__.run());if(await page.locator('#racePreflight').isVisible())await page.locator('#racePreflightClose').click();
-    if(control!=='classic'){await page.locator('#racePhoneToolsToggle').click({timeout:5000});await page.locator(control==='analog'?'#analogControlsButton':'#simulatorControlsButton').click({timeout:5000});await page.locator('#racePhoneToolsToggle').click({timeout:5000});}
-    await page.locator('#raceNavigation').waitFor({state:'visible',timeout:5000});await page.waitForTimeout(180);
-    const state=await page.evaluate(()=>{const rect=id=>document.querySelector(id)?.getBoundingClientRect().toJSON(),nav=window.__KICKLAB_RACE_NAVIGATION__,stage=rect('.stage'),dash=rect('#raceNavigation'),map=rect('#raceNavigationMap'),progress=rect('#racePhoneProgress'),notice=rect('#raceCoachNotice'),wrench=rect('#racePhoneToolsToggle'),car=window.__KICKLAB_RACE_3D__?.composition,vehicleId=window.__KICKLAB_RACE_3D__?.vehicleId;return{nav,stage,dash,map,progress,notice,wrench,car,vehicleId,overflow:document.documentElement.scrollWidth-innerWidth,road:document.querySelector('#raceNavigationRoad').getAttribute('d'),markers:['Brake','Turn','Apex','Exit'].map(id=>!document.querySelector(`#raceNavigation${id}`).hidden),markerPaths:['Brake','Turn','Apex','Exit'].map(id=>document.querySelector(`#raceNavigation${id}`).getAttribute('d')),finishPath:document.querySelector('#raceNavigationFinish').getAttribute('d'),controller:document.querySelector('#analogControlsButton').getAttribute('aria-pressed')==='true'?'analog':document.querySelector('#simulatorControlsButton').getAttribute('aria-pressed')==='true'?'simulator':'classic',duplicateWheel:!!document.querySelector('#raceWheelCanvas'),shell:!!document.querySelector('#raceNavigationShell'),historyCount:Number(document.querySelector('#raceCoachHistoryCount').textContent),historyText:document.querySelector('#raceCoachHistoryList').textContent,storageKeys:Object.keys(localStorage).sort()};});
-    if(!state.nav?.visible||!state.road.startsWith('M')||state.overflow>1||state.dash.right>state.stage.right+1||state.map.width<70||state.map.height<40||state.duplicateWheel||state.shell||state.historyCount<1||(!canvas&&state.vehicleId!==vehicle)||!state.finishPath?.startsWith('M')||state.dash.top<state.progress.bottom+4||state.dash.width>160||state.dash.height>110||state.dash.right>state.stage.left+state.stage.width*.43||(state.notice.width&&state.dash.left<state.notice.right&&state.dash.right>state.notice.left&&state.dash.top<state.notice.bottom&&state.dash.bottom>state.notice.top))throw Error(`navigation layout: ${JSON.stringify(state)}`);
-    if(mode==='drag'&&state.markers.some(Boolean))throw Error('Drag shows corner markers');
-    if(mode!=='drag'&&(!state.markers.every(Boolean)||state.markerPaths.some(path=>!path?.startsWith('M'))))throw Error('Missing corner zones');
-    if(state.storageKeys.some(key=>!['impactlab.v1','impactlab.nick','kicklab.profiles.v1'].includes(key)))throw Error(`Unexpected storage key: ${state.storageKeys}`);
-    await page.locator('.stage').screenshot({path:join(out,`${name}.png`)});report.cases.push({name,url:url.toString(),...state});
-    if(name==='hill-classic-390'){await page.locator('.stage').focus();await page.keyboard.press('p');if(!await page.evaluate(()=>window.__KICKLAB_RACE_ENGINE_QA__.state().paused))throw Error('Pause did not take ownership');await page.keyboard.press('p');if(await page.evaluate(()=>window.__KICKLAB_RACE_ENGINE_QA__.state().paused)||!await page.locator('#raceNavigation').isVisible())throw Error('Navigation did not recover after pause');await page.evaluate(()=>window.dispatchEvent(new Event('pagehide')));const after=await page.evaluate(()=>window.__KICKLAB_RACE_ENGINE_QA__.state());if(after.inputs.gas||after.inputs.brake)throw Error('Lifecycle exit retained held pedals');}
-  }catch(e){report.errors.push(`${name}: ${e.stack||e}`);}finally{await context.close();}
+const report={scriptHead:git('rev-parse','HEAD'),binding,cases:[],errors:[],egress:[]};
+const assert=(ok,message,detail)=>{if(!ok)throw Error(`${message}: ${JSON.stringify(detail)}`);};
+async function sample(page){return page.evaluate(()=>{
+  const $=id=>document.querySelector(id),rect=id=>$(id)?.getBoundingClientRect().toJSON(),nav=$('#raceNavigation');
+  return{visible:!!nav&&!nav.hidden,stage:nav?.dataset.stage||'',turn:nav?.dataset.turn||'',label:nav?.getAttribute('aria-label')||'',mapLabel:$('#raceNavigationMap')?.getAttribute('aria-label')||'',progress:$('#raceNavigationProgress')?.textContent||'',lap:$('#raceNavigationProgressLabel')?.textContent||'',car:$('#raceNavigationCar')?.getAttribute('transform')||'',paths:Object.fromEntries(['Road','Travel','Brake','Turn','Apex','Exit','Finish'].map(name=>[name,{d:$(`#raceNavigation${name}`)?.getAttribute('d')||'',hidden:!!$(`#raceNavigation${name}`)?.hidden}])),navRect:rect('#raceNavigation'),mapRect:rect('#raceNavigationMap'),stageRect:rect('.stage'),progressRect:rect('#racePhoneProgress'),noticeRect:$('#raceCoachNotice')?.hidden?null:rect('#raceCoachNotice'),historyCount:Number($('#raceCoachHistoryCount')?.textContent)||0,history:$('#raceCoachHistoryList')?.textContent||'',vehicle:$('#raceCoachSetupVehicleName')?.textContent||'',control:$('#analogControlsButton')?.getAttribute('aria-pressed')==='true'?'analog':$('#simulatorControlsButton')?.getAttribute('aria-pressed')==='true'?'simulator':'classic',webgl:!!$('#race3')&&!$('#race3').hidden,canvas:$('.stage canvas')?.getBoundingClientRect().toJSON(),overflow:document.documentElement.scrollWidth-innerWidth,storage:Object.keys(localStorage).sort(),qaHook:typeof window.__KICKLAB_RACE_ENGINE_QA__};
+});}
+function check(state,mode){
+  assert(state.visible&&state.paths.Road.d.startsWith('M')&&state.paths.Finish.d.startsWith('M'),'Route absent',state);
+  assert(state.overflow<=1&&state.navRect.right<=state.stageRect.right+1&&state.navRect.top>=state.progressRect.bottom+4&&state.navRect.width<=160&&state.navRect.height<=110,'Map layout',state);
+  assert(state.mapRect.width>=70&&state.mapRect.height>=40&&/translate\([\d.-]+ [\d.-]+\) rotate\([\d.-]+\)/.test(state.car),'Car position or heading',state);
+  assert(/\d+%/.test(state.progress)&&state.mapLabel.includes('live vehicle heading')&&state.historyCount>=1,'Map semantics or Coach',state);
+  for(const name of ['Brake','Turn','Apex','Exit'])assert(mode==='drag'?state.paths[name].hidden:!state.paths[name].hidden&&state.paths[name].d.startsWith('M'),`${name} marker`,state);
+  assert(state.qaHook==='undefined'&&state.storage.every(key=>['impactlab.v1','impactlab.nick','kicklab.profiles.v1'].includes(key)),'Public hook or storage',state);
 }
-try{if(process.argv.includes('--one'))await inspect(390,844,'hill');else if(process.argv.includes('--desktop'))await inspect(1440,900,'hill');else{for(const [w,h] of [[360,780],[390,844],[768,1024],[1113,988],[1440,900]])await inspect(w,h,'hill');for(const mode of ['drag','drift','circuit','endurance'])await inspect(390,844,mode);for(const vehicle of ['kestrel','aegis','vesper','sable'])await inspect(390,844,'hill','classic',false,false,vehicle);for(const control of ['analog','simulator'])await inspect(390,844,'hill',control);await inspect(390,844,'hill','classic',true);await inspect(390,844,'hill','classic',false,true);}}finally{await browser.close();}
-writeFileSync(join(out,'report.json'),JSON.stringify(report,null,2));console.log(JSON.stringify({cases:report.cases.map(x=>x.name),errors:report.errors,external:report.external}));if(report.errors.length||report.external.length)process.exitCode=1;
+async function runCase({width,height,flag=true,mode='hill',vehicle='cobalt',control='classic',canvas=false,reduced=false,drive=false}){
+  const name=`${flag?'flag':'default'}-${mode}-${vehicle}-${control}-${width}${canvas?'-canvas':''}${reduced?'-reduced':''}`;
+  const started=Date.now();
+  console.log(`START ${name}`);
+  const context=await browser.newContext({viewport:{width,height},deviceScaleFactor:1,reducedMotion:reduced?'reduce':'no-preference'});
+  await context.addInitScript(({gfx,mastery})=>{localStorage.setItem('impactlab.v1',JSON.stringify({gfx,raceMastery:{version:1,cleared:mastery?['drag','drift','circuit']:[]}}));localStorage.setItem('impactlab.nick','Smoke Driver');},{gfx:canvas?'2d':'3d',mastery:['vesper','sable'].includes(vehicle)});
+  const page=await context.newPage();let requests=0;
+  page.on('pageerror',error=>report.errors.push(`${name}: page error: ${error.message}`));
+  page.on('requestfailed',request=>{if(request.failure()?.errorText!=='net::ERR_ABORTED')report.errors.push(`${name}: request failed: ${request.url()} ${request.failure()?.errorText}`);});
+  await page.route('**/*',route=>{const url=route.request().url();if(url.startsWith(origin)||url.startsWith('data:')||url.startsWith('blob:')){requests++;return route.continue();}report.egress.push(`${name}: ${url}`);return route.abort();});
+  try{
+    const url=new URL(origin);url.searchParams.set('rev',productCommit);
+    if(flag)for(const key of ['raceExpansion','raceCornerTrace','raceTelemetry','racePreflight','raceSimulator'])url.searchParams.set(key,'prototype');
+    await page.goto(url.toString(),{waitUntil:'domcontentloaded',timeout:30000});
+    assert(new URL(page.url()).origin==='https://vsillah.github.io','Origin changed',page.url());
+    if(await page.locator('#profileFormSave').isVisible())await page.locator('#profileFormSave').click();
+    if(await page.locator('#profileClose').isVisible())await page.locator('#profileClose').click();
+    await page.locator('#lab-tab-race').click();
+    await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});
+    if(!flag){const state=await sample(page);assert(!state.visible&&!await page.locator('#racePreflight').isVisible()&&state.qaHook==='undefined'&&state.overflow<=1,'Default-off state',state);report.cases.push({name,url:url.toString(),requests});return;}
+    await page.locator('#racePreflight').waitFor({state:'visible',timeout:15000});
+    await page.locator(`[data-preflight-mode="${mode}"]`).click();
+    assert(await page.locator(`[data-preflight-mode="${mode}"]`).getAttribute('aria-pressed')==='true','Mode selection',mode);
+    await page.locator('#racePreflightNext').click();
+    const car=page.locator(`[data-preflight-vehicle="${vehicle}"]`);
+    assert(await car.getAttribute('aria-disabled')==='false','Vehicle locked',vehicle);
+    await car.click();assert(await car.getAttribute('aria-pressed')==='true','Vehicle selection',vehicle);
+    await page.locator('#racePreflightNext').click();await page.locator('#racePreflightNext').click();
+    if(control!=='classic')await page.locator(`[data-preflight-control="${control}"]`).click();
+    if((await page.locator('#racePreflightSteer').textContent())?.trim()==='You steer')await page.locator('#racePreflightSteer').click();
+    await page.locator('#racePreflightNext').click();
+    await page.locator('#racePreflight').waitFor({state:'hidden',timeout:12000});
+    if(!canvas){await page.locator('.race-orbit-panel button').waitFor({state:'visible',timeout:15000});await page.locator('.race-orbit-panel button').click();}
+    // Start heat commits the preflight and runs the real orbit and lights.
+    await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:15000});
+    await page.locator('#raceNavigation').waitFor({state:'visible',timeout:15000});
+    const first=await sample(page);check(first,mode);
+    assert(first.control===control,'Controller selection',first.control);
+    assert(first.vehicle.toLowerCase().includes(vehicle==='vesper'?'vesper':vehicle==='sable'?'sable':vehicle),'Vehicle selection in cockpit',first.vehicle);
+    assert(canvas?!first.webgl:first.webgl,'Canvas or WebGL setting',first.webgl);
+    if(['circuit','endurance'].includes(mode)){
+      const points=[...first.paths.Road.d.matchAll(/[-\d.]+ [-\d.]+/g)].map(match=>match[0].split(' ').map(Number));
+      assert(points.length>30&&Math.hypot(points[0][0]-points.at(-1)[0],points[0][1]-points.at(-1)[1])<12,'Closed route wrapping',points.slice(0,2).concat(points.slice(-2)));
+    }
+    const imageA=hash(await page.locator('.stage').screenshot({path:join(out,`${name}-start.png`)}));
+    const observations=[];
+    if(drive){await page.locator('.stage').focus();await page.keyboard.down('Space');for(let i=0;i<14;i++){await page.waitForTimeout(1200);const state=await sample(page);if(!state.visible)break;observations.push({stage:state.stage,turn:state.turn,progress:state.progress,lap:state.lap,car:state.car,historyCount:state.historyCount,label:state.label});}await page.keyboard.up('Space');assert(observations.some(state=>state.car!==first.car&&state.progress!==first.progress),'Real input did not move car and progress',observations);assert(observations.some(state=>state.historyCount>first.historyCount),'Coach did not transition with route',observations);if(mode==='hill')assert(new Set(observations.map(state=>state.stage)).size>=2,'Corner timing did not transition',observations);if(mode==='circuit')assert(observations.some(state=>state.lap.startsWith('LAP')),'Lap label absent',observations);}
+    const last=await sample(page),imageB=hash(await page.locator('.stage').screenshot({path:join(out,`${name}-end.png`)}));
+    if(drive)assert(imageA!==imageB,'Rendered stage static',name);if(last.visible)check(last,mode);
+    if(name==='flag-hill-cobalt-classic-390'){await page.locator('.stage').focus();await page.keyboard.press('p');assert(await page.locator('#gamePacingOverlay').isVisible(),'Pause absent');await page.locator('#gamePacingResume').click();assert(!await page.locator('#gamePacingOverlay').isVisible(),'Pause recovery');const beforeHide=(await sample(page)).progress;await page.evaluate(()=>window.dispatchEvent(new Event('pagehide')));await page.waitForTimeout(600);assert((await sample(page)).progress===beforeHide,'Lifecycle retained route motion');}
+    const durationMs=Date.now()-started;assert(durationMs<45000,'Performance budget exceeded',durationMs);
+    report.cases.push({name,url:url.toString(),first:{stage:first.stage,progress:first.progress,car:first.car,historyCount:first.historyCount,canvas:first.canvas},last:{stage:last.stage,progress:last.progress,car:last.car,historyCount:last.historyCount},observations,imageA,imageB,requests,durationMs});
+  }catch(error){const debug=await page.evaluate(()=>({preflight:document.querySelector('#racePreflight')?.hidden,orbit:document.querySelector('.race-orbit-panel')?.hidden,start:document.querySelector('#raceCoachSetupStart')?.hidden,nav:document.querySelector('#raceNavigation')?.hidden,overlay:document.querySelector('#gamePacingOverlay')?.hidden,stage:document.querySelector('.stage')?.className,body:document.body.innerText.slice(-800)})).catch(()=>null);report.errors.push(`${name}: ${error.stack||error}; debug=${JSON.stringify(debug)}`);console.error(`FAIL ${name}: ${error.message}; debug=${JSON.stringify(debug)}`);}finally{await context.close();console.log(`END ${name}`);}
+}
+try{
+  if(process.argv.includes('--one'))await runCase({width:390,height:844,drive:true,mode:process.argv.includes('--circuit')?'circuit':'hill'});
+  else for(const [width,height] of [[360,780],[390,844],[768,1024],[1113,988],[1440,900]]){await runCase({width,height,flag:false});await runCase({width,height,drive:width===390});}
+  if(!process.argv.includes('--one'))for(const mode of ['drag','drift','circuit','endurance'])await runCase({width:390,height:844,mode,drive:mode==='circuit'});
+  if(!process.argv.includes('--one'))for(const vehicle of ['kestrel','aegis','vesper','sable'])await runCase({width:390,height:844,vehicle});
+  if(!process.argv.includes('--one'))for(const control of ['analog','simulator'])await runCase({width:390,height:844,control});
+  if(!process.argv.includes('--one')){await runCase({width:390,height:844,canvas:true});await runCase({width:390,height:844,reduced:true});}
+}finally{await browser.close();}
+writeFileSync(join(out,'report.json'),JSON.stringify(report,null,2));
+console.log(JSON.stringify({binding,cases:report.cases.map(item=>item.name),errors:report.errors,egress:report.egress}));
+if(report.errors.length||report.egress.length)process.exitCode=1;
