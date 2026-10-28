@@ -30,7 +30,7 @@ async function createPage(label){
 async function openRace(page){await page.click('#lab-tab-race');await page.locator('#racePreflight').waitFor({state:'visible',timeout:25000});await page.click('#racePreflightClose');await page.click('#racePhoneProgress');}
 async function commitPreflight(page,{first=true}={}){
   await page.locator('#racePreflight').waitFor({state:'visible',timeout:20000});
-  for(let step=0;step<(first?4:3);step++)await page.click('#racePreflightNext');
+  for(let step=0;step<(first?5:3);step++)await page.click('#racePreflightNext');
   await page.locator('#racePreflight').waitFor({state:'hidden',timeout:20000});
 }
 async function switchProfile(page,button,id){await page.click(button);await page.click(`[data-profile-id="${id}"]`);await page.click('#profileClose');if(!await page.locator('#raceComparativeContinue').isVisible())await page.click('#racePhoneProgress');}

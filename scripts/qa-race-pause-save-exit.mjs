@@ -48,6 +48,7 @@ async function enter(page,input){
   return state;
 }
 async function start(page,{countdownPause=false}={}){
+  await page.locator('[data-preflight-venue="highland"]').click();
   await page.locator('[data-preflight-mode="drag"]').click();await page.click('#racePreflightNext');
   await page.locator('[data-preflight-vehicle="kestrel"]').click();await page.click('#racePreflightNext');
   await page.locator('[data-preflight-part="brakes"][data-preflight-value="sport"]').click();await page.click('#racePreflightNext');
@@ -120,6 +121,7 @@ for(const size of sizes.filter(item=>!process.env.KICKLAB_QA_WIDTH||String(item.
     }
     await page.click('#profileClose');
     const returned=await enter(page,size.input);
+    if(await page.locator('[data-preflight-venue="highland"]').getAttribute('aria-pressed')!=='true')fail('Re-entry lost the saved venue',returned);
     if(returned.profileId!==before.profileId||returned.mode!=='drag'||returned.vehicle!=='kestrel'||returned.garage.brakes!=='sport'||returned.control!=='analog'||returned.steer!=='auto'||returned.phase!=='grid'||score(returned.progress)!==score(before.progress))fail('Reload and re-entry lost setup or restored stale run',{before,returned});
     report.cases.push({label,passed:true,visual,second,profile:returned.profileId,scoreUnchanged:true,renderer:returned.renderer,domContentLoadedMs:navigation});
     if(size.width===1113){await page.waitForTimeout(1100);await page.screenshot({path:join(out,`pause-return-${head.slice(0,8)}.png`)});}
