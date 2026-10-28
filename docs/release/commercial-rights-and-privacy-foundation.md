@@ -1,5 +1,7 @@
 # KickLab Phase 2: rights and privacy foundation
 
+**Current update:** [Phase 2 continuation at `fca347dc`](phase2-current-main-continuation.md) supersedes the 179-file count and Highland-only finding below. The refreshed [236-file ledger](shipped-file-rights.csv) is current for that base. The prior assessment remains as a dated evidence snapshot.
+
 Assessment bound to `0e4af0b8e8d7c678486f2006b03b73a838e9d749` on 2026-10-28. This is a release hold and decision record, not a rights clearance, policy publication, store declaration, or authorization to distribute. The approved V1 is paid upfront, local first, ages 9–15, with Fight, Race, and Kick; Race is the hero. There are no ads, IAP, accounts, analytics, uploads, cloud sync, public matchmaking, public leaderboards, chat, or spoken Coach audio. Private Party is limited to offline QR display and paste-code transfer.
 
 ## Exact shipped-file and dependency map
