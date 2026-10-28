@@ -12,6 +12,7 @@ const browser=await chromium.launch({headless:true,executablePath:[process.env.K
 const ids=['rocket','wiz','tower','trick','cannon'];
 const viewports=[['phone',390,844],['tablet',768,1024],['laptop',1113,834],['desktop',1440,900]];
 const report={head,base,checks:[],errors:[],external:[],videos:[]};
+const directionShapes=new Map();
 try{
   for(const [name,width,height] of viewports)for(const id of ids)for(const lab of ['fight','kick'])for(const variant of lab==='kick'?['3d','2d','direction-c']:['canvas']){
     const tag=lab==='kick'?`${lab}-${variant}`:lab;
@@ -36,6 +37,11 @@ try{
       if(lab==='kick'&&variant==='3d'&&(state.kick?.avatar!==id||!state.kick.head||Math.abs(state.kick.head[0])>=1||Math.abs(state.kick.head[1])>=1))throw Error(`Kick 3D body visibility ${JSON.stringify(state.kick)}`);
       if(lab==='kick'&&variant==='2d'&&state.kickCanvas?.avatar!==id)throw Error(`Kick Canvas body identity ${JSON.stringify(state.kickCanvas)}`);
       if(variant==='direction-c'&&(state.direction?.avatar!==id||state.kick?.renderer!=='direction-c'||!state.kick.head||Math.abs(state.kick.head[0])>=1||Math.abs(state.kick.head[1])>=1))throw Error(`Kick Direction C body identity ${JSON.stringify(state)}`);
+      if(variant==='direction-c'){
+        const shape=state.direction.geometry;
+        if(!shape||!['hairWidth','hairHeight','hairDepth','hairFront','faceHalfWidth','torsoHalfWidth'].every(key=>Number.isFinite(shape[key]))||shape.faceHalfWidth<=0||shape.torsoHalfWidth<=0)throw Error(`Direction C mesh geometry missing ${JSON.stringify(shape)}`);
+        if(name==='desktop')directionShapes.set(id,shape);
+      }
       await page.locator('#game-cockpit').screenshot({path:join(out,`${name}-${id}-${tag}-active.png`)});
       if(variant==='direction-c'&&name==='desktop'){
         if(!await page.evaluate(()=>window.__KICKLAB_DIRECTION_C_FOCUS__?.()))throw Error('Direction C close-up unavailable');
@@ -50,9 +56,18 @@ try{
       await page.locator('#game-cockpit').screenshot({path:join(out,`${name}-${id}-${tag}-result.png`)});
       if(video)await page.waitForTimeout(850);
       if(errors.length)throw Error(`page errors: ${errors.join(' | ')}`);
-      report.checks.push({viewport:name,width,height,id,lab,variant,overflow:state.overflow,reducedMotion:name==='phone',active:true,result:true});
+      report.checks.push({viewport:name,width,height,id,lab,variant,overflow:state.overflow,reducedMotion:name==='phone',active:true,result:true,...(variant==='direction-c'?{meshGeometry:state.direction.geometry}:{})});
     }catch(error){report.errors.push(`${name}/${id}/${tag}: ${error.stack||error}`);console.error(`${name}/${id}/${tag}: ${error.message}`);}
     const recording=page.video();await context.close();if(recording){const destination=join(out,`${name}-${id}-${tag}.webm`);copyFileSync(await recording.path(),destination);report.videos.push(destination);}
+  }
+  if(directionShapes.size!==ids.length)report.errors.push(`Direction C mesh comparison: expected ${ids.length} desktop identities, got ${directionShapes.size}`);
+  for(let i=0;i<ids.length;i++)for(let j=i+1;j<ids.length;j++){
+    const a=directionShapes.get(ids[i]),b=directionShapes.get(ids[j]);if(!a||!b)continue;
+    const hairDistance=Math.hypot(...['hairWidth','hairHeight','hairDepth','hairFront'].map(key=>a[key]-b[key]));
+    if(hairDistance<.035)report.errors.push(`Direction C ${ids[i]}/${ids[j]} hair geometry too similar: ${hairDistance.toFixed(3)} m`);
+    if(['rocket','tower','cannon'].includes(ids[i])&&['rocket','tower','cannon'].includes(ids[j])){
+      if(Math.abs(a.faceHalfWidth-b.faceHalfWidth)<.01||Math.abs(a.torsoHalfWidth-b.torsoHalfWidth)<.025)report.errors.push(`Direction C ${ids[i]}/${ids[j]} face or torso geometry too similar: ${JSON.stringify(a)} / ${JSON.stringify(b)}`);
+    }
   }
   const switching=await browser.newContext({viewport:{width:1113,height:834}});
   await switching.addInitScript(()=>{if(!localStorage.getItem('kicklab.profiles.v1'))localStorage.setItem('kicklab.profiles.v1',JSON.stringify({version:1,activeId:'first',legacyProfileId:'first',profiles:[{id:'first',nickname:'First',avatar:'rocket',progress:{gfx:'3d'},needsSetup:false},{id:'second',nickname:'Second',avatar:'trick',progress:{gfx:'3d'},needsSetup:false}]}));});
