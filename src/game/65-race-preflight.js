@@ -12,7 +12,7 @@ const RACE_ROUTE_TRAITS={
   endurance:['Oval · three long laps','Highland road · weather fixed','Pace and engine heat','Advanced']
 };
 const RACE_PREFLIGHT_GUIDE=globalThis.KickLabRacePreflightGuide;
-function racePreflightRecommendation(){return RACE_PREFLIGHT_GUIDE.recommend(RACE_PREFLIGHT.draft.venue==='highland'?RACE_PREFLIGHT.draft.mode:'hill',profileManager.active().progress);}
+function racePreflightRecommendation(){return RACE_PREFLIGHT_GUIDE.recommend(RACE_PREFLIGHT.draft.venue==='highland'?RACE_PREFLIGHT.draft.mode:RACE_PREFLIGHT.draft.venue,profileManager.active().progress);}
 function racePreflightCoachMark(reason){return`<span class="race-coach-pick" role="img" aria-label="Coach recommended: ${reason}" title="Coach recommended: ${reason}">${RACE_PREFLIGHT_GUIDE.thumbsUp}<span>Coach pick</span></span>`;}
 function racePreflightSetupParts(build=Race.garage){return ['suspension','tires','brakes'].map(field=>RACE_GARAGE.option(field,build[field]).name).join(' / ');}
 function racePreflightSetupIdentity(build=Race.garage,vehicleId=Race.vehicle().id){return `${globalThis.KickLabRaceVehicleCatalog.get(vehicleId).name} · ${RACE_SYSTEMS.venue(Race.opt.venue).name} · ${racePreflightSetupParts(build)}`;}
@@ -104,7 +104,7 @@ function racePreflightLocation(){
   const venue=RACE_SYSTEMS.venue(d.venue),recommend=racePreflightRecommendation(),car=globalThis.KickLabRaceVehicleCatalog.get(recommend.vehicle);
   const routes=d.venue==='highland'?Object.values(RACE_MODES.MODES):[racePreflightMode()];
   return `<div class="race-preflight-intro"><p>${venue.name} · choose your route. Previews come from the local 3D course; conditions stay fixed.</p>${racePreflightCoachComment(`${recommend.tier==='beginner'?'Beginner':'Practiced'} pick: ${car.name}. ${recommend.reasons.vehicle} ${racePreflightCoachMark(recommend.reasons.vehicle)}`)}</div><div class="race-preflight-route-list" role="group" aria-label="${venue.name} supported routes">${routes.map((mode,index)=>{
-    const [route,surface,challenge,difficulty]=d.venue==='highland'?RACE_ROUTE_TRAITS[mode.id]:['Switchback corner',`${venue.name} · fixed conditions`,mode.challenge,`${mode.heats} heat challenge`];
+    const [route,surface,challenge,difficulty]=d.venue==='highland'?RACE_ROUTE_TRAITS[mode.id]:[d.venue==='marine'?'Damp corner':'Descending left turn',`${venue.name} · fixed conditions`,mode.challenge,`${mode.heats} heat challenge`];
     const selected=d.venue==='highland'?d.mode===mode.id:true,locked=!!fixed&&fixed!==mode.id;
     return `<button type="button" class="race-preflight-route" data-preflight-mode="${mode.id}" aria-pressed="${selected}" ${locked?'disabled':''}><span class="race-preflight-route-art" aria-hidden="true">${racePreflightMedia(mode.id,'cobalt',`${venue.name} ${mode.name} course with Cobalt showcase car`)}<b>${String(index+1).padStart(2,'0')}</b><em>${venue.name.toUpperCase()} · ${route}</em></span><span class="race-preflight-route-copy"><small>${difficulty} · ${route}</small><strong>${mode.name}</strong><span>${surface} · ${challenge}</span><em>${mode.target}</em><span class="race-preflight-route-enter">${locked?'Championship event is fixed':selected?'Selected route ✓':'Select route →'}</span></span></button>`;
   }).join('')}</div>`;
