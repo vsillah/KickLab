@@ -39,10 +39,13 @@ for(const item of cases){
     if(routes.length!==1||routes[0]!==item.venue)fail('Unsupported route offered',routes);
     if(!await page.locator(`[data-preflight-mode="${item.venue}"] img`).getAttribute('src').then(src=>src.includes(`venue-${item.venue}-`)))fail('Venue preview source is misleading',routes);
     await page.click('#racePreflightNext');await page.click(`[data-preflight-vehicle="${item.car}"]`);
+    if(/switchback|climb/i.test(await page.locator('.race-preflight-showroom').innerText()))fail('Venue vehicle copy fell back to Highland');
     await page.click('#racePreflightNext');await page.click('[data-preflight-part="brakes"][data-preflight-value="endurance"]');
     await page.click('#racePreflightNext');
     const grid=await page.locator('.race-preflight-grid-brief').innerText();
     if(!grid.includes(item.car==='kestrel'?'Kestrel':item.car==='aegis'?'Aegis':'Cobalt')||!grid.includes('Endurance'))fail('Grid lost vehicle or tune',grid);
+    const route=item.venue==='marine'?'Marine Terrace · Damp corner':'Forest Lantern Descent · Descending left turn';
+    if(!grid.includes(route)||!grid.includes(item.venue==='marine'?'≤19s':'≤22s')||grid.includes('Switchback corner'))fail('Grid route or target does not match canonical venue',grid);
     await page.click('#racePreflightNext');await page.locator('#racePreflight').waitFor({state:'hidden',timeout:15000});
     const orbit=page.locator('.race-orbit-panel button');if(await orbit.isVisible())await orbit.click();
     await page.waitForFunction(()=>window.__KICKLAB_RACE_PROGRESSION_QA__.state().raceState==='run',null,{timeout:25000});

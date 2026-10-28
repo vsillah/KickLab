@@ -8,6 +8,7 @@ context.globalThis.KickLabRaceOrigin={trusted:()=>true};
 runInNewContext(readFileSync(new URL('../src/shared/race-progression.js',import.meta.url),'utf8'),context);
 runInNewContext(readFileSync(new URL('../src/shared/race-venue-selection.js',import.meta.url),'utf8'),context);
 const {ROUTES,compatible,normalize,clearHighland}=context.globalThis.KickLabRaceVenueSelection;
+const progression=context.globalThis.KickLabRaceProgression;
 
 test('only canonical venue and route combinations are offered',()=>{
   assert.deepEqual(Array.from(ROUTES.highland),['drag','drift','circuit','hill','endurance']);
@@ -31,4 +32,15 @@ test('a passed solo Highland format opens Marine without changing the selected r
   assert.equal(clearHighland(initial,false).unlocked,0);
   assert.equal(clearHighland(initial,true).unlocked,1);
   assert.equal(clearHighland({...initial,unlocked:2,selected:1},true).selected,1);
+});
+
+test('progression venues provide distinct route labels, targets, and guidance for the grid',()=>{
+  const marine=progression.LEVELS[1],forest=progression.LEVELS[2];
+  assert.equal(marine.routeLabel,'Damp corner');
+  assert.equal(forest.routeLabel,'Descending left turn');
+  assert.match(progression.preview(marine),/≤19s/);
+  assert.match(progression.preview(forest),/≤22s/);
+  assert.match(marine.challenge,/damp terrace/);
+  assert.match(forest.challenge,/descent.*left turn/);
+  assert.doesNotMatch(`${marine.routeLabel} ${forest.routeLabel}`,/Switchback corner/);
 });
