@@ -2332,7 +2332,7 @@ html[data-race-telemetry="prototype"] #raceCoachSetup>.race-setup-instrument{dis
 .race-stage-instrument .race-mini-dial .race-mini-gas{font-size:5px}
 /* Private-party cards remain local and legible at every Race width. */
 .race-multiplayer-menu{grid-template-columns:repeat(5,minmax(0,1fr))}
-#raceMultiParty[hidden],#racePartyDetails[hidden],#racePartyQr[hidden],#racePartyCamera[hidden],#racePartyFrozen[hidden]{display:none}
+#raceMultiParty[hidden],#racePartyDetails[hidden],#racePartyQr[hidden],#racePartyFrozen[hidden]{display:none}
 #raceQuickInputLabel[hidden]{display:none}
 .race-party-details{display:grid;gap:9px;padding:9px;border:1px solid #527d86;border-radius:8px;background:#102c3c}
 .race-party-frozen{display:grid;grid-template-columns:72px minmax(0,1fr);gap:8px;align-items:center;padding:8px;border:1px solid #8fbbbc;border-radius:7px;background:#17394a}
@@ -2343,7 +2343,6 @@ html[data-race-telemetry="prototype"] #raceCoachSetup>.race-setup-instrument{dis
 #racePartyQr{display:grid;justify-items:center;gap:8px;padding:8px;background:#eaf5f2;color:#102c3c;border-radius:8px}
 #racePartyQrImage{width:min(100%,380px);padding:8px;background:#fff}
 #racePartyQrImage svg{display:block;width:100%;height:auto}
-#racePartyCamera{width:min(100%,380px);aspect-ratio:4/3;object-fit:cover;background:#061d2a}
 #racePartyQr p{color:#102c3c}
 @media(max-width:700px){.race-multiplayer-menu{grid-template-columns:repeat(2,minmax(0,1fr))}}
 /* Opt-in Race Coach roster: presentation only, outside the driving controls. */
