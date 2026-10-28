@@ -2405,3 +2405,24 @@ html[data-race-coach-personas="prototype"] #rvAv{width:48px;height:48px;font-siz
 .profile-avatar-preview{background:linear-gradient(115deg,#19344c,#081725);border-color:#6e91af;box-shadow:inset 0 1px #ffffff18}
 .profile-hero .profile-avatar,.race-seat-avatar.driver-avatar,.profile-list-avatar.driver-avatar{box-shadow:inset 0 0 0 1px #a6c8df66,0 4px 14px #0005}
 .race-seat-avatar.driver-avatar .driver-avatar-fallback{font-size:14px}
+/* A small course map sits beneath Race progress; guidance stays with Coach and wrench details. */
+html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] #raceNavigation{width:156px;height:106px;padding:3px;overflow:hidden;border:1px solid rgba(150,226,241,.63);border-radius:12px;background:linear-gradient(145deg,rgba(8,30,47,.87),rgba(5,21,36,.82));box-shadow:0 6px 15px #06111b77;backdrop-filter:blur(3px);filter:none}
+html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] #raceNavigation::before{display:none}
+html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] #raceNavigationMap{display:block;width:100%;height:calc(100% - 14px);min-height:0;max-height:none;padding:0 3px;box-sizing:border-box;background:none;border:0;border-radius:0;overflow:visible}
+html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .race-navigation-progress{position:absolute;right:8px;bottom:3px;display:flex;gap:5px;align-items:baseline;color:#c5ecf3;font:800 9px/1 var(--f-mono);letter-spacing:.03em;text-shadow:0 1px 2px #00111e}
+html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .race-navigation-progress output{color:#a8f2cb;font:900 10px/1 var(--f-mono)}
+html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] #raceNavigation::after{content:"";display:block;position:absolute;left:auto;top:7px;right:7px;width:6px;height:6px;border:0;border-radius:50%;clip-path:none;background:#ffca77;opacity:0;box-shadow:0 0 7px currentColor}
+html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] #raceNavigation:is([data-stage="brake"],[data-stage="turn"],[data-stage="apex"],[data-stage="recover"])::after{opacity:1;animation:race-map-pulse 1.15s ease-in-out infinite}
+html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] #raceNavigation:is([data-stage="brake"],[data-stage="recover"])::after{background:#ff8879;color:#ff8879}
+@keyframes race-map-pulse{50%{opacity:.35;transform:scale(.72)}}
+html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .race-navigation-road{fill:none;stroke:rgba(220,239,246,.75);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .race-navigation-travel{fill:none;stroke:#62d8e1;stroke-width:3.6;stroke-linecap:round;stroke-linejoin:round}
+html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .race-navigation-marker{fill:none;stroke-width:6;stroke-linecap:round;stroke-linejoin:round}
+html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .race-navigation-marker.brake{stroke:#ff8879}
+html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .race-navigation-marker.turn{stroke:#ffca77}
+html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .race-navigation-marker.apex{stroke:#f9ed9b}
+html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .race-navigation-marker.exit{stroke:#79e9bb}
+html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .race-navigation-marker[hidden]{display:none}
+html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .race-navigation-finish{stroke-width:3}
+@media(max-width:480px){html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] #raceNavigation{width:132px;height:94px}html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] #raceNavigationMap{height:calc(100% - 14px)}}
+@media(prefers-reduced-motion:reduce){html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] #raceNavigation::after{animation:none!important}}

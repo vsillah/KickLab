@@ -1,0 +1,14 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+await import('../src/shared/race-driver-navigation.js');
+const navigation=globalThis.KickLabRaceDriverNavigation;
+const parameters={top:55,mu:1,response:1,stability:1,turnIn:1,brakePower:1};
+function switchback(){const points=[];for(let x=-35;x<=120;x+=3)points.push({x,y:0,tx:1,ty:0});for(let i=1;i<=60;i++){const a=-Math.PI/2+i*Math.PI/120;points.push({x:120+40*Math.cos(a),y:40+40*Math.sin(a),tx:-Math.sin(a),ty:Math.cos(a)});}for(let y=43;y<=150;y+=3)points.push({x:160,y,tx:0,ty:1});return navigation.route(points,false);}
+const course=switchback();
+const plan=(state,extra={})=>navigation.plan({route:course,state:{th:0,e:0,slipAngle:0,...state},parameters,mode:'hill',grip:1,...extra});
+test('course shape, direction, and start progress come from route geometry',()=>{const n=plan({x:4,y:0,v:15});assert.equal(n.turn,'left');assert.equal(n.severity,'medium');assert.ok(n.progress<.01);assert.ok(course.total>200);});
+test('early approach stays in prepare and late fast approach asks for braking',()=>{assert.equal(plan({x:20,y:0,v:25},{input:{brake:true}}).stage,'prepare');const late=plan({x:111,y:0,v:25});assert.equal(late.stage,'brake');assert.ok(late.brakeDistance>0);assert.ok(late.distance>0);});
+test('Garage braking and grip move the braking point',()=>{const state={x:90,y:0,v:27};const strong=plan(state,{grip:1.1,brakeFactor:1.16});const faded=plan(state,{grip:.75,brakeFactor:.68,heat:.9});assert.ok(faded.brakeDistance>strong.brakeDistance);assert.ok(faded.targetSpeed<strong.targetSpeed);});
+test('an active brake cue remains stable through the approach margin',()=>{const state={x:99,y:0,v:18};assert.equal(plan(state).stage,'prepare');assert.equal(plan(state,{previousStage:'brake'}).stage,'brake');});
+test('entry, apex, exit, and recovery use the live vehicle state',()=>{assert.equal(plan({x:120,y:0,v:15}).stage,'turn');assert.equal(plan({x:148,y:10,v:15},{input:{brake:true}}).stage,'apex');assert.equal(plan({x:148,y:10,v:25}).stage,'brake');assert.equal(plan({x:160,y:40,th:Math.PI/2,v:14}).stage,'accelerate');assert.match(plan({x:148,y:10,v:16,slipAngle:.3}).detail,/Rear sliding/);assert.match(plan({x:148,y:10,v:19,e:3,kc:.02,k:.005}).detail,/Front pushing/);assert.equal(plan({x:148,y:10,v:16,e:7}).stage,'recover');});
+test('closed route wraps and Drag keeps corner zones absent',()=>{const points=Array.from({length:101},(_,i)=>{const a=i*Math.PI*2/100;return{x:100+70*Math.cos(a),y:40*Math.sin(a),tx:-Math.sin(a),ty:Math.cos(a)};});const oval=navigation.route(points,true),start=oval.at(0),end=oval.at(oval.total);assert.ok(Math.hypot(start.x-end.x,start.y-end.y)<.001);const near=oval.nearest(start.x,start.y);assert.ok(near.progress<.001);const drag=navigation.plan({route:course,state:{x:20,y:0,th:0,v:15},parameters,mode:'drag',attempt:{distance:240,gear:1}});assert.deepEqual(drag.markers,{});assert.equal(drag.turn,'none');});
