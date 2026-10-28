@@ -1,5 +1,6 @@
 {
   "source": "KickLab local Race 3D renderer",
+  "commercialReleaseDisposition": "hold: verify capture rights from every rendered input under the Phase 2 rights gate",
   "kind": "arrival",
   "origin": "http://127.0.0.1:4173",
   "captureFlag": "racePreflightCapture=1",
