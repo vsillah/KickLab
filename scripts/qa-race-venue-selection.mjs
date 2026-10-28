@@ -48,7 +48,7 @@ for(const item of cases){
     await page.click('#racePreflightNext');
     const grid=await page.locator('.race-preflight-grid-brief').innerText();
     if(!grid.includes(item.car==='kestrel'?'Kestrel':item.car==='aegis'?'Aegis':'Cobalt')||!grid.includes('Endurance'))fail('Grid lost vehicle or tune',grid);
-    const route=item.venue==='marine'?'Marine Terrace · Damp corner':'Forest Lantern Descent · Downhill approach';
+    const route=item.venue==='marine'?'Marine Terrace · Damp Entry · Damp corner':'Forest Lantern Descent · Descent Entry · Downhill approach';
     if(!grid.includes(route)||!grid.includes(item.venue==='marine'?'≤19s':'≤22s')||grid.includes('Switchback corner'))fail('Grid route or target does not match canonical venue',grid);
     await page.click('#racePreflightNext');await page.locator('#racePreflight').waitFor({state:'hidden',timeout:15000});
     const orbit=page.locator('.race-orbit-panel button');if(await orbit.isVisible())await orbit.click();

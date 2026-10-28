@@ -36,7 +36,7 @@ try{
   await page.click('#racePreflightNext');await page.waitForTimeout(800);
   await page.click('#racePreflightNext');await page.waitForTimeout(1100);
   const marineGrid=await page.locator('.race-preflight-grid-brief').innerText();
-  if(!marineGrid.includes('Marine Terrace · Damp corner')||marineGrid.includes('Switchback corner'))throw Error('Marine grid route wording does not match its canonical venue');
+  if(!marineGrid.includes('Marine Terrace · Damp Entry · Damp corner')||marineGrid.includes('Switchback corner'))throw Error('Marine grid route wording does not match its canonical venue');
   for(let step=0;step<4;step++)await page.click('#racePreflightBack');
   await page.waitForTimeout(650);
   await page.click('[data-preflight-venue="forest"]');await page.waitForTimeout(1500);
@@ -46,7 +46,7 @@ try{
   await page.click('#racePreflightNext');await page.waitForTimeout(700);
   await page.click('#racePreflightNext');await page.waitForTimeout(1200);
   const forestGrid=await page.locator('.race-preflight-grid-brief').innerText();
-  if(!forestGrid.includes('Forest Lantern Descent · Downhill approach')||forestGrid.includes('Switchback corner'))throw Error('Forest grid route wording does not match its canonical venue');
+  if(!forestGrid.includes('Forest Lantern Descent · Descent Entry · Downhill approach')||forestGrid.includes('Switchback corner'))throw Error('Forest grid route wording does not match its canonical venue');
   await page.click('#racePreflightNext');await page.locator('#racePreflight').waitFor({state:'hidden',timeout:15000});
   const orbit=page.locator('.race-orbit-panel button');if(await orbit.isVisible())await orbit.click();
   await page.waitForFunction(()=>window.__KICKLAB_RACE_PROGRESSION_QA__.state().raceState==='run',null,{timeout:25000});
