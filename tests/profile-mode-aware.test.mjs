@@ -38,14 +38,17 @@ test('Race records stay inside the active local profile and legacy mirror',()=>{
   assert.equal(manager.list().find(item=>item.id==='second').progress.raceProfileRecords.topKmh,140);
 });
 
-test('Race control style reports the live selection from home and active Race',()=>{
+test('Race control style reports the saved profile choice at home and live Race choice',()=>{
   const helper=source.match(/function profileRaceControlStyle\(\)\{[^}]+\}/)?.[0];
   assert.ok(helper);
-  for(const activeLab of [null,'race']){
-    for(const [simulator,analog,expected] of [[false,false,'Classic'],[false,true,'Analog'],[true,false,'Simulator']]){
-      const actual=runInNewContext(`${helper};profileRaceControlStyle()`,{M:activeLab,RACE_SIMULATOR:{active:simulator},ANALOG_CONTROL:{enabled:analog}});
-      assert.equal(actual,expected,`${activeLab||'home'} should report ${expected}`);
-    }
+  for(const [saved,expected] of [[undefined,'Classic'],['analog','Analog'],['simulator','Simulator']]){
+    const actual=runInNewContext(`${helper};profileRaceControlStyle()`,{best:{racePauseSetup:{control:saved}},M:null,Race:{},RACE_SIMULATOR:{active:false},ANALOG_CONTROL:{enabled:false},$:()=>({hidden:true})});
+    assert.equal(actual,expected,`home should report ${expected} from the active profile`);
+  }
+  for(const [simulator,analog,expected] of [[false,false,'Classic'],[false,true,'Analog'],[true,false,'Simulator']]){
+    const race={};
+    const actual=runInNewContext(`${helper};profileRaceControlStyle()`,{best:{racePauseSetup:{control:'classic'}},M:race,Race:race,RACE_SIMULATOR:{active:simulator},ANALOG_CONTROL:{enabled:analog},$:()=>({hidden:false})});
+    assert.equal(actual,expected,`active Race should report ${expected}`);
   }
   assert.match(source,/control=profileRaceControlStyle\(\)/);
 });
