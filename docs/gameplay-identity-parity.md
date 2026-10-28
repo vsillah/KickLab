@@ -5,7 +5,8 @@ The five saved device-local avatar IDs (`rocket`, `wiz`, `tower`, `trick`, `cann
 ## Visual implementation
 
 - Fight uses the selected complexion, hair silhouette, face details, body width, and identity color on the player rig. The player wears a sleeveless training top, boxing shorts, and gloves. Fight opponent and dummy visuals remain independent.
-- Kick side view, procedural 3D, and Canvas fallback use the same selected identity. The goalkeeper and action poses continue to use the existing physics and animation paths. The optional Direction C athlete recolors and adds head details from the same ID when it is active; its opponent remains separate.
+- Kick side view, procedural 3D, and Canvas fallback use the same selected identity. The goalkeeper and action poses continue to use the existing physics and animation paths. The optional Direction C athlete derives a local skin texture from its bundled body map, reshapes the face and torso, and adds hair and face details from the same ID when it is active; its opponent remains separate. The derived texture cache is included in the memory audit.
+- The Kick 3D side-view camera was shifted vertically so the controlled athlete stays visible above the controller without changing world positions or ball physics.
 - Profile switches and edits take effect on the next render. No profile migration, network request, or new identity key is required.
 
 ## Portrait provenance

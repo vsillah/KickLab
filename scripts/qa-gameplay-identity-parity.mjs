@@ -15,7 +15,7 @@ const report={head,base,checks:[],errors:[],external:[],videos:[]};
 try{
   for(const [name,width,height] of viewports)for(const id of ids)for(const lab of ['fight','kick'])for(const variant of lab==='kick'?['3d','2d','direction-c']:['canvas']){
     const tag=lab==='kick'?`${lab}-${variant}`:lab;
-    const video=name==='desktop'&&['canvas','3d'].includes(variant)&&['rocket','trick'].includes(id);
+    const video=name==='desktop'&&['canvas','3d','direction-c'].includes(variant)&&['rocket','trick'].includes(id);
     const context=await browser.newContext({viewport:{width,height},reducedMotion:name==='phone'?'reduce':'no-preference',recordVideo:video?{dir:out,size:{width,height}}:undefined});
     await context.addInitScript(({id,variant})=>{localStorage.setItem('kicklab.profiles.v1',JSON.stringify({version:1,activeId:'qa',legacyProfileId:'qa',profiles:[{id:'qa',nickname:`QA ${id}`,avatar:id,color:'sky',progress:{gfx:variant==='2d'?'2d':'3d'},needsSetup:false}]}));}, {id,variant});
     const page=await context.newPage(),errors=[],url=new URL(base);
@@ -37,6 +37,11 @@ try{
       if(lab==='kick'&&variant==='2d'&&state.kickCanvas?.avatar!==id)throw Error(`Kick Canvas body identity ${JSON.stringify(state.kickCanvas)}`);
       if(variant==='direction-c'&&(state.direction?.avatar!==id||state.kick?.renderer!=='direction-c'||!state.kick.head||Math.abs(state.kick.head[0])>=1||Math.abs(state.kick.head[1])>=1))throw Error(`Kick Direction C body identity ${JSON.stringify(state)}`);
       await page.locator('#game-cockpit').screenshot({path:join(out,`${name}-${id}-${tag}-active.png`)});
+      if(variant==='direction-c'&&name==='desktop'){
+        if(!await page.evaluate(()=>window.__KICKLAB_DIRECTION_C_FOCUS__?.()))throw Error('Direction C close-up unavailable');
+        await page.waitForTimeout(250);
+        await page.locator('#game-cockpit').screenshot({path:join(out,`${name}-${id}-${tag}-closeup.png`)});
+      }
       if(video)await page.waitForTimeout(850);
       const fixture=await page.evaluate(lab=>window.__KICKLAB_WARDROBE_RESULTS_QA__?.fixture(lab),lab);
       if(!fixture)throw Error('result fixture missing');
