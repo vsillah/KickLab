@@ -261,13 +261,6 @@ const Race={
       if(cockpit)cockpit.hidden=!(this.state==='run'&&!RP.on&&!RACE_3D.shouldBlockInput());
       const navigation=$('#raceNavigation');if(navigation)navigation.hidden=!cockpit||cockpit.hidden;
       if(cockpit?.hidden&&globalThis.__KICKLAB_RACE_NAVIGATION__)globalThis.__KICKLAB_RACE_NAVIGATION__.visible=false;
-      if(cockpit&&!cockpit.hidden){
-        const overlay=$('#raceWheelCanvas');
-        if(overlay.width!==cv.width||overlay.height!==cv.height){overlay.width=cv.width;overlay.height=cv.height;}
-        const wheelContext=overlay.getContext('2d');
-        wheelContext.setTransform(1,0,0,1,0,0);wheelContext.clearRect(0,0,overlay.width,overlay.height);
-        wheelContext.setTransform(dpr*sc,0,0,dpr*sc,0,0);this.drawWheel(wheelContext);
-      }
     }else this.drawWheel(c);
     if(!phone)text(c,fmt(s.t,2)+' s',W-96,40,'22px '+DISP,C.ink,'right');
     if(!RACE_3D.on&&!preview&&(this.state==='count'||this.state==='grid')){const lit=this.state==='count'?Math.min(3,Math.floor((2.4-this.cd)/0.8)+1):0,phase=this.expansionActive()&&this.state==='count'?RACE_MODES.lightPhase(this.cd):null,colors=['#ff4f46','#ffcb47','#62ff9e'];

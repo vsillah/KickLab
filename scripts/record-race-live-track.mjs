@@ -22,7 +22,7 @@ try{
   if(await page.evaluate(()=>window.__KICKLAB_RACE_ENGINE_QA__.state().steer)!=='auto')throw Error('Existing steering assist was not selected for the recorded pedal run');
   await page.evaluate(()=>window.__KICKLAB_RACE_ENGINE_QA__.run());await page.locator('#raceNavigation').waitFor({state:'visible',timeout:5000});
   await page.locator('.stage').focus();await page.keyboard.down('Space');
-  await page.locator('.stage').screenshot({path:join(out,'go-shell-wheel-768.png')});await page.waitForTimeout(1200);
+  await page.locator('.stage').screenshot({path:join(out,'go-course-map-768.png')});await page.waitForTimeout(1200);
   let last='',began=Date.now(),gasHeld=true,brakeHeld=false;
   while(Date.now()-began<45000){
     const state=await page.evaluate(()=>{const game=window.__KICKLAB_RACE_MODES_QA__.state(),nav=window.__KICKLAB_RACE_NAVIGATION__;return{x:game.x,y:game.y,v:game.speedKmh/3.6,e:game.lineError,phase:game.phase,nav:nav?.stage,detail:nav?.detail,visible:nav?.visible,renderer:window.__KICKLAB_RACE_3D__?.status};});
@@ -40,7 +40,7 @@ try{
 }finally{const video=page.video();await context.close();webm=video?await video.path():null;await browser.close();}
 const mp4=join(out,`race-live-track-${head.slice(0,12)}.mp4`);
 if(!webm)throw Error('Playwright did not produce a video');
-execFileSync('ffmpeg',['-y','-loglevel','error','-loop','1','-framerate','25','-t','1.5','-i',join(out,'starting-grid-768.png'),'-loop','1','-framerate','25','-t','2','-i',join(out,'go-shell-wheel-768.png'),'-i',webm,'-filter_complex','[0:v]fps=25,scale=768:1024,setsar=1[v0];[1:v]crop=520:690:0:0,scale=768:1024,setsar=1[v1];[2:v]fps=25,scale=768:1024,setsar=1[v2];[v0][v1][v2]concat=n=3:v=1:a=0,format=yuv420p[v]','-map','[v]','-c:v','libx264','-crf','20','-pix_fmt','yuv420p','-movflags','+faststart',mp4]);
+execFileSync('ffmpeg',['-y','-loglevel','error','-loop','1','-framerate','25','-t','1.5','-i',join(out,'starting-grid-768.png'),'-loop','1','-framerate','25','-t','2','-i',join(out,'go-course-map-768.png'),'-i',webm,'-filter_complex','[0:v]fps=25,scale=768:1024,setsar=1[v0];[1:v]crop=520:690:0:0,scale=768:1024,setsar=1[v1];[2:v]fps=25,scale=768:1024,setsar=1[v2];[v0][v1][v2]concat=n=3:v=1:a=0,format=yuv420p[v]','-map','[v]','-c:v','libx264','-crf','20','-pix_fmt','yuv420p','-movflags','+faststart',mp4]);
 const probe=JSON.parse(execFileSync('ffprobe',['-v','error','-show_entries','format=duration:stream=codec_name,width,height','-of','json',mp4],{encoding:'utf8'}));
 if(!probe.format?.duration||Number(probe.format.duration)<5||probe.streams[0]?.codec_name!=='h264')throw Error(`Invalid MP4: ${JSON.stringify(probe)}`);
 const report={head,url:url.toString(),mp4,probe,samples,errors,external};writeFileSync(join(out,'video-report.json'),JSON.stringify(report,null,2));console.log(JSON.stringify({mp4,duration:probe.format.duration,stages:samples.map(s=>s.nav),errors,external}));
