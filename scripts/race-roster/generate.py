@@ -14,8 +14,9 @@ from mathutils import Vector
 
 SCRIPT_ROOT = Path(__file__).resolve().parent
 parser = argparse.ArgumentParser()
-parser.add_argument("variant", choices=("kestrel", "aegis"))
+parser.add_argument("variant", choices=("kestrel", "aegis", "vesper", "sable"))
 parser.add_argument("--output", type=Path, default=None)
+parser.add_argument("--no-renders", action="store_true", help="Export editable source and GLB without review stills")
 args = parser.parse_args(sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else [])
 VARIANT = args.variant
 OUT = args.output or SCRIPT_ROOT.parent.parent / "qa-artifacts" / "race-roster" / VARIANT
@@ -52,10 +53,18 @@ if VARIANT == "kestrel":
     body_paint = mat("body · solar orange lacquer", (.96, .21, .014), .38, .28)
     shoulder_paint = mat("body · graphite shoulder", (.040, .047, .055), .24, .39)
     aero_paint = mat("aero · dark graphite sill", (.055, .062, .068), .20, .42)
-else:
+elif VARIANT == "aegis":
     body_paint = mat("body · deep crimson lacquer", (.34, .012, .034), .42, .27)
     shoulder_paint = mat("body · crimson shoulder highlight", (.55, .038, .067), .36, .30)
     aero_paint = mat("aero · black carbon surfaces", (.018, .022, .027), .18, .43)
+elif VARIANT == "vesper":
+    body_paint = mat("body · twilight violet lacquer", (.40,.32,.82), .45, .26)
+    shoulder_paint = mat("body · pale violet shoulder", (.62,.58,.91), .37, .30)
+    aero_paint = mat("aero · black satin GT floor", (.024,.025,.033), .23, .40)
+else:
+    body_paint = mat("body · electric lime lacquer", (.42,.80,.09), .35, .29)
+    shoulder_paint = mat("body · citron shoulder", (.70,.90,.25), .32, .31)
+    aero_paint = mat("aero · charcoal track floor", (.020,.026,.024), .22, .43)
 carbon = mat("aero · graphite composite", (.020, .025, .033), .22, .44)
 glass = mat("glass · smoked blue", (.018, .034, .066), .38, .16)
 rubber = mat("wheels · unmarked graphite rubber", (.012, .014, .017), .02, .78)
@@ -222,7 +231,7 @@ def wheel_mesh(name, center):
 
 
 wheels={}
-for axle,x in (("Front",1.28),("Rear",-1.28)):
+for axle,x in (("Front",1.53 if VARIANT=="vesper" else 1.21 if VARIANT=="sable" else 1.28),("Rear",-1.53 if VARIANT=="vesper" else -1.21 if VARIANT=="sable" else -1.28)):
     for side,y in (("Left",1.04),("Right",-1.04)):
         name=f"Wheel{axle}{side}"
         wheels[name]=wheel_mesh(name,(x,y,.43))
@@ -231,7 +240,7 @@ for name,loc in {
     "BrakeLeft":(-2.50, .63,.83),"BrakeRight":(-2.50,-.63,.83),
     "HeadlightLeft":(2.43,.63,.70),"HeadlightRight":(2.43,-.63,.70),
     "ExhaustLeft":(-2.52,.17,.53),"ExhaustRight":(-2.52,-.17,.53),
-    "RearTireLeft":(-1.28,1.04,.43),"RearTireRight":(-1.28,-1.04,.43),
+    "RearTireLeft":(-1.53 if VARIANT=="vesper" else -1.21 if VARIANT=="sable" else -1.28,1.04,.43),"RearTireRight":(-1.53 if VARIANT=="vesper" else -1.21 if VARIANT=="sable" else -1.28,-1.04,.43),
 }.items():
     obj=bpy.data.objects.new(name,None)
     vehicle.objects.link(obj)
@@ -323,7 +332,7 @@ views={
     "chase-desktop-1440x900":((-7.7,-.6,4.7),(3,0,1.05),1440,900),
     "chase-phone-390x844":((-13.6,-.6,5.1),(3.8,0,1.05),390,844),
 }
-for name,(loc,target,w,h) in views.items():
+for name,(loc,target,w,h) in ([] if args.no_renders else views.items()):
     aim(loc,target)
     scene.render.resolution_x=w;scene.render.resolution_y=h
     scene.render.filepath=str(RENDERS/(name+".png"))

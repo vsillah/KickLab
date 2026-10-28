@@ -1,12 +1,18 @@
 # Race Lab vehicle roster prototype
 
-The asset lane owns three original local vehicles and the versioned catalog in `src/shared/race-vehicle-catalog.js`. The race-modes lane can consume `KickLabRaceVehicleCatalog` without copying asset paths, names, handling values, or Coach text. Stable IDs are `cobalt`, `kestrel`, and `aegis`; schema version is `1`.
+The catalog in `src/shared/race-vehicle-catalog.js` owns five original local vehicles. Race modes consume it without copying asset paths, names, handling values, or Coach text. Stable IDs are `cobalt`, `kestrel`, `aegis`, `vesper`, and `sable`; schema version remains `1` for storage compatibility.
 
 | ID | Visual identity | Handling intent | Cost to teach |
 | --- | --- | --- | --- |
 | `cobalt` | Existing Direction A coupe, sculpted rear and balanced wing | Balanced mass, force, grip and response | Neither the fastest launch nor highest corner hold |
 | `kestrel` | Narrow dart body, compact canopy, exposed shoulders, small ducktail | 880 kg, 7600 N, quick turn-in, lower rolling loss | Lower grip and slower slide recovery |
 | `aegis` | Broad wedge, deep aero floor and diffuser, double rear wing and dorsal fin | 1560 kg, 8800 N, 10% more baseline grip, speed-dependent aero load | Slower launch and greater rolling loss |
+| `vesper` | Long enclosed violet GT deck, broad rear shoulders and split tail | 1640 kg, 10200 N, 59 m/s top speed, 3.06 m wheelbase | Higher mass and rolling loss, faster brake heat, slower slide recovery |
+| `sable` | Short lime track coupe, cutaway flank, narrow canopy and raised compact wing | 1010 kg, 8000 N, 2.42 m wheelbase, quick turn-in | Narrow stability window, faster tire and engine heat, slower recovery |
+
+The advanced cars are device-local mastery rewards. Vesper unlocks after two distinct passed Race formats with You steer selected on the active profile. Sable unlocks after three distinct manually steered passes including Drift. The versioned `raceMastery` ledger records only passed solo or Championship mode outcomes; autopilot and multiplayer outcomes do not count. Historical best scores remain intact but do not grant mastery because they do not prove steering mode. Existing profiles migrate to an empty ledger and can earn every clear in solo Race. The gate never reads another profile, purchase state, network state, or arbitrary XP. Locked cards explain the exact remaining prerequisite. The original three remain available. Advanced selection is guarded in Garage and preflight, including preflight commit; restored locked selections fall back to Cobalt without changing the saved record. Frozen multiplayer contracts preserve the original car ID for both seats and replays.
+
+The advanced cars add bounded vehicle multipliers to existing tire, brake, engine, and steering systems. They do not change scoring or mode pass thresholds. Vesper has higher sustainable top speed but a slower traction-limited launch than Kestrel and a heavier stop than Cobalt. Sable turns in faster but has lower top speed than Vesper, lower recovery than Kestrel, and greater heat exposure. Garage parts retain their existing tradeoffs.
 
 Each entry declares `id`, `name`, `role`, `availability`, `assetUrl`, `coach`, `tradeoff`, `physics`, and `wheels`. Physics fields are `massKg`, `driveForceN`, `topSpeedMs`, `grip`, `rollingLoss`, `steeringResponse`, `slideRecovery`, `brakeHeat`, `brakeRecovery`, and `downforce`. `downforce` raises effective tire grip with speed in the existing systems step, capped at twice the 30 m/s reference. Mode-specific scoring and progression are outside this catalog.
 
@@ -14,13 +20,15 @@ Each entry declares `id`, `name`, `role`, `availability`, `assetUrl`, `coach`, `
 
 ## Production and validation
 
-The new shapes and UVs are authored locally by `scripts/race-roster/generate.py` and `body_variants.py` in Blender 5.1. The saved `.blend` files are editable sources, while each `.glb` has a SHA-256-bound asset manifest. `scripts/race-roster/audit.py` checks named nodes, separate wheel meshes, axle pivots, UVs, triangles, and payload. `scripts/qa-race-vehicle-roster.mjs` exercises selection, orbit, rear chase, default-off behavior, frame pacing, fallback, and external requests.
+The shapes and UVs are authored locally by `scripts/race-roster/generate.py` and `body_variants.py` in Blender 5.1. The saved `.blend` files are editable sources, while each `.glb` has a SHA-256-bound asset manifest. `scripts/race-roster/audit.py` checks named nodes, separate wheel meshes, axle pivots, UVs, triangles, and payload. The advanced topology fingerprints live in `scripts/race-roster/advanced-geometry-baseline.json`. Vesper exports at 440,076 bytes and 11,518 triangles; Sable at 430,280 bytes and 11,202 triangles. Both are below the 1.2 MB per-asset budget and have no external image or buffer URI. The thumbnails and preflight clips are locally rendered from the editable Blender scenes and canonical local Race 3D renderer, respectively. They contain no provider geometry, logos, branded sound, remote textures, or runtime network dependency. Engine sound is synthesized locally from fictional waveform profiles.
 
 Regenerate either vehicle with:
 
 ```sh
 blender -b -t 4 --python scripts/race-roster/generate.py -- kestrel --output qa-artifacts/race-roster/kestrel
 blender -b -t 4 --python scripts/race-roster/generate.py -- aegis --output qa-artifacts/race-roster/aegis
+blender -b -t 4 --python scripts/race-roster/generate.py -- vesper --output qa-artifacts/race-roster/vesper --no-renders
+blender -b -t 4 --python scripts/race-roster/generate.py -- sable --output qa-artifacts/race-roster/sable --no-renders
 ```
 
 Copy the generated `.blend` and `.glb` into that vehicle's `src/assets/3d/` folder, update the manifest byte count and SHA-256, then run `python3 scripts/race-roster/audit.py` and `npm run check`. Browser evidence belongs under `qa-artifacts/race-roster/browser/` and is intentionally outside the shipped build. The selected GLB is loaded on demand; all three are packaged locally for offline availability.

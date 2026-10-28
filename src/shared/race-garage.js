@@ -5,7 +5,9 @@
     body:Object.freeze({label:'Body',choices:Object.freeze([
       {id:'kart',name:'Go-kart',detail:'Quick launch · lower top speed',coach:'Light and lively. Turn gently when the rear starts to move.',stability:.82},
       {id:'street',name:'Street car',detail:'Steady all-round build',coach:'A balanced place to learn the braking and corner line.',stability:1},
-      {id:'race',name:'Race car',detail:'Fast straight · less forgiving',coach:'More speed asks for an earlier brake point.',stability:.9}
+      {id:'race',name:'Race car',detail:'Fast straight · less forgiving',coach:'More speed asks for an earlier brake point.',stability:.9},
+      {id:'vesper',name:'Vesper GT',detail:'Advanced · high-output GT',coach:'Brake early for its mass and ease power in as the rear settles.',stability:.87},
+      {id:'sable',name:'Sable TC',detail:'Advanced · light track car',coach:'Use small steering inputs and cool the tires between hard corners.',stability:.82}
     ])}),
     suspension:Object.freeze({label:'Suspension',choices:Object.freeze([
       {id:'soft',name:'Soft',detail:'Calm over bumps · slower turn-in',coach:'The body settles smoothly, but give the wheel an extra beat.',response:.78,recovery:1.2,transfer:.72},

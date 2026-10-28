@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "1.0.0",
+  "assetId": "kicklab-race-sable",
+  "version": "1",
+  "status": "evaluation-only",
+  "artifact": {
+    "path": "src/assets/3d/kicklab-race-sable/v1/sable-original.glb",
+    "mediaType": "model/gltf-binary",
+    "bytes": 430280,
+    "sha256": "b5eb204f6481d54a01ec84c9a5890296b61d2400013cf386cac47e4f61fab501"
+  },
+  "provenance": {
+    "creator": "KickLab local Race roster authoring",
+    "sourceType": "self-authored-production",
+    "sourcePath": "scripts/race-roster/generate.py, scripts/race-roster/body_variants.py, and src/assets/3d/kicklab-race-sable/v1/sable-original.blend",
+    "sourceCommit": "86877504645991e799ef1f6036c3c168bbaa74ee",
+    "acquiredOn": "2026-10-27",
+    "externalInputs": false,
+    "likeness": false,
+    "cloudProcessing": false
+  },
+  "license": {
+    "owner": "KickLab",
+    "basis": "self-authored",
+    "permittedUse": "production-game",
+    "thirdPartyRestrictions": "none",
+    "proof": "Blender CLI generated original analytic geometry, UVs, and local PBR materials in this branch. No provider geometry, image, brand, or external texture is included."
+  },
+  "runtime": {
+    "threeVersion": "0.186.1",
+    "loader": "GLTFLoader",
+    "requiredExtensions": []
+  },
+  "validation": {
+    "allowedIssues": [
+      {
+        "code": "NODE_EMPTY",
+        "severity": 2,
+        "count": 8,
+        "reason": "Named attachment markers carry transforms for future effects."
+      },
+      {
+        "code": "UNUSED_OBJECT",
+        "severity": 2,
+        "count": 15,
+        "reason": "Original local UVs are preserved for reversible material work; this untextured PBR variant uses solid factors."
+      }
+    ]
+  },
+  "network": {
+    "runtimeRequests": "same-origin-local-only",
+    "externalUrisAllowed": false
+  }
+}

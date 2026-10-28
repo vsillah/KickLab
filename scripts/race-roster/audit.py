@@ -13,6 +13,7 @@ EXPECTED = {
     'WheelRearRight': (-1.28, .43, 1.04),
 }
 BASELINE = json.loads((Path(__file__).resolve().parent / 'geometry-baseline.json').read_text())
+ADVANCED_BASELINE = json.loads((Path(__file__).resolve().parent / 'advanced-geometry-baseline.json').read_text())
 
 
 def geometry_fingerprint(raw, doc, json_length, keys):
@@ -41,11 +42,14 @@ def inspect(name):
         'topology': geometry_fingerprint(raw, doc, json_len, ('POSITION', 'NORMAL', 'indices')),
         'uv': geometry_fingerprint(raw, doc, json_len, ('TEXCOORD_0',)),
     }
-    assert fingerprints == BASELINE[name], f'{name} geometry or UV changed: {fingerprints}'
+    baseline = BASELINE.get(name) or ADVANCED_BASELINE[name]
+    assert fingerprints == baseline, f'{name} geometry or UV changed: {fingerprints}'
     nodes = {node.get('name'): node for node in doc['nodes']}
     assert 'VehicleRoot' in nodes and 'Body' in nodes
     wheel_meshes = []
-    for key, expected in EXPECTED.items():
+    axle = 1.53 if name == 'vesper' else 1.21 if name == 'sable' else 1.28
+    expected_pivots = {key: (axle if 'Front' in key else -axle, pivot[1], pivot[2]) for key, pivot in EXPECTED.items()}
+    for key, expected in expected_pivots.items():
         node = nodes[key]
         assert 'mesh' in node, f'{name} {key} lacks independent mesh'
         wheel_meshes.append(node['mesh'])
@@ -60,10 +64,10 @@ def inspect(name):
     triangles = sum(doc['accessors'][primitive['indices']]['count'] // 3 for mesh in doc['meshes'] for primitive in mesh['primitives'])
     assert triangles < 22432, f'{name} exceeds Direction A triangle count'
     return {'id': name, 'bytes': len(raw), 'meshes': len(doc['meshes']), 'triangles': triangles,
-            'materials': len(doc['materials']), 'wheelPivots': EXPECTED,
+            'materials': len(doc['materials']), 'wheelPivots': expected_pivots,
             'externalUris': 0, 'uvOnEveryPrimitive': True, 'fingerprints': fingerprints}
 
 
 if __name__ == '__main__':
-    report = [inspect(name) for name in ('kestrel', 'aegis')]
+    report = [inspect(name) for name in ('kestrel', 'aegis', 'vesper', 'sable')]
     print(json.dumps(report, indent=2))

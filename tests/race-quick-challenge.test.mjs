@@ -10,3 +10,12 @@ const contract={mode:'drag',vehicle:'street',garage:{version:1,body:'street',sus
 const run={score:950,time:12,trace:[[0,0,0,0,0],[12,240,0,0,240]]};
 test('deterministic private challenge and response round trip',()=>{const c=codec(),one=c.challenge('Ayo',contract,run),two=c.challenge('Ayo',contract,run);assert.equal(one,two);assert.equal(c.decode(one).alias,'Ayo');assert.equal(c.decode(one).run.trace.length,2);const reply=c.response('Bisi',one,{...run,score:1000});const decoded=c.decode(reply);assert.equal(decoded.kind,'response');assert.equal(decoded.challenge,c.checksum(one));assert.equal(decoded.score,1000);});
 test('damaged, oversized, injected and impossible packets fail closed',()=>{const c=codec(),code=c.challenge('Ayo',contract,run);assert.throws(()=>c.decode(code.slice(0,-1)+(code.endsWith('0')?'1':'0')),/Damaged|Invalid/);assert.throws(()=>c.decode('x'.repeat(c.MAX_CODE+1)),/Invalid/);assert.throws(()=>c.challenge('<img src=x>',contract,run),/alias/);assert.throws(()=>c.challenge('Ayo',{...contract,venue:'private'},run),/setup/);assert.throws(()=>c.challenge('Ayo',contract,{...run,trace:[[0,0,0,0,0],[8,240,0,0,240]]}),/Ghost time/);assert.throws(()=>c.challenge('Ayo',contract,{...run,trace:[[0,0,0,0,0],[12,Infinity,0,0,240]]}),/ghost frame/);assert.throws(()=>c.challenge('Ayo',contract,{...run,trace:Array.from({length:97},(_,i)=>[i,0,0,0,0])}),/result/);const forged={v:1,kind:'challenge',alias:'<script>alert(1)</script>',contract,run};const json=JSON.stringify(forged),payload=Buffer.from(json).toString('base64url');assert.throws(()=>c.decode(`KLQ1.${payload}.${c.checksum(json)}`),/Unsupported/);});
+test('advanced vehicle IDs survive frozen expansion packets while core rules stay legacy-safe',()=>{
+  const c=codec();
+  for(const vehicle of ['vesper','sable']){
+    const setup={...contract,vehicle,garage:{...contract.garage,body:vehicle},force:vehicle==='vesper'?10200:8000,mass:vehicle==='vesper'?1640:1010};
+    const code=c.challenge('Ayo',setup,run);
+    assert.equal(c.decode(code).contract.vehicle,vehicle);
+    assert.throws(()=>c.challenge('Ayo',{...setup,mode:'core',rules:'race-core-v1',target:'Finish the same core course'},run),/setup/);
+  }
+});

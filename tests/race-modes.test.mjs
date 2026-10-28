@@ -12,7 +12,7 @@ const catalog=vm.runInNewContext(read('src/shared/race-vehicle-catalog.js')+'\ng
 
 test('expansion remains trusted and its roster seam uses stable IDs',()=>{
   assert.equal(modes.enabled(),true);
-  assert.deepEqual(Object.keys(catalog.vehicles).sort(),['aegis','cobalt','kestrel']);
+  assert.deepEqual(Object.keys(catalog.vehicles).sort(),['aegis','cobalt','kestrel','sable','vesper']);
   assert.equal(catalog.forGarageBody('street').id,'cobalt');
   assert.equal(modes.NEXT.available,true);
   const off=vm.runInNewContext(read('src/shared/race-modes.js')+'\nglobalThis.KickLabRaceModes.enabled()',raceContext(local(''),{KickLabRaceOrigin:origin}));
@@ -182,9 +182,9 @@ test('each roster car sustains 90–120 km/h straights and recovers through the 
   const physics=raceContext(local('?raceExpansion=prototype'));
   for(const path of ['src/shared/race-garage.js','src/shared/race-vehicle-catalog.js','src/shared/race-modes.js','src/game/19-race-systems.js','src/game/19a-race-telemetry.js'])vm.runInNewContext(read(path),physics);
   const systems=vm.runInNewContext('RACE_SYSTEMS',physics),telemetry=vm.runInNewContext('RACE_TELEMETRY',physics),garage=physics.KickLabRaceGarage,vehicles=physics.KickLabRaceVehicleCatalog,api=physics.KickLabRaceModes;
-  for(const [id,tires] of [['kestrel','wide'],['cobalt','balanced'],['aegis','balanced']]){
+  for(const [id,tires] of [['kestrel','wide'],['cobalt','balanced'],['aegis','balanced'],['vesper','wide'],['sable','balanced']]){
     const car=vehicles.get(id),build={...garage.DEFAULT,body:car.legacyBodyId,tires},track=api.ENDURANCE_TRACK,P=garage.parameters({L:120,R:track.radius,m:car.massKg,F:car.driveForceN,top:car.topMps,mu:.9*car.grip,tireMu:.9*car.grip,Lwb:car.wheels.wheelbaseM,ratio:15,expansionCourse:'oval',enduranceCourse:true,progressionHeat:true},build);
-    Object.assign(P,{garageStock:false,rolling:P.rolling*car.rollingLoss,stability:P.stability*car.steeringResponse,response:P.response*car.steeringResponse,recovery:P.recovery*car.slideRecovery,brakeHeat:P.brakeHeat*car.brakeHeat,brakeRecovery:car.brakeRecovery,downforce:car.downforce,engineHeatLoad:1.05});
+    Object.assign(P,{garageStock:false,rolling:P.rolling*car.rollingLoss,stability:P.stability*car.steeringResponse,response:P.response*car.steeringResponse,recovery:P.recovery*car.slideRecovery,brakeHeat:P.brakeHeat*car.brakeHeat,brakeRecovery:car.brakeRecovery,tireHeat:P.tireHeat*(car.tireHeat||1),downforce:car.downforce,engineHeatLoad:1.05*(car.engineHeatLoad||1)});
     const s={x:10,y:0,th:-Math.PI/2,v:0,t:0,...systems.initial()},a=api.initial('endurance'),t=telemetry.initial(),crossingHeat=[];a.phase='run';let previousLaps=0,slideSeconds=0;
     for(let i=0;i<9000&&a.laps<3;i++){
       const path=api.endurancePath(s.x,s.y),arc=Math.PI*track.radius,boundary=path.progress<track.halfStraight?track.halfStraight:path.progress<track.halfStraight+arc+track.straight?track.halfStraight+arc+track.straight:track.lapLength+track.halfStraight,exit=path.progress>=track.halfStraight+arc&&path.progress<track.halfStraight+arc+track.straight?path.progress-(track.halfStraight+arc):path.progress>=track.halfStraight+arc+track.straight+arc?path.progress-(track.halfStraight+arc+track.straight+arc):Infinity,cornering=path.zone==='bend'||boundary-path.progress<55||exit<35,target=cornering?27:32;

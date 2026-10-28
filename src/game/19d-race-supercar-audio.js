@@ -5,7 +5,9 @@ const RACE_SUPERCAR_AUDIO={
   profiles:{
     kestrel:{pulse:2.3,bright:1.28,bass:.68,rasp:1.25,redline:8500},
     cobalt:{pulse:2,bright:1,bass:1,rasp:.9,redline:7600},
-    aegis:{pulse:1.8,bright:.82,bass:1.3,rasp:1.12,redline:7200}
+    aegis:{pulse:1.8,bright:.82,bass:1.3,rasp:1.12,redline:7200},
+    vesper:{pulse:1.58,bright:.72,bass:1.43,rasp:.82,redline:6900},
+    sable:{pulse:2.55,bright:1.38,bass:.62,rasp:1.31,redline:8800}
   },
   clamp(n,lo=0,hi=1){return Math.min(hi,Math.max(lo,Number.isFinite(n)?n:0));},
   profile(id){return this.profiles[id]||this.profiles.cobalt;},

@@ -4,14 +4,14 @@
   const PREFIX='KLQ1',MAX_CODE=12000,MAX_FRAMES=96;
   const modes=new Set(['core','drag','drift','circuit','hill','endurance']);
   const venues=new Set(['highland','marine','forest']);
-  const choices={body:new Set(['kart','street','race']),suspension:new Set(['soft','balanced','firm']),tires:new Set(['narrow','balanced','wide']),brakes:new Set(['standard','sport','endurance'])};
+  const choices={body:new Set(['kart','street','race','vesper','sable']),suspension:new Set(['soft','balanced','firm']),tires:new Set(['narrow','balanced','wide']),brakes:new Set(['standard','sport','endurance'])};
   const finite=(n,low,high)=>typeof n==='number'&&Number.isFinite(n)&&n>=low&&n<=high;
   const alias=value=>typeof value==='string'&&/^[\p{L}\p{N} ._-]{1,24}$/u.test(value.trim());
   const checksum=value=>{let hash=2166136261;for(let i=0;i<value.length;i++){hash^=value.charCodeAt(i);hash=Math.imul(hash,16777619);}return(hash>>>0).toString(16).padStart(8,'0');};
   const bytes=value=>new TextEncoder().encode(value);
   const base64=value=>{let binary='';for(const byte of bytes(value))binary+=String.fromCharCode(byte);return btoa(binary).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');};
   const unbase64=value=>new TextDecoder('utf-8',{fatal:true}).decode(Uint8Array.from(atob(value.replace(/-/g,'+').replace(/_/g,'/')+'='.repeat((4-value.length%4)%4)),char=>char.charCodeAt(0)));
-  function contract(c){if(!c||typeof c!=='object'||!modes.has(c.mode)||!choices.body.has(c.vehicle)||!venues.has(c.venue)||!['you','auto'].includes(c.steer)||c.control!==undefined&&!['classic','analog','simulator'].includes(c.control)||!['race-expansion-v1','race-core-v1'].includes(c.rules)||c.rules!==(c.mode==='core'?'race-core-v1':'race-expansion-v1')||!c.garage||c.garage.version!==1||c.garage.body!==c.vehicle||Object.entries(choices).some(([key,set])=>!set.has(c.garage[key]))||!finite(c.mu,.3,1.6)||!finite(c.radius,20,60)||!finite(c.force,1000,15000)||!finite(c.mass,150,2000))throw Error('Invalid race setup');
+  function contract(c){if(!c||typeof c!=='object'||!modes.has(c.mode)||!choices.body.has(c.vehicle)||c.mode==='core'&&['vesper','sable'].includes(c.vehicle)||!venues.has(c.venue)||!['you','auto'].includes(c.steer)||c.control!==undefined&&!['classic','analog','simulator'].includes(c.control)||!['race-expansion-v1','race-core-v1'].includes(c.rules)||c.rules!==(c.mode==='core'?'race-core-v1':'race-expansion-v1')||!c.garage||c.garage.version!==1||c.garage.body!==c.vehicle||Object.entries(choices).some(([key,set])=>!set.has(c.garage[key]))||!finite(c.mu,.3,1.6)||!finite(c.radius,20,60)||!finite(c.force,1000,15000)||!finite(c.mass,150,2000))throw Error('Invalid race setup');
     const expected=c.mode==='core'?'Finish the same core course':root.KickLabRaceModes?.MODES?.[c.mode]?.target;
     if(c.target!==expected)throw Error('Invalid race target');
     return{mode:c.mode,vehicle:c.vehicle,garage:{version:1,body:c.garage.body,suspension:c.garage.suspension,tires:c.garage.tires,brakes:c.garage.brakes},venue:c.venue,steer:c.steer,control:c.control||'classic',rules:c.rules,target:expected,mu:c.mu,radius:c.radius,force:c.force,mass:c.mass};}
