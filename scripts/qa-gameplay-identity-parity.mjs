@@ -17,7 +17,7 @@ try{
     const tag=lab==='kick'?`${lab}-${variant}`:lab;
     const video=name==='desktop'&&['canvas','3d'].includes(variant)&&['rocket','trick'].includes(id);
     const context=await browser.newContext({viewport:{width,height},reducedMotion:name==='phone'?'reduce':'no-preference',recordVideo:video?{dir:out,size:{width,height}}:undefined});
-    await context.addInitScript(({id})=>{localStorage.setItem('kicklab.profiles.v1',JSON.stringify({version:1,activeId:'qa',legacyProfileId:'qa',profiles:[{id:'qa',nickname:`QA ${id}`,avatar:id,color:'sky',progress:{gfx:variant==='2d'?'2d':'3d'},needsSetup:false}]}));}, {id,variant});
+    await context.addInitScript(({id,variant})=>{localStorage.setItem('kicklab.profiles.v1',JSON.stringify({version:1,activeId:'qa',legacyProfileId:'qa',profiles:[{id:'qa',nickname:`QA ${id}`,avatar:id,color:'sky',progress:{gfx:variant==='2d'?'2d':'3d'},needsSetup:false}]}));}, {id,variant});
     const page=await context.newPage(),errors=[],url=new URL(base);
     url.searchParams.set('rev',head);url.searchParams.set('qa','gameplay-identity-parity');url.searchParams.set('wardrobeResultsQA','1');
     if(variant==='direction-c'){url.searchParams.set('renderer','direction-c');url.searchParams.set('quality','full');}
@@ -46,7 +46,7 @@ try{
       if(video)await page.waitForTimeout(850);
       if(errors.length)throw Error(`page errors: ${errors.join(' | ')}`);
       report.checks.push({viewport:name,width,height,id,lab,variant,overflow:state.overflow,reducedMotion:name==='phone',active:true,result:true});
-    }catch(error){report.errors.push(`${name}/${id}/${tag}: ${error.stack||error}`);}
+    }catch(error){report.errors.push(`${name}/${id}/${tag}: ${error.stack||error}`);console.error(`${name}/${id}/${tag}: ${error.message}`);}
     const recording=page.video();await context.close();if(recording){const destination=join(out,`${name}-${id}-${tag}.webm`);copyFileSync(await recording.path(),destination);report.videos.push(destination);}
   }
   const switching=await browser.newContext({viewport:{width:1113,height:834}});
