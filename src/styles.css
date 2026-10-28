@@ -2460,3 +2460,24 @@ html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .race-navigat
 html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .race-navigation-finish{stroke-width:3}
 @media(max-width:480px){html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] #raceNavigation{width:132px;height:94px}html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] #raceNavigationMap{height:calc(100% - 14px)}}
 @media(prefers-reduced-motion:reduce){html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] #raceNavigation::after{animation:none!important}}
+
+/* One progression-lock treatment for cards and choices in every lab. */
+:is(.kl-locked.kl-locked,.race-preflight-venue:disabled){position:relative;isolation:isolate;overflow:hidden;filter:grayscale(1);opacity:1;cursor:not-allowed}
+.kl-locked.kl-locked,.race-preflight-venue:disabled{opacity:1!important}
+:is(.kl-locked.kl-locked,.race-preflight-venue:disabled)::before{content:"";position:absolute;inset:0;z-index:3;background:rgba(5,12,22,.68);pointer-events:none}
+:is(.kl-locked.kl-locked,.race-preflight-venue:disabled)::after{content:"";position:absolute;z-index:4;left:50%;top:50%;width:clamp(28px,4vw,44px);height:clamp(28px,4vw,44px);transform:translate(-50%,-50%);background:rgba(255,255,255,.84);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M18 29v-8a14 14 0 0 1 28 0v8' fill='none' stroke='white' stroke-width='6' stroke-linecap='round'/%3E%3Crect x='12' y='27' width='40' height='32' rx='6' fill='white'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M18 29v-8a14 14 0 0 1 28 0v8' fill='none' stroke='white' stroke-width='6' stroke-linecap='round'/%3E%3Crect x='12' y='27' width='40' height='32' rx='6' fill='white'/%3E%3C/svg%3E") center/contain no-repeat;pointer-events:none}
+.kl-locked .kl-unlock-requirement,.settings-choice-grid .kl-locked .choice-copy small,.race-level-list .kl-locked small,.race-championship-events .kl-locked small,#raceMultiLive.kl-locked small,.race-preflight-venue:disabled .race-preflight-route-enter{position:relative;z-index:5;display:block;width:fit-content;max-width:100%;margin-top:auto;padding:3px 5px;border-radius:5px;background:rgba(5,12,22,.96);color:#fff!important;line-height:1.3;overflow-wrap:anywhere}
+.kl-locked .kl-unlock-requirement{font-weight:700}
+.chip.kl-locked{opacity:1}.chip.kl-locked small{color:#fff}
+.var.kl-locked .nm::after{content:none}.var.kl-locked .kl-unlock-requirement{margin-top:7px}
+.race-level-list .kl-locked,.race-championship-events .kl-locked,.race-preflight-route.kl-locked{opacity:1}
+.race-journey-card.kl-locked .race-journey-emblem,.race-journey-card.kl-locked .race-journey-state{display:none}
+.race-journey-card.kl-locked .race-journey-copy{position:relative;z-index:5}
+.race-journey-card.kl-locked .race-journey-copy>:not(.kl-unlock-requirement){opacity:.55}
+.race-championship-events button.kl-locked{min-width:188px;max-width:188px;min-height:88px;align-content:space-between}
+.race-championship-events button.kl-locked small{white-space:normal;overflow:visible;text-overflow:clip}
+.race-preflight-route.kl-locked .kl-unlock-requirement,.race-preflight-venue:disabled .race-preflight-route-enter{display:inline-block}
+.race-preflight-roster button.kl-locked{min-height:300px;align-items:stretch}
+.race-preflight-roster button.kl-locked img{align-self:center}
+.race-preflight-roster button.kl-locked .race-preflight-roster-copy{align-self:flex-end}
+@media(prefers-reduced-motion:reduce){:is(.kl-locked.kl-locked,.race-preflight-venue:disabled),:is(.kl-locked.kl-locked,.race-preflight-venue:disabled)::before,:is(.kl-locked.kl-locked,.race-preflight-venue:disabled)::after{animation:none!important;transition:none!important}}

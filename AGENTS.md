@@ -1,5 +1,7 @@
 # KickLab project guidance
 
+Progression-locked choices and cards share one visual contract across Home, Fight, Race, Kick, profiles, awards, Garage, preflight, and Championship: desaturate the whole component, keep its art and content faintly visible, and center a translucent white lock over it. Keep a short unlock requirement readable outside the dimmed layer, include the locked state and requirement in accessible naming, and preserve disabled selection semantics and reduced-motion behavior. Do not use a separate lock badge or opacity-only treatment. Temporary controls disabled during a run, transition, or loading state are not progression locks.
+
 One device-local player avatar ID represents the same recognizable person in Fight, Race, and Kick. Each lab gives that player activity-appropriate clothing while preserving face, complexion, hair, build, identity color, and visual style. Fight uses age-appropriate protective training gear, Race uses driver equipment, and Kick uses a soccer kit. Keep Coaches separate from player identity. Add new wardrobe art as local assets with provenance; keep existing avatar IDs and profile storage compatible.
 
 Selectable parts, categories, and actions need meaningful, visually distinct icons with accessible text or tooltips. Keep a visible label whenever an icon could be ambiguous; do not rely on icon-only controls or color alone to explain a choice.
