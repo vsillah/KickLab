@@ -20,7 +20,7 @@ page.on('pageerror',error=>errors.push(error.message));
 await page.route('**/*',route=>{const url=new URL(route.request().url());if(url.origin===base||['blob:','data:'].includes(url.protocol))return route.continue();external.push(url.href);return route.abort();});
 const manifestPath=join(target,venueCapture?kind==='arrival'?'venue-arrival-manifest.json':'venue-manifest.json':kind==='arrival'?'arrival-manifest.json':'manifest.json');
 const previous=existsSync(manifestPath)?JSON.parse(readFileSync(manifestPath,'utf8')):null;
-const manifest={source:'KickLab local Race 3D renderer',kind,origin:base,captureFlag:'racePreflightCapture=1',venueCapture,durationTargetSeconds:5.2,entries:previous?.entries||[]};
+const manifest={source:'KickLab local Race 3D renderer',...(venueCapture?{commercialReleaseDisposition:'hold: verify capture rights from every rendered input under the Phase 2 rights gate'}:{}),kind,origin:base,captureFlag:'racePreflightCapture=1',venueCapture,durationTargetSeconds:5.2,entries:previous?.entries||[]};
 const vehicles=process.env.KICKLAB_CAPTURE_VEHICLES?.split(',').filter(Boolean)||['kestrel','cobalt','aegis'];
 try{
   await page.goto(`${base}/kicklab.html?raceExpansion=prototype&raceTelemetry=prototype&racePreflight=prototype&racePreflightCapture=1`,{waitUntil:'domcontentloaded'});
