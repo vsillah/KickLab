@@ -33,7 +33,14 @@ function hideResults(){stopRaceReplayPreview();$('#results').hidden=true;$('#res
 let resultsDelay=null;
 function resOpen(){const el=$('#results');return!el.hidden&&!el.classList.contains('mini');}
 function roundOver(){if(M.key==='fight')return!!(M.bout&&M.bout.over);if(M.key==='kick'&&M.opt.shot==='dribble')return Drib.state==='done';return M.state==='done'||M.state==='crashed';}
-function ackResults(){if(!resOpen())return;if(M===Race&&$('#rNext').hidden){$('#rRaceGarage').focus();return;}SND.click();if(M===Race&&(RACE_MULTI_UI.match||RACE_CHAMP_UI.active&&RACE_CHAMP_UI.last?.passed)){hideResults();if(RACE_CHAMP_UI.active)$('#raceChampionshipEvents [aria-pressed="true"]')?.focus();return;}hideResults();if(MATCH.on)return;if(typeof CONTINUOUS!=='undefined'&&CONTINUOUS.on){CONTINUOUS.advance();return;}if(!roundOver())return;
+function persistRaceResult(){saveBest();try{const saved=JSON.parse(localStorage.getItem(PROFILE_CORE.PROFILE_KEY));return JSON.stringify(saved.profiles.find(profile=>profile.id===profileManager.active().id)?.progress)===JSON.stringify(best);}catch(_){return false;}}
+function keepRacing(){if(M!==Race||!resOpen()||$('#rNext').dataset.raceAction!=='keep')return;
+  if(!persistRaceResult()){$('#rHint').textContent='Could not save on this device. Free up space or allow local storage, then try again.';return;}
+  if(RECS.race?.on)stopRec('race');
+  hideResults();racePreflightPrepareHomeEntry();Race.reset();renderAll(false);renderRaceTelemetry();
+  if(RACE_PREFLIGHT_ON)racePreflightOpen($('#raceCoachSetupStart'));
+}
+function ackResults(){if(!resOpen())return;if(M===Race&&$('#rNext').hidden){$('#rRaceGarage').focus();return;}if(M===Race&&$('#rNext').dataset.raceAction==='keep'){keepRacing();return;}SND.click();if(M===Race&&(RACE_MULTI_UI.match||RACE_CHAMP_UI.active&&RACE_CHAMP_UI.last?.passed)){hideResults();if(RACE_CHAMP_UI.active)$('#raceChampionshipEvents [aria-pressed="true"]')?.focus();return;}hideResults();if(MATCH.on)return;if(typeof CONTINUOUS!=='undefined'&&CONTINUOUS.on){CONTINUOUS.advance();return;}if(!roundOver())return;
   if(M.key==='fight'){M.reset();renderActions();COACH.say(M.introLine(),'tip',12);}else{M.reset();if(typeof setLabel==='function')setLabel();renderActions();}}
 $('#rNext').addEventListener('click',e=>{e.stopPropagation();unlock();if(M===Race&&resOpen()&&e.currentTarget.dataset.raceAction==='next'){hideResults();$('#raceChampionshipNext').click();return;}ackResults();});
 function award(mode,items,success,meta={}){if(mode==='kick'&&MATCH.on&&!meta.auto&&!MATCH.lock){MATCH.lock=true;const ok=success;meta=Object.assign({},meta,{auto:true,delay:0,after:()=>setTimeout(()=>MATCH.next(ok),1900)});}if(success)STREAK[mode]++;else STREAK[mode]=0;const mult=success?1+0.25*Math.min(Math.max(STREAK[mode]-1,0),4):1;
@@ -79,8 +86,8 @@ function showResults(m){hideResults();const el=$('#results'),rc=$('#rc');const r
     for(const badge of badges){const card=document.createElement('button');card.type='button';card.className='race-result-badge';card.dataset.awardKind='journey';card.innerHTML='<img src="assets/awards/race/v1/core.webp" alt=""><div><span>BADGE UNLOCKED · +200 XP</span><b></b><em>View award journey ›</em></div>';card.querySelector('b').textContent=badge;awards.append(card);}
     awards.hidden=!awards.childElementCount;
     const validNext=passed&&RACE_CHAMP_UI.active&&RACE_CHAMP_UI.last?.passed&&RACE_CHAMP_UI.last.next&&RACE_CHAMP_UI.selected<RACE_CHAMP.EVENTS.length-1&&RACE_CHAMP.unlocked(best.raceChampionship,RACE_CHAMP_UI.selected+1);
-    const match=!!RACE_MULTI_UI.match,soleSave=passed&&!validNext&&!match;
-    $('#rNext').dataset.raceAction=validNext?'next':match?'match':passed?'save':'retry';
+    const match=!!RACE_MULTI_UI.match,standalonePass=passed&&!RACE_CHAMP_UI.active&&!match,soleSave=passed&&!validNext&&!match&&!standalonePass;
+    $('#rNext').dataset.raceAction=validNext?'next':match?'match':standalonePass?'keep':passed?'save':'retry';
     $('#rNext').hidden=soleSave;el.querySelector('.rgo').classList.toggle('sole-action',soleSave);
     $('#rRaceGarage').hidden=false;
     $('#rReview').hidden=true;$('#rReplay').hidden=true;$('#rRaceBoard').hidden=true;$('#racts').hidden=true;
@@ -92,14 +99,13 @@ function showResults(m){hideResults();const el=$('#results'),rc=$('#rc');const r
   $('#rRows').innerHTML=rowsHTML;$('#rTotal').textContent='+0';el.classList.toggle('mini',!!m.auto);el.hidden=false;if(typeof syncDialsAvailability==='function')syncDialsAvailability();if(typeof renderMathConsole==='function')renderMathConsole();$('#rLvl').hidden=true;SND.grade(m.grade);if(!m.auto&&LVL_STASH){const n=LVL_STASH;LVL_STASH=0;setTimeout(()=>{if(resOpen())lvlRibbon(n);},500);}if(!m.auto){const next=typeof CONTINUOUS!=='undefined'&&CONTINUOUS.on?CONTINUOUS.nextLabel():(m.next||'Next round');$('#rNext').innerHTML=next+' <span aria-hidden="true">▶</span> <kbd>Space</kbd>';}setTimeout(refreshResBoard,0);
   const start=250+m.rows.length*130+(m.mult>1?130:0);for(let i=0;i<m.rows.length;i++)tallyTimers.push(setTimeout(()=>SND.tick(),250+i*130));
   const steps=14;for(let k=1;k<=steps;k++)tallyTimers.push(setTimeout(()=>{$('#rTotal').textContent='+'+fmt(Math.round(m.tot*k/steps),0);if(k%3===0)SND.tick();if(k===steps){SND.total();const md=$('#medal');md.classList.remove('bump');void md.offsetWidth;md.classList.add('bump');}},start+k*40));
-  if(race&&!$('#rNext').hidden)$('#rNext').textContent=RACE_MULTI_UI.match?'Match controls':$('#rNext').dataset.raceAction==='next'?'Continue to next':'Retry';
+  if(race&&!$('#rNext').hidden)$('#rNext').textContent=RACE_MULTI_UI.match?'Match controls':$('#rNext').dataset.raceAction==='next'?'Continue to next':$('#rNext').dataset.raceAction==='keep'?'Keep racing':'Retry';
   if(m.auto){$('#racts').hidden=true;resultsTimer=setTimeout(()=>{$('#results').hidden=true;$('#results').classList.remove('mini');},2100);}}
 if(['localhost','127.0.0.1'].includes(location.hostname)&&new URLSearchParams(location.search).get('wardrobeResultsQA')==='1')globalThis.__KICKLAB_WARDROBE_RESULTS_QA__=Object.freeze({fixture:lab=>{if(!['fight','kick'].includes(lab)||M?.key!==lab)return false;showResults({grade:'A',rows:[],mult:1,tot:0,title:'QA WARDROBE RESULT',sub:'Device-local fixture',hint:'Player identity check'});return true;}});
 $('#rRaceGarage').addEventListener('click',event=>{event.stopPropagation();if(M!==Race||!resOpen())return;
   // Awards and progression have already been applied. This writes the same profile
   // through the canonical store and verifies it before leaving the result.
-  saveBest();let persisted=false;try{const saved=JSON.parse(localStorage.getItem(PROFILE_CORE.PROFILE_KEY));persisted=JSON.stringify(saved.profiles.find(profile=>profile.id===profileManager.active().id)?.progress)===JSON.stringify(best);}catch(_){}
-  if(!persisted){$('#rHint').textContent='Could not save on this device. Free up space or allow local storage, then try again.';return;}
+  if(!persistRaceResult()){$('#rHint').textContent='Could not save on this device. Free up space or allow local storage, then try again.';return;}
   if(RECS.race?.on)stopRec('race');showModeHome({preserveRaceResult:true});
 });
 $('#rRaceNext').addEventListener('click',event=>{event.stopPropagation();$('#raceChampionshipNext').click();});

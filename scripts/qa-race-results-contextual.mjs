@@ -9,14 +9,14 @@ const base=process.env.KICKLAB_QA_URL||'http://127.0.0.1:5887/kicklab.html?raceE
 const browser=await chromium.launch({headless:true,executablePath:[chromium.executablePath(),'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find(existsSync)});
 const report={head,base,states:[],errors:[],external:[]};
 const cases=[
-  {outcome:'pass',achievement:'collectible',replay:'both',context:'standalone',progress:null},
-  {outcome:'pass',achievement:'none',replay:'both',context:'standalone',progress:null},
-  {outcome:'pass',achievement:'none',replay:'none',context:'standalone',progress:null},
+  {outcome:'pass',achievement:'collectible',replay:'both',context:'standalone',progress:'Keep racing'},
+  {outcome:'pass',achievement:'none',replay:'both',context:'standalone',progress:'Keep racing'},
+  {outcome:'pass',achievement:'none',replay:'none',context:'standalone',progress:'Keep racing'},
   {outcome:'fail',achievement:'none',replay:'both',context:'standalone',progress:'Retry'},
   {outcome:'pass',achievement:'season',replay:'both',context:'mid',progress:'Continue to next'},
   {outcome:'pass',achievement:'season',replay:'both',context:'final',progress:null},
   {outcome:'fail',achievement:'none',replay:'none',context:'mid',progress:'Retry'},
-  {outcome:'pass',achievement:'none',replay:'both',context:'standalone',coach:'error-heavy',progress:null},
+  {outcome:'pass',achievement:'none',replay:'both',context:'standalone',coach:'error-heavy',progress:'Keep racing'},
   {outcome:'fail',achievement:'none',replay:'both',context:'standalone',coach:'error-heavy',progress:'Retry'}
 ];
 for(const viewport of [{width:390,height:844},{width:768,height:1024},{width:1440,height:900}].filter(v=>!process.env.KICKLAB_QA_WIDTH||v.width===Number(process.env.KICKLAB_QA_WIDTH))){
@@ -32,7 +32,7 @@ for(const viewport of [{width:390,height:844},{width:768,height:1024},{width:144
       const state=await page.evaluate(()=>{const visible=id=>!document.querySelector(id).hidden;const rc=document.querySelector('#rc'),award=document.querySelector('#raceResultAwards'),coach=document.querySelector('#raceResultCoach');return{summary:visible('#results'),coachEnabled:!coach.disabled,coachRows:coach.querySelectorAll('.race-result-coach-theme').length,themeTitles:[...coach.querySelectorAll('.race-result-coach-theme strong')].map(node=>node.textContent.trim()),positive:document.querySelector('#raceResultCoachPositive').textContent.trim(),focus:document.querySelector('#raceResultCoachFocus').textContent.trim(),coachText:coach.textContent.trim(),awards:award.querySelectorAll('[data-award-kind]').length,replay:visible('#raceReplayBlock'),visualReplay:visible('#raceReplayPreview'),fallbackReplay:visible('#raceReplayFallback'),progress:document.querySelector('#rNext').hidden?null:document.querySelector('#rNext').textContent.trim(),sole:document.querySelector('#results .rgo').classList.contains('sole-action'),garage:visible('#rRaceGarage'),footerActions:visible('#racts')||visible('#rRaceNext'),notices:document.querySelectorAll('#toasts .toast,.stage .race-award-toast').length,overflow:rc.scrollWidth>rc.clientWidth+2,scrollWidth:rc.scrollWidth,clientWidth:rc.clientWidth};});
       report.states.push({label,sample,fixture,state});
       const expectedAward=sample.achievement==='none'?0:1,expectedReplay=sample.replay==='frames'||sample.replay==='both',expectedCoach=sample.replay==='moves'||sample.replay==='both';
-      if(!fixture||!state.summary||state.coachEnabled!==expectedCoach||state.awards!==expectedAward||state.replay!==expectedReplay||state.visualReplay||state.fallbackReplay!==expectedReplay||state.progress!==sample.progress||state.sole!==(sample.outcome==='pass'&&sample.progress===null)||!state.garage||state.footerActions||state.notices||state.overflow)report.errors.push(`${label} ${JSON.stringify(sample)}: ${JSON.stringify(state)}`);
+      if(!fixture||!state.summary||state.coachEnabled!==expectedCoach||state.awards!==expectedAward||state.replay!==expectedReplay||state.visualReplay||state.fallbackReplay!==expectedReplay||state.progress!==sample.progress||state.sole!==(sample.context==='final'&&sample.outcome==='pass')||!state.garage||state.footerActions||state.notices||state.overflow)report.errors.push(`${label} ${JSON.stringify(sample)}: ${JSON.stringify(state)}`);
       if(state.coachRows!==2||JSON.stringify(state.themeTitles)!==JSON.stringify(['What worked','Next focus'])||!state.positive||!state.focus||[state.positive,state.focus].some(line=>!/^[^.!?]+[.!?]$/.test(line))||/run messages|Lift now: power is reduced|Brake before the switchback/.test(state.coachText))report.errors.push(`${label}: Coach summary hierarchy ${JSON.stringify({sample,state})}`);
       if(sample.coach==='error-heavy'&&(!state.focus.includes('Brake earlier')||state.positive.includes('braking was on target')))report.errors.push(`${label}: error-heavy run did not prioritize actual entry error ${JSON.stringify({sample,state})}`);
       if(sample.outcome==='fail'&&state.positive.includes('finish'))report.errors.push(`${label}: failed run claimed a finish ${JSON.stringify({sample,state})}`);
@@ -68,8 +68,10 @@ for(const viewport of [{width:390,height:844},{width:768,height:1024},{width:144
       }
       if(sample.context==='standalone'&&sample.outcome==='pass'&&sample.achievement==='none'&&sample.replay==='none'){
         await page.evaluate(value=>{window.__KICKLAB_RACE_RESULTS_QA__.scenario(value);document.activeElement?.blur();},sample);await page.keyboard.press('Space');
-        if(!await page.locator('#results').isVisible()||!await page.locator('#rRaceGarage').evaluate(button=>button===document.activeElement))report.errors.push(`${label}: hidden Continue was reachable by shortcut`);
-        await page.click('#rRaceGarage');if(!await page.locator('#modeHome').isVisible())report.errors.push(`${label}: standalone Save & Exit did not reach home`);
+        const continued=await page.evaluate(()=>window.__KICKLAB_RACE_RESULTS_QA__.state());
+        if(continued.resultsOpen||continued.raceState!=='grid')report.errors.push(`${label}: Keep racing shortcut did not return to Race grid ${JSON.stringify(continued)}`);
+        if(await page.locator('#racePreflight').isVisible())await page.click('#racePreflightClose');
+        await page.evaluate(value=>window.__KICKLAB_RACE_RESULTS_QA__.scenario(value),sample);await page.click('#rRaceGarage');if(!await page.locator('#modeHome').isVisible())report.errors.push(`${label}: standalone Save & Exit did not reach home`);
         await page.click('#lab-tab-race');await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});if(await page.locator('#racePreflightClose').isVisible())await page.click('#racePreflightClose');
       }
       if(sample.outcome==='fail'&&sample.replay==='none'){

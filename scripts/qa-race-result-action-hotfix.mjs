@@ -45,9 +45,9 @@ for(const testCase of cases){
       await page.locator('#raceReplayPreview').scrollIntoViewIfNeeded();
       const state=await page.evaluate(()=>{const save=document.querySelector('#rRaceGarage'),primary=document.querySelector('#rNext'),row=document.querySelector('#results .rgo'),preview=document.querySelector('#raceReplayPreview'),r=element=>{const b=element.getBoundingClientRect();return{x:b.x,y:b.y,w:b.width,h:b.height,right:b.right,bottom:b.bottom}},s=r(save),p=r(preview),action=r(row),point=document.elementFromPoint(s.x+s.w/2,s.y+s.h/2);return{title:document.querySelector('#rTitle').textContent,primary:primary.hidden?null:primary.textContent.trim(),primaryFirst:!!(primary.compareDocumentPosition(save)&Node.DOCUMENT_POSITION_FOLLOWING),saveName:save.getAttribute('aria-label'),saveTitle:save.getAttribute('title'),saveText:save.textContent.trim(),iconParts:save.querySelectorAll('svg path,svg circle').length,save:s,action,preview:p,saveHit:point?.closest('button')?.id||null,overflow:document.documentElement.scrollWidth>innerWidth+1,renderer:window.__KICKLAB_RACE_3D__?.status,vehicle:window.__KICKLAB_RACE_3D__?.vehicle}});
       entry.states.push({phase:`result-${outcome}`,...state});
-      if(state.saveName!=='Save & Exit'||state.saveTitle!=='Save & Exit'||state.saveText||state.iconParts<3||state.save.w<44||state.save.h<44||state.saveHit!=='rRaceGarage'||state.save.right>width+1||state.save.bottom>height+1||Math.abs(state.action.x-state.preview.x)>.5||Math.abs(state.action.w-state.preview.w)>.5||Math.abs(state.save.right-state.preview.right)>.5||state.primary!==(outcome==='fail'?'Retry':null)||outcome==='fail'&&!state.primaryFirst||state.overflow||state.renderer!=='rendering'||!state.vehicle)report.errors.push(`${label}/${outcome}: ${JSON.stringify(state)}`);
+      if(state.saveName!=='Save & Exit'||state.saveTitle!=='Save & Exit'||state.saveText||state.iconParts<3||state.save.w<44||state.save.h<44||state.saveHit!=='rRaceGarage'||state.save.right>width+1||state.save.bottom>height+1||Math.abs(state.action.x-state.preview.x)>.5||Math.abs(state.action.w-state.preview.w)>.5||Math.abs(state.save.right-state.preview.right)>.5||state.primary!==(outcome==='fail'?'Retry':'Keep racing')||!state.primaryFirst||state.overflow||state.renderer!=='rendering'||!state.vehicle)report.errors.push(`${label}/${outcome}: ${JSON.stringify(state)}`);
       if(activation==='keyboard'){
-        await page.locator(outcome==='fail'?'#rNext':'#raceReplayPreview').focus();await page.keyboard.press('Tab');
+        await page.locator('#rNext').focus();await page.keyboard.press('Tab');
         const focus=await page.evaluate(()=>{const button=document.querySelector('#rRaceGarage');return{active:document.activeElement===button,visible:button.matches(':focus-visible'),outline:getComputedStyle(button).outlineWidth}});
         entry.states.push({phase:`focus-${outcome}`,...focus});if(!focus.active||!focus.visible||parseFloat(focus.outline)<2)report.errors.push(`${label}/${outcome}: focus ${JSON.stringify(focus)}`);
       }
@@ -58,6 +58,27 @@ for(const testCase of cases){
       await page.screenshot({path:join(out,`${label}-${outcome}-replay.png`)});
       if(activation==='touch')await page.locator('#rbExit').tap();else if(activation==='keyboard'){await page.locator('#rbExit').focus();await page.keyboard.press('Enter')}else await page.click('#rbExit');
       if(await page.locator('#rbar').isVisible())report.errors.push(`${label}/${outcome}: Replay Exit failed`);
+      if(outcome==='pass'){
+        await page.evaluate(()=>window.__KICKLAB_RACE_RESULTS_QA__.scenario({outcome:'pass',coach:'clean',replay:'both'}));
+        const before=await page.evaluate(()=>({profile:JSON.parse(localStorage.getItem('kicklab.profiles.v1')),setup:window.__KICKLAB_RACE_PREFLIGHT_QA__.state().active,record:window.__KICKLAB_RACE_RESULTS_QA__.state()}));
+        if(width===390){
+          await page.evaluate(()=>{const original=Storage.prototype.getItem;window.__qaGetItem=original;Storage.prototype.getItem=function(key){if(key==='kicklab.profiles.v1')throw Error('simulated unavailable storage');return original.call(this,key)}});
+          await page.locator('#rNext').tap();
+          const blocked=await page.evaluate(()=>({result:!document.querySelector('#results').hidden,home:!document.querySelector('#modeHome').hidden,preflight:!document.querySelector('#racePreflight').hidden,hint:document.querySelector('#rHint').textContent}));
+          entry.states.push({phase:'keep-racing-storage-blocked',...blocked});
+          if(!blocked.result||blocked.home||blocked.preflight||!blocked.hint.includes('Could not save'))report.errors.push(`${label}: Keep racing storage failure ${JSON.stringify(blocked)}`);
+          await page.evaluate(()=>{Storage.prototype.getItem=window.__qaGetItem;delete window.__qaGetItem});
+        }
+        if(activation==='touch')await page.locator('#rNext').tap();else if(activation==='keyboard'){await page.locator('#rNext').focus();await page.keyboard.press('Enter')}else await page.click('#rNext');
+        await page.locator('#racePreflight').waitFor({state:'visible',timeout:15000});
+        const continued=await page.evaluate(()=>({home:!document.querySelector('#modeHome').hidden,results:!document.querySelector('#results').hidden,preflight:window.__KICKLAB_RACE_PREFLIGHT_QA__.state(),record:window.__KICKLAB_RACE_RESULTS_QA__.state(),profile:JSON.parse(localStorage.getItem('kicklab.profiles.v1'))}));
+        const previous=before.profile.profiles.find(profile=>profile.id===before.profile.activeId)?.progress,current=continued.profile.profiles.find(profile=>profile.id===continued.profile.activeId)?.progress;
+        const sameSetup=continued.preflight.draft?.vehicle===before.setup.vehicle&&continued.preflight.draft?.mode===before.setup.mode&&JSON.stringify(continued.preflight.draft?.garage)===JSON.stringify(before.setup.garage)&&continued.preflight.draft?.control===style&&continued.preflight.draft?.venue==='highland';
+        const keep={phase:'keep-racing',home:continued.home,results:continued.results,preflight:continued.preflight.open,raceState:continued.preflight.raceState,sameProfile:before.profile.activeId===continued.profile.activeId,progressSame:JSON.stringify(previous)===JSON.stringify(current),sameSetup,recordSame:before.record.recordId===continued.record.recordId&&before.record.recordFrames===continued.record.recordFrames};
+        entry.states.push(keep);if(keep.home||keep.results||!keep.preflight||keep.raceState!=='grid'||!keep.sameProfile||!keep.progressSame||!keep.sameSetup||!keep.recordSame)report.errors.push(`${label}: Keep racing ${JSON.stringify(keep)}`);
+        await page.screenshot({path:join(out,`${label}-keep-racing-preflight.png`)});
+        await page.click('#racePreflightClose');
+      }
       await page.evaluate(value=>window.__KICKLAB_RACE_RESULTS_QA__.scenario({outcome:value,coach:'clean',replay:'both'}),outcome);
       const before=await page.evaluate(()=>{const p=JSON.parse(localStorage.getItem('kicklab.profiles.v1'));return JSON.stringify(p.profiles.find(x=>x.id===p.activeId).progress)});
       if(activation==='touch')await page.locator('#rRaceGarage').tap();else if(activation==='keyboard'){await page.locator('#rRaceGarage').focus();await page.keyboard.press('Space')}else await page.click('#rRaceGarage');
