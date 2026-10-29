@@ -53,8 +53,10 @@ for(const item of cases){
       if(observed.exportControls||observed.calls.objectUrls!==initial.calls.objectUrls||observed.calls.share||observed.calls.canShare||observed.calls.downloads||downloads||observed.overflow>1||!observed.coach.includes('What worked')||!observed.coach.includes('Next focus')||observed.profileId!==initial.profileId||observed.keys.some(key=>/highlight|download|\.webm/i.test(key)))throw Error(`Result boundary failed: ${JSON.stringify(observed)}`);
       if(item.gfx==='3d'&&(!preview?.ready||preview.count<1||!observed.replay3d)||item.gfx==='2d'&&!observed.replayText)throw Error(`Replay fallback mismatch: ${JSON.stringify({preview,observed})}`);
       if(item.width===390&&index===0){await page.waitForFunction(()=>[...document.querySelectorAll('#raceResultAwards img')].every(image=>image.complete&&image.naturalWidth>0));await page.locator('#results').screenshot({path:join(out,'phone-result.png')});}
+      if(item.width===390)await page.waitForTimeout(1600);
       const action=page.locator(observed.replay3d?'#raceReplayPreview':'#raceReplayFallback');if(item.input==='keyboard'){await action.focus();await page.keyboard.press('Enter');}else if(item.input==='touch')await action.tap();else await action.click();
       await page.locator('#rbar').waitFor({state:'visible'});
+      if(item.width===390)await page.waitForTimeout(1800);
       const exitHit=await page.locator('#rbExit').evaluate(button=>{const box=button.getBoundingClientRect(),node=document.elementFromPoint(box.left+box.width/2,box.top+box.height/2);return node===button||button.contains(node);});
       if(!exitHit)report.errors.push(`${item.width}: visible Exit Replay is covered by another control`);
       if(exitHit)await page.click('#rbExit');else{await page.locator('#rbExit').focus();await page.keyboard.press('Enter');}
