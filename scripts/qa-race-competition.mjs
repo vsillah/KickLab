@@ -24,7 +24,7 @@ async function visit(viewport,{seed=true,flag=true,corrupt=false,fallback=false,
     const url=new URL(base);if(flag)url.searchParams.set('raceCompetition','prototype');if(fallback)url.searchParams.set('raceExpansion','prototype');url.searchParams.set('rev',head);await page.goto(url.toString(),{waitUntil:'domcontentloaded'});
     if(await page.locator('#profileFormSave').isVisible())await page.click('#profileFormSave');
     if(await page.locator('#profileClose').isVisible())await page.click('#profileClose');
-    const off=await page.evaluate(()=>({flag:document.documentElement.dataset.raceCompetition||null,competition:document.querySelector('#raceCompetition').hidden,buttons:[document.querySelector('#rRaceBoard').hidden,document.querySelector('#rRaceRecord').hidden]}));
+    const off=await page.evaluate(()=>({flag:document.documentElement.dataset.raceCompetition||null,competition:document.querySelector('#raceCompetition').hidden,buttons:[document.querySelector('#rRaceBoard').hidden]}));
     if(!flag){if(off.flag||!off.competition||off.buttons.some(hidden=>!hidden)||awardLoads.length)throw new Error(`unflagged UI changed: ${JSON.stringify({off,awardLoads})}`);cases.push({name,unflagged:true});return;}
     await page.click('#boardBtn');await page.locator('#raceCompetition').waitFor({state:'visible'});
     await page.waitForFunction(()=>[...document.querySelectorAll('.race-journey-art img')].every(image=>image.complete&&image.naturalWidth>0));
@@ -39,7 +39,7 @@ async function visit(viewport,{seed=true,flag=true,corrupt=false,fallback=false,
     if(!seed&&!state.aliases.includes('No drag sprint scores'))throw new Error(`empty state: ${state.aliases}`);
     await page.locator('#fboard').screenshot({path:join(output,`${name}-board.png`)});
     cases.push({name,...state,journey});
-    if(quota){await page.evaluate(()=>window.__KICKLAB_RACE_AWARDS_QA__.qualify('core',18.5));const awardNotice=await page.locator('.race-award-toast img').evaluate(image=>getComputedStyle(image).animationName),warning=await page.evaluate(()=>window.__KICKLAB_RACE_AWARDS_QA__.state().storageWarning);if(!warning||awardNotice!=='none')throw new Error(`quota or reduced-motion notice: ${JSON.stringify({warning,awardNotice})}`);cases.push({name:'quota-warning',warning,awardNotice});}
+    if(quota){await page.evaluate(()=>window.__KICKLAB_RACE_AWARDS_QA__.qualify('core',18.5));const notice=await page.evaluate(()=>({warning:window.__KICKLAB_RACE_AWARDS_QA__.state().storageWarning,storageMessage:document.querySelector('#toasts')?.textContent.includes('session-only'),awardToasts:document.querySelectorAll('.race-award-toast').length}));if(!notice.warning||!notice.storageMessage||notice.awardToasts)throw new Error(`quota or result-owned award notice: ${JSON.stringify(notice)}`);cases.push({name:'quota-warning',...notice});}
     if(seed&&!fallback&&viewport.width===390&&viewport.height===844){
       await page.click('#fbClose');await page.click('#homeProfileButton');await page.click('#profileList [data-profile-id="p2"]');await page.click('#profileClose');await page.click('#boardBtn');if(!(await page.locator('.race-competition-records').evaluate(node=>node.open)))await page.locator('.race-competition-records summary').click();await page.locator('[data-race-comp-cat="endurance"]').click();
       const switched=await page.locator('#raceCompetitionStats').textContent();if(!switched.includes('2,800 pts'))throw new Error(`profile isolation: ${switched}`);cases.push({name:'profile-switch',best:switched});
@@ -62,8 +62,8 @@ async function visitMotion(){
     const sample=()=>page.locator('.race-journey-card.available').evaluate(card=>{const heading=card.querySelector('h4').getBoundingClientRect(),image=card.querySelector('img');return{imageTransform:getComputedStyle(image).transform,heading:[heading.x,heading.y,heading.width,heading.height]};});
     const before=await sample();await page.waitForTimeout(700);const after=await sample();if(before.imageTransform===after.imageTransform||JSON.stringify(before.heading)!==JSON.stringify(after.heading))throw new Error(`image motion or stationary heading: ${JSON.stringify({before,after})}`);
     await page.locator('.race-journey-card.available').hover();const paused=await page.locator('.race-journey-card.available img').evaluate(image=>getComputedStyle(image).animationPlayState);if(paused!=='paused')throw new Error(`hover inspection failed: ${paused}`);
-    await page.evaluate(()=>window.__KICKLAB_RACE_AWARDS_QA__.qualify('drift',1300));const notice=await page.locator('.race-award-toast img').evaluate(image=>({name:getComputedStyle(image).animationName,count:getComputedStyle(image).animationIterationCount}));if(notice.name!=='raceCollectibleSettle'||notice.count!=='1')throw new Error(`earned notice motion: ${JSON.stringify(notice)}`);
-    cases.push({name:'ambient-motion',motion,paused,imageMoved:true,headingStayed:true,notice});
+    await page.evaluate(()=>window.__KICKLAB_RACE_AWARDS_QA__.qualify('drift',1300));const awardToasts=await page.locator('.race-award-toast').count();if(awardToasts)throw new Error(`award announcement escaped the result surface: ${awardToasts}`);
+    cases.push({name:'ambient-motion',motion,paused,imageMoved:true,headingStayed:true,awardToasts});
   }catch(error){errors.push(`motion: ${error.stack||error}`);}finally{await context.close();}
 }
 for(const viewport of [{width:360,height:780},{width:390,height:844},{width:768,height:1024},{width:1113,height:900},{width:1440,height:900},{width:390,height:650}])await visit(viewport);

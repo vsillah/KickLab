@@ -29,7 +29,7 @@ function frame(now){const rdt=Math.min(0.05,(now-last)/1000);last=now;
       if(RP.on){const lis=[...document.querySelectorAll('#mlList .mv.click')];let cur=null;lis.forEach(li=>{li.classList.remove('cur');if(+li.dataset.t<=RP.t+0.05&&(!cur||+li.dataset.t>+cur.dataset.t))cur=li;});if(cur){cur.classList.add('cur');const L=$('#mlList');L.scrollTop=Math.max(0,cur.offsetTop-L.offsetTop-L.clientHeight/3);}syncFeedReplay();}}const q=M.eqs(),full=q.lines.join('')+q.note;if(full!==lastEq){$('#eqs').innerHTML=full;$('#liveEq').innerHTML=M.LIVE().map(i=>q.lines[i]).join('');lastEq=full;}renderCockpit(q);if(M.liveCoach)M.liveCoach();
     updateAssist();if(typeof renderRaceTelemetry==='function')renderRaceTelemetry();const lk=M.locked?M.locked():false;varEls.forEach(v=>{v.inp.disabled=(!!(v.def.lock||M.key==='kick')&&lk)||isLocked(M.key,v.def.id)||(M===Race&&raceMultiplayerLocked());});
     const cw=ch.clientWidth;if(cw&&ch.width!==Math.round(cw*dpr))resize();cctx.setTransform(1,0,0,1,0,0);cctx.clearRect(0,0,ch.width,ch.height);cctx.setTransform(dpr,0,0,dpr,0,0);$('#chartCap').textContent=M.chart(cctx,cw||300,160);}
-  if(RACE_COMPETITION_ON)raceCompetitionCaptureFrame();if(RACE_MULTI_ON)raceMultiplayerGhostTick();
+  if(RACE_MULTI_ON)raceMultiplayerGhostTick();
   requestAnimationFrame(frame);}
 resize();renderScores();renderXP();placeTicker();setMode('fight');showModeHome({focus:false});const homeRaceEntry=globalThis.KickLabRaceOrigin.consumeHomeEntry();if(!homeRaceEntry)maybeOpenFirstRunProfile();if(homeRaceEntry)requestAnimationFrame(()=>setMode('race'));requestAnimationFrame(frame);
 })();
