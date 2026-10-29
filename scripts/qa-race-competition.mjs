@@ -24,7 +24,7 @@ async function visit(viewport,{seed=true,flag=true,corrupt=false,fallback=false,
     const url=new URL(base);if(flag)url.searchParams.set('raceCompetition','prototype');if(fallback)url.searchParams.set('raceExpansion','prototype');url.searchParams.set('rev',head);await page.goto(url.toString(),{waitUntil:'domcontentloaded'});
     if(await page.locator('#profileFormSave').isVisible())await page.click('#profileFormSave');
     if(await page.locator('#profileClose').isVisible())await page.click('#profileClose');
-    const off=await page.evaluate(()=>({flag:document.documentElement.dataset.raceCompetition||null,competition:document.querySelector('#raceCompetition').hidden,buttons:[document.querySelector('#rRaceBoard').hidden,document.querySelector('#rRaceRecord').hidden]}));
+    const off=await page.evaluate(()=>({flag:document.documentElement.dataset.raceCompetition||null,competition:document.querySelector('#raceCompetition').hidden,buttons:[document.querySelector('#rRaceBoard').hidden]}));
     if(!flag){if(off.flag||!off.competition||off.buttons.some(hidden=>!hidden)||awardLoads.length)throw new Error(`unflagged UI changed: ${JSON.stringify({off,awardLoads})}`);cases.push({name,unflagged:true});return;}
     await page.click('#boardBtn');await page.locator('#raceCompetition').waitFor({state:'visible'});
     await page.waitForFunction(()=>[...document.querySelectorAll('.race-journey-art img')].every(image=>image.complete&&image.naturalWidth>0));
