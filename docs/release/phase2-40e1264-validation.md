@@ -1,6 +1,6 @@
 # Phase 2 evidence reconciliation at merged PR #124/#125 base
 
-Run 2026-10-28 from a clean branch of exact `origin/main` `40e12647025ea8b7fa405b9fd8346fd435287465`. Documentation only. This record supersedes the base binding in [the earlier validation](phase2-current-main-validation.md), which remains historical.
+Historical record only; current main and validation are [`a6bef784ddc677f4b3c1f1211a38633a6f894055`](phase2-a6bef78-validation.md). Run 2026-10-28 from a clean branch of exact `origin/main` `40e12647025ea8b7fa405b9fd8346fd435287465`. Documentation only. This record supersedes the base binding in [the earlier validation](phase2-current-main-validation.md), which remains historical.
 
 | Check | Result |
 | --- | --- |
