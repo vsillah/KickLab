@@ -51,9 +51,13 @@ test('offers guardian data deletion with a separate explicit confirmation', () =
   assert.match(html, /For parents and guardians/);
   assert.match(html, /id="profileDeleteOpen"[^>]*>Delete all local data/);
   assert.match(html, /id="profileDeleteConfirm" role="alertdialog"[^>]*hidden/);
+  assert.match(html, /Delete every local player and all saved KickLab progress and settings from this device\./);
+  assert.match(html, /<label class="profile-delete-label" for="profileDeleteWord">Type <strong>delete<\/strong> to confirm<input id="profileDeleteWord"/);
   assert.match(html, /id="profileDeleteCancel"[^>]*>Cancel · keep data/);
-  assert.match(html, /id="profileDeleteConfirmButton"[^>]*>Yes, delete all local data/);
+  assert.match(html, /id="profileDeleteConfirmButton" disabled>Yes, delete all local data/);
   assert.match(profiles, /profileDeleteCancel'\)\.addEventListener\('click',\(\)=>closeProfileDelete\(\)\)/);
+  assert.match(profiles, /PROFILE_CORE\.isDeleteConfirmation\(\$\('#profileDeleteWord'\)\.value\)/);
+  assert.match(profiles, /profileDeleteConfirm'\)\.hidden\|\|!PROFILE_CORE\.isDeleteConfirmation/);
   assert.doesNotMatch(profiles, /fetch\(|XMLHttpRequest|WebSocket/);
 });
 

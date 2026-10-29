@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 await import('../src/shared/profile-avatar-art.js');
 await import('../src/shared/profile-store.js');
 
-const {createManager,deleteAllLocalData,PROFILE_KEY}=globalThis.KickLabProfiles;
+const {createManager,deleteAllLocalData,isDeleteConfirmation,PROFILE_KEY}=globalThis.KickLabProfiles;
 function storage(seed={}){
   const data=new Map(Object.entries(seed));
   return {
@@ -17,6 +17,11 @@ function storage(seed={}){
   };
 }
 function cache(seed=[]){const names=new Set(seed);return {keys:async()=>[...names],delete:async name=>names.delete(name)};}
+
+test('requires lowercase delete and accepts only surrounding whitespace',()=>{
+  for(const value of ['',null,'del','DELETE','Delete','delete now','de lete','delete\nagain'])assert.equal(isDeleteConfirmation(value),false,String(value));
+  for(const value of ['delete',' delete ','\tdelete\n'])assert.equal(isDeleteConfirmation(value),true,JSON.stringify(value));
+});
 
 test('confirmation removes legacy-only data and restart bootstraps an empty player',async()=>{
   const local=storage({'impactlab.v1':JSON.stringify({xp:900}), 'impactlab.nick':'Old Fox','unrelated.settings':'keep'});

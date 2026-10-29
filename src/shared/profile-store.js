@@ -22,6 +22,7 @@
     try { storage && storage.setItem(key, value); return true; } catch (_) { return false; }
   };
   const nickname = value => String(value || '').replace(/[<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 16);
+  const isDeleteConfirmation = value => String(value ?? '').trim() === 'delete';
   const choice = (value, choices, fallback) => choices.includes(value) ? value : fallback;
   const profileId = value => String(value || '').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 48);
 
@@ -203,6 +204,6 @@
   root.KickLabProfiles = Object.freeze({
     VERSION, PROFILE_KEY, LEGACY_PROGRESS_KEY, LEGACY_NICKNAME_KEY, AVATARS, COLORS,
     nickname, normalizeProfile, migrateLegacy, normalizeEnvelope, loadEnvelope, rankProfiles, createManager,
-    ownedStorageKeys, deleteAllLocalData
+    ownedStorageKeys, deleteAllLocalData, isDeleteConfirmation
   });
 })(typeof globalThis !== 'undefined' ? globalThis : window);
