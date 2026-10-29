@@ -1,6 +1,6 @@
 # KickLab privacy, deletion, and support policy — draft
 
-**Current-main review, 2026-10-28:** At `fca347dc187ef513ec5d127c49cc839082a698ac`, the complete in-app deletion path is still absent and the separate Race highlight action still invokes `navigator.share`. The new Fight/Kick outfits and Marine/Forest preview media are bundled locally; they do not by themselves establish network collection. This draft remains unpublished. See [Phase 2 continuation](phase2-current-main-continuation.md) and [product briefs](phase2-product-remediation-briefs.md).
+**Current-main review, 2026-10-28:** At `40e12647025ea8b7fa405b9fd8346fd435287465`, merged PRs #124/#125 add an in-app delete-all path and remove Race OS Share. Local highlight Download remains present. The new Fight/Kick outfits and Marine/Forest preview media are bundled locally; they do not by themselves establish network collection. This draft remains unpublished. See [Phase 2 continuation](phase2-current-main-continuation.md) and [product briefs](phase2-product-remediation-briefs.md).
 
 **Internal draft, 2026-10-28. Do not publish until the bracketed fields and evidence gates are resolved.** Applies to the proposed paid-upfront mobile game for ages 9–15. The legal developer is **[confirm legal entity]** and the support contact is **[confirm guardian-facing address and policy URL]**.
 
@@ -12,13 +12,13 @@ KickLab is designed for play without an account. It saves a made-up player nickn
 
 ## Choices, sharing, and retention
 
-The storefront processes the upfront purchase under its own terms. KickLab does not ask a child for a name, email, location, account, camera, or microphone access. Private Party exchange is offline QR display and manual paste only. A separate Race highlight feature presently offers a local download and, where supported, an OS share sheet. **Release decision pending:** either remove that action in a separately reviewed change or explain the user-directed transfer accurately here and in Google Data Safety. No statement that KickLab “never shares data” is approved while this remains unresolved.
+The storefront processes the upfront purchase under its own terms. KickLab does not ask a child for a name, email, location, account, camera, or microphone access. Private Party exchange is offline QR display and manual paste only. Race highlights can be replayed in the app and presently offer a local file Download. The OS Share action was removed in merged PR #125. **Release decision pending:** [assess whether Download belongs in V1](phase2-local-download-decision.md) and describe any retained export accurately here and in store declarations. Do not promise control over a file after it leaves KickLab storage.
 
 Local game data remains until it is deleted in the app or the app is uninstalled, subject to verified platform backup and restore behavior. **Release decision pending:** confirm whether iOS/Android backups can restore local saves; disclose the result or change the native backup settings in a separate authorized lane. Support messages, if sent by a guardian, are retained for **[approved period after provider review]** and then deleted, except where law requires longer retention. The support provider, access controls, and deletion workflow must be reviewed before this sentence is finalized.
 
 ## Delete local data
 
-A guardian or player should be able to open **[exact in-app route]**, choose **Delete local data**, review a confirmation that local profiles and progress will be erased, and confirm. The app should remove `impactlab.v1`, `impactlab.nick`, `kicklab.profiles.v1`, and app-owned caches or temporary exports, then start with a fresh local profile. It must not erase unrelated data on the device. The present source audit did not establish a complete in-app deletion path, so these are release requirements, **not current instructions to users**. Confirm the path and test legacy saves, multiple profiles, restart, uninstall/reinstall, and backup restoration on both platforms before publishing.
+In the current web UI, open the player profile, find **Device data** under **For parents and guardians**, select **Delete all local data**, and type the exact word `delete` in the confirmation. Merged PR #124 removes KickLab and legacy ImpactLab local/session keys plus app-namespaced caches, verifies removal, clears app-held Race export state, and returns to first-run setup. The confirmation says downloaded files outside KickLab remain. Browser QA is recorded in PR #124; validate the exact release binary with legacy saves, multiple profiles, restart, uninstall/reinstall, downloaded files, and iOS/Android backup restoration before publishing this as user guidance.
 
 ## Get help and report a concern
 
