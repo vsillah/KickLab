@@ -83,7 +83,6 @@ function showResults(m){hideResults();const el=$('#results'),rc=$('#rc');const r
     $('#rNext').dataset.raceAction=validNext?'next':match?'match':passed?'save':'retry';
     $('#rNext').hidden=soleSave;el.querySelector('.rgo').classList.toggle('sole-action',soleSave);
     $('#rRaceGarage').hidden=false;
-    $('#rRaceGarage').textContent='Save & Exit';
     $('#rReview').hidden=true;$('#rReplay').hidden=true;$('#rRaceBoard').hidden=true;$('#racts').hidden=true;
     const recorded=!!rr0?.frames?.length,visualReplay=recorded&&!!rr0.preview3d?.length;$('#raceReplayBlock').hidden=!recorded;$('#raceReplayPreview').hidden=!visualReplay;$('#raceReplayFallback').hidden=!recorded||visualReplay;if(visualReplay)startRaceReplayPreview(rr0);
     document.querySelectorAll('#toasts .toast').forEach(note=>note.remove());syncRacePhoneNoticeSlot();

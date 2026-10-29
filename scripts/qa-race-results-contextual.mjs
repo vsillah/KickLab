@@ -24,8 +24,9 @@ for(const viewport of [{width:390,height:844},{width:768,height:1024},{width:144
   const page=await context.newPage();page.on('pageerror',error=>report.errors.push(`${label}: ${error.message}`));
   await page.route('**/*',route=>{const url=route.request().url();if(url.startsWith(new URL(base).origin+'/')||url.startsWith('data:')||url.startsWith('blob:'))route.continue();else{report.external.push(url);route.abort();}});
   try{
-    await page.goto(base,{waitUntil:'domcontentloaded'});if(await page.locator('#profileFormSave').isVisible())await page.click('#profileFormSave');if(await page.locator('#profileClose').isVisible())await page.click('#profileClose');await page.click('#lab-tab-race');await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});
+    await page.goto(base,{waitUntil:'domcontentloaded'});if(await page.locator('#profileFormSave').isVisible())await page.click('#profileFormSave');if(await page.locator('#profileClose').isVisible())await page.click('#profileClose');await page.click('#lab-tab-race');await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});if(await page.locator('#racePreflightClose').isVisible())await page.click('#racePreflightClose');
     for(const sample of cases){
+      if(await page.locator('#racePreflightClose').isVisible())await page.click('#racePreflightClose');
       const fixture=await page.evaluate(value=>window.__KICKLAB_RACE_RESULTS_QA__.scenario(value),sample);
       await page.waitForTimeout(500);
       const state=await page.evaluate(()=>{const visible=id=>!document.querySelector(id).hidden;const rc=document.querySelector('#rc'),award=document.querySelector('#raceResultAwards'),coach=document.querySelector('#raceResultCoach');return{summary:visible('#results'),coachEnabled:!coach.disabled,coachRows:coach.querySelectorAll('.race-result-coach-theme').length,themeTitles:[...coach.querySelectorAll('.race-result-coach-theme strong')].map(node=>node.textContent.trim()),positive:document.querySelector('#raceResultCoachPositive').textContent.trim(),focus:document.querySelector('#raceResultCoachFocus').textContent.trim(),coachText:coach.textContent.trim(),awards:award.querySelectorAll('[data-award-kind]').length,replay:visible('#raceReplayBlock'),visualReplay:visible('#raceReplayPreview'),fallbackReplay:visible('#raceReplayFallback'),progress:document.querySelector('#rNext').hidden?null:document.querySelector('#rNext').textContent.trim(),sole:document.querySelector('#results .rgo').classList.contains('sole-action'),garage:visible('#rRaceGarage'),footerActions:visible('#racts')||visible('#rRaceNext'),notices:document.querySelectorAll('#toasts .toast,.stage .race-award-toast').length,overflow:rc.scrollWidth>rc.clientWidth+2,scrollWidth:rc.scrollWidth,clientWidth:rc.clientWidth};});
@@ -63,13 +64,13 @@ for(const viewport of [{width:390,height:844},{width:768,height:1024},{width:144
         await page.evaluate(value=>window.__KICKLAB_RACE_RESULTS_QA__.scenario(value),sample);await page.click('#rRaceGarage');
         const closed=await page.evaluate(()=>({result:!document.querySelector('#results').hidden,home:!document.querySelector('#modeHome').hidden,season:document.querySelector('#raceChampionshipTitle').textContent,selected:window.__KICKLAB_RACE_RESULTS_QA__.state().selected}));
         if(closed.result||!closed.home||!closed.season.includes('Season complete')||closed.selected!=='endurance')report.errors.push(`${label}: final Save & Exit did not return home with season progress ${JSON.stringify(closed)}`);
-        await page.click('#lab-tab-race');await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});
+        await page.click('#lab-tab-race');await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});if(await page.locator('#racePreflightClose').isVisible())await page.click('#racePreflightClose');
       }
       if(sample.context==='standalone'&&sample.outcome==='pass'&&sample.achievement==='none'&&sample.replay==='none'){
         await page.evaluate(value=>{window.__KICKLAB_RACE_RESULTS_QA__.scenario(value);document.activeElement?.blur();},sample);await page.keyboard.press('Space');
         if(!await page.locator('#results').isVisible()||!await page.locator('#rRaceGarage').evaluate(button=>button===document.activeElement))report.errors.push(`${label}: hidden Continue was reachable by shortcut`);
         await page.click('#rRaceGarage');if(!await page.locator('#modeHome').isVisible())report.errors.push(`${label}: standalone Save & Exit did not reach home`);
-        await page.click('#lab-tab-race');await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});
+        await page.click('#lab-tab-race');await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});if(await page.locator('#racePreflightClose').isVisible())await page.click('#racePreflightClose');
       }
       if(sample.outcome==='fail'&&sample.replay==='none'){
         await page.evaluate(value=>window.__KICKLAB_RACE_RESULTS_QA__.scenario(value),sample);await page.click('#rNext');
@@ -80,7 +81,7 @@ for(const viewport of [{width:390,height:844},{width:768,height:1024},{width:144
         await page.evaluate(value=>window.__KICKLAB_RACE_RESULTS_QA__.scenario(value),sample);await page.click('#rRaceGarage');
         const exited=await page.evaluate(()=>({home:!document.querySelector('#modeHome').hidden,results:!document.querySelector('#results').hidden,drawer:!document.querySelector('#settingsDrawer').hidden,record:window.__KICKLAB_RACE_RESULTS_QA__.state()}));
         if(!exited.home||exited.results||exited.drawer||exited.record.raceState!=='crashed'||exited.record.recordMoves<1||exited.record.recordFrames<1)report.errors.push(`${label}: Save & Exit did not retain the result and return home ${JSON.stringify(exited)}`);
-        await page.click('#lab-tab-race');await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});
+        await page.click('#lab-tab-race');await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});if(await page.locator('#racePreflightClose').isVisible())await page.click('#racePreflightClose');
       }
     }
     const match=await page.evaluate(()=>window.__KICKLAB_RACE_RESULTS_QA__.matchAction());
