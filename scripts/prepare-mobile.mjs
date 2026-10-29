@@ -27,7 +27,7 @@ const contentSecurityPolicy = [
   "img-src 'self' data: blob:",
   "font-src 'self' data:",
   "media-src 'self' data: blob:",
-  "connect-src 'none'",
+  "connect-src 'self' blob:",
   "object-src 'none'",
   "frame-src 'none'",
   "base-uri 'none'",
@@ -44,7 +44,7 @@ const mobile = withoutRemoteStyles.replace(
   `<meta charset="utf-8">\n<meta http-equiv="Content-Security-Policy" content="${contentSecurityPolicy}">\n<meta name="kicklab-artifact" content="capacitor-local-v1">`
 );
 
-if (mobile === source || !mobile.includes('connect-src \'none\'')) {
+if (mobile === source || !mobile.includes("connect-src 'self' blob:")) {
   throw new Error('Mobile artifact hardening was not applied');
 }
 if (/<(?:script|link|img|audio|video|source)\b[^>]*(?:src|href)=["']https?:\/\//i.test(mobile)) {
