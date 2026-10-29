@@ -1,6 +1,6 @@
 # Phase 2 product remediation briefs for separate development lanes
 
-Historical briefs prepared 2026-10-28 from `fca347dc187ef513ec5d127c49cc839082a698ac`. Lane A shipped in merged PR #124; Lane B OS Share removal shipped in merged PR #125. The remaining Download choice is assessed in [this decision record](phase2-local-download-decision.md). These briefs do not authorize this documentation lane to edit product code. Keep each change on a named branch/worktree and review it as a client-facing PR. Preserve Fight/Race/Kick physics, saved-profile compatibility, Private Party display/paste behavior, and zero runtime egress.
+Historical briefs prepared 2026-10-28 from `fca347dc187ef513ec5d127c49cc839082a698ac`. Lane A shipped in merged PR #124; Lane B OS Share removal shipped in merged PR #125; the separate Download removal shipped in merged PR #127. [The current decision record](phase2-local-download-decision.md) and [closeout packet](phase2-closeout-phase3-entry.md) supersede these briefs. These briefs do not authorize this documentation lane to edit product code. Keep each change on a named branch/worktree and review it as a client-facing PR. Preserve Fight/Race/Kick physics, saved-profile compatibility, Private Party display/paste behavior, and zero runtime egress.
 
 ## Lane A — guardian-facing local data deletion
 

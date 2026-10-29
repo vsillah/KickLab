@@ -1,6 +1,6 @@
 # Phase 2 current-main documentation validation
 
-Run on 2026-10-28 from a clean worktree branched at exact `fca347dc187ef513ec5d127c49cc839082a698ac`. The prior PR #117 documentation remains historical. This continuation changes only `docs/release/` files.
+**Historical validation.** See [current-main evidence](phase2-a6bef78-validation.md). Run on 2026-10-28 from a clean worktree branched at exact `fca347dc187ef513ec5d127c49cc839082a698ac`. The prior PR #117 documentation remains historical. This continuation changes only `docs/release/` files.
 
 | Check | Result |
 | --- | --- |
