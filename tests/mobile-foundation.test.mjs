@@ -79,12 +79,24 @@ test('exposes only narrow lifecycle and haptic hooks and cancels held inputs',()
   assert.deepEqual(contract.hooks.haptics,['target','perfect','overcharge']);
 });
 
-test('retains explicit no-authority boundaries and no generated native projects',()=>{
+test('retains explicit no-authority boundaries and locks the generated Android shell',()=>{
   for(const [capability,allowed] of Object.entries(contract.authority))assert.equal(allowed,false,`${capability} must remain unauthorized`);
   assert.deepEqual(manifest.authority,contract.authority);
   assert.doesNotMatch(packageJson.scripts['mobile:prepare'],/cap\s+(?:add|sync|open|run|build)/);
   assert.equal(existsSync(join(root,'ios')),false);
-  assert.equal(existsSync(join(root,'android')),false);
+  assert.equal(existsSync(join(root,'android')),true);
+  assert.equal(packageJson.dependencies['@capacitor/android'],'8.5.3');
+
+  const appGradle=read('android/app/build.gradle');
+  const variablesGradle=read('android/variables.gradle');
+  const rootGradle=read('android/build.gradle');
+  assert.match(appGradle,/namespace = "com\.amadutown\.kicklab"/);
+  assert.match(appGradle,/applicationId "com\.amadutown\.kicklab"/);
+  assert.match(variablesGradle,/minSdkVersion = 24/);
+  assert.match(variablesGradle,/compileSdkVersion = 36/);
+  assert.match(variablesGradle,/targetSdkVersion = 36/);
+  assert.match(rootGradle,/module: 'kotlin-stdlib-jdk7'/);
+  assert.match(rootGradle,/module: 'kotlin-stdlib-jdk8'/);
 });
 
 test('keeps every unqualified release gate explicit',()=>{
