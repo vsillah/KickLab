@@ -32,10 +32,11 @@ test('keeps one accessible profile entry and dialog with child-safe setup fields
   assert.match(css, /@media \(max-width:800px\)\{\.game-frame \.stage:has\(>\.profile-dialog\.game-profile-overlay:not\(\[hidden\]\)\)\{z-index:30\}\.play\.has-game-overlay \.control-deck\{opacity:\.5;filter:saturate\(\.15\) brightness\(\.18\) blur\(1\.5px\)\}\}/);
 });
 
-test('switches the active progress object without reloading the document', () => {
+test('switches active progress without reloading, while confirmed deletion restarts cleanly', () => {
   assert.match(profiles, /profileManager\.switchTo\(button\.dataset\.profileId\);loadActiveProfile\(\)/);
   assert.match(profiles, /Object\.keys\(best\)\.forEach\(key=>delete best\[key\]\);Object\.assign\(best,next\)/);
-  assert.doesNotMatch(profiles, /location\.reload|window\.location/);
+  assert.match(profiles, /profileManager\.switchTo\(button\.dataset\.profileId\);loadActiveProfile\(\)/);
+  assert.match(profiles, /deleteAllLocalData\(localStorage,sessionStorage,globalThis\.caches\)[\s\S]*window\.location\.reload\(\)/);
 });
 
 test('keeps local and shared leaderboards visibly separate with an offline fallback', () => {
@@ -46,9 +47,17 @@ test('keeps local and shared leaderboards visibly separate with an offline fallb
   assert.match(css, /\.fboard\[data-source="local"\] \.fb-me\{display:none\}/);
 });
 
-test('defers destructive profile deletion and documents local-only behavior', () => {
-  assert.match(html, /Removing profiles is intentionally deferred/);
-  assert.doesNotMatch(profiles, /removeItem|deleteProfile|\.delete\(/);
+test('offers guardian data deletion with a separate explicit confirmation', () => {
+  assert.match(html, /For parents and guardians/);
+  assert.match(html, /id="profileDeleteOpen"[^>]*>Delete all local data/);
+  assert.match(html, /id="profileDeleteConfirm" role="alertdialog"[^>]*hidden/);
+  assert.match(html, /Delete every local player and all saved KickLab progress and settings from this device\./);
+  assert.match(html, /<label class="profile-delete-label" for="profileDeleteWord">Type <strong>delete<\/strong> to confirm<input id="profileDeleteWord"/);
+  assert.match(html, /id="profileDeleteCancel"[^>]*>Cancel · keep data/);
+  assert.match(html, /id="profileDeleteConfirmButton" disabled>Yes, delete all local data/);
+  assert.match(profiles, /profileDeleteCancel'\)\.addEventListener\('click',\(\)=>closeProfileDelete\(\)\)/);
+  assert.match(profiles, /PROFILE_CORE\.isDeleteConfirmation\(\$\('#profileDeleteWord'\)\.value\)/);
+  assert.match(profiles, /profileDeleteConfirm'\)\.hidden\|\|!PROFILE_CORE\.isDeleteConfirmation/);
   assert.doesNotMatch(profiles, /fetch\(|XMLHttpRequest|WebSocket/);
 });
 
