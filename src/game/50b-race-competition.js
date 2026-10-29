@@ -48,7 +48,7 @@ function raceCompetitionProfilePerk(){if(!RACE_COMPETITION.enabled())return;cons
 $('#raceCompetitionCats').addEventListener('click',event=>{const button=event.target.closest('[data-race-comp-cat]');if(!button)return;RACE_COMP_UI.category=button.dataset.raceCompCat;renderRaceCompetition();button.focus();});
 function raceCompetitionResultActions(){const active=RACE_COMP_UI.last&&RACE_COMP_UI.last.profileId===profileManager.active().id&&RACE_COMP_UI.last.recId===RECS.race?.id&&M===Race&&RACE_COMPETITION.enabled();$('#rRaceBoard').hidden=!RACE_COMPETITION.enabled()||M!==Race;$('#rRaceRecord').hidden=!active||!RECS.race?.frames.length;}
 $('#rRaceBoard').addEventListener('click',event=>{event.stopPropagation();RACE_COMP_UI.category=RACE_COMP_UI.last?.category||'core';openBoard(event.currentTarget);});
-$('#rRaceRecord').addEventListener('click',event=>{event.stopPropagation();raceCompetitionRecordShare();});
+$('#rRaceRecord').addEventListener('click',event=>{event.stopPropagation();raceCompetitionRecordHighlight();});
 function raceCompetitionDrawCapture(canvas,context,item){
   context.fillStyle='#102037';context.fillRect(0,0,canvas.width,canvas.height);
   if(!RACE_VIDEO.draw(context,0,0,canvas.width,canvas.height))throw new Error('Race 3D scene is unavailable for video');
@@ -61,14 +61,14 @@ function raceCompetitionCaptureFrame(){const job=RACE_COMP_UI.capture;if(!job||j
 function raceCompetitionShowFile(file,reason=''){
   if(RACE_COMP_UI.url)URL.revokeObjectURL(RACE_COMP_UI.url);RACE_COMP_UI.file=file;RACE_COMP_UI.url=URL.createObjectURL(file);
   const box=$('#raceSharePreview');box.replaceChildren();const media=document.createElement(file.type.startsWith('video/')?'video':'img');media.setAttribute('aria-label','Local Race highlight preview');box.appendChild(media);
-  const ready=()=>{$('#raceShareStatus').textContent=reason||`Ready: ${file.name}. Preview it, then choose Download or Share.`;$('#raceShareDownload').hidden=false;$('#raceShareNative').hidden=!(navigator.canShare&&navigator.canShare({files:[file]}));};
-  $('#raceShareDownload').hidden=true;$('#raceShareNative').hidden=true;
+  const ready=()=>{$('#raceShareStatus').textContent=reason||`Ready: ${file.name}. Preview it, then choose Download.`;$('#raceShareDownload').hidden=false;};
+  $('#raceShareDownload').hidden=true;
   if(media.tagName==='VIDEO'){media.controls=true;media.playsInline=true;media.preload='auto';media.addEventListener('loadeddata',ready,{once:true});media.addEventListener('error',()=>raceCompetitionStill(RACE_COMP_UI.last,'The recorded video could not be decoded in this browser.'),{once:true});$('#raceShareStatus').textContent='Checking the local replay video…';}
   else{media.addEventListener('load',ready,{once:true});media.addEventListener('error',()=>{$('#raceShareStatus').textContent='This browser could not preview the local highlight image.';},{once:true});$('#raceShareStatus').textContent='Checking the local highlight image…';}
   media.src=RACE_COMP_UI.url;$('#raceShare').hidden=false;$('#raceShareClose').focus();
 }
 function raceCompetitionStill(item,reason){if(!RACE_VIDEO.source()){$('#raceShareStatus').textContent='The 3D Race scene is unavailable. Use the in-game Replay action.';$('#raceShare').hidden=false;return;}const canvas=document.createElement('canvas');canvas.width=960;canvas.height=540;const context=canvas.getContext('2d');raceCompetitionDrawCapture(canvas,context,item);canvas.toBlob(blob=>{if(!blob){$('#raceShareStatus').textContent='This browser could not create a local image. Use the in-game Replay action.';$('#raceShare').hidden=false;return;}raceCompetitionShowFile(new File([blob],'kicklab-race-highlight.png',{type:'image/png'}),reason+' A still image is available instead.');},'image/png');}
-function raceCompetitionRecordShare(){
+function raceCompetitionRecordHighlight(){
   const item=RACE_COMP_UI.last,rec=RECS.race;if(!RACE_COMPETITION.enabled()||!item||item.profileId!==profileManager.active().id||item.recId!==rec?.id||!rec.frames.length)return;
   if(RACE_COMP_UI.capture)return;
   if(!RACE_VIDEO.source()){$('#raceShareStatus').textContent='The 3D Race scene is unavailable. Use the in-game Replay action.';$('#raceShare').hidden=false;return;}
@@ -84,7 +84,6 @@ function raceCompetitionRecordShare(){
 }
 $('#raceShareClose').addEventListener('click',()=>{$('#raceShare').hidden=true;});
 $('#raceShareDownload').addEventListener('click',()=>{if(!RACE_COMP_UI.file)return;const link=document.createElement('a');link.href=RACE_COMP_UI.url;link.download=RACE_COMP_UI.file.name;link.click();});
-$('#raceShareNative').addEventListener('click',async()=>{const file=RACE_COMP_UI.file;if(!file||!navigator.share||!navigator.canShare?.({files:[file]}))return;try{await navigator.share({files:[file],title:'KickLab Race highlight'});}catch(error){if(error.name!=='AbortError')$('#raceShareStatus').textContent='Share was unavailable. You can still download the file.';}});
 if(RACE_COMPETITION_ON&&(location.hostname==='localhost'||location.hostname==='127.0.0.1'))globalThis.__KICKLAB_RACE_AWARDS_QA__=Object.freeze({
   qualify:(category,score)=>raceCompetitionResult({category,passed:true,score}),
   openJourney:()=>openBoard(),
