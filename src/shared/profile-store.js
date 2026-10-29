@@ -4,6 +4,7 @@
   const PROFILE_KEY = 'kicklab.profiles.v1';
   const LEGACY_PROGRESS_KEY = 'impactlab.v1';
   const LEGACY_NICKNAME_KEY = 'impactlab.nick';
+  const OWNED_PREFIXES = Object.freeze(['kicklab.', 'impactlab.']);
   const VERSION = 1;
   const AVATARS = Object.freeze(['rocket', 'wiz', 'tower', 'trick', 'cannon']);
   const COLORS = Object.freeze(['sky', 'mint', 'sun', 'coral', 'violet']);
@@ -80,6 +81,33 @@
     const raw = read(storage, PROFILE_KEY);
     const parsed = raw ? safeParse(raw, null) : null;
     return normalizeEnvelope(parsed, storage, options.now == null ? Date.now() : options.now);
+  }
+
+  function ownedStorageKeys(storage) {
+    const keys = [];
+    for (let index = 0; index < storage.length; index++) {
+      const key = storage.key(index);
+      if (key && OWNED_PREFIXES.some(prefix => key.startsWith(prefix))) keys.push(key);
+    }
+    return keys;
+  }
+
+  async function deleteAllLocalData(local, session, cacheStorage) {
+    try {
+      const localKeys = ownedStorageKeys(local);
+      const sessionKeys = ownedStorageKeys(session);
+      const cacheNames = cacheStorage ? (await cacheStorage.keys()).filter(name => OWNED_PREFIXES.some(prefix => name.startsWith(prefix))) : [];
+      for (const key of localKeys) local.removeItem(key);
+      for (const key of sessionKeys) session.removeItem(key);
+      for (const name of cacheNames) if (!(await cacheStorage.delete(name))) throw new Error('cache_delete_failed');
+      if (ownedStorageKeys(local).length || ownedStorageKeys(session).length ||
+          (cacheStorage && (await cacheStorage.keys()).some(name => OWNED_PREFIXES.some(prefix => name.startsWith(prefix))))) {
+        throw new Error('data_remains');
+      }
+      return { ok: true, removed: { local: localKeys.length, session: sessionKeys.length, caches: cacheNames.length } };
+    } catch (error) {
+      return { ok: false, error: error?.message || 'storage_unavailable' };
+    }
   }
 
   function rankProfiles(envelope, category, options = {}) {
@@ -174,6 +202,7 @@
 
   root.KickLabProfiles = Object.freeze({
     VERSION, PROFILE_KEY, LEGACY_PROGRESS_KEY, LEGACY_NICKNAME_KEY, AVATARS, COLORS,
-    nickname, normalizeProfile, migrateLegacy, normalizeEnvelope, loadEnvelope, rankProfiles, createManager
+    nickname, normalizeProfile, migrateLegacy, normalizeEnvelope, loadEnvelope, rankProfiles, createManager,
+    ownedStorageKeys, deleteAllLocalData
   });
 })(typeof globalThis !== 'undefined' ? globalThis : window);
