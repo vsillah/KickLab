@@ -554,9 +554,9 @@ html:has(.results.race-summary:not([hidden])) .game-context-header{visibility:hi
 .results.race-summary #rRaceRecord{border-color:#a7d6ba;color:#d7f5df}
 .race-replay-block[hidden]{display:none!important}
 .race-replay-block{display:grid;gap:5px}
-.race-replay-preview{position:relative;display:block;width:100%;max-width:440px;padding:0;border:1px solid #7bcdd3;border-radius:11px;overflow:hidden;background:#102338;color:#fff;text-align:left;cursor:pointer}
+.race-replay-preview{box-sizing:border-box;position:relative;display:block;width:100%;padding:0;border:1px solid #7bcdd3;border-radius:11px;overflow:hidden;background:#102338;color:#fff;text-align:left;cursor:pointer}
 .race-replay-preview[hidden]{display:none}
-#raceReplayFallback{width:100%;max-width:440px;padding:10px 14px;border:1px solid #7bcdd3;border-radius:10px;background:rgba(31,76,99,.76);color:#e8fbff;font:800 13px var(--f-body);text-align:left;cursor:pointer}
+#raceReplayFallback{box-sizing:border-box;width:100%;padding:10px 14px;border:1px solid #7bcdd3;border-radius:10px;background:rgba(31,76,99,.76);color:#e8fbff;font:800 13px var(--f-body);text-align:left;cursor:pointer}
 #raceReplayFallback:is(:hover,:focus-visible){outline:2px solid #b4f4f3;outline-offset:2px}
 #raceReplayFallback[hidden]{display:none}
 .race-replay-preview canvas{display:block;width:100%;height:auto}
