@@ -31,7 +31,7 @@
     "packagedAssetsOnly": true,
     "remoteServerUrl": null,
     "allowNavigation": [],
-    "connectPolicy": "none",
+    "connectPolicy": "same-origin-packaged-assets-and-local-blobs-only",
     "generalPurposeBridge": false,
     "analytics": false,
     "advertising": false,

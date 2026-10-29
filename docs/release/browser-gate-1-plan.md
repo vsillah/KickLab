@@ -6,7 +6,7 @@ Original plan prepared 2026-10-28 for `0e4af0b8e8d7c678486f2006b03b73a838e9d749`
 
 ## Bind the artifact
 
-1. In a clean worktree at the approved main SHA, record `git rev-parse HEAD`, `git status --short`, Node/npm versions, `npm ci`, `npm run check`, and `npm run mobile:check`. Hash `dist/mobile/index.html`, `dist/mobile/kicklab-mobile-manifest.json`, and every file in `dist/mobile`; preserve the manifest and command output. Confirm no runtime remote-fetch or navigation destination and `connect-src 'none'` in its CSP.
+1. In a clean worktree at the approved main SHA, record `git rev-parse HEAD`, `git status --short`, Node/npm versions, `npm ci`, `npm run check`, and `npm run mobile:check`. Hash `dist/mobile/index.html`, `dist/mobile/kicklab-mobile-manifest.json`, and every file in `dist/mobile`; preserve the manifest and command output. Confirm no runtime remote-fetch or navigation destination and `connect-src 'self' blob:` in its CSP, with external connections blocked.
 2. Start a fresh loopback server from **that** `dist/mobile` folder, for example `python3 -m http.server 4173 --bind 127.0.0.1 --directory dist/mobile`. Do not reuse a prior port/process. Open `http://127.0.0.1:4173/index.html?rev=a6bef784ddc677f4b3c1f1211a38633a6f894055` in the integrated Codex browser; capture the loaded document URL and response hash. The home flow may append trusted Race flags; record the final URL and assert they are the expected packaged flags.
 3. Run a separate default-off check at the same URL without Race prototype flags and a direct flagged route that matches the home flow. No URL query may turn on camera scan, OS sharing in Private Party, accounts, public matchmaking, analytics, or remote transport.
 

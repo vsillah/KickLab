@@ -45,11 +45,13 @@ test('keeps the packaged shell offline and fail-closed for navigation and egress
   assert.deepEqual(config.server.allowNavigation,[]);
   assert.equal(config.server.cleartext,false);
   assert.equal(contract.security.packagedAssetsOnly,true);
+  assert.equal(contract.security.connectPolicy,'same-origin-packaged-assets-and-local-blobs-only');
   assert.equal(contract.security.generalPurposeBridge,false);
   assert.equal(contract.security.analytics,false);
   assert.equal(contract.security.advertising,false);
   assert.equal(contract.security.childDataTransport,false);
-  assert.match(mobile,/connect-src 'none'/);
+  assert.match(mobile,/connect-src 'self' blob:/);
+  assert.doesNotMatch(mobile,/connect-src[^;]*\b(?:https?:|wss?:|\*|data:)/);
   assert.match(mobile,/form-action 'none'/);
   assert.doesNotMatch(mobile,/<(?:script|link|img|audio|video|source)\b[^>]*(?:src|href)=["']https?:\/\//i);
   assert.doesNotMatch(mobile,/fonts\.(?:googleapis|gstatic)\.com/);
@@ -59,6 +61,7 @@ test('keeps the packaged shell offline and fail-closed for navigation and egress
     'assets/3d/kicklab-placeholder-athlete/v1/asset-manifest.json',
     'assets/3d/kicklab-direction-c-athlete/v1/kicklab-direction-c-athlete.glb',
     'assets/3d/kicklab-direction-c-athlete/v1/asset-manifest.json',
+    'assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb',
     'build-metrics.json',
   ])assert.ok(existsSync(join(root,'dist','mobile',file)),`${file} must be packaged locally`);
 });
