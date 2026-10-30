@@ -1039,11 +1039,14 @@ header.top .brand p{display:none}
 .game-context-header{position:relative;z-index:40;box-sizing:border-box;min-width:0;min-height:54px;display:grid;grid-template-columns:minmax(280px,1.45fr) minmax(220px,1fr);align-items:center;gap:8px;border-bottom:1px solid rgba(87,126,176,.48);background:linear-gradient(180deg,rgba(8,18,36,.98),rgba(6,14,29,.96));padding:5px 12px}
 .game-context-header .game-shell-nav{position:relative;inset:auto;display:block;min-width:0;padding:0;background:none;-webkit-backdrop-filter:none;backdrop-filter:none;pointer-events:auto}
 .game-context-header .game-shell-nav .gamebar{position:relative;inset:auto;transform:none;width:100%;margin:0;padding:0}
+.game-context-header .game-shell-nav,.game-context-header .game-shell-nav .gamebar{position:static}
+.game-context-header .experience-panel{left:12px;right:auto;width:min(680px,calc(100% - 24px))}
 .game-context-header .experience-selector{min-height:42px;background:rgba(7,15,30,.3);box-shadow:none}
 .game-context-header .environment-context{width:100%;min-height:32px;justify-content:flex-start;border-color:rgba(87,126,176,.34);background:rgba(3,8,20,.28);padding:3px 7px}
 .game-context-header .environment-context>b{flex:1;background:rgba(3,8,20,.42);padding:3px 7px;font-size:9px}
 .game-context-header .environment-context>small{font-size:7px}
 @media (max-width:800px){.game-context-header{min-height:50px;grid-template-columns:minmax(0,1.6fr) minmax(132px,1fr);gap:5px;padding:4px 6px}.game-context-header .experience-selector{min-height:40px;padding:4px 7px}.game-context-header .experience-selector em{display:none}.game-context-header .environment-context{min-width:0;min-height:30px}.game-context-header .environment-context>span{font-size:6px}.game-context-header .environment-context>small{display:none}}
+@media (max-width:800px){.game-context-header .experience-panel{left:6px;right:auto;width:calc(100% - 12px)}}
 @media (max-width:480px){.game-context-header{grid-template-columns:minmax(0,1.7fr) minmax(112px,1fr);padding:3px 4px}.game-context-header .experience-selector{min-height:38px}.game-context-header .experience-selector small{display:block;font-size:6px}.game-context-header .experience-selector b{font-size:10px}.game-context-header .environment-context{min-height:28px;padding:2px 4px}.game-context-header .environment-context>span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}.game-context-header .environment-context>b{padding:3px 5px;font-size:8px}}
 
 /* Home showcase: real local gameplay motion, game-first hierarchy, device-local progress. */
