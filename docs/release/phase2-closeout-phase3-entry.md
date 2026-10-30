@@ -1,6 +1,6 @@
 # Commercial V1: Phase 2 closeout and Phase 3 entry packet
 
-Prepared 2026-10-29 against exact `origin/main` `a6bef784ddc677f4b3c1f1211a38633a6f894055` and freshly built mobile HTML SHA-256 `c7ec77f7bc2c52a136aa974f4cf5e92c6dcdb11c0ff9a9ed2a88d2380343fd64`. **Phase 2 is open.** This packet is documentation and evidence, not rights clearance, browser Gate 1 qualification, native authorization, a store answer, or release approval. The privacy policy remains unpublished.
+Prepared 2026-10-29 against exact `origin/main` `61e5aff660bb15a6184994c80e3ff3ca958a537c` and freshly built mobile HTML SHA-256 `2154cf0eae796f26b32fc155537995bd828763bdedf3a287c7aa20f83583f989`. **Phase 2 is open.** This packet is documentation and evidence, not rights clearance, browser Gate 1 qualification, native authorization, a store answer, or release approval. The privacy policy remains unpublished.
 
 ## Fixed commercial scope and verified product changes
 
@@ -11,9 +11,11 @@ V1 remains paid upfront, local first, ages 9–15, with Fight, Race, and Kick; R
 | Venue-first Highland/Marine/Forest, Save & Exit, and shared progression locks | PRs #118, #119, #122 in current source | Exact-current-main all-lab browser Gate 1 and native interaction/accessibility still needed. |
 | Guardian local deletion | PR #124 in current source; browser QA recorded in PR | iOS/Android backup, uninstall/reinstall, and final binary behavior unqualified. |
 | Remove OS Share | PR #125 in current source | Recheck final native binary and store declaration wording. |
-| Remove Race highlight Download and WebM export, keep in-app replay | PR #127 merged at this commit; current source and fresh mobile HTML have no export control, generated file name, or Race export path | Captain reports exact-commit public-origin smoke at four widths; native/device and full three-lab Gate 1 remain open. A localhost-only audio QA recorder is outside the Race highlight export feature and must remain absent from release-visible controls. |
+| Remove Race highlight Download and WebM export, keep in-app replay | PR #127 is in current source; fresh mobile HTML has no Race export control or file-generation path | Exact-head replay QA passes; native/device and full three-lab Gate 1 remain open. A localhost-only audio QA recorder is outside the Race highlight export feature and must remain absent from release-visible controls. |
+| Permit same-origin packaged 3D assets while blocking external connections | PR #132 merged at `90e445e`; packaged CSP uses `connect-src 'self' blob:` | Exact-head browser CSP probes pass; native network behavior remains unqualified. |
+| Repair Fight phone portrait and controller composition | PR #133 merged at current main | Exact-head five-width composition QA passes; full Fight journeys and native accessibility remain open. |
 
-The [current validation record](phase2-a6bef78-validation.md) separates checks run in this lane from Captain-reported production smoke. The public Pages HTML independently matched the fresh Pages build SHA-256 `f6a2b8d001efb7b771848aaaae952cf3c5cc642ce1a9bd1b2a19206e7c439a63` when fetched on 2026-10-29. This confirms artifact identity at that fetch, not all user journeys or native behavior.
+The [current validation record](phase2-61e5aff-gate1-validation.md) separates checks run in this lane from Captain-reported production smoke. The public Pages HTML independently matched the fresh Pages build SHA-256 `160057846c392bb9c83c17e798b295e4f124aa8fecbcff80ebfd22331d4f33e1` when fetched on 2026-10-29. This confirms artifact identity at that fetch, not all user journeys or native behavior.
 
 ## Smallest remaining Phase 2 gates, in order
 

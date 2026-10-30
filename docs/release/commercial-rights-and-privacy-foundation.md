@@ -1,6 +1,6 @@
 # KickLab Phase 2: rights and privacy foundation
 
-Current assessment prepared 2026-10-29 for exact `origin/main` `a6bef784ddc677f4b3c1f1211a38633a6f894055`. See [the closeout/Phase 3 entry packet](phase2-closeout-phase3-entry.md) and [validation](phase2-a6bef78-validation.md). This document records evidence and holds; it grants no commercial rights, policy publication, native generation, store declaration, or distribution authority.
+Current assessment prepared 2026-10-29 for exact `origin/main` `61e5aff660bb15a6184994c80e3ff3ca958a537c`. See [the closeout/Phase 3 entry packet](phase2-closeout-phase3-entry.md) and [validation](phase2-61e5aff-gate1-validation.md). This document records evidence and holds; it grants no commercial rights, policy publication, native generation, store declaration, or distribution authority.
 
 ## Commercial scope and exact package
 
@@ -23,7 +23,7 @@ For each held row, a rights owner must attach dated evidence and sign an exact-h
 
 ## Privacy and safety boundary
 
-Merged PR #124 provides a guardian-facing local delete-all action with typed confirmation and app-namespaced storage/cache removal. PR #125 removed OS Share, and PR #127 removed the Race highlight file Download/WebM path while preserving local in-app replay. Private Party remains QR display and paste-code transfer. The packaged CSP contains `connect-src 'none'`, and the release contract has no remote destination; source and browser evidence do not establish native backup, SDK, permission, or all-error-path behavior. A localhost-only audio QA recording helper remains outside the Race highlight feature; verify that no release-visible export path exists in the native binary.
+Merged PR #124 provides a guardian-facing local delete-all action with typed confirmation and app-namespaced storage/cache removal. PR #125 removed OS Share, and PR #127 removed the Race highlight file Download/WebM path while preserving local in-app replay. PR #132 allows same-origin and blob 3D asset loading through packaged CSP `connect-src 'self' blob:` while external connection probes remain blocked. PR #133 repaired Fight phone composition. Private Party remains QR display and paste-code transfer. Exact-head browser checks cover deletion, CSP, replay, and selected visual paths; they do not establish native backup, SDK, permission, or all-error-path behavior. A localhost-only audio QA recording helper remains outside the Race highlight feature; verify that no release-visible export path exists in the native binary.
 
 The [privacy/support draft](privacy-and-support-policy-draft.md) remains **unpublished**. Identify the legal developer, guardian contact and policy URL, support provider, ticket retention period, and incident owner. Use synthetic data in QA. Do not request raw child profiles, real names, locations, unredacted screenshots, or Private Party codes in support. Test local deletion after legacy migration, multiple profiles, failed storage, restart, uninstall/reinstall, and backup restoration on each native platform. Publish only after final data-flow review and separate approval.
 
