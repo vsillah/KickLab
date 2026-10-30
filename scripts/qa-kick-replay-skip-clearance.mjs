@@ -40,6 +40,30 @@ async function activeSnapshot(page){return page.evaluate(()=>{
   return{visible:!!button.getClientRects().length,hit:hit?.closest('button')?.id||hit?.className||null,button:{x:box.x,y:box.y,w:box.width,h:box.height,right:box.right,bottom:box.bottom},deck:{x:d.x,y:d.y,right:d.right,bottom:d.bottom,visible:!!deck.getClientRects().length},stage:{x:s.x,y:s.y,right:s.right,bottom:s.bottom},active:window.__KICKLAB_CELEBRATION_AUDIT__?.active,phase:window.__KICKLAB_CELEBRATION_AUDIT__?.phase,reduced:window.__KICKLAB_CELEBRATION_AUDIT__?.reduced,canvasFallback:!document.querySelector('#cv3')?.getClientRects().length,progress:(()=>{const doc=JSON.parse(localStorage.getItem('kicklab.profiles.v1'));return JSON.stringify(doc.profiles.find(profile=>profile.id===doc.activeId)?.progress)})(),storage:Object.keys(localStorage).sort(),overflow:document.documentElement.scrollWidth>innerWidth+1};
 });}
 
+async function resultReplayCycle(page,{label,input,entry,width,height,out,video}){
+  await page.locator('#rReplay').scrollIntoViewIfNeeded();
+  const before=await page.evaluate(()=>{
+    const button=document.querySelector('#rReplay'),box=button.getBoundingClientRect(),hit=document.elementFromPoint(box.left+box.width/2,box.top+box.height/2),doc=JSON.parse(localStorage.getItem('kicklab.profiles.v1'));
+    return{visible:!!button.getClientRects().length,hit:hit?.closest('button')?.id||null,button:{x:box.x,y:box.y,right:box.right,bottom:box.bottom},deck:!!document.querySelector('.control-deck')?.getClientRects().length,progress:JSON.stringify(doc.profiles.find(profile=>profile.id===doc.activeId)?.progress)};
+  });
+  entry.states.push({phase:'result-replay-ready',...before});
+  check(before.visible&&before.hit==='rReplay'&&before.deck&&before.button.x>=0&&before.button.right<=width&&before.button.y>=0&&before.button.bottom<=height,`${label}: result Replay obstructed ${JSON.stringify(before)}`);
+  await page.screenshot({path:join(out,`${label}-result-replay-ready.png`)});
+  if(input==='touch')await page.locator('#rReplay').tap();else if(input==='keyboard')await page.locator('#rReplay').press('Enter');else await page.locator('#rReplay').click();
+  await page.locator('#rbar').waitFor({state:'visible',timeout:3000});
+  check(!await page.locator('#results').isVisible(),`${label}: result stayed open over recorded Replay`);
+  await page.locator('#rbExit').scrollIntoViewIfNeeded();
+  const transport=await page.locator('#rbExit').evaluate(button=>{const box=button.getBoundingClientRect();return{hit:document.elementFromPoint(box.left+box.width/2,box.top+box.height/2)?.closest('button')?.id,visible:!!button.getClientRects().length}});
+  entry.states.push({phase:'recorded-replay-open',...transport});
+  check(transport.visible&&transport.hit==='rbExit',`${label}: recorded Replay exit obstructed ${JSON.stringify(transport)}`);
+  await page.screenshot({path:join(out,`${label}-recorded-replay.png`)});
+  if(video)await page.waitForTimeout(600);
+  if(input==='touch')await page.locator('#rbExit').tap();else if(input==='keyboard')await page.locator('#rbExit').press('Enter');else await page.locator('#rbExit').click();
+  await page.locator('#rbar').waitFor({state:'hidden',timeout:3000});
+  const after=await page.evaluate(()=>{const doc=JSON.parse(localStorage.getItem('kicklab.profiles.v1'));return JSON.stringify(doc.profiles.find(profile=>profile.id===doc.activeId)?.progress)});
+  check(after===before.progress,`${label}: recorded Replay changed progress`);
+}
+
 for(const testCase of cases.filter(testCase=>!process.env.KICKLAB_QA_WIDTH||testCase.width===Number(process.env.KICKLAB_QA_WIDTH))){
   const {width,height,input,gfx,reduced,recover,video}=testCase,label=`${width}x${height}-${gfx}-${input}${recover?'-recovery':''}${reduced?'-reduced':''}`;
   const url=new URL(base);url.searchParams.set('rev',head);url.searchParams.set('kickReplaySkipQA','1');
@@ -83,8 +107,8 @@ for(const testCase of cases.filter(testCase=>!process.env.KICKLAB_QA_WIDTH||test
     const ended=await page.evaluate(()=>({audit:window.__KICKLAB_CELEBRATION_AUDIT__,title:document.querySelector('#rTitle').textContent,profile:(()=>{const doc=JSON.parse(localStorage.getItem('kicklab.profiles.v1'));return JSON.stringify(doc.profiles.find(profile=>profile.id===doc.activeId)?.progress)})()}));
     entry.states.push({phase:'skip-activated',ended:ended.audit.ended,title:ended.title});
     check(ended.audit.ended==='skipped'&&JSON.parse(ended.profile).goals===(JSON.parse(before).goals||0)+1,`${label}: Skip changed outcome or lost progress ${JSON.stringify(ended)}`);
+    await resultReplayCycle(page,{label,input,entry,width,height,out,video});
     if(video){
-      await page.waitForTimeout(700);await page.screenshot({path:join(out,'1024x768-skip-result.png')});
       await setup(page,gfx,url);
       if(await kickButton.isVisible())await kickButton.click();else await page.keyboard.press('Space');
       await page.locator('#goalCelebrationControls').waitFor({state:'visible',timeout:15000});
@@ -96,6 +120,7 @@ for(const testCase of cases.filter(testCase=>!process.env.KICKLAB_QA_WIDTH||test
       const repeatedResult=await page.evaluate(()=>({ended:window.__KICKLAB_CELEBRATION_AUDIT__?.ended,goals:(()=>{const doc=JSON.parse(localStorage.getItem('kicklab.profiles.v1'));return doc.profiles.find(profile=>profile.id===doc.activeId)?.progress.goals})()}));
       entry.states.push({phase:'second-replay-skipped',...repeatedResult});
       check(repeatedResult.ended==='skipped'&&repeatedResult.goals===(JSON.parse(before).goals||0)+2,`${label}: second replay lost progress ${JSON.stringify(repeatedResult)}`);
+      await resultReplayCycle(page,{label,input,entry,width,height,out,video:false});
     }
   }catch(error){const diagnostic=await page.evaluate(()=>({mode:document.documentElement.dataset.kicklabMode,buttons:[...document.querySelectorAll('button')].filter(button=>button.getClientRects().length&&/kick|shoot|space/i.test(button.textContent+' '+button.getAttribute('aria-label'))).map(button=>({id:button.id,text:button.textContent.trim(),aria:button.getAttribute('aria-label')})).slice(0,12),result:!document.querySelector('#results').hidden,title:document.querySelector('#rTitle').textContent,audit:window.__KICKLAB_CELEBRATION_AUDIT__||null})).catch(()=>null);await page.screenshot({path:join(out,`${label}-error.png`)}).catch(()=>{});const detail=`${label}: ${error.stack||String(error)} diagnostic=${JSON.stringify(diagnostic)}`;report.errors.push(detail);console.error(detail)}
   await context.close();
