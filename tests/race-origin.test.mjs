@@ -61,6 +61,14 @@ test('partial explicit Race flags retain the document handoff and failed URL upd
   assert.equal(denied.location.search,'');
 });
 
+test('loaded-home Race entry works when session storage writes are denied',()=>{
+  const h=homeHarness('https://vsillah.github.io/KickLab/');
+  let replaced=null;
+  const deniedStorage={setItem(){throw Error('denied');}};
+  assert.equal(h.origin.enterFromHome(h.location,deniedStorage,()=>assert.fail('document navigation'),url=>{replaced=url;h.location.href=url;}),'local');
+  assert.equal(new URL(replaced).searchParams.get('racePreflight'),'prototype');
+});
+
 test('home Race entry fails closed on untrusted origins and does not alter other lab entry',()=>{
   for(const href of ['https://example.test/KickLab/','http://vsillah.github.io/KickLab/','https://vsillah.github.io/KickLab/other.html']){
     const h=homeHarness(href);
