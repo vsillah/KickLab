@@ -10,19 +10,19 @@ const origin=process.env.KICKLAB_QA_ORIGIN||'http://127.0.0.1:47777';
 const browser=await chromium.launch({headless:true,executablePath:[process.env.KICKLAB_CHROMIUM_PATH,chromium.executablePath(),'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find(path=>path&&existsSync(path)),args:['--enable-webgl']});
 const results=[];
 const home=label=>`${origin}/kicklab.html?qa=${label}&rev=${head}`;
-async function open(label,{width=1280,height=720,gfx='3d',reduce=false,corrupt=false,flagged=false,blockSelected=false}={}){
+async function open(label,{width=1280,height=720,gfx='3d',reduce=false,corrupt=false,flagged=false,blockSelected=false,vehicleBody=null}={}){
   const context=await browser.newContext({viewport:{width,height},reducedMotion:reduce?'reduce':'no-preference'});
-  await context.addInitScript(({gfx,corrupt})=>{localStorage.setItem('impactlab.v1',corrupt?'{broken':JSON.stringify({gfx,ch:{fight:0,race:0,kick:0},play:{fight:'ch',race:'ch',kick:'ch'}}));},{gfx,corrupt});
-  const page=await context.newPage(),errors=[],external=[],documents=[];let offline=false;
+  await context.addInitScript(({gfx,corrupt,vehicleBody})=>{const progress={gfx,ch:{fight:0,race:0,kick:0},play:{fight:'ch',race:'ch',kick:'ch'}};if(vehicleBody){progress.raceGarage={version:1,body:vehicleBody,suspension:'balanced',tires:'balanced',brakes:'standard'};progress.raceMastery={version:1,cleared:['drag','drift','circuit']};localStorage.setItem('impactlab.nick','Vehicle QA');}localStorage.setItem('impactlab.v1',corrupt?'{broken':JSON.stringify(progress));},{gfx,corrupt,vehicleBody});
+  const page=await context.newPage(),errors=[],external=[],documents=[],offlineRequests=[];let offline=false;
   if(blockSelected)await page.route('**/direction-a-atlas.glb',route=>route.abort());
   page.on('pageerror',error=>errors.push(error.message));
-  page.on('request',request=>{const url=request.url();if(offline&&request.isNavigationRequest())documents.push(url);if(!url.startsWith(origin+'/')&&!url.startsWith('blob:')&&!url.startsWith('data:'))external.push(url);});
+  page.on('request',request=>{const url=request.url();if(offline){offlineRequests.push(url);if(request.isNavigationRequest()||new URL(url).pathname.endsWith('.html'))documents.push(url);}if(!url.startsWith(origin+'/')&&!url.startsWith('blob:')&&!url.startsWith('data:'))external.push(url);});
   let url=home(label);if(flagged){const target=new URL(url);for(const [key,value] of Object.entries({raceSystems:'proxy',raceTelemetry:'prototype',raceCornerTrace:'prototype',raceProgression:'prototype',raceExpansion:'prototype',raceCompetition:'prototype',raceChampionship:'prototype',raceMultiplayer:'prototype',raceSimulator:'prototype',racePreflight:'prototype'}))target.searchParams.set(key,value);url=target.href;}
   await page.goto(url,{waitUntil:'domcontentloaded'});
   if(await page.locator('#profileFormSave').isVisible())await page.locator('#profileFormSave').click();
   if(await page.locator('#profileClose').isVisible())await page.locator('#profileClose').click();
   await page.locator('#modeHome').waitFor({state:'visible'});
-  return{context,page,errors,external,documents,offline:async()=>{offline=true;await context.setOffline(true);},close:async()=>context.close()};
+  return{context,page,errors,external,documents,offlineRequests,offline:async()=>{offline=true;await context.setOffline(true);},close:async()=>context.close()};
 }
 const check=(name,value)=>{if(!value)throw Error(name);};
 try{
@@ -52,6 +52,31 @@ try{
       check(`${label}: overflow`,overflow<=1);
       check(`${label}: errors or egress`,run.errors.length===0&&run.external.length===0);
       results.push({label,mode:item.lab,overflow,documentRequests:run.documents.length,errors:run.errors,external:run.external});
+    }finally{await run.close();}
+  }
+  for(const vehicle of [
+    {id:'kestrel',body:'kart',assetUrl:'assets/3d/kicklab-race-kestrel/v1/kestrel-original.glb'},
+    {id:'cobalt',body:'street',assetUrl:'assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb'},
+    {id:'aegis',body:'race',assetUrl:'assets/3d/kicklab-race-aegis/v1/aegis-original.glb'},
+    {id:'vesper',body:'vesper',assetUrl:'assets/3d/kicklab-race-vesper/v1/vesper-original.glb'},
+    {id:'sable',body:'sable',assetUrl:'assets/3d/kicklab-race-sable/v1/sable-original.glb'}
+  ]){
+    const label=`offline-selected-${vehicle.id}`,run=await open(label,{vehicleBody:vehicle.body});
+    try{
+      await run.page.waitForFunction(()=>window.__KICKLAB_RACE_3D_PREP__?.status==='ready',null,{timeout:10000});
+      const prepared=await run.page.evaluate(()=>window.__KICKLAB_RACE_3D_PREP__);
+      check(`${label}: selected Home asset`,prepared.url===vehicle.assetUrl&&prepared.bytes>0&&prepared.bytes<=2_000_000);
+      check(`${label}: default-off Home`,await run.page.evaluate(()=>!new URLSearchParams(location.search).has('raceSystems')));
+      await run.offline();await run.page.locator('#lab-tab-race').click();
+      await run.page.locator('#racePreflight').waitFor({state:'visible',timeout:8000});
+      await run.page.locator('#racePreflightClose').click();
+      await run.page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.status==='rendering',null,{timeout:15000});
+      await run.page.waitForTimeout(850);
+      const rendered=await run.page.evaluate(()=>({audit:window.__KICKLAB_RACE_3D__,visible:!!document.querySelector('#race3')&&getComputedStyle(document.querySelector('#race3')).display!=='none'}));
+      check(`${label}: selected WebGL`,rendered.visible&&rendered.audit.status==='rendering'&&rendered.audit.vehicleAudit?.ok&&rendered.audit.vehicleId===vehicle.id&&rendered.audit.assetUrl===vehicle.assetUrl);
+      check(`${label}: offline requests`,run.documents.length===0&&!run.offlineRequests.some(url=>new URL(url).pathname.endsWith('/'+vehicle.assetUrl)));
+      check(`${label}: no page errors or egress`,run.errors.length===0&&run.external.length===0);
+      results.push({label,vehicleId:vehicle.id,assetUrl:vehicle.assetUrl,preparedBytes:prepared.bytes,webgl:rendered.audit.status,vehicleAudit:rendered.audit.vehicleAudit,documentRequests:run.documents.length,selectedGlbRequestsAfterOffline:run.offlineRequests.filter(url=>new URL(url).pathname.endsWith('/'+vehicle.assetUrl)).length,errors:run.errors,external:run.external});
     }finally{await run.close();}
   }
   {
