@@ -36,11 +36,11 @@ test('removes migrated multi-profile state, all app namespaces, session entry an
   let id=0;const local=storage({'impactlab.v1':JSON.stringify({xp:12}),'impactlab.nick':'First','other.key':'safe'});
   const manager=createManager(local,{now:()=>100,makeId:()=>`p-${++id}`});
   manager.create({nickname:'Second'});manager.saveActiveProgress({xp:800,goals:9});
-  local.setItem('kicklab.future.v2','future');local.setItem('impactlab.legacy-extra','old');
+  local.setItem('kicklab.future.v2','future');local.setItem('impactlab.legacy-extra','old');local.setItem('kicklab.profiles.pending.v1','interrupted profile save');
   const session=storage({'kicklab.race.home-entry.v1':'/race','impactlab.temp':'x','other.session':'safe'});
   const caches=cache(['kicklab.assets.v1','impactlab.old','other-cache']);
   const result=await deleteAllLocalData(local,session,caches);
-  assert.deepEqual(result,{ok:true,removed:{local:5,session:2,caches:2}});
+  assert.deepEqual(result,{ok:true,removed:{local:6,session:2,caches:2}});
   assert.deepEqual(local.snapshot(),{'other.key':'safe'});assert.deepEqual(session.snapshot(),{'other.session':'safe'});
   assert.deepEqual(await caches.keys(),['other-cache']);
   const restarted=createManager(local,{now:()=>101});

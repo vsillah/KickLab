@@ -11,6 +11,7 @@ function memoryStorage(seed = {}) {
   return {
     getItem: key => values.has(key) ? values.get(key) : null,
     setItem: (key, value) => values.set(key, String(value)),
+    removeItem: key => values.delete(key),
     value: key => values.get(key)
   };
 }

@@ -2,6 +2,7 @@
   'use strict';
 
   const PROFILE_KEY = 'kicklab.profiles.v1';
+  const PROFILE_PENDING_KEY = 'kicklab.profiles.pending.v1';
   const LEGACY_PROGRESS_KEY = 'impactlab.v1';
   const LEGACY_NICKNAME_KEY = 'impactlab.nick';
   const OWNED_PREFIXES = Object.freeze(['kicklab.', 'impactlab.']);
@@ -79,7 +80,16 @@
   }
 
   function loadEnvelope(storage, options = {}) {
-    const raw = read(storage, PROFILE_KEY);
+    const pending = safeParse(read(storage, PROFILE_PENDING_KEY), null);
+    const previous = typeof pending?.previous === 'string' && Array.isArray(safeParse(pending.previous, null)?.profiles)
+      ? pending.previous : null;
+    if (previous !== null) {
+      try {
+        storage.setItem(PROFILE_KEY, previous);
+        if (storage.getItem(PROFILE_KEY) === previous) storage.removeItem(PROFILE_PENDING_KEY);
+      } catch (_) { /* Keep the previous profile in memory until storage recovers. */ }
+    }
+    const raw = previous ?? read(storage, PROFILE_KEY);
     const parsed = raw ? safeParse(raw, null) : null;
     return normalizeEnvelope(parsed, storage, options.now == null ? Date.now() : options.now);
   }
@@ -148,6 +158,31 @@
       : () => `player-${now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
     let envelope = loadEnvelope(storage, { now: now() });
     const persist = () => write(storage, PROFILE_KEY, JSON.stringify(envelope));
+    const commitProfile = candidate => {
+      try {
+        if (!storage || typeof storage.removeItem !== 'function') throw new Error('storage_unavailable');
+        const pendingRaw = storage.getItem(PROFILE_PENDING_KEY);
+        if (pendingRaw !== null) {
+          const pending = safeParse(pendingRaw, null);
+          if (typeof pending?.previous === 'string' && Array.isArray(safeParse(pending.previous, null)?.profiles)) {
+            storage.setItem(PROFILE_KEY, pending.previous);
+            if (storage.getItem(PROFILE_KEY) !== pending.previous) throw new Error('rollback_failed');
+          }
+          storage.removeItem(PROFILE_PENDING_KEY);
+          if (storage.getItem(PROFILE_PENDING_KEY) !== null) throw new Error('rollback_failed');
+        }
+        const journal = JSON.stringify({ previous: JSON.stringify(envelope) });
+        storage.setItem(PROFILE_PENDING_KEY, journal);
+        if (storage.getItem(PROFILE_PENDING_KEY) !== journal) throw new Error('journal_write_failed');
+        const next = JSON.stringify(candidate);
+        storage.setItem(PROFILE_KEY, next);
+        if (storage.getItem(PROFILE_KEY) !== next) throw new Error('profile_write_failed');
+        storage.removeItem(PROFILE_PENDING_KEY);
+        if (storage.getItem(PROFILE_PENDING_KEY) !== null) throw new Error('journal_clear_failed');
+        envelope = candidate;
+        mirror();
+      } catch (_) { throw new Error('profile_storage_unavailable'); }
+    };
     const active = () => envelope.profiles.find(profile => profile.id === envelope.activeId) || envelope.profiles[0];
     const mirror = () => {
       const profile = active();
@@ -165,13 +200,15 @@
         const id = profileId(makeId()) || `player-${envelope.profiles.length + 1}`;
         if (envelope.profiles.some(profile => profile.id === id)) throw new Error('profile_id_conflict');
         const profile = normalizeProfile({ ...input, id, progress: {}, needsSetup: false, createdAt: now(), updatedAt: now() }, envelope.profiles.length, now());
-        envelope.profiles.push(profile);
-        envelope.activeId = profile.id;
-        persist(); mirror();
+        const candidate = clone(envelope);
+        candidate.profiles.push(profile);
+        candidate.activeId = profile.id;
+        commitProfile(candidate);
         return clone(profile);
       },
       updateActive(input = {}) {
-        const profile = active();
+        const candidate = clone(envelope);
+        const profile = candidate.profiles.find(item => item.id === candidate.activeId) || candidate.profiles[0];
         const previousAvatar = profile.avatar;
         profile.nickname = nickname(input.nickname == null ? profile.nickname : input.nickname) || profile.nickname;
         profile.avatar = choice(input.avatar, AVATARS, profile.avatar);
@@ -180,14 +217,15 @@
         profile.color = choice(input.color, COLORS, profile.color);
         profile.needsSetup = false;
         profile.updatedAt = now();
-        persist(); mirror();
+        commitProfile(candidate);
         return clone(profile);
       },
       switchTo(id) {
         if (!envelope.profiles.some(profile => profile.id === id)) return null;
-        envelope.activeId = id;
-        active().updatedAt = now();
-        persist(); mirror();
+        const candidate = clone(envelope);
+        candidate.activeId = id;
+        candidate.profiles.find(profile => profile.id === id).updatedAt = now();
+        commitProfile(candidate);
         return clone(active());
       },
       saveActiveProgress(progress) {
@@ -202,7 +240,7 @@
   }
 
   root.KickLabProfiles = Object.freeze({
-    VERSION, PROFILE_KEY, LEGACY_PROGRESS_KEY, LEGACY_NICKNAME_KEY, AVATARS, COLORS,
+    VERSION, PROFILE_KEY, PROFILE_PENDING_KEY, LEGACY_PROGRESS_KEY, LEGACY_NICKNAME_KEY, AVATARS, COLORS,
     nickname, normalizeProfile, migrateLegacy, normalizeEnvelope, loadEnvelope, rankProfiles, createManager,
     ownedStorageKeys, deleteAllLocalData, isDeleteConfirmation
   });
