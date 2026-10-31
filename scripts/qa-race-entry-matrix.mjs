@@ -10,10 +10,11 @@ const origin=process.env.KICKLAB_QA_ORIGIN||'http://127.0.0.1:47777';
 const browser=await chromium.launch({headless:true,executablePath:[process.env.KICKLAB_CHROMIUM_PATH,chromium.executablePath(),'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find(path=>path&&existsSync(path)),args:['--enable-webgl']});
 const results=[];
 const home=label=>`${origin}/kicklab.html?qa=${label}&rev=${head}`;
-async function open(label,{width=1280,height=720,gfx='3d',reduce=false,corrupt=false,flagged=false}={}){
+async function open(label,{width=1280,height=720,gfx='3d',reduce=false,corrupt=false,flagged=false,blockSelected=false}={}){
   const context=await browser.newContext({viewport:{width,height},reducedMotion:reduce?'reduce':'no-preference'});
   await context.addInitScript(({gfx,corrupt})=>{localStorage.setItem('impactlab.v1',corrupt?'{broken':JSON.stringify({gfx,ch:{fight:0,race:0,kick:0},play:{fight:'ch',race:'ch',kick:'ch'}}));},{gfx,corrupt});
   const page=await context.newPage(),errors=[],external=[],documents=[];let offline=false;
+  if(blockSelected)await page.route('**/direction-a-atlas.glb',route=>route.abort());
   page.on('pageerror',error=>errors.push(error.message));
   page.on('request',request=>{const url=request.url();if(offline&&request.isNavigationRequest())documents.push(url);if(!url.startsWith(origin+'/')&&!url.startsWith('blob:')&&!url.startsWith('data:'))external.push(url);});
   let url=home(label);if(flagged){const target=new URL(url);for(const [key,value] of Object.entries({raceSystems:'proxy',raceTelemetry:'prototype',raceCornerTrace:'prototype',raceProgression:'prototype',raceExpansion:'prototype',raceCompetition:'prototype',raceChampionship:'prototype',raceMultiplayer:'prototype',raceSimulator:'prototype',racePreflight:'prototype'}))target.searchParams.set(key,value);url=target.href;}
@@ -34,6 +35,7 @@ try{
   ]){
     const label=`offline-${item.lab}-${item.width}${item.corrupt?'-corrupt':''}`,run=await open(label,item);
     try{
+      if(item.lab==='race'&&item.gfx==='3d')await run.page.waitForFunction(()=>window.__KICKLAB_RACE_3D_PREP__?.status==='ready',null,{timeout:10000});
       await run.offline();await run.page.locator(`#lab-tab-${item.lab}`).click();
       check(`${label}: mode`,await run.page.evaluate(()=>document.documentElement.dataset.kicklabMode)===item.lab);
       check(`${label}: document request`,run.documents.length===0);
@@ -43,12 +45,25 @@ try{
         if(item.reduce)check(`${label}: reduced motion`,await run.page.locator('#racePreflight video').count()===0);
         await run.page.locator('#racePreflightClose').click();
         await run.page.locator('#game-cockpit').waitFor({state:'visible'});
+        if(item.gfx==='3d'){await run.page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.status==='rendering',null,{timeout:15000});check(`${label}: selected WebGL`,await run.page.locator('#race3').isVisible());}
         if(item.gfx==='2d')check(`${label}: Canvas fallback`,await run.page.evaluate(()=>{const canvas=document.querySelector('#cv'),webgl=document.querySelector('#race3');return !!canvas&&getComputedStyle(canvas).display!=='none'&&(!webgl||getComputedStyle(webgl).display==='none');}));
       }else await run.page.locator('#game-cockpit').waitFor({state:'visible'});
       const overflow=await run.page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
       check(`${label}: overflow`,overflow<=1);
       check(`${label}: errors or egress`,run.errors.length===0&&run.external.length===0);
       results.push({label,mode:item.lab,overflow,documentRequests:run.documents.length,errors:run.errors,external:run.external});
+    }finally{await run.close();}
+  }
+  {
+    const run=await open('unprepared-selected',{blockSelected:true});
+    try{
+      await run.page.waitForFunction(()=>window.__KICKLAB_RACE_3D_PREP__?.status==='unavailable');
+      await run.offline();await run.page.locator('#lab-tab-race').click();
+      await run.page.locator('#racePreflight').waitFor({state:'visible'});
+      await run.page.locator('#racePreflightClose').click();
+      await run.page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.status==='canvas-fallback',null,{timeout:15000});
+      check('unprepared Canvas fallback',await run.page.locator('#cv').isVisible());
+      results.push({label:'unprepared-selected',fallback:true});
     }finally{await run.close();}
   }
   for(const flagged of [false,true]){

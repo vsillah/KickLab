@@ -33,7 +33,11 @@ try{
   if(await page.locator('#profileFormSave').isVisible())await page.locator('#profileFormSave').click();
   if(await page.locator('#profileClose').isVisible())await page.locator('#profileClose').click();
   await page.locator('#modeHome').waitFor({state:'visible'});
-  await page.waitForTimeout(850);
+  await page.waitForFunction(()=>window.__KICKLAB_RACE_3D_PREP__?.status==='ready',null,{timeout:10000});
+  const prepared=await page.evaluate(()=>window.__KICKLAB_RACE_3D_PREP__);
+  if(!prepared.bytes||prepared.bytes>2_000_000)throw Error('Selected vehicle preparation invalid');
+  await page.evaluate(()=>{const note=document.createElement('div');note.id='raceOfflineProof';note.style.cssText='position:fixed;z-index:99999;pointer-events:none;right:16px;top:16px;background:#fff;color:#153044;padding:12px 16px;border:3px solid #16836b;border-radius:8px;font:700 18px system-ui;box-shadow:0 3px 12px #0005';note.textContent='Selected Race 3D asset ready in memory';document.body.append(note);});
+  await page.waitForTimeout(650);
   offline=true;await context.setOffline(true);
   await page.locator('#lab-tab-race').click();
   await page.locator('#racePreflight').waitFor({state:'visible',timeout:8000});
@@ -43,6 +47,10 @@ try{
   if(documents.length)throw Error(`Document request after network loss: ${documents.join(', ')}`);
   await page.locator('#racePreflightClose').click();
   await page.locator('#game-cockpit').waitFor({state:'visible'});
+  await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.status==='rendering',null,{timeout:15000});
+  const race3d=await page.evaluate(()=>window.__KICKLAB_RACE_3D__);
+  if(race3d.assetUrl!==prepared.url||!race3d.vehicleAudit?.ok||!(await page.locator('#race3').isVisible()))throw Error('Selected 3D vehicle did not render');
+  await page.evaluate(()=>{document.querySelector('#raceOfflineProof').textContent='Offline · selected Race 3D rendering';});
   await page.waitForTimeout(800);
   const mode=await page.evaluate(()=>document.documentElement.dataset.kicklabMode);
   if(mode!=='race')throw Error(`Expected Race cockpit, got ${mode}`);
@@ -51,7 +59,7 @@ try{
   if(p95Ms>50)throw Error(`Visible-browser p95 ${p95Ms.toFixed(1)} ms exceeds 50 ms`);
   const permissions=await page.evaluate(()=>window.__KICKLAB_PERMISSION_ATTEMPTS__||[]);
   if(errors.length||external.length||permissions.length||downloads.length||popups.length)throw Error(JSON.stringify({errors,external,permissions,downloads,popups}));
-  const report={head,origin,loadedUrl:url.href,offlineRaceUrl:page.url(),documentRequestsAfterOffline:documents,p95Ms,errors,external,permissions,downloads,popups};
+  const report={head,origin,loadedUrl:url.href,offlineRaceUrl:page.url(),prepared,race3d:{status:race3d.status,assetUrl:race3d.assetUrl,vehicleId:race3d.vehicleId,vehicleAudit:race3d.vehicleAudit},documentRequestsAfterOffline:documents,p95Ms,errors,external,permissions,downloads,popups};
   writeFileSync(join(out,'report.json'),JSON.stringify(report,null,2)+'\n');
   console.log(JSON.stringify(report,null,2));
 }finally{
