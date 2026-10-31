@@ -27,7 +27,7 @@ test('keeps Race record maxima and minimum while leaving input unchanged',()=>{
 
 test('Race records stay inside the active local profile and legacy mirror',()=>{
   const data=new Map([['impactlab.v1',JSON.stringify({xp:9,goals:4})],['impactlab.nick','First']]);
-  const storage={getItem:key=>data.get(key)??null,setItem:(key,value)=>data.set(key,value)};
+  const storage={getItem:key=>data.get(key)??null,setItem:(key,value)=>data.set(key,value),removeItem:key=>data.delete(key)};
   const manager=globalThis.KickLabProfiles.createManager(storage,{now:()=>1,makeId:()=> 'second'});
   const first=manager.active().id;
   manager.create({nickname:'Second'});

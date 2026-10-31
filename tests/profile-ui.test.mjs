@@ -33,9 +33,9 @@ test('keeps one accessible profile entry and dialog with child-safe setup fields
 });
 
 test('switches active progress without reloading, while confirmed deletion restarts cleanly', () => {
-  assert.match(profiles, /profileManager\.switchTo\(button\.dataset\.profileId\);loadActiveProfile\(\)/);
+  assert.match(profiles, /profileManager\.switchTo\(button\.dataset\.profileId\)/);
   assert.match(profiles, /Object\.keys\(best\)\.forEach\(key=>delete best\[key\]\);Object\.assign\(best,next\)/);
-  assert.match(profiles, /profileManager\.switchTo\(button\.dataset\.profileId\);loadActiveProfile\(\)/);
+  assert.match(profiles, /loadActiveProfile\(\);toast\('Player switched'/);
   assert.match(profiles, /deleteAllLocalData\(localStorage,sessionStorage,globalThis\.caches\)[\s\S]*window\.location\.reload\(\)/);
 });
 

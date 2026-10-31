@@ -96,7 +96,7 @@ test('the same build changes both Race steppers without a separate control model
 });
 
 test('garage progress stays with the active local profile',()=>{
-  const context={globalThis:{}},profiles=vm.runInNewContext(read('../src/shared/profile-avatar-art.js')+'\n'+read('../src/shared/profile-store.js')+'\nglobalThis.KickLabProfiles',context),memory=new Map(),storage={getItem:key=>memory.get(key)??null,setItem:(key,value)=>memory.set(key,value)};
+  const context={globalThis:{}},profiles=vm.runInNewContext(read('../src/shared/profile-avatar-art.js')+'\n'+read('../src/shared/profile-store.js')+'\nglobalThis.KickLabProfiles',context),memory=new Map(),storage={getItem:key=>memory.get(key)??null,setItem:(key,value)=>memory.set(key,value),removeItem:key=>memory.delete(key)};
   const manager=profiles.createManager(storage,{now:()=>123,makeId:(()=>{let n=0;return()=>`player-${++n}`;})()});
   const first=manager.active().id;manager.saveActiveProgress({raceGarage:build('tires','wide')});manager.create({nickname:'Second'});assert.equal(garage.normalize(manager.active().progress.raceGarage).tires,'balanced');
   manager.switchTo(first);assert.equal(garage.normalize(manager.active().progress.raceGarage).tires,'wide');
