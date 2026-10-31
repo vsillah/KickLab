@@ -102,7 +102,9 @@ const RACE_3D_HOME_ASSET={url:null,bytes:null,status:'empty',controller:null,
   clear(){this.controller?.abort();this.controller=null;this.url=null;this.bytes=null;this.status='empty';},
   prepare(){
     if(!globalThis.KickLabRaceOrigin.trusted()||best.gfx==='2d'||!navigator.onLine)return;
-    const url=Race.vehicle().assetUrl;
+    const catalog=globalThis.KickLabRaceVehicleCatalog;
+    const selected=catalog.forGarageBody(globalThis.KickLabRaceGarage.normalize(best.raceGarage).body);
+    const url=(catalog.access(selected.id,best).unlocked?selected:catalog.get(catalog.defaultId)).assetUrl;
     if(this.url===url&&['loading','ready'].includes(this.status))return;
     this.clear();this.url=url;this.status='loading';
     const controller=new AbortController();this.controller=controller;
