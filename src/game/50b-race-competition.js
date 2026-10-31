@@ -1,10 +1,12 @@
 /* Opt-in, device-only Race awards, rankings and result review. */
 const RACE_COMPETITION=globalThis.KickLabRaceCompetition;
-const RACE_COMPETITION_ON=RACE_COMPETITION.enabled();
+let RACE_COMPETITION_ON=RACE_COMPETITION.enabled();
 if(RACE_COMPETITION_ON)document.documentElement.dataset.raceCompetition='prototype';
+globalThis.KickLabRaceOrigin.onHomeEntry(()=>{RACE_COMPETITION_ON=true;document.documentElement.dataset.raceCompetition='prototype';});
 const RACE_COMP_UI={category:'core',last:null,storageWarning:false};
 // Keep local collectible art ready for a result reached while offline.
 const RACE_AWARD_IMAGES=Object.fromEntries((RACE_COMPETITION_ON?RACE_COMPETITION.CATEGORIES:[]).map(cat=>{const image=new Image();image.src=`assets/awards/race/v1/${cat.id}.webp`;return[cat.id,image];}));
+globalThis.KickLabRaceOrigin.onHomeEntry(()=>{for(const cat of RACE_COMPETITION.CATEGORIES){const image=new Image();image.src=`assets/awards/race/v1/${cat.id}.webp`;RACE_AWARD_IMAGES[cat.id]=image;}});
 function raceAwardArt(id){return`<img src="assets/awards/race/v1/${id}.webp" alt="" loading="lazy">`;}
 const RACE_JOURNEY_EMBLEM=Object.freeze({
   earned:'<span class="race-journey-emblem" aria-hidden="true"><svg viewBox="0 0 56 64" focusable="false"><path d="M28 3 50 11v18c0 14-9 25-22 32C15 54 6 43 6 29V11L28 3Z" fill="currentColor"/><path d="M28 9 44 15v14c0 10-6 19-16 25-10-6-16-15-16-25V15l16-6Z" fill="none" stroke="#fff4d8" stroke-width="2"/><path d="m18 29 7 7 14-16" fill="none" stroke="#163b3b" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"/></svg></span>',

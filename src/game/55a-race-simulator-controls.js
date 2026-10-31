@@ -1,9 +1,10 @@
 /* Trusted-origin, explicit opt-in Race simulator controller. No sensor samples are stored. */
 const RACE_SIMULATOR={active:false,sensorReady:false,permission:'idle',steer:0,center:null,lastAngle:null,brake:false,gas:false,revTaps:0,releaseAt:0,launchQueued:false,pointers:new Map(),lastPaint:0,lastPhase:'grid',nosHoldTimer:0,mastered:{launch:false,shift:false,drift:false,nos:false}};
 const SIM_MATH=globalThis.KickLabRaceSimulatorMath;
-const simFlag=RACE_MODES.enabled()&&new URLSearchParams(location.search).get('raceSimulator')==='prototype';
+let simFlag=RACE_MODES.enabled()&&new URLSearchParams(location.search).get('raceSimulator')==='prototype';
 const simButton=$('#simulatorControlsButton'),simPanel=$('#raceSimulator'),simStatus=$('#simStatus');
 simButton.hidden=!simFlag;
+globalThis.KickLabRaceOrigin.onHomeEntry(()=>{simFlag=true;simButton.hidden=false;});
 function simAllowed(){return simFlag&&M===Race&&!PAUSE.on&&!RP.on&&!CINE.on&&!document.hidden&&!$('#game-cockpit').hidden;}
 function simMessage(message){$('#simStatusDetail').textContent=message;simStatus.textContent=/NOS fired/.test(message)?'NOS fired':/Handbrake pulled/.test(message)?'Drift on':/Handbrake released/.test(message)?'Drift off':/denied/.test(message)?'Tilt denied':/unavailable/.test(message)?'Tilt unavailable':/recenter|Recenter|Orientation changed/.test(message)?'Recenter':/Lights running/.test(message)?'Lights':/paused|Paused/.test(message)?'Paused':/resumed/.test(message)?'Resumed':/Tilt steering/.test(message)?`Tilt ${Math.round(RACE_SIMULATOR.steer*100)}%`:/Enable tilt/.test(message)?'Tilt off':message.split(/[.·]/)[0].trim().slice(0,20);}
 function simGuide(){

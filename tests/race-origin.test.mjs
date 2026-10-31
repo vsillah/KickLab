@@ -5,9 +5,9 @@ import {local,pages,raceContext} from './helpers/race-origin.mjs';
 function homeHarness(href){
   const location=new URL(href),items=new Map(),storage={setItem:(key,value)=>items.set(key,value),getItem:key=>items.get(key)||null,removeItem:key=>items.delete(key)};
   const origin=raceContext(location,{URL,sessionStorage:storage}).KickLabRaceOrigin;
-  let navigated=null;
-  const enter=()=>origin.enterFromHome(location,storage,url=>{navigated=url;});
-  return{origin,location,storage,enter,navigated:()=>navigated};
+  let navigated=null,replaced=null;
+  const enter=()=>origin.enterFromHome(location,storage,url=>{navigated=url;},url=>{replaced=url;location.href=url;});
+  return{origin,location,storage,enter,navigated:()=>navigated,replaced:()=>replaced};
 }
 
 const trusted=location=>raceContext(location).KickLabRaceOrigin.trusted();
@@ -31,20 +31,42 @@ test('Race prototypes trust the canonical Pages path and local development only'
   assert.equal(raceContext(null).KickLabRaceOrigin.trusted(),false);
 });
 
-test('unflagged load remains default-off until home Race entry on trusted origins',()=>{
+test('unflagged home Race entry updates the loaded document URL without requesting HTML',()=>{
   for(const href of ['http://localhost:4173/kicklab.html?qa=home&rev=abc','http://127.0.0.1:4173/kicklab.html','https://vsillah.github.io/KickLab/?qa=home&rev=abc']){
     const h=homeHarness(href);
     assert.equal(h.origin.HOME_FLAGS.racePreflight,'prototype');
     assert.equal(h.origin.consumeHomeEntry(h.location,h.storage),false);
-    assert.equal(h.enter(),true);
-    const destination=new URL(h.navigated());
+    let activated=0;h.origin.onHomeEntry(()=>activated++);
+    assert.equal(h.enter(),'local');
+    assert.equal(h.navigated(),null);
+    assert.equal(activated,1);
+    const destination=new URL(h.replaced());
     for(const [key,value] of Object.entries(h.origin.HOME_FLAGS))assert.equal(destination.searchParams.get(key),value,key);
     assert.equal(destination.searchParams.get('qa'),new URL(href).searchParams.get('qa'));
     assert.equal(destination.searchParams.get('rev'),new URL(href).searchParams.get('rev'));
-    assert.equal(h.origin.consumeHomeEntry(destination,h.storage),true);
     assert.equal(h.origin.consumeHomeEntry(destination,h.storage),false);
-    assert.equal(h.origin.enterFromHome(destination,h.storage,()=>assert.fail('reload loop')),false);
+    assert.equal(h.enter(),'local');
+    assert.equal(activated,1);
   }
+});
+
+test('partial explicit Race flags retain the document handoff and failed URL updates fail closed',()=>{
+  const partial=homeHarness('https://vsillah.github.io/KickLab/?raceExpansion=prototype');
+  assert.equal(partial.enter(),'document');
+  assert.equal(partial.replaced(),null);
+  assert.match(partial.navigated(),/racePreflight=prototype/);
+  assert.equal(partial.origin.consumeHomeEntry(new URL(partial.navigated()),partial.storage),true);
+  const denied=homeHarness('https://vsillah.github.io/KickLab/');
+  assert.equal(denied.origin.enterFromHome(denied.location,denied.storage,()=>assert.fail('navigation'),()=>{throw Error('denied');}),false);
+  assert.equal(denied.location.search,'');
+});
+
+test('loaded-home Race entry works when session storage writes are denied',()=>{
+  const h=homeHarness('https://vsillah.github.io/KickLab/');
+  let replaced=null;
+  const deniedStorage={setItem(){throw Error('denied');}};
+  assert.equal(h.origin.enterFromHome(h.location,deniedStorage,()=>assert.fail('document navigation'),url=>{replaced=url;h.location.href=url;}),'local');
+  assert.equal(new URL(replaced).searchParams.get('racePreflight'),'prototype');
 });
 
 test('home Race entry fails closed on untrusted origins and does not alter other lab entry',()=>{

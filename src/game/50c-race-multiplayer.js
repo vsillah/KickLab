@@ -1,9 +1,10 @@
 /* Opt-in one-device Race ghost match. Match state and ghost samples stay in memory. */
 const RACE_MULTI=globalThis.KickLabRaceMultiplayer;
 const RACE_QUICK=globalThis.KickLabRaceQuickChallenge;
-const RACE_MULTI_ON=RACE_MULTI.enabled();
+let RACE_MULTI_ON=RACE_MULTI.enabled();
 const RACE_MULTI_UI={match:null,setup:null,soloSetup:null,lastGhostTick:0,view:'couch',quick:null,preview:null,party:null};
 if(RACE_MULTI_ON)document.documentElement.dataset.raceMultiplayer='prototype';
+globalThis.KickLabRaceOrigin.onHomeEntry(()=>{RACE_MULTI_ON=true;document.documentElement.dataset.raceMultiplayer='prototype';});
 function raceMultiplayerRacerLabel(match,seat){if(RACE_MULTI_UI.quick)return seat==='A'?(RACE_MULTI_UI.quick.role==='creator'?'You':RACE_MULTI_UI.quick.remoteAlias||'Challenger'):RACE_MULTI_UI.quick.role==='creator'?'Challenger':'You';return seat==='A'?'Racer 1':match?.kind==='computer'?'Computer':'Racer 2';}
 function renderRaceIdentitySeats(){
   const profiles=profileManager.list(),active=profileManager.active(),view=RACE_MULTI_UI.view,match=RACE_MULTI_UI.match,setup=RACE_MULTI_UI.setup;
