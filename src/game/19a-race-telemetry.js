@@ -1,8 +1,9 @@
 /* Default-off Race telemetry. This state is deliberately absent from records/storage. */
-const RACE_INSTRUMENTS_ON=globalThis.KickLabRaceOrigin.trusted()&&new URLSearchParams(location.search).get('raceExpansion')==='prototype'&&new URLSearchParams(location.search).get('raceInstruments')==='prototype';
+let RACE_INSTRUMENTS_ON=globalThis.KickLabRaceOrigin.trusted()&&new URLSearchParams(location.search).get('raceExpansion')==='prototype'&&new URLSearchParams(location.search).get('raceInstruments')==='prototype';
 const RACE_TELEMETRY=(()=>{
-  const enabled=globalThis.KickLabRaceOrigin.trusted()&&['raceTelemetry','raceCornerTrace','raceExpansion'].some(key=>new URLSearchParams(location.search).get(key)==='prototype');
+  let enabled=globalThis.KickLabRaceOrigin.trusted()&&['raceTelemetry','raceCornerTrace','raceExpansion'].some(key=>new URLSearchParams(location.search).get(key)==='prototype');
   if(enabled&&typeof document!=='undefined')document.documentElement.dataset.raceTelemetry='prototype';
+  globalThis.KickLabRaceOrigin.onHomeEntry(()=>{enabled=true;document.documentElement.dataset.raceTelemetry='prototype';});
   const clamp=(value,min,max)=>Math.min(max,Math.max(min,value));
   const GAUGES=Object.freeze([
     {id:'rpm',name:'RPM',unit:'rpm',target:[.55,.78],coach:'Hold the revs in the bright band for stronger pull.'},
@@ -38,5 +39,5 @@ const RACE_TELEMETRY=(()=>{
     if(action==='apply'&&canLock(t)){if(t.selected==='nos')return activateNos(t,.62);t.lock=t.selected;t.lockUntil=t.clock+2;return true;}
     return false;}
   function cancel(t){if(t){t.nosPulse=0;t.manualUntil=0;t.lock='';t.lockUntil=0;}}
-  return Object.freeze({enabled,GAUGES,initial,step,tune,activateNos,recommend,canLock,cancel,thermalStage,powerFactor});
+  return Object.freeze({get enabled(){return enabled;},GAUGES,initial,step,tune,activateNos,recommend,canLock,cancel,thermalStage,powerFactor});
 })();

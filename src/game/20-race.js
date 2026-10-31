@@ -2,7 +2,7 @@ const RACE_GARAGE=globalThis.KickLabRaceGarage;
 const RACE_PROGRESSION=globalThis.KickLabRaceProgression;
 const RACE_MODES=globalThis.KickLabRaceModes;
 const RACE_FINISHES=globalThis.KickLabRaceFinishes;
-const RACE_VENUE_PREFLIGHT_ACTIVE=RACE_MODES.enabled()&&globalThis.KickLabRaceOrigin.trusted()&&new URLSearchParams(location.search).get('racePreflight')==='prototype';
+let RACE_VENUE_PREFLIGHT_ACTIVE=RACE_MODES.enabled()&&globalThis.KickLabRaceOrigin.trusted()&&new URLSearchParams(location.search).get('racePreflight')==='prototype';
 const Race={
   key:'race',
   gas:false,brake:false,
@@ -298,6 +298,11 @@ const Race={
       {h:'Braking distance',p:r.vp>r.vmax?`Top speed on the straight was ${fmt(r.vp)} m/s.`:'You never went over the limit on the straight.',eq:r.vp>r.vmax?`d = (v₁² − v₂²) / (2·0.95·μ·g) = <em>${fmt(r.dB,0)} m</em> before the corner`:`<em>${fmt(r.vp)} ≤ ${fmt(r.vmax)} m/s</em>, no braking needed`}],
     idea:`Two ways to go faster through a corner: more grip (μ) or a bigger radius (R). Drag R up and watch the needed wheel angle shrink and the speed limit rise. That's why racers use the whole track to make the turn wider.`,quiz:QUIZ.race};}
 };
+globalThis.KickLabRaceOrigin.onHomeEntry(()=>{
+  RACE_VENUE_PREFLIGHT_ACTIVE=true;
+  Race.CARS=Object.fromEntries(Object.values(globalThis.KickLabRaceVehicleCatalog.vehicles).map(c=>[c.legacyBodyId,{name:c.name,m:c.massKg,F:c.driveForceN,top:c.topMps,len:c.lengthM,wid:c.widthM,Lwb:c.wheels.wheelbaseM,col:c.color}]));
+  Race.loadGarage();
+});
 Race.loadGarage();
 if(typeof location!=='undefined'&&['localhost','127.0.0.1'].includes(location.hostname))globalThis.__KICKLAB_RACE_GARAGE_QA__={
   read:()=>({build:{...Race.garage},parameters:Race.P(),state:Race.state,velocity:Race.st?.v||0,slide:!!Race.st?.slide,slideTime:Race.slideT||0,zone:Race.st?.zone||0,coachWarned:!!Race.warnS,telemetry:Race.telemetry?{braking:Race.telemetry.braking,brakeHeat:Race.telemetry.brakeHeat,brakeDistance:Race.telemetry.brakeDistance}:null,cornerTrace:Race.cornerTracePrediction?{exit:Race.cornerTracePrediction.exit,state:Race.cornerTracePrediction.state,grip:Race.cornerTracePrediction.grip}:null}),

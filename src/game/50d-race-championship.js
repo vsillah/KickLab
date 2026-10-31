@@ -1,6 +1,6 @@
 /* Opt-in Race Championship. Season runs have their own profile record. */
 const RACE_CHAMP=globalThis.KickLabRaceChampionship;
-const RACE_CHAMP_ON=RACE_CHAMP.enabled();
+let RACE_CHAMP_ON=RACE_CHAMP.enabled();
 const RACE_CHAMP_UI={active:false,selected:0,last:null,standings:false,timer:null};
 const RACE_CHAMP_CUES=Object.freeze({
   drag:{target:'≤19 s · trap ≥95 km/h',instruction:'Launch clean. Shift near the top of each band.',tuneField:'tires',tuneWhy:'Narrow tires roll freely but can spin at launch.'},
@@ -22,6 +22,7 @@ function raceChampionshipApplyResult(){if(!RACE_CHAMP_UI.active)return;const eve
 function raceChampionshipLiveCue(){const event=RACE_CHAMP.EVENTS[RACE_CHAMP_UI.selected],heat=Race.telemetry?.heat||0;if(heat>=.91)return'Lift now. Let the engine cool.';if(event.id==='drag')return`Gear ${Race.modeAttempt?.gear||1}: shift in the bright band.`;if(event.id==='drift')return'Hold 35–38 km/h through each curve.';if(event.id==='hill')return'Brake before the switchback.';if(event.id==='circuit')return`Lap ${Math.min(2,(Race.modeAttempt?.laps||0)+1)}/2: repeat your braking point.`;return'Hold 90–120 km/h on the straights.';}
 
 if(RACE_CHAMP_ON)document.documentElement.dataset.raceChampionship='prototype';
+globalThis.KickLabRaceOrigin.onHomeEntry(()=>{RACE_CHAMP_ON=true;document.documentElement.dataset.raceChampionship='prototype';});
 function raceChampionshipMode(){return RACE_CHAMP_UI.active?RACE_CHAMP.EVENTS[RACE_CHAMP_UI.selected].mode:null;}
 function raceChampionshipReset(skipOrbit=false){const viewed=RACE_3D.orbit.done;if(best.raceVenue!=='highland'){Race.opt.venue='highland';Race.V.mu=Race.highlandVars?.mu||.9;Race.V.R=Race.highlandVars?.R||32;}Race.reset();if(viewed||skipOrbit){RACE_3D.orbit.phase='done';RACE_3D.orbit.done=true;}}
 function raceChampionshipStopGhost(){if(RACE_CHAMP_UI.timer)clearInterval(RACE_CHAMP_UI.timer);RACE_CHAMP_UI.timer=null;$('#raceChampionshipGhost').hidden=true;}

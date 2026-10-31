@@ -1,6 +1,7 @@
 /* Optional, device-local Race preparation. Draft choices never touch profile progress. */
-const RACE_PREFLIGHT_ON=RACE_VENUE_PREFLIGHT_ACTIVE;
+let RACE_PREFLIGHT_ON=RACE_VENUE_PREFLIGHT_ACTIVE;
 if(RACE_PREFLIGHT_ON)document.documentElement.dataset.racePreflight='prototype';
+globalThis.KickLabRaceOrigin.onHomeEntry(()=>{RACE_PREFLIGHT_ON=true;document.documentElement.dataset.racePreflight='prototype';});
 const RACE_PREFLIGHT={phase:0,locationStage:'venue',lastRenderedPhase:null,draft:null,profileId:null,lastEpoch:-1,committing:false,committed:false,arriving:false,pendingStart:false,lastRaceState:null,returnFocus:null,notice:'',focusPart:'tires'};
 const RACE_PREFLIGHT_PHASES=['Location','Vehicle','Garage tuning','Starting grid'];
 const RACE_PREFLIGHT_PHASE_SHORT=['Track','Car','Garage','Grid'];
