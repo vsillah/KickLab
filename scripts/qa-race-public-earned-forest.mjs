@@ -8,7 +8,7 @@ import {enterHighlandRace,finishHighlandDrag} from './qa-race-public-journey.mjs
 const {chromium}=createRequire(import.meta.url)('playwright');
 const head=process.env.KICKLAB_QA_HEAD;
 if(!/^[a-f0-9]{40}$/.test(head||''))throw Error('Set KICKLAB_QA_HEAD');
-if(execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()!==head)throw Error('HEAD mismatch');
+if(execFileSync('git',['rev-parse','origin/main'],{encoding:'utf8'}).trim()!==head)throw Error('Product main mismatch');
 const base=new URL(process.argv[2]||'http://127.0.0.1:4173/kicklab.html');
 if(!['127.0.0.1','localhost'].includes(base.hostname)||base.pathname!=='/kicklab.html')throw Error('Use localhost Pages');
 for(const flag of ['raceExpansion','raceCompetition','raceTelemetry','raceProgression','racePreflight'])base.searchParams.set(flag,'prototype');
