@@ -165,8 +165,9 @@ function renderRaceNavigation({gauge,value,unit,fraction,phase,cue}){
   finishLine.setAttribute('d',`M ${point({x:finish.x+normal.x*Race.HW*.65,y:finish.y+normal.y*Race.HW*.65})} L ${point({x:finish.x-normal.x*Race.HW*.65,y:finish.y-normal.y*Race.HW*.65})}`);
   for(const [name,id] of [['brake','raceNavigationBrake'],['turn','raceNavigationTurn'],['apex','raceNavigationApex'],['exit','raceNavigationExit']]){const node=$('#'+id),marker=nav.markers[name];node.hidden=!marker;if(marker){const center=route.nearest(marker.x,marker.y).progress;node.setAttribute('d',[-5,0,5].map((offset,i)=>`${i?'L':'M'} ${point(route.at(center+offset))}`).join(' '));}}
   const [cx,cy]=xy(nav.car);$('#raceNavigationCar').setAttribute('transform',`translate(${cx.toFixed(1)} ${cy.toFixed(1)}) rotate(${(90-nav.heading*180/Math.PI).toFixed(1)})`);
-  $('#raceNavigationProgressLabel').textContent=nav.laps>1?`LAP ${nav.lap}/${nav.laps}`:'ROUTE';$('#raceNavigationProgress').textContent=`${Math.round(nav.progress*100)}%`;
-  panel.dataset.stage=nav.stage;panel.dataset.turn=nav.turn;panel.setAttribute('aria-label',`Race course map. ${nav.laps>1?`Lap ${nav.lap} of ${nav.laps}`:'Route'} ${Math.round(nav.progress*100)} percent. ${nav.detail} Current speed ${Math.round(car.v*3.6)} kilometres per hour.`);
+  const routePercent=mode==='drag'?KickLabRaceDriverNavigation.activeDragPercent(nav.progress):Math.round(nav.progress*100);
+  $('#raceNavigationProgressLabel').textContent=nav.laps>1?`LAP ${nav.lap}/${nav.laps}`:'ROUTE';$('#raceNavigationProgress').textContent=`${routePercent}%`;
+  panel.dataset.stage=nav.stage;panel.dataset.turn=nav.turn;panel.setAttribute('aria-label',`Race course map. ${nav.laps>1?`Lap ${nav.lap} of ${nav.laps}`:'Route'} ${routePercent} percent. ${nav.detail} Current speed ${Math.round(car.v*3.6)} kilometres per hour.`);
   $('#raceNavigationMap').setAttribute('aria-label',`Full course with live vehicle heading, finish, and corner zones. ${nav.detail}`);
   globalThis.__KICKLAB_RACE_NAVIGATION__={stage:nav.stage,turn:nav.turn,severity:nav.severity,distance:nav.distance,targetSpeed:nav.targetSpeed,brakeDistance:nav.brakeDistance,progress:nav.progress,lap:nav.lap,laps:nav.laps,grip:nav.grip,detail:nav.detail,finish,finishVisible:true,gauge,value,unit,visible:true};
 }
