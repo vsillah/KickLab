@@ -1,0 +1,43 @@
+{
+  "head": "3c137d40906f84cb391f17ce1559da3bfe5847b2",
+  "artifactSha256": "f4350121f4fb23cf756554bdd63b826243e723aa201a22acce2d90a0d948c8fd",
+  "cleanPace": true,
+  "events": [
+    {
+      "step": 0,
+      "phase": "run",
+      "lap": "LAP 1/2",
+      "progress": "0%",
+      "x": 10,
+      "speedKmh": 0
+    },
+    {
+      "step": 94,
+      "phase": "run",
+      "lap": "LAP 2/2",
+      "progress": "100%",
+      "x": 10.003751330130136,
+      "speedKmh": 21.970746786607656
+    }
+  ],
+  "final": {
+    "phase": "done",
+    "mode": "circuit",
+    "result": {
+      "pass": true,
+      "score": 401,
+      "measure": "2/2 laps · 86.20 s · laps 43.0 / 43.2 s · slide 1.2 s"
+    }
+  },
+  "result": {
+    "title": "CIRCUIT LAPS COMPLETE",
+    "coach": "COACH NIA · RUN ASSESSMENTWhat workedYou reached the finish.Next focusEase the wheel or speed to stay within tire grip.Open full Coach review ›",
+    "overflow": 0
+  },
+  "recovery": null,
+  "errors": [],
+  "external": [],
+  "httpErrors": [],
+  "popups": [],
+  "downloads": []
+}

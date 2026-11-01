@@ -2,8 +2,9 @@ import {existsSync,mkdirSync,writeFileSync} from 'node:fs';
 import {createRequire} from 'node:module';
 import {join,resolve} from 'node:path';
 const {chromium}=createRequire(import.meta.url)('playwright');
-const base=process.argv[2]||'http://127.0.0.1:5878/kicklab.html';
-const output=resolve(process.argv[3]||'qa-artifacts/race-modes');
+const args=process.argv.slice(2).filter(arg=>!arg.startsWith('--'));
+const base=args[0]||'http://127.0.0.1:5878/kicklab.html';
+const output=resolve(args[1]||'qa-artifacts/race-modes');
 mkdirSync(output,{recursive:true});
 const browser=await chromium.launch({headless:true,executablePath:[process.env.KICKLAB_CHROMIUM_PATH,chromium.executablePath(),'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find(path=>path&&existsSync(path))});
 const report={base,commit:process.env.KICKLAB_QA_HEAD||'working',cases:[],errors:[],external:[]};
@@ -39,7 +40,7 @@ if(!process.argv.includes('--screens-only'))for(const mode of modes)for(const an
   const name=`${mode}-${analog?'analog':'classic'}`,context=await browser.newContext({viewport:{width:analog?390:960,height:analog?844:720},deviceScaleFactor:1,reducedMotion:'reduce',recordVideo:{dir:output,size:{width:analog?390:960,height:analog?844:720}}});
   const page=await context.newPage();page.on('pageerror',e=>report.errors.push(`${name}: ${e.message}`));await page.route('**/*',route=>{const url=route.request().url();if(url.startsWith(new URL(base).origin)||url.startsWith('data:')||url.startsWith('blob:'))return route.continue();report.external.push(`${name}: ${url}`);route.abort();});
   try{const url=new URL(base);url.searchParams.set('raceExpansion','prototype');url.searchParams.set('racePreflight','prototype');url.searchParams.set('rev',report.commit);await page.goto(url.toString(),{waitUntil:'domcontentloaded'});await prepare(page,mode,analog);await page.locator('#raceTelemetry').waitFor({state:'visible',timeout:10000});await page.waitForTimeout(2500);
-    let stick=null;const holdAnalog=async()=>{stick=await page.locator('#analogStick').boundingBox();if(!stick)throw new Error('Analog stick hidden');await page.mouse.move(stick.x+stick.width/2,stick.y+stick.height/2);await page.mouse.down();await page.mouse.move(stick.x+stick.width/2,stick.y+stick.height*.08,{steps:8});};
+    let pedal=null;const holdAnalog=async()=>{pedal=await page.locator('#gestureAction').boundingBox();if(!pedal)throw new Error('Analog Gas action hidden');await page.mouse.move(pedal.x+pedal.width/2,pedal.y+pedal.height/2);await page.mouse.down();};
     if(analog)await holdAnalog();else await page.keyboard.down('Space');
     if(mode==='drag'){
       const thresholds=[46,88,132];let shifted=0;

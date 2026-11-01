@@ -7,16 +7,18 @@ import {resolve,join} from 'node:path';
 
 const {chromium}=createRequire(import.meta.url)('playwright');
 const head=process.env.KICKLAB_QA_HEAD;
+const cleanPace=process.argv.includes('--clean-pace');
+const args=process.argv.slice(2).filter(arg=>!arg.startsWith('--'));
 if(!/^[a-f0-9]{40}$/.test(head||'')||execFileSync('git',['rev-parse','origin/main'],{encoding:'utf8'}).trim()!==head)throw Error('Bind to exact product main');
-const base=new URL(process.argv[2]||'http://127.0.0.1:4173/kicklab.html');
+const base=new URL(args[0]||'http://127.0.0.1:4173/kicklab.html');
 if(!['127.0.0.1','localhost'].includes(base.hostname)||base.pathname!=='/kicklab.html')throw Error('Use trusted localhost Pages');
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
 const artifactSha256=sha(readFileSync('dist/kicklab.html'));
 if(sha(Buffer.from(await(await fetch(base)).arrayBuffer()))!==artifactSha256)throw Error('Served artifact differs from exact build');
-const out=resolve(process.argv[3]||'qa-artifacts/race-circuit-result');mkdirSync(out,{recursive:true});
+const out=resolve(args[1]||'qa-artifacts/race-circuit-result');mkdirSync(out,{recursive:true});
 const browser=await chromium.launch({headless:true,args:['--enable-webgl','--use-gl=angle','--use-angle=swiftshader']});
 const context=await browser.newContext({viewport:{width:390,height:844},reducedMotion:'reduce',permissions:[]});
-const page=await context.newPage(),report={head,artifactSha256,events:[],errors:[],external:[],httpErrors:[],popups:[],downloads:[]};
+const page=await context.newPage(),report={head,artifactSha256,cleanPace,events:[],errors:[],external:[],httpErrors:[],popups:[],downloads:[]};
 page.on('pageerror',error=>report.errors.push(error.message));
 page.on('response',response=>{if(response.status()>=400)report.httpErrors.push(`${response.status()} ${response.url()}`)});
 page.on('popup',popup=>report.popups.push(popup.url()));
@@ -50,14 +52,15 @@ try{
     if(state.lap.includes('2/2'))wrapped=true;
     if(['done','crashed'].includes(state.race.phase)){report.final=state;done=true;break}
     const speed=Number(state.race.speedKmh)||0,bend=['brake','turn','apex'].includes(state.stage);
-    if(bend&&speed>68)await page.keyboard.press('b',{delay:550});
-    else if(speed<(bend?54:92))await page.keyboard.press('Space',{delay:550});
+    if(bend&&speed>(cleanPace?25:68))await page.keyboard.press('b',{delay:550});
+    else if(speed<(bend?(cleanPace?21:54):(cleanPace?30:92)))await page.keyboard.press('Space',{delay:550});
     else await page.waitForTimeout(550);
   }
   if(!done||!wrapped)throw Error(`Circuit did not finish with lap wrap: ${JSON.stringify({done,wrapped,events:report.events})}`);
   await page.locator('#results').waitFor({state:'visible',timeout:10000});
   report.result=await page.evaluate(()=>({title:document.querySelector('#rTitle')?.textContent||'',coach:document.querySelector('#raceResultCoach')?.textContent||'',overflow:document.documentElement.scrollWidth-innerWidth}));
   if(!report.result.title||!report.result.coach.includes('What worked')||!report.result.coach.includes('Next focus')||report.result.overflow>1)throw Error(`Result contract: ${JSON.stringify(report.result)}`);
+  if(cleanPace&&!report.final.race.result?.pass)throw Error(`Clean-pace Circuit did not pass: ${JSON.stringify(report.final.race.result)}`);
   await page.locator('#results').screenshot({path:join(out,'circuit-result.png')});
   if(report.final.race.result?.pass===false){
     if((await page.locator('#rNext').innerText()).trim()!=='Retry')throw Error('Failed Circuit has no Retry action');
