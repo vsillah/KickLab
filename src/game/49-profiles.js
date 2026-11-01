@@ -7,7 +7,21 @@ function profileColor(profile=profileManager.active()){return PROFILE_COLORS[pro
 function profileMark(profile=profileManager.active()){return(PROFILE_AVATARS[profile.avatar]||PROFILE_AVATARS.rocket).mark;}
 function profileSafe(value){return String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));}
 const PROFILE_ART=globalThis.KickLabProfileAvatarArt;
-function profileArt(profile,lab='race'){const id=PROFILE_ART.portraitId(profile.avatar);return`<span class="driver-avatar-fallback" aria-hidden="true">${profileSafe(profileMark(profile))}</span><img class="driver-avatar-image" src="${PROFILE_ART.asset(id,lab)}" alt="">`;}
+// Keep decoded local portraits for this document's lifetime. Profile and lab
+// redraws replace img elements, which otherwise request the same URL offline.
+const PROFILE_PORTRAIT_MEMORY=new Map();
+function rememberProfilePortrait(image){
+  const source=image.getAttribute('src');
+  if(!source?.startsWith('assets/')||!image.naturalWidth||PROFILE_PORTRAIT_MEMORY.has(source))return;
+  try{
+    const canvas=document.createElement('canvas');
+    canvas.width=image.naturalWidth;canvas.height=image.naturalHeight;
+    canvas.getContext('2d').drawImage(image,0,0);
+    const local=canvas.toDataURL('image/webp');
+    if(local.startsWith('data:image/webp;'))PROFILE_PORTRAIT_MEMORY.set(source,local);
+  }catch(_){/* Retain the normal asset and fallback behavior if canvas is unavailable. */}
+}
+function profileArt(profile,lab='race'){const id=PROFILE_ART.portraitId(profile.avatar),asset=PROFILE_ART.asset(id,lab),source=PROFILE_PORTRAIT_MEMORY.get(asset)||asset;return`<span class="driver-avatar-fallback" aria-hidden="true">${profileSafe(profileMark(profile))}</span><img class="driver-avatar-image" src="${source}" alt="">`;}
 function profilePortrait(profile=profileManager.active(),className='profile-avatar',lab='race'){return`<span class="${className} driver-avatar" aria-hidden="true">${profileArt(profile,lab)}</span>`;}
 function profileInitials(name){return String(name||'Driver').trim().split(/\s+/).slice(0,2).map(part=>part[0]?.toUpperCase()||'').join('')||'D';}
 function profileIdentitySeat(label,profile,nameOverride){const name=nameOverride||profile?.nickname||label,portrait=profile?profilePortrait(profile,'race-seat-avatar'):`<span class="race-seat-avatar race-seat-fallback" aria-hidden="true">${profileSafe(profileInitials(name))}</span>`;return`<span class="race-identity-seat">${portrait}<span><b>${profileSafe(label)}</b><small>${profileSafe(name)}</small></span></span>`;}
@@ -62,6 +76,7 @@ $('#profileBoard').addEventListener('click',()=>{const trigger=PROFILE_UI.trigge
 $('#profileList').addEventListener('click',event=>{const button=event.target.closest('[data-profile-id]');if(!button||button.getAttribute('aria-current')==='true')return;try{profileManager.switchTo(button.dataset.profileId);$('#profileSwitchMsg').textContent='';loadActiveProfile();toast('Player switched',`${profileManager.active().nickname}'s progress is ready.`);requestAnimationFrame(()=>$('#profileList [aria-current="true"]')?.focus());}catch(_){$('#profileSwitchMsg').textContent='Player switch not saved. Check browser storage, then try again. Current player is unchanged.';}});
 $('#profileAvatarChoices').addEventListener('click',event=>{const button=event.target.closest('[data-avatar]');if(!button)return;PROFILE_UI.avatar=button.dataset.avatar;PROFILE_UI.look=PROFILE_ART.normalize(null,PROFILE_UI.avatar);setProfileFormChoices();requestAnimationFrame(()=>$('#profileAvatarChoices [data-avatar="'+PROFILE_UI.avatar+'"]')?.focus());});
 $('#profileFormReset').addEventListener('click',()=>{PROFILE_UI.avatar='rocket';PROFILE_UI.look=PROFILE_ART.normalize(null,'rocket');setProfileFormChoices();$('#profileFormReset').focus();});
+document.addEventListener('load',event=>{if(event.target?.matches?.('.driver-avatar-image'))rememberProfilePortrait(event.target);},true);
 document.addEventListener('error',event=>{if(event.target?.matches?.('.profile-coach-portrait img,.driver-avatar-image'))event.target.remove();},true);
 $('#profileColorChoices').addEventListener('click',event=>{const button=event.target.closest('[data-color]');if(!button)return;PROFILE_UI.color=button.dataset.color;setProfileFormChoices();requestAnimationFrame(()=>$('#profileColorChoices [data-color="'+PROFILE_UI.color+'"]')?.focus());});
 $('#profileForm').addEventListener('submit',event=>{event.preventDefault();const nick=PROFILE_CORE.nickname($('#profileNickname').value);if(nick.length<2){$('#profileFormMsg').textContent='Choose a made-up nickname with at least 2 characters.';$('#profileNickname').focus();return;}try{if(PROFILE_UI.creating){profileManager.create({nickname:nick,avatar:PROFILE_UI.avatar,avatarLook:PROFILE_UI.look,color:PROFILE_UI.color});loadActiveProfile();}else{profileManager.updateActive({nickname:nick,avatar:PROFILE_UI.avatar,avatarLook:PROFILE_UI.look,color:PROFILE_UI.color});renderProfileSurfaces();}hideProfileForm();toast(PROFILE_UI.creating?'Player created':'Profile saved',`${nick} is ready to play.`);}catch(error){$('#profileFormMsg').textContent=error&&error.message==='profile_limit'?'This device already has 12 players.':'Player not saved. Check browser storage, then try Save player again. Current player is unchanged.';}});
