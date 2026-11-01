@@ -5,7 +5,7 @@ let simFlag=RACE_MODES.enabled()&&new URLSearchParams(location.search).get('race
 const simButton=$('#simulatorControlsButton'),simPanel=$('#raceSimulator'),simStatus=$('#simStatus');
 simButton.hidden=!simFlag;
 globalThis.KickLabRaceOrigin.onHomeEntry(()=>{simFlag=true;simButton.hidden=false;});
-function simAllowed(){return simFlag&&M===Race&&!PAUSE.on&&!RP.on&&!CINE.on&&!document.hidden&&!$('#game-cockpit').hidden;}
+function simAllowed(){return simFlag&&M===Race&&!PAUSE.on&&!RP.on&&!CINE.on&&!resOpen()&&!document.hidden&&!$('#game-cockpit').hidden;}
 function simMessage(message){$('#simStatusDetail').textContent=message;simStatus.textContent=/NOS fired/.test(message)?'NOS fired':/Handbrake pulled/.test(message)?'Drift on':/Handbrake released/.test(message)?'Drift off':/denied/.test(message)?'Tilt denied':/unavailable/.test(message)?'Tilt unavailable':/recenter|Recenter|Orientation changed/.test(message)?'Recenter':/Lights running/.test(message)?'Lights':/paused|Paused/.test(message)?'Paused':/resumed/.test(message)?'Resumed':/Tilt steering/.test(message)?`Tilt ${Math.round(RACE_SIMULATOR.steer*100)}%`:/Enable tilt/.test(message)?'Tilt off':message.split(/[.·]/)[0].trim().slice(0,20);}
 function simGuide(){
   const s=RACE_SIMULATOR,mode=Race.mode().id,phase=Race.state;
@@ -46,6 +46,18 @@ function simCancel(reason='Input cancelled',stopSensor=false){
   simPanel.querySelectorAll('.on').forEach(node=>node.classList.remove('on'));
   if(stopSensor){window.removeEventListener('deviceorientation',simOrientation);RACE_SIMULATOR.sensorReady=false;RACE_SIMULATOR.center=null;RACE_SIMULATOR.lastAngle=null;}
   RACE_SIMULATOR.lastPaint=0;simMessage(reason);simPaint();
+}
+function simGuardResultRelease(){
+  if(!RACE_SIMULATOR.pointers.size)return;
+  const result=$('#results'),listeners=new AbortController(),pending=new Set([...RACE_SIMULATOR.pointers.values()].filter(value=>typeof value==='object').map(value=>value.id));
+  let timeout;
+  const clear=()=>{listeners.abort();clearTimeout(timeout);};
+  result.addEventListener('click',event=>{event.preventDefault();event.stopImmediatePropagation();clear();},{capture:true,signal:listeners.signal});
+  const released=event=>{pending.delete(event.pointerId);if(!pending.size)requestAnimationFrame(clear);};
+  window.addEventListener('pointerup',released,{capture:true,signal:listeners.signal});
+  window.addEventListener('pointercancel',released,{capture:true,signal:listeners.signal});
+  window.addEventListener('keyup',()=>requestAnimationFrame(clear),{once:true,signal:listeners.signal});
+  timeout=setTimeout(clear,2000);
 }
 function simSelect(on){
   if(!simFlag)return;
