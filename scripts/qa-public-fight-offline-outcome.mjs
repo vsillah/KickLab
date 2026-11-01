@@ -6,7 +6,7 @@ import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
 import {resolve,join} from 'node:path';
 const {chromium}=createRequire(import.meta.url)('playwright');
 const head=process.env.KICKLAB_QA_HEAD;
-if(!/^[a-f0-9]{40}$/.test(head||'')||execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()!==head)throw Error('Set KICKLAB_QA_HEAD to exact HEAD');
+if(!/^[a-f0-9]{40}$/.test(head||'')||execFileSync('git',['rev-parse','origin/main'],{encoding:'utf8'}).trim()!==head)throw Error('Set KICKLAB_QA_HEAD to exact origin/main product commit');
 const base=new URL(process.argv[2]||'http://127.0.0.1:4173/kicklab.html');
 if(!['127.0.0.1','localhost'].includes(base.hostname)||base.pathname!=='/kicklab.html')throw Error('Use trusted localhost Pages');
 base.searchParams.set('rev',head);

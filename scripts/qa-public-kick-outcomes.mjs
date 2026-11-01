@@ -6,7 +6,7 @@ import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
 import {resolve,join} from 'node:path';
 const {chromium}=createRequire(import.meta.url)('playwright');
 const head=process.env.KICKLAB_QA_HEAD;
-if(!/^[a-f0-9]{40}$/.test(head||'')||execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()!==head)throw Error('Set KICKLAB_QA_HEAD to exact HEAD');
+if(!/^[a-f0-9]{40}$/.test(head||'')||execFileSync('git',['rev-parse','origin/main'],{encoding:'utf8'}).trim()!==head)throw Error('Set KICKLAB_QA_HEAD to exact origin/main product commit');
 const base=new URL(process.argv[2]||'http://127.0.0.1:4173/kicklab.html');
 if(!['127.0.0.1','localhost'].includes(base.hostname)||base.pathname!=='/kicklab.html')throw Error('Use trusted localhost Pages');
 base.searchParams.set('rev',head);
@@ -38,6 +38,9 @@ for(let i=0;i<activities.length;i++){
     await page.locator('#experienceSelector').click();await page.locator('#experienceFreestyle').click();
     await page.locator(`#game-${activity}`).click();await page.locator('#freestyleStart').click();
     await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});
+    if(activity==='free')for(const [id,value] of [['v','8'],['th','3']]){
+      await page.locator(`#var-kick-${id}`).evaluate((node,next)=>{node.value=next;node.dispatchEvent(new Event('input',{bubbles:true}));node.dispatchEvent(new Event('change',{bubbles:true}));},value);
+    }
     const initial=await page.evaluate(()=>({activity:document.querySelector('#experienceSelector')?.textContent,actions:[...document.querySelectorAll('button.abtn')].filter(x=>x.getClientRects().length).map(x=>({id:x.dataset.id,label:x.getAttribute('aria-label'),disabled:x.disabled})),overflow:document.documentElement.scrollWidth-innerWidth}));
     await page.screenshot({path:join(out,`${label}-ready.png`)});
     const steps=[];
@@ -52,7 +55,7 @@ for(let i=0;i<activities.length;i++){
     if(activity==='run'&&!await page.evaluate(()=>window.__qaResultEvents.length))await page.waitForFunction(()=>window.__qaResultEvents.length>0,null,{timeout:12000}).catch(()=>{});
     if(activity==='bar'&&!await page.evaluate(()=>window.__qaResultEvents.length))await page.waitForFunction(()=>window.__qaResultEvents.length>0,null,{timeout:65000}).catch(()=>{});
     if((offline||denyStorage)&&!await page.evaluate(()=>window.__qaResultEvents.length))await page.waitForFunction(()=>window.__qaResultEvents.length>0,null,{timeout:30000}).catch(()=>{});
-    const outcome=await page.evaluate(()=>{const next=document.querySelector('#rNext'),b=next?.getBoundingClientRect(),hit=b?document.elementFromPoint(b.right-10,b.top+b.height/2):null,box=id=>document.querySelector(id)?.getBoundingClientRect().toJSON()||null;return{result:!document.querySelector('#results').hidden,title:document.querySelector('#rTitle')?.textContent||'',sub:document.querySelector('#rSub')?.textContent||'',rows:document.querySelector('#rRows')?.innerText||'',observedResults:window.__qaResultEvents,permissions:window.__qaPermissionAttempts,overflow:document.documentElement.scrollWidth-innerWidth,nextHitRight:!!next&&!!hit&&(hit===next||next.contains(hit)),geometry:{results:box('#results'),rail:box('#gameGuidanceHud'),next:box('#rNext'),railZ:getComputedStyle(document.querySelector('#gameGuidanceHud')).zIndex,resultZ:getComputedStyle(document.querySelector('#results')).zIndex,rightEdgeHit:{id:hit?.id||'',className:typeof hit?.className==='string'?hit.className:''}}};});
+    const outcome=await page.evaluate(()=>{const results=document.querySelector('#results'),next=document.querySelector('#rNext'),b=next?.getBoundingClientRect(),hit=b?document.elementFromPoint(b.right-10,b.top+b.height/2):null,box=id=>document.querySelector(id)?.getBoundingClientRect().toJSON()||null;return{result:!results.hidden,mini:results.classList.contains('mini'),visibleActions:[...results.querySelectorAll('button')].filter(x=>!x.hidden&&x.getClientRects().length&&!x.disabled).map(x=>x.id),title:document.querySelector('#rTitle')?.textContent||'',sub:document.querySelector('#rSub')?.textContent||'',rows:document.querySelector('#rRows')?.innerText||'',observedResults:window.__qaResultEvents,permissions:window.__qaPermissionAttempts,overflow:document.documentElement.scrollWidth-innerWidth,nextHitRight:!!next&&!!hit&&(hit===next||next.contains(hit)),geometry:{results:box('#results'),rail:box('#gameGuidanceHud'),next:box('#rNext'),railZ:getComputedStyle(document.querySelector('#gameGuidanceHud')).zIndex,resultZ:getComputedStyle(results).zIndex,rightEdgeHit:{id:hit?.id||'',className:typeof hit?.className==='string'?hit.className:''}}};});
     report.permissions.push(...outcome.permissions.map(value=>`${label}: ${value}`));
     await page.screenshot({path:join(out,`${label}-outcome.png`)});
     report.cases.push({label,width,height,activity,initial,steps,outcome});
@@ -61,4 +64,4 @@ for(let i=0;i<activities.length;i++){
 }
 await browser.close();writeFileSync(join(out,'report.json'),JSON.stringify(report,null,2)+'\n');
 console.log(JSON.stringify({head,artifactSha256,offline,denyStorage,cases:report.cases.map(c=>({label:c.label,result:c.outcome.result,title:c.outcome.title,nextHitRight:c.outcome.nextHitRight,steps:c.steps.length,overflow:c.outcome.overflow})),errors:report.errors,external:report.external,popups:report.popups,downloads:report.downloads,permissions:report.permissions,offlineRequests:report.offlineRequests},null,2));
-if(report.errors.length||report.external.length||report.popups.length||report.downloads.length||report.permissions.length||report.offlineRequests.length||report.cases.some(c=>!c.outcome.result||!c.outcome.nextHitRight||c.outcome.overflow>1))process.exitCode=1;
+if(report.errors.length||report.external.length||report.popups.length||report.downloads.length||report.permissions.length||report.offlineRequests.length||report.cases.some(c=>!c.outcome.result||c.outcome.overflow>1||(['pass','gk','pso'].includes(c.activity)!==c.outcome.mini)|| (c.outcome.mini?c.outcome.visibleActions.length>0:!c.outcome.visibleActions.includes('rNext')||!c.outcome.nextHitRight)))process.exitCode=1;

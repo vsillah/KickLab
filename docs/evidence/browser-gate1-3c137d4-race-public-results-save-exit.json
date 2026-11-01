@@ -1,0 +1,130 @@
+{
+  "head": "3c137d40906f84cb391f17ce1559da3bfe5847b2",
+  "base": "https://vsillah.github.io/KickLab/",
+  "artifactSha256": "f4350121f4fb23cf756554bdd63b826243e723aa201a22acce2d90a0d948c8fd",
+  "checks": [
+    {
+      "label": "390x844",
+      "run": {
+        "initialX": 4,
+        "finalX": 244.30870548615732,
+        "shifted": 2
+      },
+      "summary": {
+        "title": "DRAG SPRINT COMPLETE",
+        "save": "Save & Exit",
+        "saveTitle": "Save & Exit",
+        "saveText": "",
+        "iconParts": 4,
+        "saveHit": "rRaceGarage",
+        "saveBox": {
+          "width": 52,
+          "height": 52,
+          "right": 367,
+          "bottom": 639.5625
+        },
+        "alignedToReplay": true,
+        "primary": "Keep racing",
+        "primaryFirst": true,
+        "coach": "COACH NIA · RUN ASSESSMENTWhat workedYou reached the finish.Next focusHold launch traction longer before the next shift.Open full Coach review ›",
+        "overflow": 0,
+        "exportControls": 0
+      },
+      "home": true,
+      "persisted": true
+    },
+    {
+      "label": "768x1024",
+      "run": {
+        "initialX": 4,
+        "finalX": 244.28420106079125,
+        "shifted": 2
+      },
+      "summary": {
+        "title": "DRAG SPRINT COMPLETE",
+        "save": "Save & Exit",
+        "saveTitle": "Save & Exit",
+        "saveText": "",
+        "iconParts": 4,
+        "saveHit": "rRaceGarage",
+        "saveBox": {
+          "width": 52,
+          "height": 52,
+          "right": 638.453125,
+          "bottom": 653.203125
+        },
+        "alignedToReplay": true,
+        "primary": "Keep racing",
+        "primaryFirst": true,
+        "coach": "COACH NIA · RUN ASSESSMENTWhat workedYou reached the finish.Next focusHold launch traction longer before the next shift.Open full Coach review ›",
+        "overflow": 0,
+        "exportControls": 0
+      },
+      "home": true,
+      "persisted": true
+    },
+    {
+      "label": "1113x834",
+      "run": {
+        "initialX": 4,
+        "finalX": 244.2656090874888,
+        "shifted": 2
+      },
+      "summary": {
+        "title": "DRAG SPRINT COMPLETE",
+        "save": "Save & Exit",
+        "saveTitle": "Save & Exit",
+        "saveText": "",
+        "iconParts": 4,
+        "saveHit": "rRaceGarage",
+        "saveBox": {
+          "width": 52,
+          "height": 52,
+          "right": 834.0625,
+          "bottom": 631.578125
+        },
+        "alignedToReplay": true,
+        "primary": "Keep racing",
+        "primaryFirst": true,
+        "coach": "COACH NIA · RUN ASSESSMENTWhat workedYou reached the finish.Next focusHold launch traction longer before the next shift.Open full Coach review ›",
+        "overflow": 0,
+        "exportControls": 0
+      },
+      "home": true,
+      "persisted": true
+    },
+    {
+      "label": "1440x900",
+      "run": {
+        "initialX": 4,
+        "finalX": 244.0295861423283,
+        "shifted": 2
+      },
+      "summary": {
+        "title": "DRAG SPRINT COMPLETE",
+        "save": "Save & Exit",
+        "saveTitle": "Save & Exit",
+        "saveText": "",
+        "iconParts": 4,
+        "saveHit": "rRaceGarage",
+        "saveBox": {
+          "width": 52,
+          "height": 52,
+          "right": 997.5625,
+          "bottom": 631.578125
+        },
+        "alignedToReplay": true,
+        "primary": "Keep racing",
+        "primaryFirst": true,
+        "coach": "COACH NIA · RUN ASSESSMENTWhat workedYou reached the finish.Next focusHold launch traction longer before the next shift.Open full Coach review ›",
+        "overflow": 0,
+        "exportControls": 0
+      },
+      "home": true,
+      "persisted": true
+    }
+  ],
+  "errors": [],
+  "external": [],
+  "httpErrors": []
+}

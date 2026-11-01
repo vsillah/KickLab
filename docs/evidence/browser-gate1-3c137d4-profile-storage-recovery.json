@@ -1,0 +1,56 @@
+{
+  "revision": "3c137d40906f84cb391f17ce1559da3bfe5847b2",
+  "checks": [
+    {
+      "viewport": "360x800",
+      "touch": true,
+      "reducedMotion": false,
+      "canvasFallback": false,
+      "failedSaveTruthful": true,
+      "retryAndReload": true,
+      "egress": 0
+    },
+    {
+      "viewport": "390x844",
+      "touch": false,
+      "reducedMotion": true,
+      "canvasFallback": true,
+      "failedSaveTruthful": true,
+      "retryAndReload": true,
+      "egress": 0
+    },
+    {
+      "viewport": "768x1024",
+      "touch": false,
+      "reducedMotion": false,
+      "canvasFallback": false,
+      "failedSaveTruthful": true,
+      "retryAndReload": true,
+      "egress": 0
+    },
+    {
+      "viewport": "1113x834",
+      "touch": false,
+      "reducedMotion": false,
+      "canvasFallback": false,
+      "failedSaveTruthful": true,
+      "retryAndReload": true,
+      "egress": 0
+    },
+    {
+      "viewport": "1440x900",
+      "touch": false,
+      "reducedMotion": false,
+      "canvasFallback": false,
+      "failedSaveTruthful": true,
+      "retryAndReload": true,
+      "egress": 0
+    },
+    {
+      "mp4": "qa-artifacts/browser-gate1-3c137d4/profile-storage-recovery/profile-storage-recovery-3c137d40906f.mp4",
+      "bytes": 1202991,
+      "seconds": 8.84,
+      "codec": "h264"
+    }
+  ]
+}

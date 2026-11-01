@@ -7,12 +7,14 @@ const {chromium}=createRequire(import.meta.url)('playwright');
 const head=process.env.KICKLAB_QA_HEAD;
 if(!/^[a-f0-9]{40}$/.test(head||''))throw Error('Set KICKLAB_QA_HEAD to the exact product commit');
 const base=new URL(process.argv[2]||'http://127.0.0.1:4173/kicklab.html');
-if(!['127.0.0.1','localhost'].includes(base.hostname)||base.pathname!=='/kicklab.html')throw Error('Use the local exact build');
+const local=['127.0.0.1','localhost'].includes(base.hostname)&&base.pathname==='/kicklab.html';
+const pages=base.origin==='https://vsillah.github.io'&&base.pathname==='/KickLab/';
+if(!local&&!pages)throw Error('Use the local exact build or canonical KickLab Pages route');
 base.searchParams.set('rev',head);
 for(const flag of ['raceExpansion','raceCompetition','raceChampionship','raceMultiplayer','raceSimulator','raceCornerTrace','raceTelemetry','racePreflight'])base.searchParams.set(flag,'prototype');
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
-const artifactSha256=sha(readFileSync('dist/kicklab.html'));
-if(sha(Buffer.from(await(await fetch(base)).arrayBuffer()))!==artifactSha256)throw Error('Served HTML differs from the exact local product build');
+const artifactSha256=sha(readFileSync(local?'dist/kicklab.html':'dist/pages/index.html'));
+if(sha(Buffer.from(await(await fetch(base)).arrayBuffer()))!==artifactSha256)throw Error('Served HTML differs from the exact product build');
 const out=resolve(process.argv[3]||'qa-artifacts/race-preflight-cancel-focus');mkdirSync(out,{recursive:true});
 const report={head,artifactSha256,url:base.href,cases:[],pageErrors:[],external:[],httpErrors:[]};
 const browser=await chromium.launch({headless:true});
@@ -41,7 +43,7 @@ for(const {name,width,height,close} of [
     await page.locator('#raceCoachSetupStart').waitFor({state:'visible',timeout:30000});
     await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.orbit?.done===true,null,{timeout:30000});
     await page.screenshot({path:join(out,`${name}.png`)});
-    const state=await page.evaluate(()=>({focusId:document.activeElement?.id||null,focusTag:document.activeElement?.tagName||null,startVisible:!!document.querySelector('#raceCoachSetupStart')?.getClientRects().length,phase:window.__KICKLAB_RACE_MODES_QA__?.state().phase,preflightOpen:window.__KICKLAB_RACE_PREFLIGHT_QA__?.state().open,renderer:window.__KICKLAB_RACE_3D__?.status,overflow:document.documentElement.scrollWidth-innerWidth}));
+    const state=await page.evaluate(()=>({focusId:document.activeElement?.id||null,focusTag:document.activeElement?.tagName||null,startVisible:!!document.querySelector('#raceCoachSetupStart')?.getClientRects().length,phase:window.__KICKLAB_RACE_MODES_QA__?.state().phase,preflightOpen:!document.querySelector('#racePreflight').hidden,renderer:window.__KICKLAB_RACE_3D__?.status,overflow:document.documentElement.scrollWidth-innerWidth}));
     state.savedUnchanged=await page.evaluate(before=>localStorage.getItem('kicklab.profiles.v1')===before,savedBefore);
     report.cases.push({name,...state,pass:state.focusId==='raceCoachSetupStart'&&state.startVisible&&state.phase==='grid'&&!state.preflightOpen&&state.savedUnchanged&&state.overflow===0});
   }catch(error){report.pageErrors.push(`${name}: ${error.stack||error}`)}

@@ -1,0 +1,51 @@
+{
+  "revision": "3c137d40906f84cb391f17ce1559da3bfe5847b2",
+  "checks": [
+    {
+      "viewport": "360x800",
+      "touch": true,
+      "canvasFallback": false,
+      "reducedMotion": false,
+      "egress": 0,
+      "firstRunAfterReload": true
+    },
+    {
+      "viewport": "390x844",
+      "touch": false,
+      "canvasFallback": true,
+      "reducedMotion": true,
+      "egress": 0,
+      "firstRunAfterReload": true
+    },
+    {
+      "viewport": "768x1024",
+      "touch": false,
+      "canvasFallback": false,
+      "reducedMotion": false,
+      "egress": 0,
+      "firstRunAfterReload": true
+    },
+    {
+      "viewport": "1113x834",
+      "touch": false,
+      "canvasFallback": false,
+      "reducedMotion": false,
+      "egress": 0,
+      "firstRunAfterReload": true
+    },
+    {
+      "viewport": "1440x900",
+      "touch": false,
+      "canvasFallback": false,
+      "reducedMotion": false,
+      "egress": 0,
+      "firstRunAfterReload": true
+    },
+    {
+      "mp4": "qa-artifacts/browser-gate1-3c137d4/local-data-deletion/guardian-deletion-3c137d40906f.mp4",
+      "bytes": 928114,
+      "seconds": 10.12,
+      "codec": "h264"
+    }
+  ]
+}
