@@ -12,30 +12,33 @@ const modes=requestedModes?requestedModes.slice(8).split(','):['drag','drift','c
 async function prepare(page,mode,analog){
   if(await page.locator('#profileFormSave').isVisible())await page.click('#profileFormSave');
   if(await page.locator('#profileClose').isVisible())await page.click('#profileClose');
-  const dismiss=page.getByRole('button',{name:'Dismiss Profile saved'});
   await page.click('#lab-tab-race');
   await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});
+  await page.locator('#racePreflight').waitFor({state:'visible',timeout:20000});
+  await page.locator('[data-preflight-venue="highland"]').click();
+  await page.locator(`[data-preflight-mode="${mode}"]`).click();
+  if(await page.locator(`[data-preflight-mode="${mode}"]`).getAttribute('aria-pressed')!=='true')throw Error(`${mode} route did not select`);
+  await page.locator('#racePreflightNext').click();
+  await page.locator('#racePreflightNext').click();
+  await page.locator('#racePreflightNext').click();
+  if(analog)await page.locator('[data-preflight-control="analog"]').click();
+  if(['circuit','drift','hill','endurance'].includes(mode)&&(await page.locator('#racePreflightSteer').textContent())?.trim()==='You steer')await page.locator('#racePreflightSteer').click();
+  await page.locator('#racePreflightNext').click();
+  await page.locator('#racePreflight').waitFor({state:'hidden',timeout:20000});
   const skip=page.locator('.race-orbit-panel button');if(await skip.isVisible())await skip.click();
-  await page.locator('#raceCoachSetup').waitFor({state:'visible',timeout:20000});
-  await page.click('#raceCoachSetupGarage');
-  await page.locator(`#raceGarage [data-race-mode="${mode}"]`).click();
-  await page.click('#settingsClose');
-  await page.locator('#raceCoachSetup').waitFor({state:'visible',timeout:20000});
-  if(analog)await page.click('#raceCoachSetupControls');
-  if(mode==='circuit'||mode==='drift'||mode==='hill'||mode==='endurance')await page.click('#raceCoachSetupSteering');
-  try{await dismiss.waitFor({state:'visible',timeout:1500});await dismiss.click();await page.locator('#toasts .toast[aria-label="Profile saved"]').waitFor({state:'hidden',timeout:5000});}catch{}
+  await page.waitForFunction(()=>['count','run'].includes(window.__KICKLAB_RACE_MODES_QA__?.state().phase),null,{timeout:30000});
 }
 if(!process.argv.includes('--video-only'))for(const [width,height] of [[360,780],[390,844],[768,1024],[1113,988],[1440,1000]])for(const mode of modes){
   const context=await browser.newContext({viewport:{width,height},deviceScaleFactor:1,reducedMotion:'reduce'});
   const page=await context.newPage();const name=`${mode}-${width}`;
   page.on('pageerror',e=>report.errors.push(`${name}: ${e.message}`));
   await page.route('**/*',route=>{const url=route.request().url();if(url.startsWith(new URL(base).origin)||url.startsWith('data:')||url.startsWith('blob:'))return route.continue();report.external.push(`${name}: ${url}`);route.abort();});
-  try{const url=new URL(base);url.searchParams.set('raceExpansion','prototype');url.searchParams.set('rev',report.commit);await page.goto(url.toString(),{waitUntil:'domcontentloaded'});await prepare(page,mode,false);const state=await page.evaluate(()=>({...globalThis.__KICKLAB_RACE_MODES_QA__.state(),setup:document.querySelector('#raceCoachSetupTitle')?.textContent,overflow:document.documentElement.scrollWidth-innerWidth,canvas:!!document.querySelector('#race3')}));await page.locator('.stage').screenshot({path:join(output,`${name}.png`)});report.cases.push({name,...state});}catch(e){report.errors.push(`${name}: ${e.stack||e}`);}finally{await context.close();}
+  try{const url=new URL(base);url.searchParams.set('raceExpansion','prototype');url.searchParams.set('racePreflight','prototype');url.searchParams.set('rev',report.commit);await page.goto(url.toString(),{waitUntil:'domcontentloaded'});await prepare(page,mode,false);const state=await page.evaluate(()=>({...globalThis.__KICKLAB_RACE_MODES_QA__.state(),overflow:document.documentElement.scrollWidth-innerWidth,canvas:!!document.querySelector('#race3')}));if(state.mode!==mode||!['count','run'].includes(state.phase))throw Error(`${mode} did not enter live Race: ${JSON.stringify(state)}`);await page.locator('.stage').screenshot({path:join(output,`${name}.png`)});report.cases.push({name,...state});}catch(e){report.errors.push(`${name}: ${e.stack||e}`);}finally{await context.close();}
 }
 if(!process.argv.includes('--screens-only'))for(const mode of modes)for(const analog of [false,true]){
   const name=`${mode}-${analog?'analog':'classic'}`,context=await browser.newContext({viewport:{width:analog?390:960,height:analog?844:720},deviceScaleFactor:1,reducedMotion:'reduce',recordVideo:{dir:output,size:{width:analog?390:960,height:analog?844:720}}});
   const page=await context.newPage();page.on('pageerror',e=>report.errors.push(`${name}: ${e.message}`));await page.route('**/*',route=>{const url=route.request().url();if(url.startsWith(new URL(base).origin)||url.startsWith('data:')||url.startsWith('blob:'))return route.continue();report.external.push(`${name}: ${url}`);route.abort();});
-  try{const url=new URL(base);url.searchParams.set('raceExpansion','prototype');url.searchParams.set('rev',report.commit);await page.goto(url.toString(),{waitUntil:'domcontentloaded'});await prepare(page,mode,analog);await page.locator('#raceCoachSetupStart').click();await page.locator('#raceTelemetry').waitFor({state:'visible',timeout:10000});await page.waitForTimeout(2500);
+  try{const url=new URL(base);url.searchParams.set('raceExpansion','prototype');url.searchParams.set('racePreflight','prototype');url.searchParams.set('rev',report.commit);await page.goto(url.toString(),{waitUntil:'domcontentloaded'});await prepare(page,mode,analog);await page.locator('#raceTelemetry').waitFor({state:'visible',timeout:10000});await page.waitForTimeout(2500);
     let stick=null;const holdAnalog=async()=>{stick=await page.locator('#analogStick').boundingBox();if(!stick)throw new Error('Analog stick hidden');await page.mouse.move(stick.x+stick.width/2,stick.y+stick.height/2);await page.mouse.down();await page.mouse.move(stick.x+stick.width/2,stick.y+stick.height*.08,{steps:8});};
     if(analog)await holdAnalog();else await page.keyboard.down('Space');
     if(mode==='drag'){

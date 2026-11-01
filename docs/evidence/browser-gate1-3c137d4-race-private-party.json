@@ -1,0 +1,40 @@
+{
+  "head": "3c137d40906f84cb391f17ce1559da3bfe5847b2",
+  "cases": [
+    {
+      "round": 1,
+      "challengeLength": 958,
+      "responseLength": 321,
+      "qrCards": 2,
+      "creatorPhase": "readyNext",
+      "challengerPhase": "awaitNext"
+    },
+    {
+      "round": 2,
+      "challengeLength": 958,
+      "responseLength": 321,
+      "qrCards": 2,
+      "creatorPhase": "readyNext",
+      "challengerPhase": "awaitNext"
+    },
+    {
+      "round": 3,
+      "challengeLength": 958,
+      "responseLength": 321,
+      "qrCards": 2,
+      "creatorPhase": "complete",
+      "challengerPhase": "complete"
+    },
+    {
+      "threeRounds": true,
+      "qrNavigation": true,
+      "cameraPermissionRequests": 0,
+      "storageUnchanged": true,
+      "rematchReset": true,
+      "abandonCleared": true,
+      "externalRequests": 0
+    }
+  ],
+  "errors": [],
+  "external": []
+}
