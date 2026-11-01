@@ -1,0 +1,95 @@
+{
+  "head": "3c137d40906f84cb391f17ce1559da3bfe5847b2",
+  "artifactSha256": "f4350121f4fb23cf756554bdd63b826243e723aa201a22acce2d90a0d948c8fd",
+  "cases": [
+    {
+      "label": "360x800",
+      "failedPaths": [
+        "/media/race-preflight/hill-cobalt.mp4",
+        "/media/race-preflight/venue-marine-cobalt.mp4",
+        "/media/race-preflight/venue-forest-cobalt.mp4",
+        "/media/race-preflight/drag-cobalt.mp4",
+        "/media/race-preflight/drift-cobalt.mp4",
+        "/media/race-preflight/circuit-cobalt.mp4",
+        "/media/race-preflight/endurance-cobalt.mp4",
+        "/media/race-preflight/arrival-drag-cobalt.mp4"
+      ],
+      "fallback": true,
+      "phase": "count",
+      "mode": "drag",
+      "overflow": 0
+    },
+    {
+      "label": "390x844",
+      "failedPaths": [
+        "/media/race-preflight/hill-cobalt.mp4",
+        "/media/race-preflight/venue-marine-cobalt.mp4",
+        "/media/race-preflight/venue-forest-cobalt.mp4",
+        "/media/race-preflight/drag-cobalt.mp4",
+        "/media/race-preflight/drift-cobalt.mp4",
+        "/media/race-preflight/circuit-cobalt.mp4",
+        "/media/race-preflight/endurance-cobalt.mp4",
+        "/media/race-preflight/arrival-drag-cobalt.mp4"
+      ],
+      "fallback": true,
+      "phase": "count",
+      "mode": "drag",
+      "overflow": 0
+    },
+    {
+      "label": "768x1024",
+      "failedPaths": [
+        "/media/race-preflight/hill-cobalt.mp4",
+        "/media/race-preflight/venue-marine-cobalt.mp4",
+        "/media/race-preflight/venue-forest-cobalt.mp4",
+        "/media/race-preflight/drag-cobalt.mp4",
+        "/media/race-preflight/drift-cobalt.mp4",
+        "/media/race-preflight/circuit-cobalt.mp4",
+        "/media/race-preflight/endurance-cobalt.mp4",
+        "/media/race-preflight/arrival-drag-cobalt.mp4"
+      ],
+      "fallback": true,
+      "phase": "count",
+      "mode": "drag",
+      "overflow": 0
+    },
+    {
+      "label": "1113x834",
+      "failedPaths": [
+        "/media/race-preflight/hill-cobalt.mp4",
+        "/media/race-preflight/venue-marine-cobalt.mp4",
+        "/media/race-preflight/venue-forest-cobalt.mp4",
+        "/media/race-preflight/drag-cobalt.mp4",
+        "/media/race-preflight/drift-cobalt.mp4",
+        "/media/race-preflight/circuit-cobalt.mp4",
+        "/media/race-preflight/endurance-cobalt.mp4",
+        "/media/race-preflight/arrival-drag-cobalt.mp4"
+      ],
+      "fallback": true,
+      "phase": "count",
+      "mode": "drag",
+      "overflow": 0
+    },
+    {
+      "label": "1440x900",
+      "failedPaths": [
+        "/media/race-preflight/hill-cobalt.mp4",
+        "/media/race-preflight/venue-marine-cobalt.mp4",
+        "/media/race-preflight/venue-forest-cobalt.mp4",
+        "/media/race-preflight/drag-cobalt.mp4",
+        "/media/race-preflight/drift-cobalt.mp4",
+        "/media/race-preflight/circuit-cobalt.mp4",
+        "/media/race-preflight/endurance-cobalt.mp4",
+        "/media/race-preflight/arrival-drag-cobalt.mp4"
+      ],
+      "fallback": true,
+      "phase": "count",
+      "mode": "drag",
+      "overflow": 0
+    }
+  ],
+  "errors": [],
+  "external": [],
+  "popups": [],
+  "downloads": []
+}
