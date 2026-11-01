@@ -8,6 +8,7 @@ import {resolve,join} from 'node:path';
 const {chromium}=createRequire(import.meta.url)('playwright');
 const head=process.env.KICKLAB_QA_HEAD;
 const cleanPace=process.argv.includes('--clean-pace');
+const fasterCleanPace=process.env.KICKLAB_QA_FAST_CLEAN==='1';
 const args=process.argv.slice(2).filter(arg=>!arg.startsWith('--'));
 if(!/^[a-f0-9]{40}$/.test(head||'')||execFileSync('git',['rev-parse','origin/main'],{encoding:'utf8'}).trim()!==head)throw Error('Bind to exact product main');
 const base=new URL(args[0]||'http://127.0.0.1:4173/kicklab.html');
@@ -17,10 +18,14 @@ const artifactSha256=sha(readFileSync('dist/kicklab.html'));
 if(sha(Buffer.from(await(await fetch(base)).arrayBuffer()))!==artifactSha256)throw Error('Served artifact differs from exact build');
 const out=resolve(args[1]||'qa-artifacts/race-circuit-result');mkdirSync(out,{recursive:true});
 const browser=await chromium.launch({headless:true,args:['--enable-webgl','--use-gl=angle','--use-angle=swiftshader']});
-const context=await browser.newContext({viewport:{width:390,height:844},reducedMotion:'reduce',permissions:[]});
-const page=await context.newPage(),report={head,artifactSha256,cleanPace,events:[],errors:[],external:[],httpErrors:[],popups:[],downloads:[]};
+const width=Number(process.env.KICKLAB_QA_WIDTH||390),height=Number(process.env.KICKLAB_QA_HEIGHT||({360:800,390:844,768:1024,1113:834,1440:900}[width]));
+if(!Number.isInteger(width)||!Number.isInteger(height)||width<320||height<600)throw Error('Invalid QA viewport');
+const context=await browser.newContext({viewport:{width,height},reducedMotion:'reduce',permissions:[]});
+const page=await context.newPage(),report={head,artifactSha256,viewport:{width,height},cleanPace,fasterCleanPace,events:[],requests:[],initiators:[],errors:[],external:[],httpErrors:[],popups:[],downloads:[]};
 page.on('pageerror',error=>report.errors.push(error.message));
-page.on('response',response=>{if(response.status()>=400)report.httpErrors.push(`${response.status()} ${response.url()}`)});
+page.on('request',request=>{const target=new URL(request.url());report.requests.push({method:request.method(),origin:target.origin,path:target.pathname,type:request.resourceType(),status:null})});
+page.on('response',response=>{const target=new URL(response.url()),entry=report.requests.findLast(item=>item.origin===target.origin&&item.path===target.pathname&&item.status===null);if(entry)entry.status=response.status();if(response.status()>=400)report.httpErrors.push(`${response.status()} ${target.pathname}`)});
+const cdp=await context.newCDPSession(page);await cdp.send('Network.enable');cdp.on('Network.requestWillBeSent',event=>{const target=new URL(event.request.url),source=event.initiator?.url;report.initiators.push({path:target.pathname,type:event.initiator?.type||'unknown',source:source?new URL(source).pathname:null})});
 page.on('popup',popup=>report.popups.push(popup.url()));
 page.on('download',download=>report.downloads.push(download.suggestedFilename()));
 await page.route('**/*',route=>{const target=route.request().url();if(target.startsWith(base.origin+'/')||target.startsWith('data:')||target.startsWith('blob:'))route.continue();else{report.external.push(target);route.abort()}});
@@ -52,8 +57,8 @@ try{
     if(state.lap.includes('2/2'))wrapped=true;
     if(['done','crashed'].includes(state.race.phase)){report.final=state;done=true;break}
     const speed=Number(state.race.speedKmh)||0,bend=['brake','turn','apex'].includes(state.stage);
-    if(bend&&speed>(cleanPace?25:68))await page.keyboard.press('b',{delay:550});
-    else if(speed<(bend?(cleanPace?21:54):(cleanPace?30:92)))await page.keyboard.press('Space',{delay:550});
+    if(bend&&speed>(cleanPace?(fasterCleanPace?28:25):68))await page.keyboard.press('b',{delay:550});
+    else if(speed<(bend?(cleanPace?(fasterCleanPace?25:21):54):(cleanPace?(fasterCleanPace?37:30):92)))await page.keyboard.press('Space',{delay:550});
     else await page.waitForTimeout(550);
   }
   if(!done||!wrapped)throw Error(`Circuit did not finish with lap wrap: ${JSON.stringify({done,wrapped,events:report.events})}`);
