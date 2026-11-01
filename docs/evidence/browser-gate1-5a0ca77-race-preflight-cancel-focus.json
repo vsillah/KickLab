@@ -1,0 +1,46 @@
+{
+  "head": "5a0ca77f8e3547000f0559fcff35047214aa659f",
+  "artifactSha256": "9e4f59f4146a20288102c170bc55eef96bfaa53cd9e22df9fc4e72c53b0bab85",
+  "url": "http://127.0.0.1:43201/kicklab.html?rev=5a0ca77f8e3547000f0559fcff35047214aa659f&raceExpansion=prototype&raceCompetition=prototype&raceChampionship=prototype&raceMultiplayer=prototype&raceSimulator=prototype&raceCornerTrace=prototype&raceTelemetry=prototype&racePreflight=prototype",
+  "cases": [
+    {
+      "name": "390-close-button",
+      "focusId": null,
+      "focusTag": "BODY",
+      "startVisible": true,
+      "phase": "grid",
+      "preflightOpen": false,
+      "renderer": "rendering",
+      "overflow": 0,
+      "savedUnchanged": true,
+      "pass": false
+    },
+    {
+      "name": "390-escape",
+      "focusId": null,
+      "focusTag": "BODY",
+      "startVisible": true,
+      "phase": "grid",
+      "preflightOpen": false,
+      "renderer": "rendering",
+      "overflow": 0,
+      "savedUnchanged": true,
+      "pass": false
+    },
+    {
+      "name": "1440-close-button",
+      "focusId": null,
+      "focusTag": "BODY",
+      "startVisible": true,
+      "phase": "grid",
+      "preflightOpen": false,
+      "renderer": "rendering",
+      "overflow": 0,
+      "savedUnchanged": true,
+      "pass": false
+    }
+  ],
+  "pageErrors": [],
+  "external": [],
+  "httpErrors": []
+}
