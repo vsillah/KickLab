@@ -25,4 +25,6 @@
 
 The prior focus defect is resolved on this exact artifact. Browser Gate 1 remains **open**. Continue the [Gate 1 plan](release/browser-gate-1-plan.md) from this build: full Fight Classic/Analog positive and negative paths with held input, mute, reduced motion, and background return; Kick 3D/fallback and touch/keyboard/pointer inputs at planned widths; Race Circuit with Classic/Analog/Simulator, failed-event recovery, media faults, pause/pagehide, and storage failure; remaining Private Party negative/lifecycle paths; and permission, popup, download, request-log, accessibility, and rendered visual review. Preserve the 50 ms visible-browser pacing threshold. A deterministic product defect or runtime egress holds the gate for a separate fix and exact-artifact rerun.
 
+The older `qa-race-modes.mjs --modes=circuit` probe did not reach Circuit gameplay on this artifact. It times out on the now-hidden `#raceCoachSetup` section because it predates the venue-first preflight path. Its failure is harness drift, not a Circuit result. Rebind that probe to visible `[data-preflight-mode="circuit"]` selection before making a Circuit claim.
+
 No native build, physical-device qualification, rights clearance, signing, distribution, store, provider, DNS, upload, publication, or commercial release is claimed.
