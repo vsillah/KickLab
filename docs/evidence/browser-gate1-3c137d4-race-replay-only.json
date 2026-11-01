@@ -1,0 +1,257 @@
+{
+  "head": "3c137d40906f84cb391f17ce1559da3bfe5847b2",
+  "artifactSha256": "f4350121f4fb23cf756554bdd63b826243e723aa201a22acce2d90a0d948c8fd",
+  "cases": [
+    {
+      "item": {
+        "width": 390,
+        "height": 844,
+        "input": "touch",
+        "gfx": "3d",
+        "motion": "reduce",
+        "offline": true,
+        "noRecorder": false
+      },
+      "states": [
+        {
+          "scenario": {
+            "outcome": "pass",
+            "achievement": "collectible",
+            "replay": "both",
+            "coach": "clean"
+          },
+          "preview": {
+            "ready": true,
+            "count": 3
+          },
+          "observed": {
+            "exportControls": 0,
+            "replay3d": true,
+            "replayText": false,
+            "overflow": 0,
+            "calls": {
+              "objectUrls": 6,
+              "share": 0,
+              "canShare": 0,
+              "downloads": 0
+            }
+          }
+        },
+        {
+          "scenario": {
+            "outcome": "pass",
+            "achievement": "none",
+            "replay": "both",
+            "coach": "error-heavy"
+          },
+          "preview": {
+            "ready": true,
+            "count": 3
+          },
+          "observed": {
+            "exportControls": 0,
+            "replay3d": true,
+            "replayText": false,
+            "overflow": 0,
+            "calls": {
+              "objectUrls": 6,
+              "share": 0,
+              "canShare": 0,
+              "downloads": 0
+            }
+          }
+        }
+      ],
+      "downloads": 0
+    },
+    {
+      "item": {
+        "width": 768,
+        "height": 1024,
+        "input": "keyboard",
+        "gfx": "2d",
+        "motion": "reduce",
+        "offline": false,
+        "noRecorder": true
+      },
+      "states": [
+        {
+          "scenario": {
+            "outcome": "pass",
+            "achievement": "collectible",
+            "replay": "both",
+            "coach": "clean"
+          },
+          "preview": {
+            "ready": false,
+            "count": 0
+          },
+          "observed": {
+            "exportControls": 0,
+            "replay3d": false,
+            "replayText": true,
+            "overflow": 0,
+            "calls": {
+              "objectUrls": 0,
+              "share": 0,
+              "canShare": 0,
+              "downloads": 0
+            }
+          }
+        },
+        {
+          "scenario": {
+            "outcome": "pass",
+            "achievement": "none",
+            "replay": "both",
+            "coach": "error-heavy"
+          },
+          "preview": {
+            "ready": false,
+            "count": 0
+          },
+          "observed": {
+            "exportControls": 0,
+            "replay3d": false,
+            "replayText": true,
+            "overflow": 0,
+            "calls": {
+              "objectUrls": 0,
+              "share": 0,
+              "canShare": 0,
+              "downloads": 0
+            }
+          }
+        }
+      ],
+      "downloads": 0
+    },
+    {
+      "item": {
+        "width": 1113,
+        "height": 834,
+        "input": "pointer",
+        "gfx": "3d",
+        "motion": "no-preference",
+        "offline": false,
+        "noRecorder": true
+      },
+      "states": [
+        {
+          "scenario": {
+            "outcome": "pass",
+            "achievement": "collectible",
+            "replay": "both",
+            "coach": "clean"
+          },
+          "preview": {
+            "ready": true,
+            "count": 3
+          },
+          "observed": {
+            "exportControls": 0,
+            "replay3d": true,
+            "replayText": false,
+            "overflow": 0,
+            "calls": {
+              "objectUrls": 6,
+              "share": 0,
+              "canShare": 0,
+              "downloads": 0
+            }
+          }
+        },
+        {
+          "scenario": {
+            "outcome": "pass",
+            "achievement": "none",
+            "replay": "both",
+            "coach": "error-heavy"
+          },
+          "preview": {
+            "ready": true,
+            "count": 3
+          },
+          "observed": {
+            "exportControls": 0,
+            "replay3d": true,
+            "replayText": false,
+            "overflow": 0,
+            "calls": {
+              "objectUrls": 6,
+              "share": 0,
+              "canShare": 0,
+              "downloads": 0
+            }
+          }
+        }
+      ],
+      "downloads": 0
+    },
+    {
+      "item": {
+        "width": 1440,
+        "height": 900,
+        "input": "pointer",
+        "gfx": "3d",
+        "motion": "no-preference",
+        "offline": false,
+        "noRecorder": false
+      },
+      "states": [
+        {
+          "scenario": {
+            "outcome": "pass",
+            "achievement": "collectible",
+            "replay": "both",
+            "coach": "clean"
+          },
+          "preview": {
+            "ready": true,
+            "count": 3
+          },
+          "observed": {
+            "exportControls": 0,
+            "replay3d": true,
+            "replayText": false,
+            "overflow": 0,
+            "calls": {
+              "objectUrls": 6,
+              "share": 0,
+              "canShare": 0,
+              "downloads": 0
+            }
+          }
+        },
+        {
+          "scenario": {
+            "outcome": "pass",
+            "achievement": "none",
+            "replay": "both",
+            "coach": "error-heavy"
+          },
+          "preview": {
+            "ready": true,
+            "count": 3
+          },
+          "observed": {
+            "exportControls": 0,
+            "replay3d": true,
+            "replayText": false,
+            "overflow": 0,
+            "calls": {
+              "objectUrls": 6,
+              "share": 0,
+              "canShare": 0,
+              "downloads": 0
+            }
+          }
+        }
+      ],
+      "downloads": 0
+    }
+  ],
+  "errors": [],
+  "external": [],
+  "httpErrors": []
+}

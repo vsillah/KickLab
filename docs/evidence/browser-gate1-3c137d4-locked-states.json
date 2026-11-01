@@ -1,0 +1,134 @@
+{
+  "head": "3c137d40906f84cb391f17ce1559da3bfe5847b2",
+  "artifactSha256": "f4350121f4fb23cf756554bdd63b826243e723aa201a22acce2d90a0d948c8fd",
+  "base": "http://127.0.0.1:43205/kicklab.html",
+  "checks": [
+    {
+      "label": "360x780",
+      "surface": "race",
+      "awards": 5,
+      "lockedVehicles": 2,
+      "championship": 4,
+      "profileUnchanged": true
+    },
+    {
+      "label": "360x780",
+      "surface": "race-unlocked-venues",
+      "vivid": 3
+    },
+    {
+      "label": "360x780",
+      "surface": "fight",
+      "lockedStyles": 2,
+      "profileUnchanged": true
+    },
+    {
+      "label": "360x780",
+      "surface": "kick",
+      "lockedStyles": 2,
+      "profileUnchanged": true
+    },
+    {
+      "label": "390x844",
+      "surface": "race",
+      "awards": 5,
+      "lockedVehicles": 2,
+      "championship": 4,
+      "profileUnchanged": true
+    },
+    {
+      "label": "390x844",
+      "surface": "race-unlocked-venues",
+      "vivid": 3
+    },
+    {
+      "label": "390x844",
+      "surface": "fight",
+      "lockedStyles": 2,
+      "profileUnchanged": true
+    },
+    {
+      "label": "390x844",
+      "surface": "kick",
+      "lockedStyles": 2,
+      "profileUnchanged": true
+    },
+    {
+      "label": "768x1024",
+      "surface": "race",
+      "awards": 5,
+      "lockedVehicles": 2,
+      "championship": 4,
+      "profileUnchanged": true
+    },
+    {
+      "label": "768x1024",
+      "surface": "race-unlocked-venues",
+      "vivid": 3
+    },
+    {
+      "label": "768x1024",
+      "surface": "fight",
+      "lockedStyles": 2,
+      "profileUnchanged": true
+    },
+    {
+      "label": "768x1024",
+      "surface": "kick",
+      "lockedStyles": 2,
+      "profileUnchanged": true
+    },
+    {
+      "label": "1113x900",
+      "surface": "race",
+      "awards": 5,
+      "lockedVehicles": 2,
+      "championship": 4,
+      "profileUnchanged": true
+    },
+    {
+      "label": "1113x900",
+      "surface": "race-unlocked-venues",
+      "vivid": 3
+    },
+    {
+      "label": "1113x900",
+      "surface": "fight",
+      "lockedStyles": 2,
+      "profileUnchanged": true
+    },
+    {
+      "label": "1113x900",
+      "surface": "kick",
+      "lockedStyles": 2,
+      "profileUnchanged": true
+    },
+    {
+      "label": "1440x900",
+      "surface": "race",
+      "awards": 5,
+      "lockedVehicles": 2,
+      "championship": 4,
+      "profileUnchanged": true
+    },
+    {
+      "label": "1440x900",
+      "surface": "race-unlocked-venues",
+      "vivid": 3
+    },
+    {
+      "label": "1440x900",
+      "surface": "fight",
+      "lockedStyles": 2,
+      "profileUnchanged": true
+    },
+    {
+      "label": "1440x900",
+      "surface": "kick",
+      "lockedStyles": 2,
+      "profileUnchanged": true
+    }
+  ],
+  "errors": [],
+  "external": []
+}

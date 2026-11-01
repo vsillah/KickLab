@@ -1,0 +1,45 @@
+// Current preflight Simulator touch cancellation and pagehide boundary on exact product main.
+import {createRequire} from 'node:module';
+import {createHash} from 'node:crypto';
+import {execFileSync} from 'node:child_process';
+import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
+import {resolve,join} from 'node:path';
+const {chromium}=createRequire(import.meta.url)('playwright');
+const head=process.env.KICKLAB_QA_HEAD;
+if(!/^[a-f0-9]{40}$/.test(head||'')||execFileSync('git',['rev-parse','origin/main'],{encoding:'utf8'}).trim()!==head)throw Error('Bind to exact product main');
+const base=new URL(process.argv[2]||'http://127.0.0.1:4173/kicklab.html');
+if(!['127.0.0.1','localhost'].includes(base.hostname)||base.pathname!=='/kicklab.html')throw Error('Use trusted localhost Pages');
+const sha=bytes=>createHash('sha256').update(bytes).digest('hex'),artifactSha256=sha(readFileSync('dist/kicklab.html'));
+if(sha(Buffer.from(await(await fetch(base)).arrayBuffer()))!==artifactSha256)throw Error('Served artifact differs from exact build');
+const out=resolve(process.argv[3]||'qa-artifacts/race-simulator-live-boundaries');mkdirSync(out,{recursive:true});
+const browser=await chromium.launch({headless:true}),context=await browser.newContext({viewport:{width:390,height:844},hasTouch:true,reducedMotion:'reduce',permissions:[]});
+const page=await context.newPage(),report={head,artifactSha256,checks:[],errors:[],external:[],httpErrors:[],popups:[],downloads:[]};
+page.on('pageerror',error=>report.errors.push(error.message));page.on('response',response=>{if(response.status()>=400)report.httpErrors.push(`${response.status()} ${response.url()}`)});page.on('popup',popup=>report.popups.push(popup.url()));page.on('download',download=>report.downloads.push(download.suggestedFilename()));
+await page.route('**/*',route=>{const target=route.request().url();if(target.startsWith(base.origin+'/')||target.startsWith('data:')||target.startsWith('blob:'))route.continue();else{report.external.push(target);route.abort()}});
+try{
+  const url=new URL(base);url.searchParams.set('rev',head);for(const flag of ['raceExpansion','raceSimulator','raceTelemetry','racePreflight'])url.searchParams.set(flag,'prototype');
+  await page.goto(url.href,{waitUntil:'domcontentloaded'});
+  if(await page.locator('#profileFormSave').isVisible())await page.locator('#profileFormSave').click();if(await page.locator('#profileClose').isVisible())await page.locator('#profileClose').click();
+  await page.locator('#lab-tab-race').click();await page.locator('#racePreflight').waitFor({state:'visible',timeout:20000});
+  await page.locator('[data-preflight-venue="highland"]').click();for(let step=0;step<3;step++)await page.locator('#racePreflightNext').click();
+  await page.locator('[data-preflight-control="simulator"]').click();if(await page.locator('[data-preflight-control="simulator"]').getAttribute('aria-pressed')!=='true')throw Error('Simulator not selected in preflight');
+  await page.locator('#racePreflightNext').click();await page.locator('#racePreflight').waitFor({state:'hidden',timeout:20000});
+  const orbit=page.locator('.race-orbit-panel button');if(await orbit.isVisible())await orbit.click();
+  await page.waitForFunction(()=>window.__KICKLAB_RACE_MODES_QA__?.state().phase==='run',null,{timeout:30000});
+  if(!await page.locator('#raceSimulator').isVisible())await page.locator('#simulatorControlsButton').click();
+  await page.locator('#raceSimulator').waitFor({state:'visible'});
+  const state=()=>page.evaluate(()=>({sim:window.__KICKLAB_RACE_SIMULATOR_QA__.state(),phase:window.__KICKLAB_RACE_MODES_QA__.state().phase,overflow:document.documentElement.scrollWidth-innerWidth}));
+  const targets=await page.evaluate(()=>['simBrake','simGas','simHandbrake'].map(id=>{const node=document.getElementById(id),box=node.getBoundingClientRect();return{id,width:box.width,height:box.height,label:node.getAttribute('aria-label')}}));
+  if(targets.filter(target=>target.id!=='simHandbrake').some(target=>target.width<44||target.height<44||!target.label)||targets.find(target=>target.id==='simHandbrake').width!==0)throw Error(`Drag touch targets: ${JSON.stringify(targets)}`);report.checks.push({targets});
+  await page.locator('.stage').screenshot({path:join(out,'simulator-live.png')});
+  const cdp=await context.newCDPSession(page),box=await page.locator('#simBrake').boundingBox();if(!box)throw Error('Brake hidden');const x=box.x+box.width/2,y=box.y+box.height/2;
+  await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y,id:1,radiusX:4,radiusY:4,force:1}]});
+  await page.waitForTimeout(100);const held=await state();if(!held.sim.inputs.brake)throw Error(`Brake did not engage: ${JSON.stringify(held)}`);
+  await cdp.send('Input.dispatchTouchEvent',{type:'touchCancel',touchPoints:[]});await page.waitForTimeout(100);const cancelled=await state();
+  if(cancelled.sim.inputs.brake||cancelled.sim.inputs.gas||cancelled.overflow>1)throw Error(`Touch cancellation failed: ${JSON.stringify(cancelled)}`);report.checks.push({touchCancel:true});
+  await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y,id:2,radiusX:4,radiusY:4,force:1}]});await page.waitForTimeout(100);
+  await page.evaluate(()=>window.dispatchEvent(new Event('pagehide')));const hidden=await state();
+  if(hidden.sim.inputs.brake||hidden.sim.inputs.gas||hidden.sim.sensorReady)throw Error(`Pagehide did not release controls: ${JSON.stringify(hidden)}`);report.checks.push({pagehideRelease:true});
+}catch(error){report.errors.push(error.stack||String(error));await page.screenshot({path:join(out,'failure.png')}).catch(()=>{})}
+await context.close();await browser.close();writeFileSync(join(out,'report.json'),JSON.stringify(report,null,2)+'\n');
+console.log(JSON.stringify(report,null,2));if(report.errors.length||report.external.length||report.httpErrors.length||report.popups.length||report.downloads.length)process.exitCode=1;

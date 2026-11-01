@@ -30,6 +30,8 @@
       "qrNavigation": true,
       "cameraPermissionRequests": 0,
       "storageUnchanged": true,
+      "staleRoundRejected": true,
+      "oversizedCodeRejected": true,
       "rematchReset": true,
       "abandonCleared": true,
       "externalRequests": 0

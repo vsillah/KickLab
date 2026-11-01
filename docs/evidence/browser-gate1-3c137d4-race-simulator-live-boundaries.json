@@ -1,0 +1,39 @@
+{
+  "head": "3c137d40906f84cb391f17ce1559da3bfe5847b2",
+  "artifactSha256": "f4350121f4fb23cf756554bdd63b826243e723aa201a22acce2d90a0d948c8fd",
+  "checks": [
+    {
+      "targets": [
+        {
+          "id": "simBrake",
+          "width": 119,
+          "height": 68,
+          "label": "Hold brake pedal"
+        },
+        {
+          "id": "simGas",
+          "width": 119,
+          "height": 68,
+          "label": "Hold throttle; flick upward from this pedal for NOS"
+        },
+        {
+          "id": "simHandbrake",
+          "width": 0,
+          "height": 0,
+          "label": "Pull handbrake down to drift; Space or Enter toggles"
+        }
+      ]
+    },
+    {
+      "touchCancel": true
+    },
+    {
+      "pagehideRelease": true
+    }
+  ],
+  "errors": [],
+  "external": [],
+  "httpErrors": [],
+  "popups": [],
+  "downloads": []
+}
