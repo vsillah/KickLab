@@ -3,12 +3,44 @@
   "artifactSha256": "f4350121f4fb23cf756554bdd63b826243e723aa201a22acce2d90a0d948c8fd",
   "cases": [
     {
+      "width": 360,
+      "height": 800,
+      "firstBoutWin": true,
+      "outcome": {
+        "title": "KNOCKED DOWN",
+        "sub": "Rex Mk III had 130 HP left",
+        "overflow": 0,
+        "permissions": []
+      },
+      "errors": [],
+      "external": [],
+      "offlineRequests": [],
+      "popups": [],
+      "downloads": []
+    },
+    {
       "width": 390,
       "height": 844,
       "firstBoutWin": true,
       "outcome": {
-        "title": "K.O.!",
-        "sub": "Rex Mk I down · 100 HP left · 6 punches landed",
+        "title": "KNOCKED DOWN",
+        "sub": "Rex Mk III had 130 HP left",
+        "overflow": 0,
+        "permissions": []
+      },
+      "errors": [],
+      "external": [],
+      "offlineRequests": [],
+      "popups": [],
+      "downloads": []
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "firstBoutWin": true,
+      "outcome": {
+        "title": "KNOCKED DOWN",
+        "sub": "Rex Mk II had 120 HP left",
         "overflow": 0,
         "permissions": []
       },
@@ -21,10 +53,26 @@
     {
       "width": 1113,
       "height": 834,
+      "firstBoutWin": false,
+      "outcome": {
+        "title": "KNOCKED DOWN",
+        "sub": "Rex Mk I had 16 HP left",
+        "overflow": 0,
+        "permissions": []
+      },
+      "errors": [],
+      "external": [],
+      "offlineRequests": [],
+      "popups": [],
+      "downloads": []
+    },
+    {
+      "width": 1440,
+      "height": 900,
       "firstBoutWin": true,
       "outcome": {
         "title": "KNOCKED DOWN",
-        "sub": "Rex Mk IV had 140 HP left",
+        "sub": "Rex Mk V had 150 HP left",
         "overflow": 0,
         "permissions": []
       },

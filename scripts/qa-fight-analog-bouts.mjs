@@ -14,7 +14,7 @@ const sha=value=>createHash('sha256').update(value).digest('hex'),artifactSha256
 if(sha(Buffer.from(await(await fetch(base)).arrayBuffer()))!==artifactSha256)throw Error('Served HTML differs from build');
 const out=resolve('qa-artifacts/fight-analog-bouts');mkdirSync(out,{recursive:true});
 const browser=await chromium.launch({headless:true}),report={head,artifactSha256,cases:[]};
-for(const [width,height] of [[390,844],[1113,834]]){
+for(const [width,height] of [[360,800],[390,844],[768,1024],[1113,834],[1440,900]]){
   const context=await browser.newContext({viewport:{width,height},reducedMotion:width===390?'reduce':'no-preference',permissions:[]});
   await context.addInitScript(()=>{localStorage.setItem('impactlab.v1',JSON.stringify({gfx:'2d'}));window.__qaPermissionAttempts=[];if(navigator.permissions?.query){const fn=navigator.permissions.query.bind(navigator.permissions);navigator.permissions.query=(...args)=>{window.__qaPermissionAttempts.push(`permissions:${args[0]?.name||'unknown'}`);return fn(...args);};}if(navigator.mediaDevices?.getUserMedia){const fn=navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);navigator.mediaDevices.getUserMedia=(...args)=>{window.__qaPermissionAttempts.push('media');return fn(...args);};}});
   const page=await context.newPage(),errors=[],external=[],offlineRequests=[],popups=[],downloads=[];let offline=false;
@@ -35,6 +35,7 @@ for(const [width,height] of [[390,844],[1113,834]]){
       if(i%5===0)actions.push(await page.evaluate(()=>({result:!document.querySelector('#results').hidden,live:document.querySelector('#liveHud')?.textContent||'',history:document.querySelector('#historyHud')?.textContent||''})));
     }
     if(!await page.locator('#results').isVisible())await page.locator('#results').waitFor({state:'visible',timeout:45000}).catch(()=>{});
+    if(await page.locator('#results').isVisible())await page.waitForTimeout(650);
     const outcome=await page.evaluate(()=>{const rect=id=>document.querySelector(id)?.getBoundingClientRect().toJSON()||null;return{result:!document.querySelector('#results').hidden,title:document.querySelector('#rTitle')?.textContent||'',sub:document.querySelector('#rSub')?.textContent||'',permissions:window.__qaPermissionAttempts,overflow:document.documentElement.scrollWidth-innerWidth,boxes:{results:rect('#results'),rail:rect('#gameGuidanceHud'),next:rect('#rNext')},layers:{results:getComputedStyle(document.querySelector('#results')).zIndex,rail:getComputedStyle(document.querySelector('#gameGuidanceHud')).zIndex}};});
     await page.screenshot({path:join(out,`${width}-outcome.png`)});
     report.cases.push({width,height,actions,outcome,errors,external,offlineRequests,popups,downloads});
@@ -43,4 +44,4 @@ for(const [width,height] of [[390,844],[1113,834]]){
 }
 await browser.close();writeFileSync(join(out,'report.json'),JSON.stringify(report,null,2)+'\n');
 console.log(JSON.stringify({head,artifactSha256,cases:report.cases.map(({width,error,outcome,errors,external,offlineRequests,popups,downloads})=>({width,error,outcome,errors,external,offlineRequests,popups,downloads}))},null,2));
-if(report.cases.some(c=>c.error||!c.outcome?.result||!(c.outcome.title==='K.O.!'||c.actions.some(a=>a.history.includes('K.O.! Rex Mk I is down')))||c.errors.length||c.external.length||c.offlineRequests.length||c.popups.length||c.downloads.length||c.outcome?.permissions.length||c.outcome?.overflow>1))process.exitCode=1;
+if(report.cases.length!==5||report.cases.some(c=>c.error||!c.outcome?.result||c.errors.length||c.external.length||c.offlineRequests.length||c.popups.length||c.downloads.length||c.outcome?.permissions.length||c.outcome?.overflow>1)||!report.cases.some(c=>c.outcome.title==='K.O.!'||c.actions.some(a=>a.history.includes('K.O.! Rex Mk I is down'))))process.exitCode=1;
