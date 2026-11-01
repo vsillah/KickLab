@@ -72,7 +72,7 @@ async function realVictory(page,label){
 }
 
 try{
-  for(const [label,width,height] of sizes){
+  for(const [label,width,height] of process.env.KICKLAB_QA_VICTORY_ONLY?[]:sizes){
     const record=label==='phone-390'||label==='desktop';
     const context=await browser.newContext({viewport:{width,height},deviceScaleFactor:1,hasTouch:width<=390,reducedMotion:label==='phone-360'?'reduce':'no-preference',recordVideo:record?{dir:videoDir,size:{width,height}}:undefined});
     await context.addInitScript(()=>{localStorage.setItem('impactlab.v1',JSON.stringify({gfx:'canvas',mute:true,ch:{fight:0,race:0,kick:0},play:{fight:'ch',race:'ch',kick:'ch'}}));localStorage.setItem('impactlab.nick','QA Player');});
@@ -102,17 +102,21 @@ try{
     const recording=page.video();await page.close();await context.close();
     if(record)checks.push({label,webm:await recording.path()});
   }
-  for(const [label,width,height] of [['victory-phone',390,844],['victory-desktop',1440,900]]){
+  for(const [label,width,height] of [['victory-phone-360',360,800],['victory-phone',390,844],['victory-tablet',768,1024],['victory-laptop',1113,834],['victory-desktop',1440,900]].filter(([,width])=>!process.env.KICKLAB_QA_VICTORY_WIDTH||width===Number(process.env.KICKLAB_QA_VICTORY_WIDTH))){
     const context=await browser.newContext({viewport:{width,height}}),page=await context.newPage();
     await context.addInitScript(()=>{localStorage.setItem('impactlab.v1',JSON.stringify({gfx:'canvas',mute:true,ch:{fight:0,race:0,kick:0},play:{fight:'ch',race:'ch',kick:'ch'}}));});
     await enter(page,label);await state(page,`${label}-active`,false);
     await realVictory(page,label);
     await state(page,`${label}-result`,true);await page.screenshot({path:join(output,`${label}-result.png`)});
+    await page.locator('#rNext').scrollIntoViewIfNeeded();
+    const target=await page.locator('#rNext').evaluate(next=>{const r=next.getBoundingClientRect(),hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return{next:r.toJSON(),hit:hit?.outerHTML.slice(0,220),scrollY,viewport:{width:innerWidth,height:innerHeight}}});
+    checks.push({label:`${label}-next-target`,...target});await page.screenshot({path:join(output,`${label}-next-target.png`)});
+    assert.ok(target.hit?.includes('id="rNext"'),`${label}: Next round hit target obstructed ${JSON.stringify(target)}`);
     await page.locator('#rNext').click();await state(page,`${label}-next-round`,false);
     await context.close();
   }
   assert.deepEqual(errors,[],'Browser errors');assert.deepEqual(external,[],'External requests');
-  for(const label of ['phone-390','desktop']){
+  for(const label of process.env.KICKLAB_QA_VICTORY_ONLY?[]:['phone-390','desktop']){
     const source=checks.find(item=>item.label===label&&item.webm).webm,target=join(output,`${label}-loss-walkthrough.mp4`);
     const convert=spawnSync('ffmpeg',['-y','-v','error','-i',source,'-c:v','libx264','-pix_fmt','yuv420p','-movflags','+faststart','-an',target],{encoding:'utf8'});
     assert.equal(convert.status,0,convert.stderr);const probe=spawnSync('ffprobe',['-v','error','-show_entries','format=duration:stream=codec_name,width,height','-of','json',target],{encoding:'utf8'});
