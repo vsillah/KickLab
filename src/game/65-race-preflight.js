@@ -2,7 +2,7 @@
 let RACE_PREFLIGHT_ON=RACE_VENUE_PREFLIGHT_ACTIVE;
 if(RACE_PREFLIGHT_ON)document.documentElement.dataset.racePreflight='prototype';
 globalThis.KickLabRaceOrigin.onHomeEntry(()=>{RACE_PREFLIGHT_ON=true;document.documentElement.dataset.racePreflight='prototype';});
-const RACE_PREFLIGHT={phase:0,locationStage:'venue',lastRenderedPhase:null,draft:null,profileId:null,lastEpoch:-1,committing:false,committed:false,arriving:false,pendingStart:false,lastRaceState:null,returnFocus:null,notice:'',focusPart:'tires'};
+const RACE_PREFLIGHT={phase:0,locationStage:'venue',lastRenderedPhase:null,draft:null,profileId:null,lastEpoch:-1,committing:false,committed:false,arriving:false,pendingStart:false,lastRaceState:null,returnFocus:null,focusAfterClose:null,notice:'',focusPart:'tires'};
 const RACE_PREFLIGHT_PHASES=['Location','Vehicle','Garage tuning','Starting grid'];
 const RACE_PREFLIGHT_PHASE_SHORT=['Track','Car','Garage','Grid'];
 const RACE_ROUTE_TRAITS={
@@ -27,13 +27,14 @@ function racePreflightCanOpen(){return RACE_PREFLIGHT_ON&&M===Race&&Race.state==
 function racePreflightPrepareHomeEntry(){
   if(!RACE_PREFLIGHT_ON)return;
   RACE_INSPECT.dispose();
-  Object.assign(RACE_PREFLIGHT,{phase:0,locationStage:'venue',lastRenderedPhase:null,draft:null,profileId:null,lastEpoch:-1,committing:false,committed:false,arriving:false,pendingStart:false,lastRaceState:null,returnFocus:null,notice:'',focusPart:'tires',startControl:null});
+  Object.assign(RACE_PREFLIGHT,{phase:0,locationStage:'venue',lastRenderedPhase:null,draft:null,profileId:null,lastEpoch:-1,committing:false,committed:false,arriving:false,pendingStart:false,lastRaceState:null,returnFocus:null,focusAfterClose:null,notice:'',focusPart:'tires',startControl:null});
   $('#racePreflight').hidden=true;
   document.documentElement.dataset.racePreflightOpen='false';
   document.documentElement.dataset.racePreflightArriving='false';
 }
 function racePreflightOpen(trigger=null){
   if(!racePreflightCanOpen())return false;
+  RACE_PREFLIGHT.focusAfterClose=null;
   const matchStage=racePreflightMatchStage();
   if(RACE_PREFLIGHT.profileId!==profileManager.active().id||!RACE_PREFLIGHT.draft){RACE_PREFLIGHT.draft=matchStage?.stage==='b'?(matchStage.bDraft||racePreflightDraft()):racePreflightDraft();RACE_PREFLIGHT.phase=matchStage?.stage==='b'?1:0;RACE_PREFLIGHT.locationStage=matchStage?.stage==='b'?'route':'venue';RACE_PREFLIGHT.lastRenderedPhase=null;RACE_PREFLIGHT.focusPart='tires';RACE_PREFLIGHT.profileId=profileManager.active().id;}
   if(matchStage){RACE_PREFLIGHT.draft.venue='highland';if(matchStage.shared)RACE_PREFLIGHT.draft.mode=matchStage.shared.mode;}
@@ -72,7 +73,21 @@ function racePreflightClose(){
   if(matchStage)raceMultiplayerSetupCancel();
   const target=RACE_PREFLIGHT.returnFocus;
   RACE_PREFLIGHT.returnFocus=null;
-  requestAnimationFrame(()=>(target&&target.isConnected?target:$('#raceCoachSetupStart')).focus());
+  RACE_PREFLIGHT.focusAfterClose=target&&target.isConnected?target:$('#raceCoachSetupStart');
+  requestAnimationFrame(racePreflightRestoreFocus);
+}
+function racePreflightRestoreFocus(){
+  const target=RACE_PREFLIGHT.focusAfterClose;
+  if(!target)return;
+  if(M!==Race||Race.state!=='grid'||!$('#racePreflight').hidden){RACE_PREFLIGHT.focusAfterClose=null;return;}
+  const current=document.activeElement;
+  if(current!==document.body&&current!==$('.stage')&&current!==target&&!$('#racePreflight').contains(current)){
+    RACE_PREFLIGHT.focusAfterClose=null;
+    return;
+  }
+  if(!target.isConnected||target.disabled||target.hidden||!target.getClientRects().length||getComputedStyle(target).visibility!=='visible')return;
+  target.focus({preventScroll:true});
+  if(document.activeElement===target)RACE_PREFLIGHT.focusAfterClose=null;
 }
 function racePreflightMode(){const d=RACE_PREFLIGHT.draft;if(d.venue==='highland')return RACE_MODES.config(d.mode);const progress=RACE_PROGRESSION.normalize(best.raceProgression),index=RACE_PROGRESSION.LEVELS.findIndex(item=>item.id===d.venue),level=index<0?null:RACE_PROGRESSION.level({...progress,selected:index,heats:progress.selected===index?progress.heats:0});return level?{...level,target:RACE_PROGRESSION.preview(level),recommend:level.challenge,course:'bend'}:RACE_MODES.config(d.mode);}
 function racePreflightCar(){return globalThis.KickLabRaceVehicleCatalog.get(RACE_PREFLIGHT.draft.vehicle);}

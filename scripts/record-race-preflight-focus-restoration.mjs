@@ -1,0 +1,48 @@
+import {createRequire} from 'node:module';
+import {createHash} from 'node:crypto';
+import {spawnSync} from 'node:child_process';
+import {existsSync,mkdirSync,readFileSync,statSync,writeFileSync} from 'node:fs';
+import {resolve,join} from 'node:path';
+
+const {chromium}=createRequire(import.meta.url)('playwright');
+const head=process.env.KICKLAB_QA_HEAD;
+if(!/^[a-f0-9]{40}$/.test(head||''))throw Error('Set KICKLAB_QA_HEAD to the exact review commit');
+const url=new URL(process.argv[2]||'http://127.0.0.1:4173/kicklab.html');
+if(!['127.0.0.1','localhost'].includes(url.hostname)||url.pathname!=='/kicklab.html')throw Error('Use local exact build');
+for(const flag of ['raceExpansion','raceTelemetry','racePreflight'])url.searchParams.set(flag,'prototype');
+url.searchParams.set('rev',head);
+const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
+const artifactSha256=sha(readFileSync('dist/kicklab.html'));
+if(sha(Buffer.from(await(await fetch(url)).arrayBuffer()))!==artifactSha256)throw Error('Served HTML differs from local build');
+const out=resolve(process.argv[3]||'qa-artifacts/race-preflight-focus-restoration');mkdirSync(out,{recursive:true});
+const browser=await chromium.launch({headless:true,executablePath:[process.env.KICKLAB_CHROMIUM_PATH,chromium.executablePath(),'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find(path=>path&&existsSync(path)),args:['--enable-webgl']});
+const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:1,reducedMotion:'reduce',hasTouch:true,recordVideo:{dir:out,size:{width:390,height:844}}});
+await context.addInitScript(()=>localStorage.setItem('impactlab.v1',JSON.stringify({gfx:'3d'})));
+const page=await context.newPage(),errors=[],external=[];
+page.on('pageerror',error=>errors.push(error.message));
+await page.route('**/*',route=>{const target=route.request().url();if(target.startsWith(url.origin+'/')||target.startsWith('data:')||target.startsWith('blob:'))route.continue();else{external.push(target);route.abort();}});
+try{
+  await page.goto(url.href,{waitUntil:'domcontentloaded'});
+  if(await page.locator('#profileFormSave').isVisible())await page.locator('#profileFormSave').click();
+  if(await page.locator('#profileClose').isVisible())await page.locator('#profileClose').click();
+  await page.locator('#lab-tab-race').click();
+  await page.locator('#racePreflight').waitFor({state:'visible',timeout:30000});
+  await page.locator('[data-preflight-venue="highland"]').click();
+  await page.locator('[data-preflight-mode="circuit"]').click();
+  await page.waitForTimeout(1000);
+  await page.keyboard.press('Escape');
+  await page.locator('#raceCoachSetupStart').waitFor({state:'visible',timeout:30000});
+  await page.waitForFunction(()=>document.activeElement?.id==='raceCoachSetupStart',null,{timeout:5000});
+  await page.waitForTimeout(1800);
+  await page.keyboard.press('Enter');
+  await page.locator('#racePreflight').waitFor({state:'visible',timeout:5000});
+  await page.waitForTimeout(1200);
+}finally{await context.close();await browser.close();}
+const webm=await page.video().path(),mp4=join(out,`race-preflight-focus-${head.slice(0,12)}.mp4`);
+const encoded=spawnSync('ffmpeg',['-y','-loglevel','error','-i',webm,'-c:v','libx264','-preset','medium','-crf','22','-pix_fmt','yuv420p','-movflags','+faststart','-an',mp4],{encoding:'utf8'});
+if(encoded.status!==0)throw Error(`MP4 encode failed: ${encoded.stderr}`);
+const probe=spawnSync('ffprobe',['-v','error','-show_entries','format=duration:stream=codec_name,width,height','-of','json',mp4],{encoding:'utf8'});
+const info=JSON.parse(probe.stdout),decode=spawnSync('ffmpeg',['-v','error','-i',mp4,'-f','null','-'],{encoding:'utf8'});
+if(decode.status!==0||!info.streams.some(stream=>stream.codec_name==='h264'&&stream.width===390&&stream.height===844)||Number(info.format.duration)<4||errors.length||external.length)throw Error(`Walkthrough validation failed: ${JSON.stringify({info,errors,external,decode:decode.stderr})}`);
+writeFileSync(join(out,'video-report.json'),JSON.stringify({head,url:url.href,artifactSha256,mp4,duration:Number(info.format.duration),bytes:statSync(mp4).size,errors,external},null,2)+'\n');
+console.log(JSON.stringify({head,url:url.href,mp4,duration:Number(info.format.duration),bytes:statSync(mp4).size,errors,external},null,2));

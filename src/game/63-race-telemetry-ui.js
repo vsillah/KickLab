@@ -56,6 +56,7 @@ function renderRaceTelemetry(){
   if(resultReview&&!Race.coachResultShown){Race.coachResultShown=true;setFloatingControllerCollapsed(false);}
   $('#raceCoachSetupRecommendation').hidden=false;$('#raceCoachResultRecommendation').hidden=false;$('#raceCoachResultRetry').hidden=false;$('#simResultRecommendation').hidden=false;$('#raceCoachSetupSeason').hidden=true;$('#raceCoachResultSeason').hidden=true;$('#simResultSeason').hidden=true;
   const setup=$('#raceCoachSetup');setup.hidden=!setupPreview;const vehicleButton=$('#raceCoachSetupVehicle');vehicleButton.hidden=!setupPreview||!Race.expansionActive();if(setupPreview&&Race.expansionActive()){const car=Race.vehicle();$('#raceCoachSetupVehicleImage').src=car.thumbnailUrl;$('#raceCoachSetupVehicleName').textContent=car.name;$('#raceCoachSetupVehicleRole').textContent=`${car.role} · ${car.modeSuitability[Race.mode().id]}`;vehicleButton.setAttribute('aria-label',`Current car ${car.name}, ${car.role}. Choose car in Garage.`);}
+  if(typeof racePreflightRestoreFocus==='function')racePreflightRestoreFocus();
   for(const id of ['raceCoachSetupClassic','raceCoachSetupControls'])$('#'+id).hidden=!Race.expansionActive();
   if(Race.expansionActive()){
     const analog=$('#analogControlsButton').getAttribute('aria-pressed')==='true',simulator=$('#simulatorControlsButton').getAttribute('aria-pressed')==='true';
