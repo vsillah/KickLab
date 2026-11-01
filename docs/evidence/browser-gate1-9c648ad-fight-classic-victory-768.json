@@ -1,0 +1,135 @@
+{
+  "revision": "9c648ad0c66ff9d2b32990f3a7d23b57e6e83981",
+  "base": "http://127.0.0.1:43311/kicklab.html",
+  "checks": [
+    {
+      "label": "victory-tablet-active",
+      "result": false,
+      "mode": "fight",
+      "railDisplay": "grid",
+      "railVisible": true,
+      "resultVisible": false,
+      "card": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "next": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "nextHit": false,
+      "nextDisabled": false,
+      "heading": "",
+      "overflow": 0,
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      }
+    },
+    {
+      "label": "victory-tablet-result",
+      "result": true,
+      "mode": "fight",
+      "railDisplay": "none",
+      "railVisible": false,
+      "resultVisible": true,
+      "card": {
+        "x": 100.1400146484375,
+        "y": 286.8734436035156,
+        "width": 567.719970703125,
+        "height": 378.9107971191406,
+        "top": 286.8734436035156,
+        "right": 667.8599853515625,
+        "bottom": 665.7842407226562,
+        "left": 100.1400146484375
+      },
+      "next": {
+        "x": 455.62591552734375,
+        "y": 612.2080078125,
+        "width": 191.5555419921875,
+        "height": 38.53729248046875,
+        "top": 612.2080078125,
+        "right": 647.1814575195312,
+        "bottom": 650.7453002929688,
+        "left": 455.62591552734375
+      },
+      "nextHit": true,
+      "nextDisabled": false,
+      "heading": "K.O.!",
+      "overflow": 0,
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      }
+    },
+    {
+      "label": "victory-tablet-next-target",
+      "next": {
+        "x": 460.203125,
+        "y": 634.40625,
+        "width": 203.796875,
+        "height": 41,
+        "top": 634.40625,
+        "right": 664,
+        "bottom": 675.40625,
+        "left": 460.203125
+      },
+      "hit": "<button type=\"button\" class=\"rnext\" id=\"rNext\">Next round <span aria-hidden=\"true\">▶</span> <kbd>Space</kbd></button>",
+      "scrollY": 53,
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      }
+    },
+    {
+      "label": "victory-tablet-next-round",
+      "result": false,
+      "mode": "fight",
+      "railDisplay": "grid",
+      "railVisible": true,
+      "resultVisible": false,
+      "card": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "next": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "nextHit": false,
+      "nextDisabled": false,
+      "heading": "K.O.!",
+      "overflow": 0,
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      }
+    }
+  ],
+  "errors": [],
+  "external": []
+}

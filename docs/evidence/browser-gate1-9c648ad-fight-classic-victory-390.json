@@ -1,0 +1,135 @@
+{
+  "revision": "9c648ad0c66ff9d2b32990f3a7d23b57e6e83981",
+  "base": "http://127.0.0.1:43311/kicklab.html",
+  "checks": [
+    {
+      "label": "victory-phone-active",
+      "result": false,
+      "mode": "fight",
+      "railDisplay": "grid",
+      "railVisible": true,
+      "resultVisible": false,
+      "card": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "next": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "nextHit": false,
+      "nextDisabled": false,
+      "heading": "",
+      "overflow": 0,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "label": "victory-phone-result",
+      "result": true,
+      "mode": "fight",
+      "railDisplay": "none",
+      "railVisible": false,
+      "resultVisible": true,
+      "card": {
+        "x": 30.71429443359375,
+        "y": 28.518341064453125,
+        "width": 328.5714111328125,
+        "height": 272.1755065917969,
+        "top": 28.518341064453125,
+        "right": 359.28570556640625,
+        "bottom": 300.69384765625,
+        "left": 30.71429443359375
+      },
+      "next": {
+        "x": 218.98410034179688,
+        "y": 258.137939453125,
+        "width": 126.4461669921875,
+        "height": 32.6591796875,
+        "top": 258.137939453125,
+        "right": 345.4302673339844,
+        "bottom": 290.797119140625,
+        "left": 218.98410034179688
+      },
+      "nextHit": true,
+      "nextDisabled": false,
+      "heading": "K.O.!",
+      "overflow": 0,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "label": "victory-phone-next-target",
+      "next": {
+        "x": 219.234375,
+        "y": 261.4375,
+        "width": 127.765625,
+        "height": 33,
+        "top": 261.4375,
+        "right": 347,
+        "bottom": 294.4375,
+        "left": 219.234375
+      },
+      "hit": "<button type=\"button\" class=\"rnext\" id=\"rNext\">Next round <span aria-hidden=\"true\">▶</span> <kbd>Space</kbd></button>",
+      "scrollY": 274,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "label": "victory-phone-next-round",
+      "result": false,
+      "mode": "fight",
+      "railDisplay": "grid",
+      "railVisible": true,
+      "resultVisible": false,
+      "card": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "next": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "nextHit": false,
+      "nextDisabled": false,
+      "heading": "K.O.!",
+      "overflow": 0,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      }
+    }
+  ],
+  "errors": [],
+  "external": []
+}

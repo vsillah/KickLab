@@ -1,0 +1,224 @@
+{
+  "head": "9c648ad0c66ff9d2b32990f3a7d23b57e6e83981",
+  "artifactSha256": "03a4b73fae4134fce01de43604d6ce69225595c536f84fbe3f919c58ec730794",
+  "cases": [
+    {
+      "case": "default-off-before-Home; trusted-Home venue entry",
+      "pass": true
+    },
+    {
+      "case": "cancel-focus-reduced-championship",
+      "pass": true
+    },
+    {
+      "case": "canvas-fallback",
+      "pass": true
+    },
+    {
+      "case": "local-video-unavailable",
+      "pass": true
+    },
+    {
+      "case": "venue-unlock-360",
+      "pass": true,
+      "locked": [
+        {
+          "id": "highland",
+          "disabled": false,
+          "name": "Still preview · local clip unavailable01Highland SwitchbackFive formatsHighland SwitchbackFive Race formats · fixed weatherSelected venue · see routes →"
+        },
+        {
+          "id": "marine",
+          "disabled": true,
+          "requirement": "Clear a Highland format to unlock",
+          "name": "Still preview · local clip unavailable02Marine Terrace2 event journeyMarine TerraceDamp entry · brake consistencyClear a Highland format to unlock"
+        },
+        {
+          "id": "forest",
+          "disabled": true,
+          "requirement": "Clear Marine’s two events to unlock",
+          "name": "Still preview · local clip unavailable03Forest Lantern Descent3 event journeyForest Lantern DescentDescent entry · clean left · heat controlClear Marine’s two events to unlock"
+        }
+      ],
+      "highlandRoutes": [
+        "drag",
+        "drift",
+        "circuit",
+        "hill",
+        "endurance"
+      ],
+      "marine": {
+        "venue": "marine",
+        "journey": 2,
+        "overflow": 0
+      },
+      "forest": {
+        "venue": "forest",
+        "journey": 3,
+        "overflow": 0
+      }
+    },
+    {
+      "case": "venue-unlock-390",
+      "pass": true,
+      "locked": [
+        {
+          "id": "highland",
+          "disabled": false,
+          "name": "Still preview · reduced motion or Canvas mode01Highland SwitchbackFive formatsHighland SwitchbackFive Race formats · fixed weatherSelected venue · see routes →"
+        },
+        {
+          "id": "marine",
+          "disabled": true,
+          "requirement": "Clear a Highland format to unlock",
+          "name": "Still preview · reduced motion or Canvas mode02Marine Terrace2 event journeyMarine TerraceDamp entry · brake consistencyClear a Highland format to unlock"
+        },
+        {
+          "id": "forest",
+          "disabled": true,
+          "requirement": "Clear Marine’s two events to unlock",
+          "name": "Still preview · reduced motion or Canvas mode03Forest Lantern Descent3 event journeyForest Lantern DescentDescent entry · clean left · heat controlClear Marine’s two events to unlock"
+        }
+      ],
+      "highlandRoutes": [
+        "drag",
+        "drift",
+        "circuit",
+        "hill",
+        "endurance"
+      ],
+      "marine": {
+        "venue": "marine",
+        "journey": 2,
+        "overflow": 0
+      },
+      "forest": {
+        "venue": "forest",
+        "journey": 3,
+        "overflow": 0
+      }
+    },
+    {
+      "case": "venue-unlock-768",
+      "pass": true,
+      "locked": [
+        {
+          "id": "highland",
+          "disabled": false,
+          "name": "Still preview · local clip unavailable01Highland SwitchbackFive formatsHighland SwitchbackFive Race formats · fixed weatherSelected venue · see routes →"
+        },
+        {
+          "id": "marine",
+          "disabled": true,
+          "requirement": "Clear a Highland format to unlock",
+          "name": "Still preview · local clip unavailable02Marine Terrace2 event journeyMarine TerraceDamp entry · brake consistencyClear a Highland format to unlock"
+        },
+        {
+          "id": "forest",
+          "disabled": true,
+          "requirement": "Clear Marine’s two events to unlock",
+          "name": "Still preview · local clip unavailable03Forest Lantern Descent3 event journeyForest Lantern DescentDescent entry · clean left · heat controlClear Marine’s two events to unlock"
+        }
+      ],
+      "highlandRoutes": [
+        "drag",
+        "drift",
+        "circuit",
+        "hill",
+        "endurance"
+      ],
+      "marine": {
+        "venue": "marine",
+        "journey": 2,
+        "overflow": 0
+      },
+      "forest": {
+        "venue": "forest",
+        "journey": 3,
+        "overflow": 0
+      }
+    },
+    {
+      "case": "venue-unlock-1113",
+      "pass": true,
+      "locked": [
+        {
+          "id": "highland",
+          "disabled": false,
+          "name": "Still preview · local clip unavailable01Highland SwitchbackFive formatsHighland SwitchbackFive Race formats · fixed weatherSelected venue · see routes →"
+        },
+        {
+          "id": "marine",
+          "disabled": true,
+          "requirement": "Clear a Highland format to unlock",
+          "name": "Still preview · local clip unavailable02Marine Terrace2 event journeyMarine TerraceDamp entry · brake consistencyClear a Highland format to unlock"
+        },
+        {
+          "id": "forest",
+          "disabled": true,
+          "requirement": "Clear Marine’s two events to unlock",
+          "name": "Still preview · local clip unavailable03Forest Lantern Descent3 event journeyForest Lantern DescentDescent entry · clean left · heat controlClear Marine’s two events to unlock"
+        }
+      ],
+      "highlandRoutes": [
+        "drag",
+        "drift",
+        "circuit",
+        "hill",
+        "endurance"
+      ],
+      "marine": {
+        "venue": "marine",
+        "journey": 2,
+        "overflow": 0
+      },
+      "forest": {
+        "venue": "forest",
+        "journey": 3,
+        "overflow": 0
+      }
+    },
+    {
+      "case": "venue-unlock-1440",
+      "pass": true,
+      "locked": [
+        {
+          "id": "highland",
+          "disabled": false,
+          "name": "Still preview · local clip unavailable01Highland SwitchbackFive formatsHighland SwitchbackFive Race formats · fixed weatherSelected venue · see routes →"
+        },
+        {
+          "id": "marine",
+          "disabled": true,
+          "requirement": "Clear a Highland format to unlock",
+          "name": "Still preview · local clip unavailable02Marine Terrace2 event journeyMarine TerraceDamp entry · brake consistencyClear a Highland format to unlock"
+        },
+        {
+          "id": "forest",
+          "disabled": true,
+          "requirement": "Clear Marine’s two events to unlock",
+          "name": "Still preview · local clip unavailable03Forest Lantern Descent3 event journeyForest Lantern DescentDescent entry · clean left · heat controlClear Marine’s two events to unlock"
+        }
+      ],
+      "highlandRoutes": [
+        "drag",
+        "drift",
+        "circuit",
+        "hill",
+        "endurance"
+      ],
+      "marine": {
+        "venue": "marine",
+        "journey": 2,
+        "overflow": 0
+      },
+      "forest": {
+        "venue": "forest",
+        "journey": 3,
+        "overflow": 0
+      }
+    }
+  ],
+  "errors": [],
+  "external": []
+}

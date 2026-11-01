@@ -1,0 +1,153 @@
+{
+  "head": "9c648ad0c66ff9d2b32990f3a7d23b57e6e83981",
+  "artifactSha256": "03a4b73fae4134fce01de43604d6ce69225595c536f84fbe3f919c58ec730794",
+  "cases": [
+    {
+      "width": 390,
+      "height": 844,
+      "actions": [],
+      "outcome": {
+        "result": true,
+        "title": "KNOCKED DOWN",
+        "sub": "Rex Mk I had 100 HP left",
+        "permissions": [],
+        "overflow": 0,
+        "boxes": {
+          "results": {
+            "x": 17,
+            "y": 303.421875,
+            "width": 356,
+            "height": 275.015625,
+            "top": 303.421875,
+            "right": 373,
+            "bottom": 578.4375,
+            "left": 17
+          },
+          "rail": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          },
+          "next": {
+            "x": 219.234375,
+            "y": 535.4375,
+            "width": 127.765625,
+            "height": 33,
+            "top": 535.4375,
+            "right": 347,
+            "bottom": 568.4375,
+            "left": 219.234375
+          }
+        },
+        "layers": {
+          "results": "3",
+          "rail": "26"
+        }
+      },
+      "errors": [],
+      "external": [],
+      "offlineRequests": [],
+      "popups": [],
+      "downloads": []
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "actions": [
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventMove log readyYour next punch, dodge or block will appear here.\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventRex dodged your cross0:03.5 · miss · t = 0.6 / 3.5 = 0.171 s > 0.160 s\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventRex dodged your cross0:06.3 · miss · t = 0.6 / 3.5 = 0.171 s > 0.160 s\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventRex dodged your cross0:09.0 · miss · t = 0.6 / 3.5 = 0.171 s > 0.160 s\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventRex dodged your cross0:11.1 · miss · t = 0.6 / 3.5 = 0.171 s > 0.160 s\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventRex dodged your cross0:13.8 · miss · t = 0.6 / 3.5 = 0.171 s > 0.160 s\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventRex dodged your cross0:16.6 · miss · t = 0.6 / 3.5 = 0.171 s > 0.160 s\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventRex dodged your cross0:19.3 · miss · t = 0.6 / 3.5 = 0.171 s > 0.160 s\n              ⌄\n            "
+        }
+      ],
+      "outcome": {
+        "result": true,
+        "title": "KNOCKED DOWN",
+        "sub": "Rex Mk I had 100 HP left",
+        "permissions": [],
+        "overflow": 0,
+        "boxes": {
+          "results": {
+            "x": 61,
+            "y": 69.1875,
+            "width": 1318,
+            "height": 336.703125,
+            "top": 69.1875,
+            "right": 1379,
+            "bottom": 405.890625,
+            "left": 61
+          },
+          "rail": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          },
+          "next": {
+            "x": 796.425537109375,
+            "y": 349.872314453125,
+            "width": 204.39166259765625,
+            "height": 41.11962890625,
+            "top": 349.872314453125,
+            "right": 1000.8171997070312,
+            "bottom": 390.991943359375,
+            "left": 796.425537109375
+          }
+        },
+        "layers": {
+          "results": "3",
+          "rail": "26"
+        }
+      },
+      "errors": [],
+      "external": [],
+      "offlineRequests": [],
+      "popups": [],
+      "downloads": []
+    }
+  ]
+}
