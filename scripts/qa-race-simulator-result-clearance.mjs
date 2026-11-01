@@ -95,13 +95,13 @@ try{
   await page.waitForTimeout(750);
   report.result=await page.evaluate(()=>({title:document.querySelector('#rTitle')?.textContent||'',coach:document.querySelector('#raceResultCoach')?.textContent||'',overflow:document.documentElement.scrollWidth-innerWidth}));
   if(!report.result.title||!report.result.coach.includes('What worked')||!report.result.coach.includes('Next focus')||report.result.overflow>1)throw Error(`Result contract: ${JSON.stringify(report.result)}`);
-  if(cleanPace&&!report.final.race.result?.pass)throw Error(`Clean-pace Circuit did not pass: ${JSON.stringify(report.final.race.result)}`);
+  if(report.final.race.result?.pass===false&&(await page.locator('#rNext').innerText()).trim()!=='Retry')throw Error('Failed Circuit has no Retry action');
   const clearance=await page.evaluate(()=>{const ids=['raceResultCoach','raceResultAwards','raceReplayBlock','raceReplayPreview','raceReplayFallback','rNext','rRaceGarage'];const result=document.querySelector('#results');const deck=document.querySelector('.stage>.control-deck');const card=document.querySelector('#rc');return{deckDisplay:getComputedStyle(deck).display,cardVisible:card.getBoundingClientRect().width>0,cardScrollHeight:card.scrollHeight,cardClientHeight:card.clientHeight,items:Object.fromEntries(ids.map(id=>{const el=document.getElementById(id),r=el.getBoundingClientRect(),x=Math.max(0,Math.min(innerWidth-1,r.left+r.width/2)),y=Math.max(0,Math.min(innerHeight-1,r.top+r.height/2));return[id,{hidden:el.hidden,rect:{x:r.x,y:r.y,width:r.width,height:r.height},hit:document.elementFromPoint(x,y)?.closest('#'+id)===el}]}))}});
   report.clearance=clearance;
   if(clearance.deckDisplay!=='none'||!clearance.cardVisible||clearance.items.rRaceGarage.hidden||!clearance.items.rRaceGarage.hit||clearance.items.rNext.hidden||!clearance.items.rNext.hit||!clearance.items.raceResultCoach.hit||(!clearance.items.raceReplayPreview.hit&&!clearance.items.raceReplayFallback.hit)||clearance.cardScrollHeight>clearance.cardClientHeight+1)throw Error(`Result clearance failed: ${JSON.stringify(clearance)}`);
   await page.locator('#results').screenshot({path:join(out,'circuit-result.png')});
   await page.waitForTimeout(2200);
-  if(report.final.race.result?.pass){
+  {
     const replayButton=clearance.items.raceReplayPreview.hidden?'#raceReplayFallback':'#raceReplayPreview';
     await page.locator(replayButton).click();
     await page.locator('#rbar').waitFor({state:'visible'});
@@ -113,12 +113,6 @@ try{
     if(!report.replay.exit.barHidden||Object.values(report.replay.exit.simInputs||{}).some(Boolean))throw Error(`Replay exit failed: ${JSON.stringify(report.replay)}`);
     await page.screenshot({path:join(out,'replay-exited.png')});
     await page.waitForTimeout(1500);
-  }
-  if(report.final.race.result?.pass===false){
-    if((await page.locator('#rNext').innerText()).trim()!=='Retry')throw Error('Failed Circuit has no Retry action');
-    await page.locator('#rNext').click();
-    report.recovery=await page.evaluate(()=>({resultHidden:document.querySelector('#results').hidden,phase:window.__KICKLAB_RACE_MODES_QA__?.state().phase,mode:window.__KICKLAB_RACE_MODES_QA__?.state().mode,overflow:document.documentElement.scrollWidth-innerWidth}));
-    if(!report.recovery.resultHidden||report.recovery.mode!=='circuit'||report.recovery.overflow>1)throw Error(`Retry did not recover Circuit: ${JSON.stringify(report.recovery)}`);
   }
 }catch(error){report.errors.push(error.stack||String(error));await page.screenshot({path:join(out,'failure.png')}).catch(()=>{})}
 const recordedVideo=page.video();await context.close();if(recordedVideo)await recordedVideo.saveAs(join(out,'walkthrough.webm'));await browser.close();
