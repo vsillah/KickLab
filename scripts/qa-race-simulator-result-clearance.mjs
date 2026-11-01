@@ -1,4 +1,4 @@
-// Drive the current venue-first Highland Circuit through visible controls on exact product main.
+// Drive the current venue-first Highland Circuit through visible controls on exact worktree head.
 import {createRequire} from 'node:module';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
@@ -98,18 +98,21 @@ try{
   if(cleanPace&&!report.final.race.result?.pass)throw Error(`Clean-pace Circuit did not pass: ${JSON.stringify(report.final.race.result)}`);
   const clearance=await page.evaluate(()=>{const ids=['raceResultCoach','raceResultAwards','raceReplayBlock','raceReplayPreview','raceReplayFallback','rNext','rRaceGarage'];const result=document.querySelector('#results');const deck=document.querySelector('.stage>.control-deck');const card=document.querySelector('#rc');return{deckDisplay:getComputedStyle(deck).display,cardVisible:card.getBoundingClientRect().width>0,cardScrollHeight:card.scrollHeight,cardClientHeight:card.clientHeight,items:Object.fromEntries(ids.map(id=>{const el=document.getElementById(id),r=el.getBoundingClientRect(),x=Math.max(0,Math.min(innerWidth-1,r.left+r.width/2)),y=Math.max(0,Math.min(innerHeight-1,r.top+r.height/2));return[id,{hidden:el.hidden,rect:{x:r.x,y:r.y,width:r.width,height:r.height},hit:document.elementFromPoint(x,y)?.closest('#'+id)===el}]}))}});
   report.clearance=clearance;
-  if(clearance.deckDisplay!=='none'||!clearance.cardVisible||clearance.items.rRaceGarage.hidden||!clearance.items.rRaceGarage.hit||!clearance.items.raceResultCoach.hit||(!clearance.items.raceReplayPreview.hit&&!clearance.items.raceReplayFallback.hit))throw Error(`Result clearance failed: ${JSON.stringify(clearance)}`);
+  if(clearance.deckDisplay!=='none'||!clearance.cardVisible||clearance.items.rRaceGarage.hidden||!clearance.items.rRaceGarage.hit||clearance.items.rNext.hidden||!clearance.items.rNext.hit||!clearance.items.raceResultCoach.hit||(!clearance.items.raceReplayPreview.hit&&!clearance.items.raceReplayFallback.hit))throw Error(`Result clearance failed: ${JSON.stringify(clearance)}`);
   await page.locator('#results').screenshot({path:join(out,'circuit-result.png')});
+  await page.waitForTimeout(2200);
   if(report.final.race.result?.pass){
     const replayButton=clearance.items.raceReplayPreview.hidden?'#raceReplayFallback':'#raceReplayPreview';
     await page.locator(replayButton).click();
     await page.locator('#rbar').waitFor({state:'visible'});
     report.replay={entry:await page.evaluate(()=>({resultHidden:document.querySelector('#results').hidden,barVisible:!document.querySelector('#rbar').hidden,simInputs:window.__KICKLAB_RACE_SIMULATOR_QA__?.state().inputs}))};
     if(!report.replay.entry.resultHidden||!report.replay.entry.barVisible)throw Error(`Replay entry failed: ${JSON.stringify(report.replay)}`);
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(1600);
     await page.locator('#rbExit').click();
     report.replay.exit=await page.evaluate(()=>({barHidden:document.querySelector('#rbar').hidden,simInputs:window.__KICKLAB_RACE_SIMULATOR_QA__?.state().inputs}));
     if(!report.replay.exit.barHidden||Object.values(report.replay.exit.simInputs||{}).some(Boolean))throw Error(`Replay exit failed: ${JSON.stringify(report.replay)}`);
+    await page.screenshot({path:join(out,'replay-exited.png')});
+    await page.waitForTimeout(1500);
   }
   if(report.final.race.result?.pass===false){
     if((await page.locator('#rNext').innerText()).trim()!=='Retry')throw Error('Failed Circuit has no Retry action');
@@ -120,5 +123,5 @@ try{
 }catch(error){report.errors.push(error.stack||String(error));await page.screenshot({path:join(out,'failure.png')}).catch(()=>{})}
 const recordedVideo=page.video();await context.close();if(recordedVideo)await recordedVideo.saveAs(join(out,'walkthrough.webm'));await browser.close();
 writeFileSync(join(out,'report.json'),JSON.stringify(report,null,2)+'\n');
-console.log(JSON.stringify({head,artifactSha256,events:report.events,final:report.final&&{phase:report.final.race.phase,mode:report.final.race.mode,result:report.final.race.result},result:report.result,recovery:report.recovery,errors:report.errors,external:report.external,httpErrors:report.httpErrors,popups:report.popups,downloads:report.downloads},null,2));
+console.log(JSON.stringify({head,artifactSha256,events:report.events,final:report.final&&{phase:report.final.race.phase,mode:report.final.race.mode,result:report.final.race.result},result:report.result,replay:report.replay,recovery:report.recovery,errors:report.errors,external:report.external,httpErrors:report.httpErrors,popups:report.popups,downloads:report.downloads},null,2));
 if(report.errors.length||report.external.length||report.httpErrors.length||report.popups.length||report.downloads.length)process.exitCode=1;
