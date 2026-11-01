@@ -2508,3 +2508,6 @@ html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .race-navigat
 .race-preflight-roster button.kl-locked img{align-self:center}
 .race-preflight-roster button.kl-locked .race-preflight-roster-copy{align-self:flex-end}
 @media(prefers-reduced-motion:reduce){:is(.kl-locked.kl-locked,.race-preflight-venue:disabled),:is(.kl-locked.kl-locked,.race-preflight-venue:disabled)::before,:is(.kl-locked.kl-locked,.race-preflight-venue:disabled)::after{animation:none!important;transition:none!important}}
+
+/* Fight results own the stage until the next round starts. */
+html[data-kicklab-mode="fight"] .stage:has(>.results:not([hidden]))>#gameGuidanceHud{display:none!important}
