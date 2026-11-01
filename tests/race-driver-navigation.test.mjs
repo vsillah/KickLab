@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+await import('../src/shared/race-modes.js');
 await import('../src/shared/race-driver-navigation.js');
 const navigation=globalThis.KickLabRaceDriverNavigation;
 const parameters={top:55,mu:1,response:1,stability:1,turnIn:1,brakePower:1};
@@ -19,4 +20,15 @@ test('active Highland Drag route stays monotonic and below 100 percent through t
   assert.ok(fractions.every((value,i)=>value<1&&(i===0||value>=fractions[i-1])));
   assert.equal(samples[4].distance,1);
   assert.equal(samples[6].distance,0);
+});
+test('live traveled distance cannot redefine the Highland Drag route',()=>{
+  const positions=[4,9,45,120,239,240];
+  const expected=[1,3,18,50,99,99];
+  const samples=positions.map((x,i)=>navigation.plan({route:course,state:{x,y:0,th:0,v:18},parameters,mode:'drag',attempt:{distance:[0,1,120,240,10000,5][i],gear:1}}));
+  assert.deepEqual(samples.map(sample=>navigation.activeDragPercent(sample.progress)),expected);
+  assert.deepEqual(samples.map(sample=>sample.distance),positions.map(x=>Math.max(0,globalThis.KickLabRaceModes.config('drag').distance-x)));
+  for(const x of positions)for(const traveled of [0,1,x,240,10000]){
+    const sample=navigation.plan({route:course,state:{x,y:0,th:0,v:18},parameters,mode:'drag',attempt:{distance:traveled,gear:1}});
+    assert.equal(sample.progress,navigation.plan({route:course,state:{x,y:0,th:0,v:18},parameters,mode:'drag',attempt:{distance:0,gear:1}}).progress);
+  }
 });
