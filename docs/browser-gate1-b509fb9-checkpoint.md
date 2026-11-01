@@ -20,6 +20,26 @@
 - Earned Race journey: Highland, both Marine heats, and all three Forest heats passed through visible controls on the exact artifact. Forest recorded zero slide time. There were no QA unlocks, forced finishes, page errors, external requests, popups, or downloads.
 - Visible-browser pacing at 390 × 844: Kick Free was 8.5 ms active and 8.9 ms stable-result p95; Fight was 8.5 ms active and 9.3 ms stable-loss p95; offline Race 3D cockpit was 10.1 ms p95. Each was under the 50 ms gate on exact main. The Race run also confirmed its prepared local vehicle rendered after network loss with no new document request. The Fight walkthrough encoded as a playable MP4.
 
+## Visible-browser pacing extension
+
+The [sanitized measurement table](evidence/browser-gate1-b509fb9-visible-pacing.json) binds these samples to the same artifact. Visible Playwright Chromium 149.0.7827.55 ran on macOS 26.5 at device scale factor 1. Samples used stable rendered states; Race samples held Gas after the green light and confirmed speed increased during the sample. The 50 ms p95 threshold was preserved.
+
+| Surface | Widths and states | Observed p95 |
+| --- | --- | --- |
+| Fight | 360, 390, 768, 1113, 1440; active and real no-input loss | 8.8–10.3 ms |
+| Kick | Seven full-result families distributed across all five named widths; active and stable result | 8.5–9.2 ms |
+| Kick Penalty Shootout | 390; real missed and scored brief results after the required two-shot sequence | 8.6–9.2 ms |
+| Race 3D | 360, 390, 768, 1113, 1440; live Highland Drag with Gas held | 8.5–9.2 ms |
+| Race Canvas | The same five widths and live input | 17.3–25.0 ms |
+
+The final pacing runs recorded zero page errors, external requests, permission queries, popups, or downloads. The generic Kick pacing harness timed out on Penalty Shootout because it did not perform the second shot action; a dedicated visible-browser failure/success run passed. Kick family samples are distributed across widths, not a full family-by-width cross product. Browser emulation is not physical-device or native performance proof.
+
+## New Race navigation blocker
+
+The compact Race map reported **ROUTE 100%** during the live Highland Drag heat at all five widths in both 3D and Canvas. In the same samples, the course-map speed label rose from about 32–33 km/h to 51–63 km/h. The heat had not shown a result. The [390 × 844 3D screenshot](evidence/browser-gate1-b509fb9-race-map-390-3d-active.png) and [360 × 800 Canvas screenshot](evidence/browser-gate1-b509fb9-race-map-360-canvas-active.png) show the premature 100% readout with live controls. A focused Canvas trace first showed 100% at only 5 km/h, while speed continued rising to 59 km/h and the result stayed hidden. The map readout is therefore not a reliable account of current course progress in this state.
+
+Reproduce on this artifact: choose Race → Highland Switchback → complete venue, route, car, Garage, and control preflight → skip the vehicle view → wait for the green light → hold Gas. Inspect the compact route map before the result. The repair should derive map progress from the canonical active route and keep 100% for an actual finish or lap wrap, with the same behavior in 3D and Canvas at the five widths. A separate product development lane should own that repair and a fresh exact-artifact rerun. This PR contains no runtime fix.
+
 ## Gate status
 
-Browser Gate 1 remains open. Captain-provided PR #145 validation already covered eight Kick activity families, 12 reproducible success/failure outcomes, result actions, reduced motion, 3D/Canvas, privacy, and public Race start/finish on exact deployed main. The complete planned visible-browser frame-pacing matrix and captain review remain before calling the full gate complete. Keep this test-only PR draft and separate from release. Native generation, rights, signing, distribution, store, provider, DNS, upload, publication, and commercial release remain on hold.
+Browser Gate 1 is **blocked by the Race map defect**. The visible-browser pacing states above passed, but correct map behavior is a Gate 1 requirement. Captain-provided PR #145 validation already covered eight Kick activity families, 12 reproducible success/failure outcomes, result actions, reduced motion, 3D/Canvas, privacy, and public Race start/finish on exact deployed main. After the separate product repair, rerun the affected Race interaction and pacing states on its exact build and finish captain review of the broader Gate 1 matrix. Keep this test-only PR draft and separate from release. Native generation, rights, signing, distribution, store, provider, DNS, upload, publication, and commercial release remain on hold.

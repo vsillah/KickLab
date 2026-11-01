@@ -1,0 +1,274 @@
+{
+  "productHead": "b509fb95268bb77fc3e51a9729c0e2d05df5bba8",
+  "localAndPublicHtmlSha256": "454a6949041c4267b1405ff08268d1cdb68a6a10fcca5e65b47060cf06e76209",
+  "environment": {
+    "os": "macOS 26.5",
+    "node": "24.15.0",
+    "npm": "11.12.1",
+    "playwrightChromium": "149.0.7827.55",
+    "browser": "visible Chromium",
+    "deviceScaleFactor": 1
+  },
+  "thresholdP95Ms": 50,
+  "method": "requestAnimationFrame intervals sampled after stable rendered state; Race sampled during a live heat with Gas held after green light",
+  "fight": [
+    {
+      "state": "phone-360-active",
+      "p95Ms": 10
+    },
+    {
+      "state": "phone-360-stable-result",
+      "p95Ms": 9.5
+    },
+    {
+      "state": "phone-390-active",
+      "p95Ms": 10.2
+    },
+    {
+      "state": "phone-390-stable-result",
+      "p95Ms": 10
+    },
+    {
+      "state": "tablet-active",
+      "p95Ms": 10.1
+    },
+    {
+      "state": "tablet-stable-result",
+      "p95Ms": 8.8
+    },
+    {
+      "state": "laptop-active",
+      "p95Ms": 10.2
+    },
+    {
+      "state": "laptop-stable-result",
+      "p95Ms": 10.3
+    },
+    {
+      "state": "desktop-active",
+      "p95Ms": 9.9
+    },
+    {
+      "state": "desktop-stable-result",
+      "p95Ms": 10
+    }
+  ],
+  "kickFullResults": [
+    {
+      "activity": "free",
+      "viewport": "360x800",
+      "result": "GOAL!",
+      "activeP95Ms": 8.5,
+      "resultP95Ms": 8.7,
+      "nextHitRight": true
+    },
+    {
+      "activity": "header",
+      "viewport": "390x844",
+      "result": "MISTIMED",
+      "activeP95Ms": 9.2,
+      "resultP95Ms": 9.2,
+      "nextHitRight": true
+    },
+    {
+      "activity": "run",
+      "viewport": "768x1024",
+      "result": "BENNY SAVES IT!",
+      "activeP95Ms": 8.8,
+      "resultP95Ms": 9.2,
+      "nextHitRight": true
+    },
+    {
+      "activity": "pass",
+      "viewport": "1113x834",
+      "result": "0 OF 5 PASSES COMPLETE",
+      "activeP95Ms": 8.9,
+      "resultP95Ms": 9.2,
+      "nextHitRight": true
+    },
+    {
+      "activity": "combo",
+      "viewport": "1440x900",
+      "result": "RIO INTERCEPTED THE PASS",
+      "activeP95Ms": 8.5,
+      "resultP95Ms": 9,
+      "nextHitRight": true
+    },
+    {
+      "activity": "gk",
+      "viewport": "360x800",
+      "result": "SAFE HANDS: 5 OF 6 KEPT OUT",
+      "activeP95Ms": 9.1,
+      "resultP95Ms": 8.6,
+      "nextHitRight": true
+    },
+    {
+      "activity": "bar",
+      "viewport": "768x1024",
+      "result": "103 POINTS",
+      "activeP95Ms": 9.2,
+      "resultP95Ms": 8.9,
+      "nextHitRight": true
+    }
+  ],
+  "kickPenaltyShootoutBriefResults": [
+    {
+      "result": "pso-failure",
+      "activeP95Ms": 9.2,
+      "briefResultP95Ms": 9.1,
+      "title": "MISSED"
+    },
+    {
+      "result": "pso-success",
+      "activeP95Ms": 8.6,
+      "briefResultP95Ms": 9.1,
+      "title": "GOAL!"
+    }
+  ],
+  "raceMotion": [
+    {
+      "renderer": "3d",
+      "viewport": "360x800",
+      "p95Ms": 8.9,
+      "speedKmh": [
+        32,
+        51
+      ],
+      "routeProgress": [
+        1,
+        1
+      ]
+    },
+    {
+      "renderer": "3d",
+      "viewport": "390x844",
+      "p95Ms": 8.5,
+      "speedKmh": [
+        32,
+        51
+      ],
+      "routeProgress": [
+        1,
+        1
+      ]
+    },
+    {
+      "renderer": "3d",
+      "viewport": "768x1024",
+      "p95Ms": 9.2,
+      "speedKmh": [
+        32,
+        51
+      ],
+      "routeProgress": [
+        1,
+        1
+      ]
+    },
+    {
+      "renderer": "3d",
+      "viewport": "1113x834",
+      "p95Ms": 9,
+      "speedKmh": [
+        32,
+        51
+      ],
+      "routeProgress": [
+        1,
+        1
+      ]
+    },
+    {
+      "renderer": "3d",
+      "viewport": "1440x900",
+      "p95Ms": 9.1,
+      "speedKmh": [
+        32,
+        51
+      ],
+      "routeProgress": [
+        1,
+        1
+      ]
+    },
+    {
+      "renderer": "2d",
+      "viewport": "360x800",
+      "p95Ms": 17.3,
+      "speedKmh": [
+        33,
+        62
+      ],
+      "routeProgress": [
+        1,
+        1
+      ]
+    },
+    {
+      "renderer": "2d",
+      "viewport": "390x844",
+      "p95Ms": 17.5,
+      "speedKmh": [
+        32,
+        62
+      ],
+      "routeProgress": [
+        1,
+        1
+      ]
+    },
+    {
+      "renderer": "2d",
+      "viewport": "768x1024",
+      "p95Ms": 25,
+      "speedKmh": [
+        32,
+        62
+      ],
+      "routeProgress": [
+        1,
+        1
+      ]
+    },
+    {
+      "renderer": "2d",
+      "viewport": "1113x834",
+      "p95Ms": 17.5,
+      "speedKmh": [
+        32,
+        61
+      ],
+      "routeProgress": [
+        1,
+        1
+      ]
+    },
+    {
+      "renderer": "2d",
+      "viewport": "1440x900",
+      "p95Ms": 24.7,
+      "speedKmh": [
+        33,
+        63
+      ],
+      "routeProgress": [
+        1,
+        1
+      ]
+    }
+  ],
+  "observations": {
+    "raceRouteMapPrematureComplete": true,
+    "raceRouteMapScope": "All five widths in both 3D and Canvas reported 100% while speed rose from about 32 km/h to 51-63 km/h. Representative screenshots show no result overlay.",
+    "pageErrors": 0,
+    "externalRequests": 0,
+    "permissionQueries": 0,
+    "popups": 0,
+    "downloads": 0
+  },
+  "limits": [
+    "Kick family samples are distributed across five widths rather than a full activity-by-width cross product.",
+    "Browser emulation does not qualify physical-device performance or native accessibility.",
+    "The generic Penalty Shootout result loop timed out; the dedicated visible-browser two-shot failure and success run passed."
+  ]
+}
