@@ -21,8 +21,8 @@ const cases=[
   {id:'trick',width:1113,height:834,reduced:true},
   {id:'cannon',width:1440,height:900}
 ];
-const report={head,base,artifactSha256,cases:[],errors:[]};
-for(const item of cases.filter(item=>!process.env.QA_ONE||item.id===process.env.QA_ONE)){
+const report={head,base,artifactSha256,cases:[],recovery:[],errors:[]};
+for(const item of cases.filter(item=>!process.env.QA_RECOVERY_ONLY&&(!process.env.QA_ONE||item.id===process.env.QA_ONE))){
   const label=`${item.id}-${item.width}x${item.height}`,requests=[],errors=[];
   const context=await browser.newContext({viewport:{width:item.width,height:item.height},reducedMotion:item.reduced?'reduce':'no-preference',...(item.video?{recordVideo:{dir:out,size:{width:item.width,height:item.height}}}:{})});
   await context.addInitScript(gfx=>localStorage.setItem('impactlab.v1',JSON.stringify({gfx,ch:{fight:0,race:0,kick:0},play:{fight:'ch',race:'ch',kick:'ch'}})),item.canvas?'2d':'3d');
@@ -101,4 +101,58 @@ for(const item of cases.filter(item=>!process.env.QA_ONE||item.id===process.env.
   if(video){const raw=await video.path(),mp4=join(out,'offline-avatar-walkthrough.mp4');const encoded=spawnSync('ffmpeg',['-y','-loglevel','error','-i',raw,'-c:v','libx264','-pix_fmt','yuv420p','-movflags','+faststart',mp4],{encoding:'utf8'});if(encoded.status!==0||!existsSync(mp4)||statSync(mp4).size<50000)report.errors.push(`MP4 encoding failed: ${encoded.stderr}`);else report.mp4=mp4;}
   report.errors.push(...errors.map(error=>`${label}: ${error}`));
 }
-await browser.close();writeFileSync(join(out,'report.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report,null,2));if(report.errors.length||report.cases.length!==(process.env.QA_ONE?1:cases.length))process.exitCode=1;
+for(const kind of ['online-reload-then-offline','corrupt-storage','denied-storage']){
+  const context=await browser.newContext({viewport:{width:390,height:844},reducedMotion:'reduce'}),requests=[],errors=[];
+  await context.addInitScript(scenario=>{
+    localStorage.setItem('impactlab.v1',JSON.stringify({gfx:'2d',ch:{fight:0,race:0,kick:0},play:{fight:'ch',race:'ch',kick:'ch'}}));
+    if(scenario==='corrupt-storage'){
+      localStorage.setItem('kicklab.profiles.v1','{corrupt');
+      localStorage.setItem('impactlab.nick','Recovery Kid');
+    }
+    if(scenario==='denied-storage'){
+      const original=Storage.prototype.setItem;window.__qaDenyProfileWrites=false;
+      Storage.prototype.setItem=function(key,value){if(this===localStorage&&window.__qaDenyProfileWrites&&String(key).startsWith('kicklab.profiles.'))throw new DOMException('Local storage denied','QuotaExceededError');return original.call(this,key,value);};
+    }
+  },kind);
+  const page=await context.newPage();page.setDefaultTimeout(10000);
+  page.on('pageerror',error=>errors.push(error.message));
+  await page.route('**/*',route=>{const target=route.request().url();if(target.startsWith(new URL(base).origin+'/')||target.startsWith('data:')||target.startsWith('blob:'))return route.continue();errors.push(`egress ${target}`);return route.abort();});
+  const url=new URL(base);for(const [key,value] of Object.entries({raceSystems:'proxy',raceTelemetry:'prototype',raceCornerTrace:'prototype',raceProgression:'prototype',raceExpansion:'prototype',raceCompetition:'prototype',raceChampionship:'prototype',raceMultiplayer:'prototype',raceSimulator:'prototype',racePreflight:'prototype'}))url.searchParams.set(key,value);url.searchParams.set('rev',head);url.searchParams.set('storageQA',kind);
+  try{
+    await page.goto(url.href,{waitUntil:'domcontentloaded'});
+    if(await page.locator('#profileFormSave').isVisible()){await page.fill('#profileNickname','QA Player');await page.click('#profileFormSave');}
+    if(await page.locator('#profileClose').isVisible())await page.click('#profileClose');
+    if(kind!=='corrupt-storage'){
+      await page.click('#homeProfileButton');await page.click('#profileEdit');await page.locator('[data-avatar="wiz"]').click();await page.click('#profileFormSave');await page.click('#profileClose');
+    }
+    if(kind==='online-reload-then-offline'){
+      await page.reload({waitUntil:'domcontentloaded'});
+      if(await page.locator('#profileClose').isVisible())await page.click('#profileClose');
+    }
+    if(kind==='denied-storage'){
+      await page.click('#homeProfileButton');await page.click('#profileEdit');await page.fill('#profileNickname','Leaked Name');await page.locator('[data-avatar="tower"]').click();
+      await page.evaluate(()=>window.__qaDenyProfileWrites=true);
+      await page.click('#profileFormSave');
+      await page.locator('#profileFormMsg').getByText('Player not saved. Check browser storage, then try Save player again. Current player is unchanged.').waitFor();
+      const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('kicklab.profiles.v1')));
+      if(saved.profiles.find(profile=>profile.id===saved.activeId)?.avatar!=='wiz'||saved.profiles.some(profile=>profile.nickname==='Leaked Name'))throw Error('Denied write leaked the attempted player change');
+      await page.click('#profileFormCancel');await page.click('#profileClose');
+    }
+    const expected=kind==='corrupt-storage'?'rocket':'wiz';
+    await page.waitForFunction(()=>[...document.querySelectorAll('[data-lab-player] .driver-avatar-image')].length===3&&[...document.querySelectorAll('[data-lab-player] .driver-avatar-image')].every(image=>image.naturalWidth>0));
+    const identity=await page.evaluate(()=>{const saved=JSON.parse(localStorage.getItem('kicklab.profiles.v1'));return{name:document.querySelector('#homeProfileName').textContent,avatar:saved.profiles.find(profile=>profile.id===saved.activeId)?.avatar,profileCount:saved.profiles.length,profiles:document.querySelector('#profileList').textContent};});
+    if(identity.avatar!==expected||identity.profileCount!==1||identity.profiles.includes('Leaked Name')||identity.profiles.includes('Secret'))throw Error(`Recovery identity leaked or changed: ${JSON.stringify(identity)}`);
+    await context.setOffline(true);page.on('request',request=>{if(request.url().startsWith(url.origin+'/'))requests.push(request.url());});
+    for(const lab of ['fight','race','kick']){
+      await page.click('#homeProfileButton');await page.locator(`[data-profile-lab="${lab}"]`).click();
+      const portrait=await page.locator('#profileSummary .profile-lab-feature .driver-avatar-image').evaluate(image=>({source:image.getAttribute('src'),loaded:image.complete&&image.naturalWidth>0}));
+      if(!portrait.loaded||!portrait.source.startsWith('data:image/webp;'))throw Error(`${kind}: ${lab} portrait did not survive offline redraw`);
+      await page.click('#profileClose');
+    }
+    const portraitRequests=requests.filter(request=>/\/assets\/(drivers|players)\//.test(request));
+    if(portraitRequests.length||errors.length)throw Error(`${kind}: requests or page errors ${JSON.stringify({portraitRequests,errors})}`);
+    await page.screenshot({path:join(out,`${kind}.png`)});
+    report.recovery.push({kind,expectedAvatar:expected,identityName:identity.name,visibleFailureMessage:kind==='denied-storage',postOfflinePortraitRequests:portraitRequests.length,postOfflineOtherRequests:requests.length,externalOrigins:0});
+  }catch(error){report.errors.push(`${kind}: ${error.stack||error}`);}finally{await context.close();}
+}
+await browser.close();writeFileSync(join(out,'report.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report,null,2));if(report.errors.length||report.cases.length!==(process.env.QA_RECOVERY_ONLY?0:process.env.QA_ONE?1:cases.length)||report.recovery.length!==3)process.exitCode=1;
