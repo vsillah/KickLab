@@ -9,6 +9,8 @@ const {chromium}=createRequire(import.meta.url)('playwright');
 const head=process.env.KICKLAB_QA_HEAD;
 const cleanPace=process.argv.includes('--clean-pace');
 const fasterCleanPace=process.env.KICKLAB_QA_FAST_CLEAN==='1';
+const balancedCleanPace=process.env.KICKLAB_QA_BALANCED_CLEAN==='1';
+if(fasterCleanPace&&balancedCleanPace)throw Error('Select one clean-pace driver');
 const args=process.argv.slice(2).filter(arg=>!arg.startsWith('--'));
 if(!/^[a-f0-9]{40}$/.test(head||'')||execFileSync('git',['rev-parse','origin/main'],{encoding:'utf8'}).trim()!==head)throw Error('Bind to exact product main');
 const base=new URL(args[0]||'http://127.0.0.1:4173/kicklab.html');
@@ -20,8 +22,10 @@ const out=resolve(args[1]||'qa-artifacts/race-circuit-result');mkdirSync(out,{re
 const browser=await chromium.launch({headless:true,args:['--enable-webgl','--use-gl=angle','--use-angle=swiftshader']});
 const width=Number(process.env.KICKLAB_QA_WIDTH||390),height=Number(process.env.KICKLAB_QA_HEIGHT||({360:800,390:844,768:1024,1113:834,1440:900}[width]));
 if(!Number.isInteger(width)||!Number.isInteger(height)||width<320||height<600)throw Error('Invalid QA viewport');
+const maxSteps=Number(process.env.KICKLAB_QA_MAX_STEPS||300);
+if(!Number.isInteger(maxSteps)||maxSteps<300||maxSteps>330)throw Error('QA drive bound must be 300-330 steps');
 const context=await browser.newContext({viewport:{width,height},reducedMotion:'reduce',permissions:[]});
-const page=await context.newPage(),report={head,artifactSha256,viewport:{width,height},cleanPace,fasterCleanPace,events:[],requests:[],initiators:[],errors:[],external:[],httpErrors:[],popups:[],downloads:[]};
+const page=await context.newPage(),report={head,artifactSha256,viewport:{width,height},cleanPace,fasterCleanPace,balancedCleanPace,maxSteps,events:[],requests:[],initiators:[],errors:[],external:[],httpErrors:[],popups:[],downloads:[]};
 page.on('pageerror',error=>report.errors.push(error.message));
 page.on('request',request=>{const target=new URL(request.url());report.requests.push({method:request.method(),origin:target.origin,path:target.pathname,type:request.resourceType(),status:null})});
 page.on('response',response=>{const target=new URL(response.url()),entry=report.requests.findLast(item=>item.origin===target.origin&&item.path===target.pathname&&item.status===null);if(entry)entry.status=response.status();if(response.status()>=400)report.httpErrors.push(`${response.status()} ${target.pathname}`)});
@@ -50,15 +54,15 @@ try{
   if(initial.mode!=='circuit')throw Error(`Wrong mode: ${initial.mode}`);
   await page.locator('.stage').screenshot({path:join(out,'circuit-start.png')});
   let lastLap='',wrapped=false,done=false;
-  for(let step=0;step<300;step++){
+  for(let step=0;step<maxSteps;step++){
     const state=await page.evaluate(()=>({race:window.__KICKLAB_RACE_MODES_QA__.state(),stage:document.querySelector('#raceNavigation')?.dataset.stage||'',lap:document.querySelector('#raceNavigationProgressLabel')?.textContent||'',progress:document.querySelector('#raceNavigationProgress')?.textContent||'',overflow:document.documentElement.scrollWidth-innerWidth}));
     if(state.overflow>1)throw Error(`Horizontal overflow: ${state.overflow}`);
     if(state.lap!==lastLap){report.events.push({step,phase:state.race.phase,lap:state.lap,progress:state.progress,x:state.race.x,speedKmh:state.race.speedKmh});lastLap=state.lap}
     if(state.lap.includes('2/2'))wrapped=true;
     if(['done','crashed'].includes(state.race.phase)){report.final=state;done=true;break}
     const speed=Number(state.race.speedKmh)||0,bend=['brake','turn','apex'].includes(state.stage);
-    if(bend&&speed>(cleanPace?(fasterCleanPace?28:25):68))await page.keyboard.press('b',{delay:550});
-    else if(speed<(bend?(cleanPace?(fasterCleanPace?25:21):54):(cleanPace?(fasterCleanPace?37:30):92)))await page.keyboard.press('Space',{delay:550});
+    if(bend&&speed>(cleanPace?(fasterCleanPace?28:balancedCleanPace?26.5:25):68))await page.keyboard.press('b',{delay:550});
+    else if(speed<(bend?(cleanPace?(fasterCleanPace?25:balancedCleanPace?23:21):54):(cleanPace?(fasterCleanPace?37:balancedCleanPace?34:30):92)))await page.keyboard.press('Space',{delay:550});
     else await page.waitForTimeout(550);
   }
   if(!done||!wrapped)throw Error(`Circuit did not finish with lap wrap: ${JSON.stringify({done,wrapped,events:report.events})}`);
