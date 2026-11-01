@@ -28,6 +28,10 @@
       "touchCancel": true
     },
     {
+      "nosTouchFlick": true,
+      "gasReleasedAfterSettle": true
+    },
+    {
       "pagehideRelease": true
     }
   ],

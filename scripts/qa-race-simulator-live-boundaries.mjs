@@ -37,6 +37,12 @@ try{
   await page.waitForTimeout(100);const held=await state();if(!held.sim.inputs.brake)throw Error(`Brake did not engage: ${JSON.stringify(held)}`);
   await cdp.send('Input.dispatchTouchEvent',{type:'touchCancel',touchPoints:[]});await page.waitForTimeout(100);const cancelled=await state();
   if(cancelled.sim.inputs.brake||cancelled.sim.inputs.gas||cancelled.overflow>1)throw Error(`Touch cancellation failed: ${JSON.stringify(cancelled)}`);report.checks.push({touchCancel:true});
+  const gasBox=await page.locator('#simGas').boundingBox();if(!gasBox)throw Error('Gas hidden');const gx=gasBox.x+gasBox.width/2,gy=gasBox.y+gasBox.height/2;
+  await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:gx,y:gy,id:3,radiusX:4,radiusY:4,force:1}]});await page.waitForTimeout(90);
+  await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:gx,y:gy-70,id:3,radiusX:4,radiusY:4,force:1}]});
+  await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await page.waitForTimeout(90);
+  const nos=await state();if(!(nos.sim.nosPulse>0)||!nos.sim.mastered.nos)throw Error(`NOS flick did not engage: ${JSON.stringify(nos)}`);
+  await page.waitForTimeout(500);const released=await state();if(released.sim.inputs.gas)throw Error(`NOS settle left Gas held: ${JSON.stringify(released)}`);report.checks.push({nosTouchFlick:true,gasReleasedAfterSettle:true});
   await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y,id:2,radiusX:4,radiusY:4,force:1}]});await page.waitForTimeout(100);
   await page.evaluate(()=>window.dispatchEvent(new Event('pagehide')));const hidden=await state();
   if(hidden.sim.inputs.brake||hidden.sim.inputs.gas||hidden.sim.sensorReady)throw Error(`Pagehide did not release controls: ${JSON.stringify(hidden)}`);report.checks.push({pagehideRelease:true});
