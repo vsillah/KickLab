@@ -12,3 +12,11 @@ test('Garage braking and grip move the braking point',()=>{const state={x:90,y:0
 test('an active brake cue remains stable through the approach margin',()=>{const state={x:99,y:0,v:18};assert.equal(plan(state).stage,'prepare');assert.equal(plan(state,{previousStage:'brake'}).stage,'brake');});
 test('entry, apex, exit, and recovery use the live vehicle state',()=>{assert.equal(plan({x:120,y:0,v:15}).stage,'turn');assert.equal(plan({x:148,y:10,v:15},{input:{brake:true}}).stage,'apex');assert.equal(plan({x:148,y:10,v:25}).stage,'brake');assert.equal(plan({x:160,y:40,th:Math.PI/2,v:14}).stage,'accelerate');assert.match(plan({x:148,y:10,v:16,slipAngle:.3}).detail,/Rear sliding/);assert.match(plan({x:148,y:10,v:19,e:3,kc:.02,k:.005}).detail,/Front pushing/);assert.equal(plan({x:148,y:10,v:16,e:7}).stage,'recover');});
 test('closed route wraps and Drag keeps corner zones absent',()=>{const points=Array.from({length:101},(_,i)=>{const a=i*Math.PI*2/100;return{x:100+70*Math.cos(a),y:40*Math.sin(a),tx:-Math.sin(a),ty:Math.cos(a)};});const oval=navigation.route(points,true),start=oval.at(0),end=oval.at(oval.total);assert.ok(Math.hypot(start.x-end.x,start.y-end.y)<.001);const near=oval.nearest(start.x,start.y);assert.ok(near.progress<.001);const drag=navigation.plan({route:course,state:{x:20,y:0,th:0,v:15},parameters,mode:'drag',attempt:{distance:240,gear:1}});assert.deepEqual(drag.markers,{});assert.equal(drag.turn,'none');});
+test('active Highland Drag route stays monotonic and below 100 percent through the trap',()=>{
+  const samples=[4,45,120,238.8,239,239.9,240,241].map(x=>navigation.plan({route:course,state:{x,y:0,th:0,v:18},parameters,mode:'drag',attempt:{distance:240,gear:1}}));
+  const fractions=samples.map(sample=>sample.progress),percents=fractions.map(navigation.activeDragPercent);
+  assert.deepEqual(percents,[1,18,50,99,99,99,99,99]);
+  assert.ok(fractions.every((value,i)=>value<1&&(i===0||value>=fractions[i-1])));
+  assert.equal(samples[4].distance,1);
+  assert.equal(samples[6].distance,0);
+});

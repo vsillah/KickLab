@@ -2,6 +2,9 @@
   'use strict';
   const clamp=(n,a,b)=>Math.min(b,Math.max(a,n));
   const mod=(n,m)=>((n%m)+m)%m;
+  // The active drag map has no completed state: the result view owns 100%.
+  function activeDragProgress(x,distance){return Math.min(.999,clamp(x/Math.max(1,distance),0,1));}
+  function activeDragPercent(progress){return Math.min(99,Math.floor(clamp(progress,0,1)*100));}
   function route(raw,closed){
     const points=raw.map(p=>({x:p.x,y:p.z??p.y,tx:p.tx,ty:p.tz??p.ty}));
     const lengths=[0];for(let i=1;i<points.length;i++)lengths.push(lengths[i-1]+Math.hypot(points[i].x-points[i-1].x,points[i].y-points[i-1].y));
@@ -13,7 +16,7 @@
   }
   function plan({route:r,state:s,parameters:P,mode,grip,heat=0,brakeFactor=1,telemetry,input={},attempt,previousStage}){
     const here=r.nearest(s.x,s.y),progress=here.progress,speed=Math.max(0,s.v||0),isDrag=mode==='drag',isDrift=mode==='drift',origin=r.closed?0:r.nearest(4,0).progress,routeFraction=clamp((progress-origin)/Math.max(1,r.total-origin),0,1);
-    if(isDrag){const finish=Math.max(0,(attempt?.distance||240)-s.x),shift=root.KickLabRaceModes?.shiftDisplay(attempt?.gear||1,speed,P.top),stage=finish<Math.max(20,speed*2)?'finish':shift?.timing==='optimal'?'shift':'prepare';return{stage,detail:stage==='finish'?`Finish in ${Math.round(finish)} metres.`:stage==='shift'?`Gear ${attempt?.gear||1}: shift in the bright band.`:'Build speed and watch the shift band.',progress:clamp(s.x/Math.max(1,attempt?.distance||240),0,1),lap:1,laps:1,heading:s.th||0,car:{x:s.x,y:s.y},markers:{},turn:'none',severity:'none',targetSpeed:0,brakeDistance:0,distance:finish,route:r};}
+    if(isDrag){const finish=Math.max(0,(attempt?.distance||240)-s.x),shift=root.KickLabRaceModes?.shiftDisplay(attempt?.gear||1,speed,P.top),stage=finish<Math.max(20,speed*2)?'finish':shift?.timing==='optimal'?'shift':'prepare';return{stage,detail:stage==='finish'?`Finish in ${Math.round(finish)} metres.`:stage==='shift'?`Gear ${attempt?.gear||1}: shift in the bright band.`:'Build speed and watch the shift band.',progress:activeDragProgress(s.x,attempt?.distance||240),lap:1,laps:1,heading:s.th||0,car:{x:s.x,y:s.y},markers:{},turn:'none',severity:'none',targetSpeed:0,brakeDistance:0,distance:finish,route:r};}
     const lookahead=mode==='circuit'?115:160,step=3;
     let apex=null,segment=null,segments=[];
     for(let d=-220;d<=lookahead+210;d+=step){if(!r.closed&&(progress+d<4||progress+d>r.total-4))continue;const k=r.curvature(progress+d),strength=Math.abs(k),curved=strength>.004;
@@ -43,5 +46,5 @@
     const details={prepare:`${severity} ${turn} turn in ${Math.round(distance)} metres. Target ${Math.round(targetSpeed*3.6)} kilometres per hour.`,brake:`Brake for the ${turn} turn. ${Math.round(distance)} metres to apex; target ${Math.round(targetSpeed*3.6)} kilometres per hour.`,turn:`Turn ${turn} toward the apex. Keep below ${Math.round(targetSpeed*3.6)} kilometres per hour.`,apex:missed?'Apex missed. Settle the car before accelerating.':`At the ${turn} apex. Unwind the wheel before accelerating.`,accelerate:'Exit aligned. Feed in power as grip returns.',recover:oversteer?'Rear sliding. Lift and countersteer gently until grip returns.':understeer?'Front pushing wide. Ease steering and speed to recover grip.':'Off line. Ease steering and throttle until the car settles.'};
     return{stage,detail:details[stage],progress:routeFraction,routeProgress:progress,lap:Math.min((attempt?.laps||0)+1,mode==='endurance'?3:mode==='circuit'?2:1),laps:mode==='endurance'?3:mode==='circuit'?2:1,heading:s.th||0,car:{x:s.x,y:s.y},markers:{brake:r.at(brakeAt),turn:r.at(turnAt),apex:r.at(apex.distance),exit:r.at(exitAt)},turn,severity,targetSpeed,brakeDistance,distance,radius,grip:effectiveGrip,slip,route:r};
   }
-  root.KickLabRaceDriverNavigation=Object.freeze({route,plan});
+  root.KickLabRaceDriverNavigation=Object.freeze({route,plan,activeDragPercent});
 })(typeof globalThis!=='undefined'?globalThis:window);
