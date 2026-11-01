@@ -47,6 +47,18 @@ function simCancel(reason='Input cancelled',stopSensor=false){
   if(stopSensor){window.removeEventListener('deviceorientation',simOrientation);RACE_SIMULATOR.sensorReady=false;RACE_SIMULATOR.center=null;RACE_SIMULATOR.lastAngle=null;}
   RACE_SIMULATOR.lastPaint=0;simMessage(reason);simPaint();
 }
+function simGuardResultRelease(){
+  if(!RACE_SIMULATOR.pointers.size)return;
+  const result=$('#results'),listeners=new AbortController(),pending=new Set([...RACE_SIMULATOR.pointers.values()].filter(value=>typeof value==='object').map(value=>value.id));
+  let timeout;
+  const clear=()=>{listeners.abort();clearTimeout(timeout);};
+  result.addEventListener('click',event=>{event.preventDefault();event.stopImmediatePropagation();clear();},{capture:true,signal:listeners.signal});
+  const released=event=>{pending.delete(event.pointerId);if(!pending.size)requestAnimationFrame(clear);};
+  window.addEventListener('pointerup',released,{capture:true,signal:listeners.signal});
+  window.addEventListener('pointercancel',released,{capture:true,signal:listeners.signal});
+  window.addEventListener('keyup',()=>requestAnimationFrame(clear),{once:true,signal:listeners.signal});
+  timeout=setTimeout(clear,2000);
+}
 function simSelect(on){
   if(!simFlag)return;
   simCancel('Controls changed',true);cancelAnalog('Controls changed');cancelGesture('Controls changed');
