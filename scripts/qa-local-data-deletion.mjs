@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
-import {mkdirSync,statSync,writeFileSync} from 'node:fs';
+import {mkdirSync,statSync,writeFileSync,readFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
 import {join} from 'node:path';
 import {execFileSync} from 'node:child_process';
 
@@ -8,7 +9,12 @@ const {chromium}=createRequire(import.meta.url)('playwright');
 const url=process.env.KICKLAB_QA_URL||'http://127.0.0.1:5187/kicklab.html';
 const out=process.env.KICKLAB_QA_OUT||'/tmp/kicklab-local-data-deletion';
 mkdirSync(out,{recursive:true});
-const revision=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
+const revision=process.env.KICKLAB_QA_HEAD;
+assert.match(revision||'',/^[a-f0-9]{40}$/);
+assert.equal(execFileSync('git',['rev-parse','origin/main'],{encoding:'utf8'}).trim(),revision);
+const origin=new URL(url).origin,hash=bytes=>createHash('sha256').update(bytes).digest('hex');
+const artifactSha256=hash(readFileSync('dist/kicklab.html'));
+assert.equal(hash(Buffer.from(await(await fetch(url)).arrayBuffer())),artifactSha256);
 const browser=await chromium.launch({headless:true});
 const checks=[];
 const profiles={version:1,activeId:'qa-comet',legacyProfileId:'qa-comet',profiles:[
@@ -33,7 +39,7 @@ try{
     await context.addInitScript(seed,profiles);
     if(width===390)await context.addInitScript(()=>{const original=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(kind,...args){return /^webgl/i.test(kind)?null:original.call(this,kind,...args);};});
     const page=await context.newPage(),egress=[],errors=[];
-    page.on('request',request=>{if(!request.url().startsWith('http://127.0.0.1:5187/'))egress.push(request.url());});
+    page.on('request',request=>{if(!request.url().startsWith(origin+'/'))egress.push(request.url());});
     page.on('pageerror',error=>errors.push(error.message));
     const video=record?page.video():null;
     await page.goto(`${url}?rev=${revision.slice(0,12)}&width=${width}`,{waitUntil:'domcontentloaded'});
@@ -106,6 +112,6 @@ try{
       checks.push({mp4,bytes:statSync(mp4).size,seconds:Number(probe.format.duration),codec:probe.streams[0]?.codec_name});
     }else await context.close();
   }
-  writeFileSync(join(out,'report.json'),JSON.stringify({revision,checks},null,2));
+  writeFileSync(join(out,'report.json'),JSON.stringify({revision,artifactSha256,checks},null,2));
   console.log(JSON.stringify({revision,checks},null,2));
 }finally{await browser.close();}

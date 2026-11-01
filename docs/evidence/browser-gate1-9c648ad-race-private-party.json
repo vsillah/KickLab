@@ -1,0 +1,246 @@
+{
+  "head": "9c648ad0c66ff9d2b32990f3a7d23b57e6e83981",
+  "cases": [
+    {
+      "round": 1,
+      "challengeLength": 958,
+      "responseLength": 321,
+      "qrCards": 2,
+      "creator": {
+        "id": "5a83c50efcce444a111fe5d0",
+        "role": "creator",
+        "profileId": "seat-a",
+        "localAlias": "Ayo",
+        "remoteAlias": "Bisi",
+        "round": 1,
+        "winsA": 0,
+        "winsB": 0,
+        "results": [
+          "tie"
+        ],
+        "phase": "readyNext",
+        "contract": {
+          "mode": "drag",
+          "vehicle": "street",
+          "garage": {
+            "version": 1,
+            "body": "street",
+            "suspension": "balanced",
+            "tires": "balanced",
+            "brakes": "standard"
+          },
+          "venue": "highland",
+          "steer": "you",
+          "control": "classic",
+          "rules": "race-expansion-v1",
+          "target": "Finish within 19 s and reach 95 km/h at the trap.",
+          "mu": 0.9,
+          "radius": 32,
+          "force": 8500,
+          "mass": 1400
+        }
+      },
+      "challenger": {
+        "id": "5a83c50efcce444a111fe5d0",
+        "role": "challenger",
+        "profileId": "seat-a",
+        "localAlias": "Bisi",
+        "remoteAlias": "Ayo",
+        "round": 1,
+        "winsA": 0,
+        "winsB": 0,
+        "results": [
+          "tie"
+        ],
+        "phase": "awaitNext",
+        "contract": {
+          "mode": "drag",
+          "vehicle": "street",
+          "garage": {
+            "version": 1,
+            "body": "street",
+            "suspension": "balanced",
+            "tires": "balanced",
+            "brakes": "standard"
+          },
+          "venue": "highland",
+          "steer": "you",
+          "control": "classic",
+          "rules": "race-expansion-v1",
+          "target": "Finish within 19 s and reach 95 km/h at the trap.",
+          "mu": 0.9,
+          "radius": 32,
+          "force": 8500,
+          "mass": 1400
+        }
+      }
+    },
+    {
+      "round": 2,
+      "challengeLength": 958,
+      "responseLength": 321,
+      "qrCards": 2,
+      "creator": {
+        "id": "5a83c50efcce444a111fe5d0",
+        "role": "creator",
+        "profileId": "seat-a",
+        "localAlias": "Ayo",
+        "remoteAlias": "Bisi",
+        "round": 2,
+        "winsA": 0,
+        "winsB": 0,
+        "results": [
+          "tie",
+          "tie"
+        ],
+        "phase": "readyNext",
+        "contract": {
+          "mode": "drag",
+          "vehicle": "street",
+          "garage": {
+            "version": 1,
+            "body": "street",
+            "suspension": "balanced",
+            "tires": "balanced",
+            "brakes": "standard"
+          },
+          "venue": "highland",
+          "steer": "you",
+          "control": "classic",
+          "rules": "race-expansion-v1",
+          "target": "Finish within 19 s and reach 95 km/h at the trap.",
+          "mu": 0.9,
+          "radius": 32,
+          "force": 8500,
+          "mass": 1400
+        }
+      },
+      "challenger": {
+        "id": "5a83c50efcce444a111fe5d0",
+        "role": "challenger",
+        "profileId": "seat-a",
+        "localAlias": "Bisi",
+        "remoteAlias": "Ayo",
+        "round": 2,
+        "winsA": 0,
+        "winsB": 0,
+        "results": [
+          "tie",
+          "tie"
+        ],
+        "phase": "awaitNext",
+        "contract": {
+          "mode": "drag",
+          "vehicle": "street",
+          "garage": {
+            "version": 1,
+            "body": "street",
+            "suspension": "balanced",
+            "tires": "balanced",
+            "brakes": "standard"
+          },
+          "venue": "highland",
+          "steer": "you",
+          "control": "classic",
+          "rules": "race-expansion-v1",
+          "target": "Finish within 19 s and reach 95 km/h at the trap.",
+          "mu": 0.9,
+          "radius": 32,
+          "force": 8500,
+          "mass": 1400
+        }
+      }
+    },
+    {
+      "round": 3,
+      "challengeLength": 958,
+      "responseLength": 321,
+      "qrCards": 2,
+      "creator": {
+        "id": "5a83c50efcce444a111fe5d0",
+        "role": "creator",
+        "profileId": "seat-a",
+        "localAlias": "Ayo",
+        "remoteAlias": "Bisi",
+        "round": 3,
+        "winsA": 0,
+        "winsB": 0,
+        "results": [
+          "tie",
+          "tie",
+          "tie"
+        ],
+        "phase": "complete",
+        "contract": {
+          "mode": "drag",
+          "vehicle": "street",
+          "garage": {
+            "version": 1,
+            "body": "street",
+            "suspension": "balanced",
+            "tires": "balanced",
+            "brakes": "standard"
+          },
+          "venue": "highland",
+          "steer": "you",
+          "control": "classic",
+          "rules": "race-expansion-v1",
+          "target": "Finish within 19 s and reach 95 km/h at the trap.",
+          "mu": 0.9,
+          "radius": 32,
+          "force": 8500,
+          "mass": 1400
+        }
+      },
+      "challenger": {
+        "id": "5a83c50efcce444a111fe5d0",
+        "role": "challenger",
+        "profileId": "seat-a",
+        "localAlias": "Bisi",
+        "remoteAlias": "Ayo",
+        "round": 3,
+        "winsA": 0,
+        "winsB": 0,
+        "results": [
+          "tie",
+          "tie",
+          "tie"
+        ],
+        "phase": "complete",
+        "contract": {
+          "mode": "drag",
+          "vehicle": "street",
+          "garage": {
+            "version": 1,
+            "body": "street",
+            "suspension": "balanced",
+            "tires": "balanced",
+            "brakes": "standard"
+          },
+          "venue": "highland",
+          "steer": "you",
+          "control": "classic",
+          "rules": "race-expansion-v1",
+          "target": "Finish within 19 s and reach 95 km/h at the trap.",
+          "mu": 0.9,
+          "radius": 32,
+          "force": 8500,
+          "mass": 1400
+        }
+      }
+    },
+    {
+      "threeRounds": true,
+      "qrNavigation": true,
+      "cameraPermissionRequests": 0,
+      "storageUnchanged": true,
+      "staleRoundRejected": true,
+      "oversizedCodeRejected": true,
+      "rematchReset": true,
+      "abandonCleared": true,
+      "externalRequests": 0
+    }
+  ],
+  "errors": [],
+  "external": []
+}

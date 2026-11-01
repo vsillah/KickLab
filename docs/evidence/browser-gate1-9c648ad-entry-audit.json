@@ -1,0 +1,5824 @@
+{
+  "head": "9c648ad0c66ff9d2b32990f3a7d23b57e6e83981",
+  "artifactSha256": "03a4b73fae4134fce01de43604d6ce69225595c536f84fbe3f919c58ec730794",
+  "cases": [
+    {
+      "label": "home-360",
+      "width": 360,
+      "height": 800,
+      "mode": "fight",
+      "overflow": 0,
+      "unnamed": [],
+      "clipped": [],
+      "permissionAttempts": []
+    },
+    {
+      "label": "fight-360",
+      "width": 360,
+      "height": 800,
+      "mode": "fight",
+      "overflow": 0,
+      "unnamed": [],
+      "clipped": [],
+      "permissionAttempts": []
+    },
+    {
+      "label": "kick-360",
+      "width": 360,
+      "height": 800,
+      "mode": "kick",
+      "overflow": 0,
+      "unnamed": [],
+      "clipped": [],
+      "permissionAttempts": []
+    },
+    {
+      "label": "race-360",
+      "width": 360,
+      "height": 800,
+      "mode": "race",
+      "overflow": 0,
+      "unnamed": [],
+      "clipped": [],
+      "permissionAttempts": []
+    },
+    {
+      "label": "home-390",
+      "width": 390,
+      "height": 844,
+      "mode": "fight",
+      "overflow": 0,
+      "unnamed": [],
+      "clipped": [],
+      "permissionAttempts": []
+    },
+    {
+      "label": "fight-390",
+      "width": 390,
+      "height": 844,
+      "mode": "fight",
+      "overflow": 0,
+      "unnamed": [],
+      "clipped": [],
+      "permissionAttempts": []
+    },
+    {
+      "label": "kick-390",
+      "width": 390,
+      "height": 844,
+      "mode": "kick",
+      "overflow": 0,
+      "unnamed": [],
+      "clipped": [],
+      "permissionAttempts": []
+    },
+    {
+      "label": "race-390",
+      "width": 390,
+      "height": 844,
+      "mode": "race",
+      "overflow": 0,
+      "unnamed": [],
+      "clipped": [],
+      "permissionAttempts": []
+    },
+    {
+      "label": "home-768",
+      "width": 768,
+      "height": 1024,
+      "mode": "fight",
+      "overflow": 0,
+      "unnamed": [],
+      "clipped": [],
+      "permissionAttempts": []
+    },
+    {
+      "label": "fight-768",
+      "width": 768,
+      "height": 1024,
+      "mode": "fight",
+      "overflow": 0,
+      "unnamed": [],
+      "clipped": [],
+      "permissionAttempts": []
+    },
+    {
+      "label": "kick-768",
+      "width": 768,
+      "height": 1024,
+      "mode": "kick",
+      "overflow": 0,
+      "unnamed": [],
+      "clipped": [],
+      "permissionAttempts": []
+    },
+    {
+      "label": "race-768",
+      "width": 768,
+      "height": 1024,
+      "mode": "race",
+      "overflow": 0,
+      "unnamed": [],
+      "clipped": [],
+      "permissionAttempts": []
+    },
+    {
+      "label": "home-1113",
+      "width": 1113,
+      "height": 834,
+      "mode": "fight",
+      "overflow": 0,
+      "unnamed": [],
+      "clipped": [],
+      "permissionAttempts": []
+    },
+    {
+      "label": "fight-1113",
+      "width": 1113,
+      "height": 834,
+      "mode": "fight",
+      "overflow": 0,
+      "unnamed": [],
+      "clipped": [],
+      "permissionAttempts": []
+    },
+    {
+      "label": "kick-1113",
+      "width": 1113,
+      "height": 834,
+      "mode": "kick",
+      "overflow": 0,
+      "unnamed": [],
+      "clipped": [],
+      "permissionAttempts": []
+    },
+    {
+      "label": "race-1113",
+      "width": 1113,
+      "height": 834,
+      "mode": "race",
+      "overflow": 0,
+      "unnamed": [],
+      "clipped": [],
+      "permissionAttempts": []
+    },
+    {
+      "label": "home-1440",
+      "width": 1440,
+      "height": 900,
+      "mode": "fight",
+      "overflow": 0,
+      "unnamed": [],
+      "clipped": [],
+      "permissionAttempts": []
+    },
+    {
+      "label": "fight-1440",
+      "width": 1440,
+      "height": 900,
+      "mode": "fight",
+      "overflow": 0,
+      "unnamed": [],
+      "clipped": [],
+      "permissionAttempts": []
+    },
+    {
+      "label": "kick-1440",
+      "width": 1440,
+      "height": 900,
+      "mode": "kick",
+      "overflow": 0,
+      "unnamed": [],
+      "clipped": [],
+      "permissionAttempts": []
+    },
+    {
+      "label": "race-1440",
+      "width": 1440,
+      "height": 900,
+      "mode": "race",
+      "overflow": 0,
+      "unnamed": [],
+      "clipped": [],
+      "permissionAttempts": []
+    }
+  ],
+  "requests": [
+    {
+      "case": "home-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/kicklab.html",
+      "type": "document",
+      "status": 200
+    },
+    {
+      "case": "home-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "home-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "home-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "home-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "home-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "home-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "home-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "fetch",
+      "status": 200
+    },
+    {
+      "case": "home-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "home-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "home-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/kicklab.html",
+      "type": "document",
+      "status": 200
+    },
+    {
+      "case": "fight-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "fight-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "fight-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "fight-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "fetch",
+      "status": 200
+    },
+    {
+      "case": "fight-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/kicklab.html",
+      "type": "document",
+      "status": 200
+    },
+    {
+      "case": "kick-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "kick-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "kick-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "kick-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "fetch",
+      "status": 200
+    },
+    {
+      "case": "kick-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/kicklab.html",
+      "type": "document",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "fetch",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/awards/race/v1/core.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/awards/race/v1/drag.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/awards/race/v1/drift.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/awards/race/v1/circuit.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/awards/race/v1/hill.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/awards/race/v1/endurance.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "fetch",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/race-preflight/hill-cobalt.jpg",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/race-preflight/venue-marine-cobalt.jpg",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/race-preflight/venue-forest-cobalt.jpg",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/garage/roster/v1/cobalt.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/garage/roster/v1/cobalt.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/3d/kicklab-race-internals/v1/race-internals.glb",
+      "type": "fetch",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/garage/roster/v1/cobalt.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/soft-turbulent-smoke.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-00.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-01.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-02.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-03.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-04.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-05.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-06.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-07.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-360",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/nitrous-flame-atlas.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "home-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/kicklab.html",
+      "type": "document",
+      "status": 200
+    },
+    {
+      "case": "home-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "home-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "home-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "home-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "home-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "home-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "home-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "fetch",
+      "status": 200
+    },
+    {
+      "case": "home-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "home-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "home-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/kicklab.html",
+      "type": "document",
+      "status": 200
+    },
+    {
+      "case": "fight-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "fight-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "fight-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "fight-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "fetch",
+      "status": 200
+    },
+    {
+      "case": "fight-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/kicklab.html",
+      "type": "document",
+      "status": 200
+    },
+    {
+      "case": "kick-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "kick-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "kick-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "kick-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "fetch",
+      "status": 200
+    },
+    {
+      "case": "kick-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/kicklab.html",
+      "type": "document",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "fetch",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/awards/race/v1/core.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/awards/race/v1/drag.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/awards/race/v1/drift.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/awards/race/v1/circuit.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/awards/race/v1/hill.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/awards/race/v1/endurance.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "fetch",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/race-preflight/hill-cobalt.jpg",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/race-preflight/venue-marine-cobalt.jpg",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/race-preflight/venue-forest-cobalt.jpg",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/garage/roster/v1/cobalt.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/garage/roster/v1/cobalt.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/3d/kicklab-race-internals/v1/race-internals.glb",
+      "type": "fetch",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/garage/roster/v1/cobalt.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/soft-turbulent-smoke.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-00.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-01.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-02.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-03.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-04.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-05.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-06.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-07.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-390",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/nitrous-flame-atlas.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "home-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/kicklab.html",
+      "type": "document",
+      "status": 200
+    },
+    {
+      "case": "home-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "home-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "home-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "home-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "home-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "home-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "home-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "fetch",
+      "status": 200
+    },
+    {
+      "case": "home-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "home-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "home-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/kicklab.html",
+      "type": "document",
+      "status": 200
+    },
+    {
+      "case": "fight-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "fight-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "fight-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "fight-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "fetch",
+      "status": 200
+    },
+    {
+      "case": "fight-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/kicklab.html",
+      "type": "document",
+      "status": 200
+    },
+    {
+      "case": "kick-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "kick-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "kick-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "kick-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "fetch",
+      "status": 200
+    },
+    {
+      "case": "kick-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/kicklab.html",
+      "type": "document",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "fetch",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/awards/race/v1/core.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/awards/race/v1/drag.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/awards/race/v1/drift.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/awards/race/v1/circuit.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/awards/race/v1/hill.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/awards/race/v1/endurance.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "fetch",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/race-preflight/hill-cobalt.jpg",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/race-preflight/venue-marine-cobalt.jpg",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/race-preflight/venue-forest-cobalt.jpg",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/garage/roster/v1/cobalt.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/race-preflight/hill-cobalt.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/race-preflight/venue-marine-cobalt.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/race-preflight/venue-forest-cobalt.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/garage/roster/v1/cobalt.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/3d/kicklab-race-internals/v1/race-internals.glb",
+      "type": "fetch",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/soft-turbulent-smoke.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-00.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-01.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-02.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-03.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-04.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-05.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-06.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-07.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-768",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/nitrous-flame-atlas.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "home-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/kicklab.html",
+      "type": "document",
+      "status": 200
+    },
+    {
+      "case": "home-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "home-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "home-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "home-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "home-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "home-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "home-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "fetch",
+      "status": 200
+    },
+    {
+      "case": "home-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "home-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "home-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/kicklab.html",
+      "type": "document",
+      "status": 200
+    },
+    {
+      "case": "fight-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "fight-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "fight-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "fight-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "fetch",
+      "status": 200
+    },
+    {
+      "case": "fight-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/kicklab.html",
+      "type": "document",
+      "status": 200
+    },
+    {
+      "case": "kick-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "kick-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "kick-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "kick-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "fetch",
+      "status": 200
+    },
+    {
+      "case": "kick-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/kicklab.html",
+      "type": "document",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "fetch",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/awards/race/v1/core.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/awards/race/v1/drag.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/awards/race/v1/drift.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/awards/race/v1/circuit.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/awards/race/v1/hill.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/awards/race/v1/endurance.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "fetch",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/race-preflight/hill-cobalt.jpg",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/race-preflight/venue-marine-cobalt.jpg",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/race-preflight/venue-forest-cobalt.jpg",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/garage/roster/v1/cobalt.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/race-preflight/hill-cobalt.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/race-preflight/venue-marine-cobalt.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/race-preflight/venue-forest-cobalt.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/3d/kicklab-race-internals/v1/race-internals.glb",
+      "type": "fetch",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/garage/roster/v1/cobalt.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/soft-turbulent-smoke.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-00.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-01.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-02.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-03.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-04.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-05.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-06.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-07.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1113",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/nitrous-flame-atlas.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "home-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/kicklab.html",
+      "type": "document",
+      "status": 200
+    },
+    {
+      "case": "home-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "home-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "home-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "home-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "home-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "home-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "home-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "fetch",
+      "status": 200
+    },
+    {
+      "case": "home-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "home-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "home-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/kicklab.html",
+      "type": "document",
+      "status": 200
+    },
+    {
+      "case": "fight-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "fight-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "fight-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "fight-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "fetch",
+      "status": 200
+    },
+    {
+      "case": "fight-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "fight-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/kicklab.html",
+      "type": "document",
+      "status": 200
+    },
+    {
+      "case": "kick-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "kick-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "kick-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "kick-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "fetch",
+      "status": 200
+    },
+    {
+      "case": "kick-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "kick-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/kicklab.html",
+      "type": "document",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/race.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "fetch",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/awards/race/v1/core.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/awards/race/v1/drag.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/awards/race/v1/drift.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/awards/race/v1/circuit.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/awards/race/v1/hill.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/awards/race/v1/endurance.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "fetch",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/race-preflight/hill-cobalt.jpg",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/race-preflight/venue-marine-cobalt.jpg",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/race-preflight/venue-forest-cobalt.jpg",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/garage/roster/v1/cobalt.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/race-preflight/hill-cobalt.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/race-preflight/venue-marine-cobalt.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/media/race-preflight/venue-forest-cobalt.mp4",
+      "type": "media",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/garage/roster/v1/cobalt.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/3d/kicklab-race-internals/v1/race-internals.glb",
+      "type": "fetch",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/garage/roster/v1/cobalt.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/soft-turbulent-smoke.png",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-00.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-01.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-02.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-03.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-04.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-05.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-06.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/tire-smoke-07.webp",
+      "type": "image",
+      "status": 200
+    },
+    {
+      "case": "race-1440",
+      "method": "GET",
+      "origin": "http://127.0.0.1:43211",
+      "path": "/assets/effects/race/v1/nitrous-flame-atlas.webp",
+      "type": "image",
+      "status": 200
+    }
+  ],
+  "initiators": [
+    {
+      "case": "home-360",
+      "path": "/kicklab.html",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "home-360",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-360",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-360",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-360",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-360",
+      "path": "/media/home-previews/race.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-360",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-360",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "home-360",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-360",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-360",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-360",
+      "path": "/kicklab.html",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "fight-360",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-360",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-360",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-360",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-360",
+      "path": "/media/home-previews/race.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-360",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-360",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "fight-360",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-360",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-360",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-360",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "fight-360",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "fight-360",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "kick-360",
+      "path": "/kicklab.html",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "kick-360",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-360",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-360",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-360",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-360",
+      "path": "/media/home-previews/race.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-360",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-360",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "kick-360",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-360",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-360",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-360",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "kick-360",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "kick-360",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-360",
+      "path": "/kicklab.html",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-360",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-360",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-360",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-360",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-360",
+      "path": "/media/home-previews/race.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-360",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-360",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-360",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-360",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-360",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-360",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-360",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-360",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-360",
+      "path": "inline-svg",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-360",
+      "path": "/assets/awards/race/v1/core.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-360",
+      "path": "/assets/awards/race/v1/drag.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-360",
+      "path": "/assets/awards/race/v1/drift.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-360",
+      "path": "/assets/awards/race/v1/circuit.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-360",
+      "path": "/assets/awards/race/v1/hill.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-360",
+      "path": "/assets/awards/race/v1/endurance.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-360",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-360",
+      "path": "/media/race-preflight/hill-cobalt.jpg",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-360",
+      "path": "/media/race-preflight/venue-marine-cobalt.jpg",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-360",
+      "path": "/media/race-preflight/venue-forest-cobalt.jpg",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-360",
+      "path": "/assets/garage/roster/v1/cobalt.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-360",
+      "path": "http://127.0.0.1:43211/df8040fb-7e20-4996-b4e5-ddf5c094231d",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-360",
+      "path": "http://127.0.0.1:43211/5676f4f4-e728-47eb-9ed8-362d76f0aa22",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-360",
+      "path": "http://127.0.0.1:43211/720becd0-02cb-4115-86f7-8f4a733072ad",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-360",
+      "path": "/assets/garage/roster/v1/cobalt.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-360",
+      "path": "/assets/3d/kicklab-race-internals/v1/race-internals.glb",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-360",
+      "path": "/assets/garage/roster/v1/cobalt.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-360",
+      "path": "/assets/effects/race/v1/soft-turbulent-smoke.png",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-360",
+      "path": "/assets/effects/race/v1/tire-smoke-00.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-360",
+      "path": "/assets/effects/race/v1/tire-smoke-01.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-360",
+      "path": "/assets/effects/race/v1/tire-smoke-02.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-360",
+      "path": "/assets/effects/race/v1/tire-smoke-03.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-360",
+      "path": "/assets/effects/race/v1/tire-smoke-04.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-360",
+      "path": "/assets/effects/race/v1/tire-smoke-05.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-360",
+      "path": "/assets/effects/race/v1/tire-smoke-06.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-360",
+      "path": "/assets/effects/race/v1/tire-smoke-07.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-360",
+      "path": "/assets/effects/race/v1/nitrous-flame-atlas.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "home-390",
+      "path": "/kicklab.html",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "home-390",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-390",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-390",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-390",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-390",
+      "path": "/media/home-previews/race.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-390",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-390",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "home-390",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-390",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-390",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-390",
+      "path": "/kicklab.html",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "fight-390",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-390",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-390",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-390",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-390",
+      "path": "/media/home-previews/race.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-390",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-390",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "fight-390",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-390",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-390",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-390",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "fight-390",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "fight-390",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "kick-390",
+      "path": "/kicklab.html",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "kick-390",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-390",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-390",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-390",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-390",
+      "path": "/media/home-previews/race.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-390",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-390",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "kick-390",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-390",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-390",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-390",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "kick-390",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "kick-390",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-390",
+      "path": "/kicklab.html",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-390",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-390",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-390",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-390",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-390",
+      "path": "/media/home-previews/race.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-390",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-390",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-390",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-390",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-390",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-390",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-390",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-390",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-390",
+      "path": "inline-svg",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-390",
+      "path": "/assets/awards/race/v1/core.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-390",
+      "path": "/assets/awards/race/v1/drag.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-390",
+      "path": "/assets/awards/race/v1/drift.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-390",
+      "path": "/assets/awards/race/v1/circuit.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-390",
+      "path": "/assets/awards/race/v1/hill.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-390",
+      "path": "/assets/awards/race/v1/endurance.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-390",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-390",
+      "path": "/media/race-preflight/hill-cobalt.jpg",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-390",
+      "path": "/media/race-preflight/venue-marine-cobalt.jpg",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-390",
+      "path": "/media/race-preflight/venue-forest-cobalt.jpg",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-390",
+      "path": "/assets/garage/roster/v1/cobalt.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-390",
+      "path": "http://127.0.0.1:43211/bd87d814-564e-4d38-9d7e-b0bc6e2c0af0",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-390",
+      "path": "http://127.0.0.1:43211/3bd5afe1-a709-42e0-95b8-2135bbda9cd2",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-390",
+      "path": "http://127.0.0.1:43211/d4db332c-b09c-4635-b239-d51255cf8820",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-390",
+      "path": "/assets/garage/roster/v1/cobalt.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-390",
+      "path": "/assets/3d/kicklab-race-internals/v1/race-internals.glb",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-390",
+      "path": "/assets/garage/roster/v1/cobalt.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-390",
+      "path": "/assets/effects/race/v1/soft-turbulent-smoke.png",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-390",
+      "path": "/assets/effects/race/v1/tire-smoke-00.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-390",
+      "path": "/assets/effects/race/v1/tire-smoke-01.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-390",
+      "path": "/assets/effects/race/v1/tire-smoke-02.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-390",
+      "path": "/assets/effects/race/v1/tire-smoke-03.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-390",
+      "path": "/assets/effects/race/v1/tire-smoke-04.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-390",
+      "path": "/assets/effects/race/v1/tire-smoke-05.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-390",
+      "path": "/assets/effects/race/v1/tire-smoke-06.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-390",
+      "path": "/assets/effects/race/v1/tire-smoke-07.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-390",
+      "path": "/assets/effects/race/v1/nitrous-flame-atlas.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "home-768",
+      "path": "/kicklab.html",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "home-768",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-768",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-768",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-768",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-768",
+      "path": "/media/home-previews/race.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-768",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-768",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "home-768",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-768",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-768",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-768",
+      "path": "/kicklab.html",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "fight-768",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-768",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-768",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-768",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-768",
+      "path": "/media/home-previews/race.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-768",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-768",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "fight-768",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-768",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-768",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-768",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "fight-768",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "fight-768",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "kick-768",
+      "path": "/kicklab.html",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "kick-768",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-768",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-768",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-768",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-768",
+      "path": "/media/home-previews/race.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-768",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-768",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "kick-768",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-768",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-768",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-768",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "kick-768",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "kick-768",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-768",
+      "path": "/kicklab.html",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-768",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-768",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-768",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-768",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-768",
+      "path": "/media/home-previews/race.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-768",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-768",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-768",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-768",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-768",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-768",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-768",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-768",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-768",
+      "path": "inline-svg",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-768",
+      "path": "/assets/awards/race/v1/core.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-768",
+      "path": "/assets/awards/race/v1/drag.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-768",
+      "path": "/assets/awards/race/v1/drift.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-768",
+      "path": "/assets/awards/race/v1/circuit.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-768",
+      "path": "/assets/awards/race/v1/hill.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-768",
+      "path": "/assets/awards/race/v1/endurance.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-768",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-768",
+      "path": "/media/race-preflight/hill-cobalt.jpg",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-768",
+      "path": "/media/race-preflight/venue-marine-cobalt.jpg",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-768",
+      "path": "/media/race-preflight/venue-forest-cobalt.jpg",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-768",
+      "path": "/assets/garage/roster/v1/cobalt.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-768",
+      "path": "http://127.0.0.1:43211/930f1100-d008-457c-9a54-8bef438607c7",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-768",
+      "path": "http://127.0.0.1:43211/9bd3b50c-d80d-4960-b2b2-354f618e95af",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-768",
+      "path": "http://127.0.0.1:43211/1d7ccff6-e67e-4811-a50d-a1b429d671cf",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-768",
+      "path": "/media/race-preflight/hill-cobalt.mp4",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-768",
+      "path": "/media/race-preflight/venue-marine-cobalt.mp4",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-768",
+      "path": "/media/race-preflight/venue-forest-cobalt.mp4",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-768",
+      "path": "/assets/garage/roster/v1/cobalt.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-768",
+      "path": "/assets/3d/kicklab-race-internals/v1/race-internals.glb",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-768",
+      "path": "/assets/effects/race/v1/soft-turbulent-smoke.png",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-768",
+      "path": "/assets/effects/race/v1/tire-smoke-00.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-768",
+      "path": "/assets/effects/race/v1/tire-smoke-01.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-768",
+      "path": "/assets/effects/race/v1/tire-smoke-02.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-768",
+      "path": "/assets/effects/race/v1/tire-smoke-03.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-768",
+      "path": "/assets/effects/race/v1/tire-smoke-04.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-768",
+      "path": "/assets/effects/race/v1/tire-smoke-05.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-768",
+      "path": "/assets/effects/race/v1/tire-smoke-06.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-768",
+      "path": "/assets/effects/race/v1/tire-smoke-07.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-768",
+      "path": "/assets/effects/race/v1/nitrous-flame-atlas.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "home-1113",
+      "path": "/kicklab.html",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "home-1113",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-1113",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-1113",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-1113",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-1113",
+      "path": "/media/home-previews/race.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-1113",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-1113",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "home-1113",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-1113",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-1113",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-1113",
+      "path": "/kicklab.html",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "fight-1113",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-1113",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-1113",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-1113",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-1113",
+      "path": "/media/home-previews/race.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-1113",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-1113",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "fight-1113",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-1113",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-1113",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-1113",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "fight-1113",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "fight-1113",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "kick-1113",
+      "path": "/kicklab.html",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "kick-1113",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-1113",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-1113",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-1113",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-1113",
+      "path": "/media/home-previews/race.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-1113",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-1113",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "kick-1113",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-1113",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-1113",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-1113",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "kick-1113",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "kick-1113",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-1113",
+      "path": "/kicklab.html",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1113",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-1113",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-1113",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-1113",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-1113",
+      "path": "/media/home-previews/race.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-1113",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-1113",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-1113",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-1113",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-1113",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-1113",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-1113",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-1113",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-1113",
+      "path": "inline-svg",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1113",
+      "path": "/assets/awards/race/v1/core.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1113",
+      "path": "/assets/awards/race/v1/drag.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1113",
+      "path": "/assets/awards/race/v1/drift.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1113",
+      "path": "/assets/awards/race/v1/circuit.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1113",
+      "path": "/assets/awards/race/v1/hill.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1113",
+      "path": "/assets/awards/race/v1/endurance.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1113",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-1113",
+      "path": "http://127.0.0.1:43211/8212a53c-882a-4a29-a21b-f0e65be1e960",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-1113",
+      "path": "http://127.0.0.1:43211/9697a5a6-9ba2-458b-a95e-103e274ec076",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-1113",
+      "path": "http://127.0.0.1:43211/7363039a-b56a-4730-8f16-9fcb81b9735e",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-1113",
+      "path": "/media/race-preflight/hill-cobalt.jpg",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1113",
+      "path": "/media/race-preflight/venue-marine-cobalt.jpg",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1113",
+      "path": "/media/race-preflight/venue-forest-cobalt.jpg",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1113",
+      "path": "/assets/garage/roster/v1/cobalt.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1113",
+      "path": "/media/race-preflight/hill-cobalt.mp4",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1113",
+      "path": "/media/race-preflight/venue-marine-cobalt.mp4",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1113",
+      "path": "/media/race-preflight/venue-forest-cobalt.mp4",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1113",
+      "path": "/assets/3d/kicklab-race-internals/v1/race-internals.glb",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-1113",
+      "path": "/assets/garage/roster/v1/cobalt.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-1113",
+      "path": "/assets/effects/race/v1/soft-turbulent-smoke.png",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1113",
+      "path": "/assets/effects/race/v1/tire-smoke-00.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1113",
+      "path": "/assets/effects/race/v1/tire-smoke-01.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1113",
+      "path": "/assets/effects/race/v1/tire-smoke-02.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1113",
+      "path": "/assets/effects/race/v1/tire-smoke-03.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1113",
+      "path": "/assets/effects/race/v1/tire-smoke-04.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1113",
+      "path": "/assets/effects/race/v1/tire-smoke-05.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1113",
+      "path": "/assets/effects/race/v1/tire-smoke-06.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1113",
+      "path": "/assets/effects/race/v1/tire-smoke-07.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1113",
+      "path": "/assets/effects/race/v1/nitrous-flame-atlas.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "home-1440",
+      "path": "/kicklab.html",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "home-1440",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-1440",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-1440",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-1440",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-1440",
+      "path": "/media/home-previews/race.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-1440",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-1440",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "home-1440",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-1440",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "home-1440",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-1440",
+      "path": "/kicklab.html",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "fight-1440",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-1440",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-1440",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-1440",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-1440",
+      "path": "/media/home-previews/race.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-1440",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-1440",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "fight-1440",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-1440",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-1440",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "fight-1440",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "fight-1440",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "fight-1440",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "kick-1440",
+      "path": "/kicklab.html",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "kick-1440",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-1440",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-1440",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-1440",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-1440",
+      "path": "/media/home-previews/race.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-1440",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-1440",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "kick-1440",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-1440",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-1440",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "kick-1440",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "kick-1440",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "kick-1440",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "/kicklab.html",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "/media/home-previews/fight-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-1440",
+      "path": "/media/home-previews/race-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-1440",
+      "path": "/media/home-previews/kick-poster.png",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-1440",
+      "path": "/media/home-previews/fight.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-1440",
+      "path": "/media/home-previews/race.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-1440",
+      "path": "/media/home-previews/kick.mp4",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-1440",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-1440",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-1440",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "parser",
+      "source": "/kicklab.html"
+    },
+    {
+      "case": "race-1440",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "inline-svg",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "/assets/awards/race/v1/core.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "/assets/awards/race/v1/drag.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "/assets/awards/race/v1/drift.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "/assets/awards/race/v1/circuit.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "/assets/awards/race/v1/hill.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "/assets/awards/race/v1/endurance.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "/assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "/media/race-preflight/hill-cobalt.jpg",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "/media/race-preflight/venue-marine-cobalt.jpg",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "/media/race-preflight/venue-forest-cobalt.jpg",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "/assets/garage/roster/v1/cobalt.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "http://127.0.0.1:43211/bf490d7a-13ce-47a2-8349-2a74c7c7e2d0",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "http://127.0.0.1:43211/b51d2282-5d44-4dcc-9059-284905684c6c",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "http://127.0.0.1:43211/d69ff774-76fa-437c-aea4-a1d74fd19c03",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "/media/race-preflight/hill-cobalt.mp4",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "/media/race-preflight/venue-marine-cobalt.mp4",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "/media/race-preflight/venue-forest-cobalt.mp4",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "/assets/garage/roster/v1/cobalt.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "/assets/3d/kicklab-race-internals/v1/race-internals.glb",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "/assets/garage/roster/v1/cobalt.webp",
+      "type": "script",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "/assets/effects/race/v1/soft-turbulent-smoke.png",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "/assets/effects/race/v1/tire-smoke-00.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "/assets/effects/race/v1/tire-smoke-01.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "/assets/effects/race/v1/tire-smoke-02.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "/assets/effects/race/v1/tire-smoke-03.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "/assets/effects/race/v1/tire-smoke-04.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "/assets/effects/race/v1/tire-smoke-05.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "/assets/effects/race/v1/tire-smoke-06.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "/assets/effects/race/v1/tire-smoke-07.webp",
+      "type": "other",
+      "source": null
+    },
+    {
+      "case": "race-1440",
+      "path": "/assets/effects/race/v1/nitrous-flame-atlas.webp",
+      "type": "other",
+      "source": null
+    }
+  ],
+  "websockets": [],
+  "workers": [],
+  "errors": [],
+  "external": [],
+  "popups": [],
+  "downloads": []
+}

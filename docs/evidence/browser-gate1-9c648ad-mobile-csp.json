@@ -1,0 +1,244 @@
+{
+  "revision": "9c648ad0c66ff9d2b32990f3a7d23b57e6e83981",
+  "mobileBase": "http://127.0.0.1:43212/index.html",
+  "webBase": "http://127.0.0.1:43211/kicklab.html",
+  "rows": [
+    {
+      "artifact": "mobile",
+      "view": "phone",
+      "width": 390,
+      "height": 844,
+      "race": {
+        "status": "rendering",
+        "asset": "assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+        "vehicleOk": true,
+        "canvasVisible": true
+      },
+      "fight": {
+        "stageVisible": false,
+        "composition": true
+      },
+      "kick": {
+        "status": "ready",
+        "canvasVisible": true
+      },
+      "overflow": 0,
+      "errors": []
+    },
+    {
+      "artifact": "mobile",
+      "view": "tablet",
+      "width": 768,
+      "height": 1024,
+      "race": {
+        "status": "rendering",
+        "asset": "assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+        "vehicleOk": true,
+        "canvasVisible": true
+      },
+      "fight": {
+        "stageVisible": false,
+        "composition": true
+      },
+      "kick": {
+        "status": "ready",
+        "canvasVisible": true
+      },
+      "overflow": 0,
+      "errors": []
+    },
+    {
+      "artifact": "mobile",
+      "view": "laptop",
+      "width": 1280,
+      "height": 800,
+      "race": {
+        "status": "rendering",
+        "asset": "assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+        "vehicleOk": true,
+        "canvasVisible": true
+      },
+      "fight": {
+        "stageVisible": false,
+        "composition": true
+      },
+      "kick": {
+        "status": "ready",
+        "canvasVisible": true
+      },
+      "overflow": 0,
+      "errors": []
+    },
+    {
+      "artifact": "mobile",
+      "view": "desktop",
+      "width": 1440,
+      "height": 1000,
+      "race": {
+        "status": "rendering",
+        "asset": "assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+        "vehicleOk": true,
+        "canvasVisible": true
+      },
+      "fight": {
+        "stageVisible": false,
+        "composition": true
+      },
+      "kick": {
+        "status": "ready",
+        "canvasVisible": true
+      },
+      "overflow": 0,
+      "errors": []
+    },
+    {
+      "artifact": "web",
+      "view": "phone",
+      "width": 390,
+      "height": 844,
+      "race": {
+        "status": "rendering",
+        "asset": "assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+        "vehicleOk": true,
+        "canvasVisible": true
+      },
+      "fight": {
+        "stageVisible": false,
+        "composition": true
+      },
+      "kick": {
+        "status": "ready",
+        "canvasVisible": true
+      },
+      "overflow": 0,
+      "errors": []
+    },
+    {
+      "artifact": "web",
+      "view": "tablet",
+      "width": 768,
+      "height": 1024,
+      "race": {
+        "status": "rendering",
+        "asset": "assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+        "vehicleOk": true,
+        "canvasVisible": true
+      },
+      "fight": {
+        "stageVisible": false,
+        "composition": true
+      },
+      "kick": {
+        "status": "ready",
+        "canvasVisible": true
+      },
+      "overflow": 0,
+      "errors": []
+    },
+    {
+      "artifact": "web",
+      "view": "laptop",
+      "width": 1280,
+      "height": 800,
+      "race": {
+        "status": "rendering",
+        "asset": "assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+        "vehicleOk": true,
+        "canvasVisible": true
+      },
+      "fight": {
+        "stageVisible": false,
+        "composition": true
+      },
+      "kick": {
+        "status": "ready",
+        "canvasVisible": true
+      },
+      "overflow": 0,
+      "errors": []
+    },
+    {
+      "artifact": "web",
+      "view": "desktop",
+      "width": 1440,
+      "height": 1000,
+      "race": {
+        "status": "rendering",
+        "asset": "assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+        "vehicleOk": true,
+        "canvasVisible": true
+      },
+      "fight": {
+        "stageVisible": false,
+        "composition": true
+      },
+      "kick": {
+        "status": "ready",
+        "canvasVisible": true
+      },
+      "overflow": 0,
+      "errors": []
+    }
+  ],
+  "success": {
+    "status": "rendering",
+    "asset": "assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+    "vehicleOk": true,
+    "canvasVisible": true
+  },
+  "fallback": {
+    "status": "canvas-fallback",
+    "asset": "assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb",
+    "canvasVisible": false
+  },
+  "connections": {
+    "localGlb": true,
+    "fetch": "blocked",
+    "beaconQueued": true,
+    "xhr": "blocked",
+    "websocket": "blocked",
+    "eventSource": "blocked",
+    "image": "blocked",
+    "media": "blocked",
+    "worker": "blocked"
+  },
+  "violations": [
+    {
+      "directive": "connect-src",
+      "blockedURI": "https://example.invalid/kicklab-csp-probe"
+    },
+    {
+      "directive": "connect-src",
+      "blockedURI": "https://example.invalid/kicklab-csp-probe"
+    },
+    {
+      "directive": "connect-src",
+      "blockedURI": "https://example.invalid/kicklab-csp-probe"
+    },
+    {
+      "directive": "connect-src",
+      "blockedURI": "wss://example.invalid/kicklab-csp-probe"
+    },
+    {
+      "directive": "connect-src",
+      "blockedURI": "https://example.invalid/kicklab-csp-probe"
+    },
+    {
+      "directive": "img-src",
+      "blockedURI": "https://example.invalid/kicklab-csp-probe"
+    },
+    {
+      "directive": "media-src",
+      "blockedURI": "https://example.invalid/kicklab-csp-probe"
+    }
+  ],
+  "interceptedExternal": [],
+  "videoErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+  ],
+  "duration": 11.56,
+  "mp4": "mobile-race-3d-and-forced-fallback.mp4",
+  "failures": []
+}

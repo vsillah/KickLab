@@ -12,7 +12,7 @@ if(!['127.0.0.1','localhost'].includes(base.hostname)||base.pathname!=='/kicklab
 base.searchParams.set('rev',head);
 const sha=value=>createHash('sha256').update(value).digest('hex'),artifactSha256=sha(readFileSync('dist/kicklab.html'));
 if(sha(Buffer.from(await(await fetch(base)).arrayBuffer()))!==artifactSha256)throw Error('Served HTML differs from build');
-const out=resolve('qa-artifacts/fight-analog-bouts');mkdirSync(out,{recursive:true});
+const out=resolve(process.argv[3]||'qa-artifacts/fight-analog-bouts');mkdirSync(out,{recursive:true});
 const browser=await chromium.launch({headless:true}),report={head,artifactSha256,cases:[]};
 for(const [width,height] of [[360,800],[390,844],[768,1024],[1113,834],[1440,900]]){
   const context=await browser.newContext({viewport:{width,height},reducedMotion:width===390?'reduce':'no-preference',permissions:[]});

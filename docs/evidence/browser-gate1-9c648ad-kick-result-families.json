@@ -1,0 +1,539 @@
+{
+  "head": "9c648ad0c66ff9d2b32990f3a7d23b57e6e83981",
+  "url": "http://127.0.0.1:43211/kicklab.html?rev=9c648ad0c66ff9d2b32990f3a7d23b57e6e83981",
+  "cases": [
+    {
+      "label": "free-failure",
+      "title": "NO GOAL",
+      "grade": "DGRADE",
+      "mini": false,
+      "mode": "kick",
+      "rail": "none",
+      "actions": [
+        {
+          "id": "rPost",
+          "rect": {
+            "left": 93.109375,
+            "right": 187.59375,
+            "top": 456.703125,
+            "bottom": 485.296875
+          },
+          "hits": [
+            true,
+            true
+          ]
+        },
+        {
+          "id": "rReview",
+          "rect": {
+            "left": 93.109375,
+            "right": 211.546875,
+            "top": 493.296875,
+            "bottom": 527.4375
+          },
+          "hits": [
+            true,
+            true
+          ]
+        },
+        {
+          "id": "rReplay",
+          "rect": {
+            "left": 217.546875,
+            "right": 287.625,
+            "top": 493.296875,
+            "bottom": 527.4375
+          },
+          "hits": [
+            true,
+            true
+          ]
+        },
+        {
+          "id": "rNext",
+          "rect": {
+            "left": 219.234375,
+            "right": 347,
+            "top": 535.4375,
+            "bottom": 568.4375
+          },
+          "hits": [
+            true,
+            true
+          ]
+        }
+      ],
+      "overflow": 0
+    },
+    {
+      "label": "free-success",
+      "title": "TOP BINS!",
+      "grade": "AGRADE",
+      "mini": false,
+      "mode": "kick",
+      "rail": "none",
+      "actions": [
+        {
+          "id": "rPost",
+          "rect": {
+            "left": 93.109375,
+            "right": 187.59375,
+            "top": 456.703125,
+            "bottom": 485.296875
+          },
+          "hits": [
+            true,
+            true
+          ]
+        },
+        {
+          "id": "rReview",
+          "rect": {
+            "left": 93.109375,
+            "right": 211.546875,
+            "top": 493.296875,
+            "bottom": 527.4375
+          },
+          "hits": [
+            true,
+            true
+          ]
+        },
+        {
+          "id": "rReplay",
+          "rect": {
+            "left": 217.546875,
+            "right": 287.625,
+            "top": 493.296875,
+            "bottom": 527.4375
+          },
+          "hits": [
+            true,
+            true
+          ]
+        },
+        {
+          "id": "rNext",
+          "rect": {
+            "left": 219.234375,
+            "right": 347,
+            "top": 535.4375,
+            "bottom": 568.4375
+          },
+          "hits": [
+            true,
+            true
+          ]
+        }
+      ],
+      "overflow": 0
+    },
+    {
+      "label": "header-failure",
+      "title": "MISSED IT",
+      "grade": "DGRADE",
+      "mini": false,
+      "mode": "kick",
+      "rail": "none",
+      "actions": [
+        {
+          "id": "rPost",
+          "rect": {
+            "left": 93.109375,
+            "right": 187.59375,
+            "top": 456.703125,
+            "bottom": 485.296875
+          },
+          "hits": [
+            true,
+            true
+          ]
+        },
+        {
+          "id": "rReview",
+          "rect": {
+            "left": 93.109375,
+            "right": 211.546875,
+            "top": 493.296875,
+            "bottom": 527.4375
+          },
+          "hits": [
+            true,
+            true
+          ]
+        },
+        {
+          "id": "rReplay",
+          "rect": {
+            "left": 217.546875,
+            "right": 287.625,
+            "top": 493.296875,
+            "bottom": 527.4375
+          },
+          "hits": [
+            true,
+            true
+          ]
+        },
+        {
+          "id": "rNext",
+          "rect": {
+            "left": 219.234375,
+            "right": 347,
+            "top": 535.4375,
+            "bottom": 568.4375
+          },
+          "hits": [
+            true,
+            true
+          ]
+        }
+      ],
+      "overflow": 0
+    },
+    {
+      "label": "header-success",
+      "title": "GOAL!",
+      "grade": "AGRADE",
+      "mini": false,
+      "mode": "kick",
+      "rail": "none",
+      "actions": [
+        {
+          "id": "rPost",
+          "rect": {
+            "left": 93.109375,
+            "right": 187.59375,
+            "top": 456.703125,
+            "bottom": 485.296875
+          },
+          "hits": [
+            true,
+            true
+          ]
+        },
+        {
+          "id": "rReview",
+          "rect": {
+            "left": 93.109375,
+            "right": 211.546875,
+            "top": 493.296875,
+            "bottom": 527.4375
+          },
+          "hits": [
+            true,
+            true
+          ]
+        },
+        {
+          "id": "rReplay",
+          "rect": {
+            "left": 217.546875,
+            "right": 287.625,
+            "top": 493.296875,
+            "bottom": 527.4375
+          },
+          "hits": [
+            true,
+            true
+          ]
+        },
+        {
+          "id": "rNext",
+          "rect": {
+            "left": 219.234375,
+            "right": 347,
+            "top": 535.4375,
+            "bottom": 568.4375
+          },
+          "hits": [
+            true,
+            true
+          ]
+        }
+      ],
+      "overflow": 0
+    },
+    {
+      "label": "run-failure",
+      "title": "TACKLED BY RIO",
+      "grade": "DGRADE",
+      "mini": false,
+      "mode": "kick",
+      "rail": "none",
+      "actions": [
+        {
+          "id": "rPost",
+          "rect": {
+            "left": 93.109375,
+            "right": 187.59375,
+            "top": 456.703125,
+            "bottom": 485.296875
+          },
+          "hits": [
+            true,
+            true
+          ]
+        },
+        {
+          "id": "rReview",
+          "rect": {
+            "left": 93.109375,
+            "right": 211.546875,
+            "top": 493.296875,
+            "bottom": 527.4375
+          },
+          "hits": [
+            true,
+            true
+          ]
+        },
+        {
+          "id": "rReplay",
+          "rect": {
+            "left": 217.546875,
+            "right": 287.625,
+            "top": 493.296875,
+            "bottom": 527.4375
+          },
+          "hits": [
+            true,
+            true
+          ]
+        },
+        {
+          "id": "rNext",
+          "rect": {
+            "left": 219.234375,
+            "right": 347,
+            "top": 535.4375,
+            "bottom": 568.4375
+          },
+          "hits": [
+            true,
+            true
+          ]
+        }
+      ],
+      "overflow": 0
+    },
+    {
+      "label": "pass-failure",
+      "title": "CLOSED DOWN",
+      "grade": "DGRADE",
+      "mini": true,
+      "mode": "kick",
+      "rail": "none",
+      "actions": [],
+      "overflow": 0
+    },
+    {
+      "label": "combo-failure",
+      "title": "TACKLED BY RIO",
+      "grade": "DGRADE",
+      "mini": false,
+      "mode": "kick",
+      "rail": "none",
+      "actions": [
+        {
+          "id": "rPost",
+          "rect": {
+            "left": 93.109375,
+            "right": 187.59375,
+            "top": 456.703125,
+            "bottom": 485.296875
+          },
+          "hits": [
+            true,
+            true
+          ]
+        },
+        {
+          "id": "rReview",
+          "rect": {
+            "left": 93.109375,
+            "right": 211.546875,
+            "top": 493.296875,
+            "bottom": 527.4375
+          },
+          "hits": [
+            true,
+            true
+          ]
+        },
+        {
+          "id": "rReplay",
+          "rect": {
+            "left": 217.546875,
+            "right": 287.625,
+            "top": 493.296875,
+            "bottom": 527.4375
+          },
+          "hits": [
+            true,
+            true
+          ]
+        },
+        {
+          "id": "rNext",
+          "rect": {
+            "left": 219.234375,
+            "right": 347,
+            "top": 535.4375,
+            "bottom": 568.4375
+          },
+          "hits": [
+            true,
+            true
+          ]
+        }
+      ],
+      "overflow": 0
+    },
+    {
+      "label": "gk-failure",
+      "title": "GOAL",
+      "grade": "DGRADE",
+      "mini": true,
+      "mode": "kick",
+      "rail": "none",
+      "actions": [],
+      "overflow": 0
+    },
+    {
+      "label": "pso-failure",
+      "title": "MISSED",
+      "grade": "DGRADE",
+      "mini": true,
+      "mode": "kick",
+      "rail": "none",
+      "actions": [],
+      "overflow": 0
+    },
+    {
+      "label": "pso-success",
+      "title": "GOAL!",
+      "grade": "AGRADE",
+      "mini": true,
+      "mode": "kick",
+      "rail": "none",
+      "actions": [],
+      "overflow": 0
+    },
+    {
+      "label": "bar-failure",
+      "title": "0 POINTS",
+      "grade": "DGRADE",
+      "mini": false,
+      "mode": "kick",
+      "rail": "none",
+      "actions": [
+        {
+          "id": "rReview",
+          "rect": {
+            "left": 93.109375,
+            "right": 211.546875,
+            "top": 430.109375,
+            "bottom": 464.25
+          },
+          "hits": [
+            true,
+            true
+          ]
+        },
+        {
+          "id": "rReplay",
+          "rect": {
+            "left": 217.546875,
+            "right": 287.625,
+            "top": 430.109375,
+            "bottom": 464.25
+          },
+          "hits": [
+            true,
+            true
+          ]
+        },
+        {
+          "id": "rNext",
+          "rect": {
+            "left": 219.234375,
+            "right": 347,
+            "top": 472.25,
+            "bottom": 505.25
+          },
+          "hits": [
+            true,
+            true
+          ]
+        }
+      ],
+      "overflow": 0
+    },
+    {
+      "label": "bar-success",
+      "title": "79 POINTS",
+      "grade": "CGRADE",
+      "mini": false,
+      "mode": "kick",
+      "rail": "none",
+      "actions": [
+        {
+          "id": "rPost",
+          "rect": {
+            "left": 197.421875,
+            "right": 291.90625,
+            "top": 456.703125,
+            "bottom": 485.296875
+          },
+          "hits": [
+            true,
+            true
+          ]
+        },
+        {
+          "id": "rReview",
+          "rect": {
+            "left": 93.109375,
+            "right": 211.546875,
+            "top": 493.296875,
+            "bottom": 527.4375
+          },
+          "hits": [
+            true,
+            true
+          ]
+        },
+        {
+          "id": "rReplay",
+          "rect": {
+            "left": 217.546875,
+            "right": 287.625,
+            "top": 493.296875,
+            "bottom": 527.4375
+          },
+          "hits": [
+            true,
+            true
+          ]
+        },
+        {
+          "id": "rNext",
+          "rect": {
+            "left": 219.234375,
+            "right": 347,
+            "top": 535.4375,
+            "bottom": 568.4375
+          },
+          "hits": [
+            true,
+            true
+          ]
+        }
+      ],
+      "overflow": 0
+    }
+  ],
+  "errors": [],
+  "external": []
+}

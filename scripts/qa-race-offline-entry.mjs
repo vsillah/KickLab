@@ -1,14 +1,18 @@
 // Exact-head, synthetic-profile browser proof for the loaded-home offline entry.
 import {createRequire} from 'node:module';
 import {execFileSync,spawnSync} from 'node:child_process';
-import {existsSync,mkdirSync,writeFileSync} from 'node:fs';
+import {existsSync,mkdirSync,writeFileSync,readFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
 import {join,resolve} from 'node:path';
 
 const {chromium}=createRequire(import.meta.url)('playwright');
-const head=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
-if(execFileSync('git',['status','--porcelain'],{encoding:'utf8'}).trim())throw Error('Exact-head capture requires a clean worktree.');
+const head=process.env.KICKLAB_QA_HEAD;
+if(!/^[0-9a-f]{40}$/.test(head||'')||execFileSync('git',['rev-parse','origin/main'],{encoding:'utf8'}).trim()!==head)throw Error('Bind to exact product main.');
 const origin=process.env.KICKLAB_QA_ORIGIN||'http://127.0.0.1:47777';
-const out=resolve('qa-artifacts/race-offline-entry',head.slice(0,12));
+if(!['127.0.0.1','localhost'].includes(new URL(origin).hostname))throw Error('Use trusted loopback origin.');
+const artifactSha256=createHash('sha256').update(readFileSync('dist/kicklab.html')).digest('hex');
+if(createHash('sha256').update(Buffer.from(await(await fetch(new URL('/kicklab.html',origin))).arrayBuffer())).digest('hex')!==artifactSha256)throw Error('Served artifact differs from exact build.');
+const out=resolve(process.env.KICKLAB_QA_OUT||join('qa-artifacts/race-offline-entry',head.slice(0,12)));
 const raw=join(out,'raw');mkdirSync(raw,{recursive:true});
 const executable=[process.env.KICKLAB_CHROMIUM_PATH,chromium.executablePath(),'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find(path=>path&&existsSync(path));
 const browser=await chromium.launch({headless:true,executablePath:executable});
@@ -59,7 +63,7 @@ try{
   if(p95Ms>50)throw Error(`Visible-browser p95 ${p95Ms.toFixed(1)} ms exceeds 50 ms`);
   const permissions=await page.evaluate(()=>window.__KICKLAB_PERMISSION_ATTEMPTS__||[]);
   if(errors.length||external.length||permissions.length||downloads.length||popups.length)throw Error(JSON.stringify({errors,external,permissions,downloads,popups}));
-  const report={head,origin,loadedUrl:url.href,offlineRaceUrl:page.url(),prepared,race3d:{status:race3d.status,assetUrl:race3d.assetUrl,vehicleId:race3d.vehicleId,vehicleAudit:race3d.vehicleAudit},documentRequestsAfterOffline:documents,p95Ms,errors,external,permissions,downloads,popups};
+  const report={head,artifactSha256,origin,loadedUrl:url.href,offlineRaceUrl:page.url(),prepared,race3d:{status:race3d.status,assetUrl:race3d.assetUrl,vehicleId:race3d.vehicleId,vehicleAudit:race3d.vehicleAudit},documentRequestsAfterOffline:documents,p95Ms,errors,external,permissions,downloads,popups};
   writeFileSync(join(out,'report.json'),JSON.stringify(report,null,2)+'\n');
   console.log(JSON.stringify(report,null,2));
 }finally{

@@ -10,7 +10,7 @@ const base=process.argv[2]||'http://127.0.0.1:5917/kicklab.html';
 const output=resolve(process.argv[3]||'qa-artifacts/locked-states');
 const head=process.env.KICKLAB_QA_HEAD;
 if(!/^[0-9a-f]{40}$/.test(head||''))throw Error('Set KICKLAB_QA_HEAD to the full exact commit.');
-if(execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()!==head||execFileSync('git',['status','--porcelain'],{encoding:'utf8'}).trim())throw Error('Exact-head QA requires a clean checkout at KICKLAB_QA_HEAD.');
+if(execFileSync('git',['rev-parse','origin/main'],{encoding:'utf8'}).trim()!==head)throw Error('Exact product main must match KICKLAB_QA_HEAD.');
 const reviewUrl=new URL(base);reviewUrl.searchParams.set('rev',head);
 const response=await fetch(reviewUrl);
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');

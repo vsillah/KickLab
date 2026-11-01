@@ -1,0 +1,57 @@
+{
+  "revision": "9c648ad0c66ff9d2b32990f3a7d23b57e6e83981",
+  "artifactSha256": "03a4b73fae4134fce01de43604d6ce69225595c536f84fbe3f919c58ec730794",
+  "checks": [
+    {
+      "viewport": "360x800",
+      "touch": true,
+      "reducedMotion": false,
+      "canvasFallback": false,
+      "failedSaveTruthful": true,
+      "retryAndReload": true,
+      "egress": 0
+    },
+    {
+      "viewport": "390x844",
+      "touch": false,
+      "reducedMotion": true,
+      "canvasFallback": true,
+      "failedSaveTruthful": true,
+      "retryAndReload": true,
+      "egress": 0
+    },
+    {
+      "viewport": "768x1024",
+      "touch": false,
+      "reducedMotion": false,
+      "canvasFallback": false,
+      "failedSaveTruthful": true,
+      "retryAndReload": true,
+      "egress": 0
+    },
+    {
+      "viewport": "1113x834",
+      "touch": false,
+      "reducedMotion": false,
+      "canvasFallback": false,
+      "failedSaveTruthful": true,
+      "retryAndReload": true,
+      "egress": 0
+    },
+    {
+      "viewport": "1440x900",
+      "touch": false,
+      "reducedMotion": false,
+      "canvasFallback": false,
+      "failedSaveTruthful": true,
+      "retryAndReload": true,
+      "egress": 0
+    },
+    {
+      "mp4": "qa-artifacts/browser-gate1-9c648ad/profile-storage-recovery/profile-storage-recovery-9c648ad0c66f.mp4",
+      "bytes": 1197100,
+      "seconds": 8.84,
+      "codec": "h264"
+    }
+  ]
+}

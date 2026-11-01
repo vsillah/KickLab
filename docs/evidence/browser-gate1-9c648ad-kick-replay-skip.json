@@ -1,0 +1,516 @@
+{
+  "head": "9c648ad0c66ff9d2b32990f3a7d23b57e6e83981",
+  "base": "http://127.0.0.1:43211/kicklab.html",
+  "cases": [
+    {
+      "label": "360x800-2d-touch",
+      "states": [
+        {
+          "phase": "replay",
+          "visible": true,
+          "hit": "goalCelebrationSkip",
+          "button": {
+            "x": 191,
+            "y": 691,
+            "w": 84,
+            "h": 44,
+            "right": 275,
+            "bottom": 735
+          },
+          "deck": {
+            "x": 22,
+            "y": 681,
+            "right": 278,
+            "bottom": 739,
+            "visible": true
+          },
+          "stage": {
+            "x": 17,
+            "y": 18.5625,
+            "right": 343,
+            "bottom": 743
+          },
+          "active": true,
+          "reduced": false,
+          "canvasFallback": true,
+          "progress": "{\"punch\":0,\"lap\":0,\"goals\":1,\"xp\":1300,\"badges\":{\"k_goal\":1793572383472,\"k_math\":1793572383473,\"k_bins\":1793572383473},\"style\":{\"fight\":\"red\",\"race\":\"stock\",\"kick\":\"classic\"},\"ch\":{\"fight\":0,\"race\":0,\"kick\":1},\"play\":{\"fight\":\"ch\",\"race\":\"ch\",\"kick\":\"ch\"},\"stats\":{\"plays\":{\"fight\":0,\"race\":0,\"kick\":1},\"wins\":{\"fight\":0,\"race\":0,\"kick\":1}},\"gfx\":\"2d\",\"kickTime\":\"day\",\"raceGarage\":{\"version\":1,\"body\":\"street\",\"suspension\":\"balanced\",\"tires\":\"balanced\",\"brakes\":\"standard\"},\"raceProfileRecords\":{\"version\":1,\"topKmh\":null,\"dragSeconds\":null,\"driftPoints\":null},\"raceProgression\":{\"version\":1,\"unlocked\":0,\"selected\":0,\"heats\":0,\"brakeHeat\":0,\"tireHeat\":0},\"raceVenue\":\"highland\"}",
+          "storage": [
+            "impactlab.nick",
+            "impactlab.v1",
+            "kicklab.profiles.v1"
+          ],
+          "overflow": false
+        },
+        {
+          "phase": "skip-activated",
+          "ended": "skipped",
+          "title": "TOP BINS!"
+        },
+        {
+          "phase": "result-replay-ready",
+          "visible": true,
+          "hit": "rReplay",
+          "button": {
+            "x": 217.546875,
+            "y": 242.4375,
+            "right": 287.625,
+            "bottom": 276.578125
+          },
+          "deck": true,
+          "progress": "{\"punch\":0,\"lap\":0,\"goals\":1,\"xp\":1300,\"badges\":{\"k_goal\":1793572383472,\"k_math\":1793572383473,\"k_bins\":1793572383473},\"style\":{\"fight\":\"red\",\"race\":\"stock\",\"kick\":\"classic\"},\"ch\":{\"fight\":0,\"race\":0,\"kick\":1},\"play\":{\"fight\":\"ch\",\"race\":\"ch\",\"kick\":\"ch\"},\"stats\":{\"plays\":{\"fight\":0,\"race\":0,\"kick\":1},\"wins\":{\"fight\":0,\"race\":0,\"kick\":1}},\"gfx\":\"2d\",\"kickTime\":\"day\",\"raceGarage\":{\"version\":1,\"body\":\"street\",\"suspension\":\"balanced\",\"tires\":\"balanced\",\"brakes\":\"standard\"},\"raceProfileRecords\":{\"version\":1,\"topKmh\":null,\"dragSeconds\":null,\"driftPoints\":null},\"raceProgression\":{\"version\":1,\"unlocked\":0,\"selected\":0,\"heats\":0,\"brakeHeat\":0,\"tireHeat\":0},\"raceVenue\":\"highland\"}"
+        },
+        {
+          "phase": "recorded-replay-open",
+          "hit": "rbExit",
+          "visible": true
+        }
+      ],
+      "requests": 32
+    },
+    {
+      "label": "390x844-2d-touch-reduced",
+      "states": [
+        {
+          "phase": "crowd",
+          "visible": true,
+          "hit": "goalCelebrationSkip",
+          "button": {
+            "x": 213.703125,
+            "y": 734.53125,
+            "w": 91.296875,
+            "h": 44,
+            "right": 305,
+            "bottom": 778.53125
+          },
+          "deck": {
+            "x": 22,
+            "y": 724.53125,
+            "right": 308,
+            "bottom": 782.53125,
+            "visible": true
+          },
+          "stage": {
+            "x": 17,
+            "y": -4.578125,
+            "right": 373,
+            "bottom": 786.53125
+          },
+          "active": true,
+          "reduced": true,
+          "canvasFallback": true,
+          "progress": "{\"punch\":0,\"lap\":0,\"goals\":1,\"xp\":1300,\"badges\":{\"k_goal\":1793572393880,\"k_math\":1793572393880,\"k_bins\":1793572393881},\"style\":{\"fight\":\"red\",\"race\":\"stock\",\"kick\":\"classic\"},\"ch\":{\"fight\":0,\"race\":0,\"kick\":1},\"play\":{\"fight\":\"ch\",\"race\":\"ch\",\"kick\":\"ch\"},\"stats\":{\"plays\":{\"fight\":0,\"race\":0,\"kick\":1},\"wins\":{\"fight\":0,\"race\":0,\"kick\":1}},\"gfx\":\"2d\",\"kickTime\":\"day\",\"raceGarage\":{\"version\":1,\"body\":\"street\",\"suspension\":\"balanced\",\"tires\":\"balanced\",\"brakes\":\"standard\"},\"raceProfileRecords\":{\"version\":1,\"topKmh\":null,\"dragSeconds\":null,\"driftPoints\":null},\"raceProgression\":{\"version\":1,\"unlocked\":0,\"selected\":0,\"heats\":0,\"brakeHeat\":0,\"tireHeat\":0},\"raceVenue\":\"highland\"}",
+          "storage": [
+            "impactlab.nick",
+            "impactlab.v1",
+            "kicklab.profiles.v1"
+          ],
+          "overflow": false
+        },
+        {
+          "phase": "skip-activated",
+          "ended": "skipped",
+          "title": "TOP BINS!"
+        },
+        {
+          "phase": "result-replay-ready",
+          "visible": true,
+          "hit": "rReplay",
+          "button": {
+            "x": 217.546875,
+            "y": 219.296875,
+            "right": 287.625,
+            "bottom": 253.4375
+          },
+          "deck": true,
+          "progress": "{\"punch\":0,\"lap\":0,\"goals\":1,\"xp\":1300,\"badges\":{\"k_goal\":1793572393880,\"k_math\":1793572393880,\"k_bins\":1793572393881},\"style\":{\"fight\":\"red\",\"race\":\"stock\",\"kick\":\"classic\"},\"ch\":{\"fight\":0,\"race\":0,\"kick\":1},\"play\":{\"fight\":\"ch\",\"race\":\"ch\",\"kick\":\"ch\"},\"stats\":{\"plays\":{\"fight\":0,\"race\":0,\"kick\":1},\"wins\":{\"fight\":0,\"race\":0,\"kick\":1}},\"gfx\":\"2d\",\"kickTime\":\"day\",\"raceGarage\":{\"version\":1,\"body\":\"street\",\"suspension\":\"balanced\",\"tires\":\"balanced\",\"brakes\":\"standard\"},\"raceProfileRecords\":{\"version\":1,\"topKmh\":null,\"dragSeconds\":null,\"driftPoints\":null},\"raceProgression\":{\"version\":1,\"unlocked\":0,\"selected\":0,\"heats\":0,\"brakeHeat\":0,\"tireHeat\":0},\"raceVenue\":\"highland\"}"
+        },
+        {
+          "phase": "recorded-replay-open",
+          "hit": "rbExit",
+          "visible": true
+        }
+      ],
+      "requests": 38
+    },
+    {
+      "label": "768x1024-2d-touch",
+      "states": [
+        {
+          "phase": "replay",
+          "visible": true,
+          "hit": "goalCelebrationSkip",
+          "button": {
+            "x": 559.703125,
+            "y": 979.9375,
+            "w": 97.296875,
+            "h": 44,
+            "right": 657,
+            "bottom": 1023.9375
+          },
+          "deck": {
+            "x": 33,
+            "y": 665.9375,
+            "right": 667,
+            "bottom": 1034.9375,
+            "visible": true
+          },
+          "stage": {
+            "x": 25,
+            "y": 204.28125,
+            "right": 743,
+            "bottom": 1041.9375
+          },
+          "active": true,
+          "reduced": false,
+          "canvasFallback": true,
+          "progress": "{\"punch\":0,\"lap\":0,\"goals\":1,\"xp\":1300,\"badges\":{\"k_goal\":1793572403247,\"k_math\":1793572403247,\"k_bins\":1793572403248},\"style\":{\"fight\":\"red\",\"race\":\"stock\",\"kick\":\"classic\"},\"ch\":{\"fight\":0,\"race\":0,\"kick\":1},\"play\":{\"fight\":\"ch\",\"race\":\"ch\",\"kick\":\"ch\"},\"stats\":{\"plays\":{\"fight\":0,\"race\":0,\"kick\":1},\"wins\":{\"fight\":0,\"race\":0,\"kick\":1}},\"gfx\":\"2d\",\"kickTime\":\"day\",\"raceGarage\":{\"version\":1,\"body\":\"street\",\"suspension\":\"balanced\",\"tires\":\"balanced\",\"brakes\":\"standard\"},\"raceProfileRecords\":{\"version\":1,\"topKmh\":null,\"dragSeconds\":null,\"driftPoints\":null},\"raceProgression\":{\"version\":1,\"unlocked\":0,\"selected\":0,\"heats\":0,\"brakeHeat\":0,\"tireHeat\":0},\"raceVenue\":\"highland\"}",
+          "storage": [
+            "impactlab.nick",
+            "impactlab.v1",
+            "kicklab.profiles.v1"
+          ],
+          "overflow": false
+        },
+        {
+          "phase": "skip-activated",
+          "ended": "skipped",
+          "title": "TOP BINS!"
+        },
+        {
+          "phase": "result-replay-ready",
+          "visible": true,
+          "hit": "rReplay",
+          "button": {
+            "x": 307.109375,
+            "y": 581.6875,
+            "right": 377.1875,
+            "bottom": 615.828125
+          },
+          "deck": true,
+          "progress": "{\"punch\":0,\"lap\":0,\"goals\":1,\"xp\":1300,\"badges\":{\"k_goal\":1793572403247,\"k_math\":1793572403247,\"k_bins\":1793572403248},\"style\":{\"fight\":\"red\",\"race\":\"stock\",\"kick\":\"classic\"},\"ch\":{\"fight\":0,\"race\":0,\"kick\":1},\"play\":{\"fight\":\"ch\",\"race\":\"ch\",\"kick\":\"ch\"},\"stats\":{\"plays\":{\"fight\":0,\"race\":0,\"kick\":1},\"wins\":{\"fight\":0,\"race\":0,\"kick\":1}},\"gfx\":\"2d\",\"kickTime\":\"day\",\"raceGarage\":{\"version\":1,\"body\":\"street\",\"suspension\":\"balanced\",\"tires\":\"balanced\",\"brakes\":\"standard\"},\"raceProfileRecords\":{\"version\":1,\"topKmh\":null,\"dragSeconds\":null,\"driftPoints\":null},\"raceProgression\":{\"version\":1,\"unlocked\":0,\"selected\":0,\"heats\":0,\"brakeHeat\":0,\"tireHeat\":0},\"raceVenue\":\"highland\"}"
+        },
+        {
+          "phase": "recorded-replay-open",
+          "hit": "rbExit",
+          "visible": true
+        }
+      ],
+      "requests": 38
+    },
+    {
+      "label": "1024x768-3d-pointer-recovery",
+      "states": [
+        {
+          "phase": "foreground-recovered",
+          "frozen": 0.301,
+          "still": 0.301
+        },
+        {
+          "phase": "replay",
+          "visible": true,
+          "hit": "goalCelebrationSkip",
+          "button": {
+            "x": 801.703125,
+            "y": 649.265625,
+            "w": 97.296875,
+            "h": 44,
+            "right": 899,
+            "bottom": 693.265625
+          },
+          "deck": {
+            "x": 39,
+            "y": 450.265625,
+            "right": 903,
+            "bottom": 701.265625,
+            "visible": true
+          },
+          "stage": {
+            "x": 25,
+            "y": 15.5625,
+            "right": 999,
+            "bottom": 711.265625
+          },
+          "active": true,
+          "reduced": false,
+          "canvasFallback": false,
+          "progress": "{\"punch\":0,\"lap\":0,\"goals\":1,\"xp\":1300,\"badges\":{\"k_goal\":1793572413729,\"k_math\":1793572413729,\"k_bins\":1793572413729},\"style\":{\"fight\":\"red\",\"race\":\"stock\",\"kick\":\"classic\"},\"ch\":{\"fight\":0,\"race\":0,\"kick\":1},\"play\":{\"fight\":\"ch\",\"race\":\"ch\",\"kick\":\"ch\"},\"stats\":{\"plays\":{\"fight\":0,\"race\":0,\"kick\":1},\"wins\":{\"fight\":0,\"race\":0,\"kick\":1}},\"kickTime\":\"day\",\"raceGarage\":{\"version\":1,\"body\":\"street\",\"suspension\":\"balanced\",\"tires\":\"balanced\",\"brakes\":\"standard\"},\"raceProfileRecords\":{\"version\":1,\"topKmh\":null,\"dragSeconds\":null,\"driftPoints\":null},\"raceProgression\":{\"version\":1,\"unlocked\":0,\"selected\":0,\"heats\":0,\"brakeHeat\":0,\"tireHeat\":0},\"raceVenue\":\"highland\"}",
+          "storage": [
+            "impactlab.nick",
+            "impactlab.v1",
+            "kicklab.profiles.v1"
+          ],
+          "overflow": false
+        },
+        {
+          "phase": "performance",
+          "p95": 9.299999999999272,
+          "frames": 65
+        },
+        {
+          "phase": "skip-activated",
+          "ended": "skipped",
+          "title": "TOP BINS!"
+        },
+        {
+          "phase": "result-replay-ready",
+          "visible": true,
+          "hit": "rReplay",
+          "button": {
+            "x": 435.109375,
+            "y": 443.96875,
+            "right": 505.1875,
+            "bottom": 478.109375
+          },
+          "deck": true,
+          "progress": "{\"punch\":0,\"lap\":0,\"goals\":1,\"xp\":1300,\"badges\":{\"k_goal\":1793572413729,\"k_math\":1793572413729,\"k_bins\":1793572413729},\"style\":{\"fight\":\"red\",\"race\":\"stock\",\"kick\":\"classic\"},\"ch\":{\"fight\":0,\"race\":0,\"kick\":1},\"play\":{\"fight\":\"ch\",\"race\":\"ch\",\"kick\":\"ch\"},\"stats\":{\"plays\":{\"fight\":0,\"race\":0,\"kick\":1},\"wins\":{\"fight\":0,\"race\":0,\"kick\":1}},\"kickTime\":\"day\",\"raceGarage\":{\"version\":1,\"body\":\"street\",\"suspension\":\"balanced\",\"tires\":\"balanced\",\"brakes\":\"standard\"},\"raceProfileRecords\":{\"version\":1,\"topKmh\":null,\"dragSeconds\":null,\"driftPoints\":null},\"raceProgression\":{\"version\":1,\"unlocked\":0,\"selected\":0,\"heats\":0,\"brakeHeat\":0,\"tireHeat\":0},\"raceVenue\":\"highland\"}"
+        },
+        {
+          "phase": "recorded-replay-open",
+          "hit": "rbExit",
+          "visible": true
+        },
+        {
+          "phase": "second-replay-skipped",
+          "ended": "skipped",
+          "goals": 2
+        },
+        {
+          "phase": "result-replay-ready",
+          "visible": true,
+          "hit": "rReplay",
+          "button": {
+            "x": 435.109375,
+            "y": 392.96875,
+            "right": 505.1875,
+            "bottom": 427.109375
+          },
+          "deck": true,
+          "progress": "{\"punch\":0,\"lap\":0,\"goals\":2,\"xp\":2150,\"badges\":{\"k_goal\":1793572413729,\"k_math\":1793572413729,\"k_bins\":1793572413729},\"style\":{\"fight\":\"red\",\"race\":\"stock\",\"kick\":\"classic\"},\"ch\":{\"fight\":0,\"race\":0,\"kick\":2},\"play\":{\"fight\":\"ch\",\"race\":\"ch\",\"kick\":\"ch\"},\"stats\":{\"plays\":{\"fight\":0,\"race\":0,\"kick\":2},\"wins\":{\"fight\":0,\"race\":0,\"kick\":2}},\"kickTime\":\"day\",\"raceGarage\":{\"version\":1,\"body\":\"street\",\"suspension\":\"balanced\",\"tires\":\"balanced\",\"brakes\":\"standard\"},\"raceProfileRecords\":{\"version\":1,\"topKmh\":null,\"dragSeconds\":null,\"driftPoints\":null},\"raceProgression\":{\"version\":1,\"unlocked\":0,\"selected\":0,\"heats\":0,\"brakeHeat\":0,\"tireHeat\":0},\"raceVenue\":\"highland\"}"
+        },
+        {
+          "phase": "recorded-replay-open",
+          "hit": "rbExit",
+          "visible": true
+        }
+      ],
+      "requests": 46
+    },
+    {
+      "label": "1024x768-2d-pointer-recovery",
+      "states": [
+        {
+          "phase": "foreground-recovered",
+          "frozen": 0.308,
+          "still": 0.308
+        },
+        {
+          "phase": "replay",
+          "visible": true,
+          "hit": "goalCelebrationSkip",
+          "button": {
+            "x": 801.703125,
+            "y": 649.265625,
+            "w": 97.296875,
+            "h": 44,
+            "right": 899,
+            "bottom": 693.265625
+          },
+          "deck": {
+            "x": 39,
+            "y": 450.265625,
+            "right": 903,
+            "bottom": 701.265625,
+            "visible": true
+          },
+          "stage": {
+            "x": 25,
+            "y": 15.5625,
+            "right": 999,
+            "bottom": 711.265625
+          },
+          "active": true,
+          "reduced": false,
+          "canvasFallback": true,
+          "progress": "{\"punch\":0,\"lap\":0,\"goals\":1,\"xp\":1300,\"badges\":{\"k_goal\":1793572438456,\"k_math\":1793572438456,\"k_bins\":1793572438456},\"style\":{\"fight\":\"red\",\"race\":\"stock\",\"kick\":\"classic\"},\"ch\":{\"fight\":0,\"race\":0,\"kick\":1},\"play\":{\"fight\":\"ch\",\"race\":\"ch\",\"kick\":\"ch\"},\"stats\":{\"plays\":{\"fight\":0,\"race\":0,\"kick\":1},\"wins\":{\"fight\":0,\"race\":0,\"kick\":1}},\"gfx\":\"2d\",\"kickTime\":\"day\",\"raceGarage\":{\"version\":1,\"body\":\"street\",\"suspension\":\"balanced\",\"tires\":\"balanced\",\"brakes\":\"standard\"},\"raceProfileRecords\":{\"version\":1,\"topKmh\":null,\"dragSeconds\":null,\"driftPoints\":null},\"raceProgression\":{\"version\":1,\"unlocked\":0,\"selected\":0,\"heats\":0,\"brakeHeat\":0,\"tireHeat\":0},\"raceVenue\":\"highland\"}",
+          "storage": [
+            "impactlab.nick",
+            "impactlab.v1",
+            "kicklab.profiles.v1"
+          ],
+          "overflow": false
+        },
+        {
+          "phase": "skip-activated",
+          "ended": "skipped",
+          "title": "TOP BINS!"
+        },
+        {
+          "phase": "result-replay-ready",
+          "visible": true,
+          "hit": "rReplay",
+          "button": {
+            "x": 435.109375,
+            "y": 392.96875,
+            "right": 505.1875,
+            "bottom": 427.109375
+          },
+          "deck": true,
+          "progress": "{\"punch\":0,\"lap\":0,\"goals\":1,\"xp\":1300,\"badges\":{\"k_goal\":1793572438456,\"k_math\":1793572438456,\"k_bins\":1793572438456},\"style\":{\"fight\":\"red\",\"race\":\"stock\",\"kick\":\"classic\"},\"ch\":{\"fight\":0,\"race\":0,\"kick\":1},\"play\":{\"fight\":\"ch\",\"race\":\"ch\",\"kick\":\"ch\"},\"stats\":{\"plays\":{\"fight\":0,\"race\":0,\"kick\":1},\"wins\":{\"fight\":0,\"race\":0,\"kick\":1}},\"gfx\":\"2d\",\"kickTime\":\"day\",\"raceGarage\":{\"version\":1,\"body\":\"street\",\"suspension\":\"balanced\",\"tires\":\"balanced\",\"brakes\":\"standard\"},\"raceProfileRecords\":{\"version\":1,\"topKmh\":null,\"dragSeconds\":null,\"driftPoints\":null},\"raceProgression\":{\"version\":1,\"unlocked\":0,\"selected\":0,\"heats\":0,\"brakeHeat\":0,\"tireHeat\":0},\"raceVenue\":\"highland\"}"
+        },
+        {
+          "phase": "recorded-replay-open",
+          "hit": "rbExit",
+          "visible": true
+        }
+      ],
+      "requests": 38
+    },
+    {
+      "label": "1113x834-3d-pointer",
+      "states": [
+        {
+          "phase": "replay",
+          "visible": true,
+          "hit": "goalCelebrationSkip",
+          "button": {
+            "x": 890.703125,
+            "y": 715.1875,
+            "w": 97.296875,
+            "h": 44,
+            "right": 988,
+            "bottom": 759.1875
+          },
+          "deck": {
+            "x": 65.5,
+            "y": 516.1875,
+            "right": 965.5,
+            "bottom": 767.1875,
+            "visible": true
+          },
+          "stage": {
+            "x": 25,
+            "y": 17.90625,
+            "right": 1088,
+            "bottom": 777.1875
+          },
+          "active": true,
+          "reduced": false,
+          "canvasFallback": false,
+          "progress": "{\"punch\":0,\"lap\":0,\"goals\":1,\"xp\":1300,\"badges\":{\"k_goal\":1793572449505,\"k_math\":1793572449505,\"k_bins\":1793572449506},\"style\":{\"fight\":\"red\",\"race\":\"stock\",\"kick\":\"classic\"},\"ch\":{\"fight\":0,\"race\":0,\"kick\":1},\"play\":{\"fight\":\"ch\",\"race\":\"ch\",\"kick\":\"ch\"},\"stats\":{\"plays\":{\"fight\":0,\"race\":0,\"kick\":1},\"wins\":{\"fight\":0,\"race\":0,\"kick\":1}},\"kickTime\":\"day\",\"raceGarage\":{\"version\":1,\"body\":\"street\",\"suspension\":\"balanced\",\"tires\":\"balanced\",\"brakes\":\"standard\"},\"raceProfileRecords\":{\"version\":1,\"topKmh\":null,\"dragSeconds\":null,\"driftPoints\":null},\"raceProgression\":{\"version\":1,\"unlocked\":0,\"selected\":0,\"heats\":0,\"brakeHeat\":0,\"tireHeat\":0},\"raceVenue\":\"highland\"}",
+          "storage": [
+            "impactlab.nick",
+            "impactlab.v1",
+            "kicklab.profiles.v1"
+          ],
+          "overflow": false
+        },
+        {
+          "phase": "skip-activated",
+          "ended": "skipped",
+          "title": "TOP BINS!"
+        },
+        {
+          "phase": "result-replay-ready",
+          "visible": true,
+          "hit": "rReplay",
+          "button": {
+            "x": 479.609375,
+            "y": 395.3125,
+            "right": 549.6875,
+            "bottom": 429.453125
+          },
+          "deck": true,
+          "progress": "{\"punch\":0,\"lap\":0,\"goals\":1,\"xp\":1300,\"badges\":{\"k_goal\":1793572449505,\"k_math\":1793572449505,\"k_bins\":1793572449506},\"style\":{\"fight\":\"red\",\"race\":\"stock\",\"kick\":\"classic\"},\"ch\":{\"fight\":0,\"race\":0,\"kick\":1},\"play\":{\"fight\":\"ch\",\"race\":\"ch\",\"kick\":\"ch\"},\"stats\":{\"plays\":{\"fight\":0,\"race\":0,\"kick\":1},\"wins\":{\"fight\":0,\"race\":0,\"kick\":1}},\"kickTime\":\"day\",\"raceGarage\":{\"version\":1,\"body\":\"street\",\"suspension\":\"balanced\",\"tires\":\"balanced\",\"brakes\":\"standard\"},\"raceProfileRecords\":{\"version\":1,\"topKmh\":null,\"dragSeconds\":null,\"driftPoints\":null},\"raceProgression\":{\"version\":1,\"unlocked\":0,\"selected\":0,\"heats\":0,\"brakeHeat\":0,\"tireHeat\":0},\"raceVenue\":\"highland\"}"
+        },
+        {
+          "phase": "recorded-replay-open",
+          "hit": "rbExit",
+          "visible": true
+        }
+      ],
+      "requests": 28
+    },
+    {
+      "label": "1440x900-3d-keyboard",
+      "states": [
+        {
+          "phase": "replay",
+          "visible": true,
+          "hit": "goalCelebrationSkip",
+          "button": {
+            "x": 1181.703125,
+            "y": 780.9375,
+            "w": 97.296875,
+            "h": 44,
+            "right": 1279,
+            "bottom": 824.9375
+          },
+          "deck": {
+            "x": 229,
+            "y": 581.9375,
+            "right": 1129,
+            "bottom": 832.9375,
+            "visible": true
+          },
+          "stage": {
+            "x": 61,
+            "y": 19.1875,
+            "right": 1379,
+            "bottom": 842.9375
+          },
+          "active": true,
+          "reduced": false,
+          "canvasFallback": false,
+          "progress": "{\"punch\":0,\"lap\":0,\"goals\":1,\"xp\":1300,\"badges\":{\"k_goal\":1793572460022,\"k_math\":1793572460023,\"k_bins\":1793572460023},\"style\":{\"fight\":\"red\",\"race\":\"stock\",\"kick\":\"classic\"},\"ch\":{\"fight\":0,\"race\":0,\"kick\":1},\"play\":{\"fight\":\"ch\",\"race\":\"ch\",\"kick\":\"ch\"},\"stats\":{\"plays\":{\"fight\":0,\"race\":0,\"kick\":1},\"wins\":{\"fight\":0,\"race\":0,\"kick\":1}},\"kickTime\":\"day\",\"raceGarage\":{\"version\":1,\"body\":\"street\",\"suspension\":\"balanced\",\"tires\":\"balanced\",\"brakes\":\"standard\"},\"raceProfileRecords\":{\"version\":1,\"topKmh\":null,\"dragSeconds\":null,\"driftPoints\":null},\"raceProgression\":{\"version\":1,\"unlocked\":0,\"selected\":0,\"heats\":0,\"brakeHeat\":0,\"tireHeat\":0},\"raceVenue\":\"highland\"}",
+          "storage": [
+            "impactlab.nick",
+            "impactlab.v1",
+            "kicklab.profiles.v1"
+          ],
+          "overflow": false
+        },
+        {
+          "phase": "skip-activated",
+          "ended": "skipped",
+          "title": "TOP BINS!"
+        },
+        {
+          "phase": "result-replay-ready",
+          "visible": true,
+          "hit": "rReplay",
+          "button": {
+            "x": 643.109375,
+            "y": 396.59375,
+            "right": 713.1875,
+            "bottom": 430.734375
+          },
+          "deck": true,
+          "progress": "{\"punch\":0,\"lap\":0,\"goals\":1,\"xp\":1300,\"badges\":{\"k_goal\":1793572460022,\"k_math\":1793572460023,\"k_bins\":1793572460023},\"style\":{\"fight\":\"red\",\"race\":\"stock\",\"kick\":\"classic\"},\"ch\":{\"fight\":0,\"race\":0,\"kick\":1},\"play\":{\"fight\":\"ch\",\"race\":\"ch\",\"kick\":\"ch\"},\"stats\":{\"plays\":{\"fight\":0,\"race\":0,\"kick\":1},\"wins\":{\"fight\":0,\"race\":0,\"kick\":1}},\"kickTime\":\"day\",\"raceGarage\":{\"version\":1,\"body\":\"street\",\"suspension\":\"balanced\",\"tires\":\"balanced\",\"brakes\":\"standard\"},\"raceProfileRecords\":{\"version\":1,\"topKmh\":null,\"dragSeconds\":null,\"driftPoints\":null},\"raceProgression\":{\"version\":1,\"unlocked\":0,\"selected\":0,\"heats\":0,\"brakeHeat\":0,\"tireHeat\":0},\"raceVenue\":\"highland\"}"
+        },
+        {
+          "phase": "recorded-replay-open",
+          "hit": "rbExit",
+          "visible": true
+        }
+      ],
+      "requests": 28
+    }
+  ],
+  "errors": [],
+  "external": [],
+  "mp4": "1024x768-replay-skip-9c648ad0c6.mp4",
+  "media": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080
+      }
+    ],
+    "format": {
+      "duration": "24.000000"
+    }
+  }
+}

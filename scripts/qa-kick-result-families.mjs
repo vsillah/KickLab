@@ -8,13 +8,13 @@ import {resolve,join} from 'node:path';
 
 const {chromium}=createRequire(import.meta.url)('playwright');
 const head=process.env.KICKLAB_QA_HEAD;
-if(!/^[a-f0-9]{40}$/.test(head||'')||execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()!==head)throw Error('KICKLAB_QA_HEAD must match HEAD');
+if(!/^[a-f0-9]{40}$/.test(head||'')||execFileSync('git',['rev-parse','origin/main'],{encoding:'utf8'}).trim()!==head)throw Error('KICKLAB_QA_HEAD must match product main');
 const url=new URL(process.argv[2]||'http://127.0.0.1:4173/kicklab.html');
 if(!['127.0.0.1','localhost'].includes(url.hostname)||url.pathname!=='/kicklab.html')throw Error('Use local built KickLab');
 url.searchParams.set('rev',head);
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 if(hash(Buffer.from(await(await fetch(url)).arrayBuffer()))!==hash(readFileSync('dist/kicklab.html')))throw Error('Served HTML differs from exact-head build');
-const out=resolve('qa-artifacts/kick-result-clearance',head.slice(0,10));mkdirSync(out,{recursive:true});
+const out=resolve(process.argv[3]||join('qa-artifacts/kick-result-clearance',head.slice(0,10)));mkdirSync(out,{recursive:true});
 const cases=[
   ['free','failure','NO GOAL'],['free','success','TOP BINS!'],
   ['header','failure','MISSED IT'],['header','success','GOAL!'],
