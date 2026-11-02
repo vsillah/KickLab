@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-17",
+  "updatedAt": "2026-11-01",
   "platformFloor": {
     "node": ">=22",
     "ios": ">=15",
@@ -13,8 +13,8 @@
   "gates": [
     {
       "id": "browser-baseline",
-      "status": "not_qualified",
-      "evidence": "Automated build and contract checks only; full browser evidence packet not run in this lane."
+      "status": "qualified",
+      "evidence": "Integration Captain qualified Browser Gate 1 at merged PR #143 / main 7e16186ba85d5f8048104819ae53602870ffecb3. Exact web/Pages SHA-256 20fd645fd25f10589724eabcc22a1a57ad795688ab39597a8225d80d5d38d66c; mobile HTML c3c963ffc2ad3314068c857dc44c9b82ff640a310ec662fcef9404132ddb0294. See docs/browser-gate1-59abddb-checkpoint.md and PR #143 evidence. This browser qualification does not clear rights, native, accessibility, signing, store, or release gates."
     },
     {
       "id": "ios-simulator-android-emulator",
