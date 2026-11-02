@@ -1,6 +1,6 @@
 # KickLab Phase 2: rights and privacy foundation
 
-The proposed package assessment on `codex/kicklab-w1-package-removal` is based on merged main `f26fdb1c7bd31a892100c07120c11019d69e46ec`. See the [closeout/Phase 3 entry packet](phase2-closeout-phase3-entry.md), [203-path rights evidence plan](runtime-rights-evidence-plan.csv), [exact-file action groups](rights-owner-action-groups.md), and [Gate 1 checkpoint](../browser-gate1-59abddb-checkpoint.md). Browser Gate 1 remains qualified on the unchanged HTML. This document records rights and privacy holds; it grants no commercial clearance, policy publication, native generation, store declaration, or distribution authority.
+The current package assessment is bound to deployed main `96ed8a5dfa5de5dcf5cfcefd68ad466d369c64f3`. See the [closeout/Phase 3 entry packet](phase2-closeout-phase3-entry.md), [203-path rights evidence plan](runtime-rights-evidence-plan.csv), [exact-file action groups](rights-owner-action-groups.md), and [Gate 1 checkpoint](../browser-gate1-59abddb-checkpoint.md). Browser Gate 1 remains qualified on the unchanged HTML. This document records rights and privacy holds; it grants no commercial clearance, policy publication, native generation, store declaration, or distribution authority.
 
 ## Commercial scope and exact package
 

@@ -1,12 +1,12 @@
 # Exact-file owner attestation template
 
-Use one signed record per exact shipped file, or a signed batch with **one complete row per file**. Copy identity and required review fields from [runtime-rights-evidence-plan.csv](runtime-rights-evidence-plan.csv). Keep source proofs in a restricted evidence location; store only a path, receipt ID, and hash in this release packet. An attestation is an owner claim until the external IP/privacy reviewer accepts the final packet.
+Use one signed record per exact shipped file, or a signed batch with **one complete row per file**. Copy identity and required review fields from [runtime-rights-evidence-plan.csv](runtime-rights-evidence-plan.csv). Keep source proofs in a restricted evidence location; store only a path, receipt ID, and hash in this release packet. An attestation is an owner claim until the internal owner accepts the exact-hash evidence and final packet; counsel is optional for a concrete unresolved legal question.
 
 ## File identity
 
 | Field | Required entry |
 | --- | --- |
-| Package and base | KickLab `dist/mobile`, merge `2140e0cf0c3d74845a7e384aa8200a46cde9115f`; replace with the exact candidate commit at signing |
+| Package and base | KickLab `dist/mobile`, deployed main `96ed8a5dfa5de5dcf5cfcefd68ad466d369c64f3`; replace with the exact candidate commit at signing |
 | Shipped relative path | `[copy exact mobile_path]` |
 | SHA-256 and bytes | `[copy exact ledger SHA-256]`; `[copy exact ledger size]` |
 | Rights group and wave | `[H01–H11 or H09R]`; `[W1–W4]` |
@@ -29,7 +29,7 @@ Use one signed record per exact shipped file, or a signed batch with **one compl
 | Required validation | `[tests, browser/device matrix, privacy/egress, accessibility, hashes]` |
 | Owner | Vambah Sillah, internal rights/release approver |
 | Owner signature and date | `[signed record and date; no unsigned checkbox]` |
-| External IP/privacy reviewer | `[name, finding, dated acceptance or rejection; pending until performed]` |
+| Internal owner decision | `[dated exact-hash acceptance or rejection, evidence IDs and obligations]` |
 | Candidate build identity | `[commit, package tree/hash, exact resulting path/SHA after any edit]` |
 
-**Stop:** reject an absent signature, stale hash, ambiguous creator or consumer, missing source input, unsupported license claim, incomplete likeness/mark check, or mismatch between the signed file and the candidate package. Reopen dependent media and validation if any upstream source changes. Keep the [installed notice row](shipped-file-rights.csv) separate; the MIT text in the package does not itself close external review.
+**Stop:** reject an absent signature, stale hash, ambiguous creator or consumer, missing source input, unsupported license claim, incomplete likeness/mark check, or mismatch between the signed file and the candidate package. Reopen dependent media and validation if any upstream source changes. Keep the [installed notice row](shipped-file-rights.csv) separate; the MIT text in the package does not itself complete final terms and placement verification.

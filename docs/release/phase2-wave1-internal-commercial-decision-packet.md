@@ -1,6 +1,8 @@
 # Phase 2 Wave 1 internal commercial-release decision packet
 
-Prepared 2026-11-02 against exact deployed main `fbb7ddbdca198f6cccc96efb1ac0e1f0d906a269`. The [27-row exact-hash decision schedule](phase2-wave1-internal-commercial-decision-schedule.csv) binds each shipped relative path, SHA-256 and byte count to the [210-file ledger](shipped-file-rights.csv), [209-row runtime plan](runtime-rights-evidence-plan.csv), and prior [W1 status register](phase2-wave1-exact-file-status.csv). This packet supersedes the proposed external-review handoff in this PR. External counsel is an optional, risk-based escalation, not a blanket release prerequisite. This is an internal evidence assessment for owner adoption; it is not a legal opinion or Phase 2 release authorization. The classifications below do not amend the main rights ledger or authorize product changes.
+**Current-package update (2026-11-02):** This 27-row schedule is the historical 210-file assessment at `fbb7ddb`. Six package-only candidates were subsequently excluded in the 204-file package at `96ed8a5`; the six active models remain held under the [exact-file model disposition](w1-active-model-evidence-disposition.md). The 15 proposed internal clearances have not been adopted in the current shipped ledger. The original receipts and counts below remain the historical evidence record.
+
+Prepared 2026-11-02 against exact deployed main `fbb7ddbdca198f6cccc96efb1ac0e1f0d906a269`. The [27-row exact-hash decision schedule](phase2-wave1-internal-commercial-decision-schedule.csv) binds each shipped relative path, SHA-256 and byte count to the 210-file ledger and 209-row runtime plan as they stood at `fbb7ddb`, and to the prior [W1 status register](phase2-wave1-exact-file-status.csv). The current linked [shipped ledger](shipped-file-rights.csv) and [runtime plan](runtime-rights-evidence-plan.csv) now contain 204 and 203 rows, respectively. This packet supersedes the proposed external-review handoff in this PR. External counsel is an optional, risk-based escalation, not a blanket release prerequisite. This is an internal evidence assessment for owner adoption; it is not a legal opinion or Phase 2 release authorization. The classifications below do not amend the main rights ledger or authorize product changes.
 
 ## Decision rule and result
 
@@ -11,14 +13,14 @@ The owner is the internal commercial-rights decision maker. The schedule propose
 - **Replace:** a confirmed conflicting input or design requires a new asset and downstream recapture. No W1 row currently has that confirmed finding.
 - **Held:** available evidence cannot support internal commercial clearance. Obtain the specified source, creator, reference, or design evidence, then reassess; replacement is the fallback. Counsel may be requested for a concrete unresolved legal question, but the absence of counsel alone is not the hold reason.
 
-| Decision | Exact rows | Effect on current package |
+| Decision | Exact rows | Effect at the 210-file assessment |
 | --- | ---: | --- |
 | Internally cleared | 15 | Six procedural award images, eight procedural tire-smoke frames, and one procedural smoke PNG are supported candidates for internal exact-hash clearance. |
-| Remove | 6 | Four superseded athlete-v1 files, one internal-evaluation placeholder, and one legacy Race vehicle remain shipped and held until removal is implemented and verified. |
+| Remove | 6 | Four superseded athlete-v1 files, one internal-evaluation placeholder, and one legacy Race vehicle were shipped and held until removal was implemented and verified. |
 | Replace | 0 | No confirmed conflict supports a replacement order yet. |
 | Held | 6 | Four active roster vehicles, one Cobalt model, and one Race internals model need stronger input/reference and design evidence. |
 
-Thus **15/27 are supported internal-clearance proposals; 12/27 retain substantive release holds after adoption**. Until the owner adopts these decisions and the ledger is updated, **all 27 remain held in the current package**. The other 182 runtime rows and the separate notice row retain their existing states. No blanket commercial release follows from this W1 subset.
+Thus **15/27 are supported internal-clearance proposals; 12/27 retain substantive release holds after adoption**. Until the owner adopts these decisions and the ledger is updated, **all 27 were held in the assessed 210-file package**. The other 182 runtime rows and the separate notice row retain their existing states. No blanket commercial release follows from this W1 subset.
 
 ## Receipt chain and limits
 
@@ -40,9 +42,9 @@ The four athlete-v1 files are superseded by v2 in Kick but still packaged. The p
 
 The active Race roster, Cobalt and cutaway models are generated locally, but scripts, manifests, Git history, and GLB structure do not fully resolve creator/input references or recognizable vehicle/cutaway design. The six exact hashes therefore stay held. The next internal evidence request is a per-model input/reference inventory, actual creator or assignment chain where applicable, and design assessment. If that evidence cannot support commercial use, replace the model and recapture dependent H07/H11 media. Seek counsel only if a specific unresolved likeness, trademark, trade dress, contributor, or license question remains after that evidence is gathered.
 
-## Boundary and next gates
+## Historical boundary and next gates at assessment time
 
-1. Submit this schedule for owner adoption as the proposed W1 decision overlay. Older Phase 2 plans describe the previous blanket external-review gate and remain historical baselines until a broader rights-plan update is integrated. Their other held rows and requirements are not waived.
+1. Submit this schedule for owner adoption as the proposed W1 decision overlay. The dated schedule remains evidence for the prior 210-file package; use the current 204-file ledgers for Phase 2 decisions. Their other held rows and requirements are not waived.
 2. Route the six removal candidates to a separate product-change lane. Do not delete shipped assets or edit package assertions in this documentation PR.
 3. Collect the six held models' input, reference, creator, and design evidence in restricted records. Update exact-hash decisions only with evidence. A confirmed conflict moves the row to **replace**; insufficient evidence leaves it **held**.
 4. Reconcile all 209 runtime rows and the notice row before Phase 2 closeout. Legal identity, support/privacy, notice placement, browser/native, and distribution gates remain separate. No native project, store record, signing, upload, provider action, policy publication, or release is authorized here.
