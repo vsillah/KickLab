@@ -1,6 +1,6 @@
 # KickLab Phase 2: rights and privacy foundation
 
-Current package assessment prepared from exact `origin/main` `efee5cb364aec475f36fbb82b071ef2c7a600ee1` on `codex/kicklab-phase2-package-minimization`. See the [closeout/Phase 3 entry packet](phase2-closeout-phase3-entry.md), [exact-file action groups](rights-owner-action-groups.md), [action map](rights-action-map.csv), and [Gate 1 checkpoint](../browser-gate1-59abddb-checkpoint.md). Browser Gate 1 is qualified at this merge. This document records rights and privacy holds; it grants no commercial clearance, policy publication, native generation, store declaration, or distribution authority.
+Current package assessment is bound to exact deployed `origin/main` `2140e0cf0c3d74845a7e384aa8200a46cde9115f`. See the [closeout/Phase 3 entry packet](phase2-closeout-phase3-entry.md), [209-path rights evidence plan](runtime-rights-evidence-plan.csv), [exact-file action groups](rights-owner-action-groups.md), and [Gate 1 checkpoint](../browser-gate1-59abddb-checkpoint.md). Browser Gate 1 remains qualified on the unchanged HTML. This document records rights and privacy holds; it grants no commercial clearance, policy publication, native generation, store declaration, or distribution authority.
 
 ## Commercial scope and exact package
 
