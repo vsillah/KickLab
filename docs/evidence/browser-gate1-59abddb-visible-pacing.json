@@ -1,0 +1,522 @@
+{
+  "head": "59abddbc6f90d4affdfe4f9ec9190b45a5b2f811",
+  "artifactSha256": "20fd645fd25f10589724eabcc22a1a57ad795688ab39597a8225d80d5d38d66c",
+  "browserVersion": "149.0.7827.55",
+  "thresholdMs": 50,
+  "cases": [
+    {
+      "label": "kick-360x800",
+      "medianP95Ms": 10.1,
+      "runs": [
+        {
+          "valid": true,
+          "p95Ms": 9.5,
+          "medianMs": 8.3,
+          "maxMs": 10.3,
+          "before": {
+            "visibility": "visible",
+            "lab": "kick",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          },
+          "after": {
+            "visibility": "visible",
+            "lab": "kick",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          }
+        },
+        {
+          "valid": true,
+          "p95Ms": 10.1,
+          "medianMs": 8.3,
+          "maxMs": 10.3,
+          "before": {
+            "visibility": "visible",
+            "lab": "kick",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          },
+          "after": {
+            "visibility": "visible",
+            "lab": "kick",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          }
+        },
+        {
+          "valid": true,
+          "p95Ms": 10.1,
+          "medianMs": 8.3,
+          "maxMs": 10.4,
+          "before": {
+            "visibility": "visible",
+            "lab": "kick",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          },
+          "after": {
+            "visibility": "visible",
+            "lab": "kick",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          }
+        }
+      ],
+      "pass": true
+    },
+    {
+      "label": "kick-390x844",
+      "medianP95Ms": 10.1,
+      "runs": [
+        {
+          "valid": true,
+          "p95Ms": 10.2,
+          "medianMs": 8.3,
+          "maxMs": 10.4,
+          "before": {
+            "visibility": "visible",
+            "lab": "kick",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          },
+          "after": {
+            "visibility": "visible",
+            "lab": "kick",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          }
+        },
+        {
+          "valid": true,
+          "p95Ms": 10.1,
+          "medianMs": 8.3,
+          "maxMs": 10.3,
+          "before": {
+            "visibility": "visible",
+            "lab": "kick",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          },
+          "after": {
+            "visibility": "visible",
+            "lab": "kick",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          }
+        },
+        {
+          "valid": true,
+          "p95Ms": 10.1,
+          "medianMs": 8.3,
+          "maxMs": 10.4,
+          "before": {
+            "visibility": "visible",
+            "lab": "kick",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          },
+          "after": {
+            "visibility": "visible",
+            "lab": "kick",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          }
+        }
+      ],
+      "pass": true
+    },
+    {
+      "label": "kick-768x1024",
+      "medianP95Ms": 10,
+      "runs": [
+        {
+          "valid": true,
+          "p95Ms": 10,
+          "medianMs": 8.3,
+          "maxMs": 10.3,
+          "before": {
+            "visibility": "visible",
+            "lab": "kick",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          },
+          "after": {
+            "visibility": "visible",
+            "lab": "kick",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          }
+        },
+        {
+          "valid": true,
+          "p95Ms": 9.7,
+          "medianMs": 8.3,
+          "maxMs": 10.3,
+          "before": {
+            "visibility": "visible",
+            "lab": "kick",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          },
+          "after": {
+            "visibility": "visible",
+            "lab": "kick",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          }
+        },
+        {
+          "valid": true,
+          "p95Ms": 10.1,
+          "medianMs": 8.3,
+          "maxMs": 10.3,
+          "before": {
+            "visibility": "visible",
+            "lab": "kick",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          },
+          "after": {
+            "visibility": "visible",
+            "lab": "kick",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          }
+        }
+      ],
+      "pass": true
+    },
+    {
+      "label": "kick-1113x834",
+      "medianP95Ms": 10.1,
+      "runs": [
+        {
+          "valid": true,
+          "p95Ms": 10.1,
+          "medianMs": 8.3,
+          "maxMs": 10.4,
+          "before": {
+            "visibility": "visible",
+            "lab": "kick",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          },
+          "after": {
+            "visibility": "visible",
+            "lab": "kick",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          }
+        },
+        {
+          "valid": true,
+          "p95Ms": 10.1,
+          "medianMs": 8.3,
+          "maxMs": 10.4,
+          "before": {
+            "visibility": "visible",
+            "lab": "kick",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          },
+          "after": {
+            "visibility": "visible",
+            "lab": "kick",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          }
+        },
+        {
+          "valid": true,
+          "p95Ms": 9.9,
+          "medianMs": 8.3,
+          "maxMs": 10.4,
+          "before": {
+            "visibility": "visible",
+            "lab": "kick",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          },
+          "after": {
+            "visibility": "visible",
+            "lab": "kick",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          }
+        }
+      ],
+      "pass": true
+    },
+    {
+      "label": "kick-1440x900",
+      "medianP95Ms": 10.1,
+      "runs": [
+        {
+          "valid": true,
+          "p95Ms": 10.1,
+          "medianMs": 8.3,
+          "maxMs": 10.4,
+          "before": {
+            "visibility": "visible",
+            "lab": "kick",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          },
+          "after": {
+            "visibility": "visible",
+            "lab": "kick",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          }
+        },
+        {
+          "valid": true,
+          "p95Ms": 9.9,
+          "medianMs": 8.3,
+          "maxMs": 10.4,
+          "before": {
+            "visibility": "visible",
+            "lab": "kick",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          },
+          "after": {
+            "visibility": "visible",
+            "lab": "kick",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          }
+        },
+        {
+          "valid": true,
+          "p95Ms": 10.3,
+          "medianMs": 8.3,
+          "maxMs": 10.4,
+          "before": {
+            "visibility": "visible",
+            "lab": "kick",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          },
+          "after": {
+            "visibility": "visible",
+            "lab": "kick",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          }
+        }
+      ],
+      "pass": true
+    },
+    {
+      "label": "fight-390x844",
+      "medianP95Ms": 9.7,
+      "runs": [
+        {
+          "valid": true,
+          "p95Ms": 10.1,
+          "medianMs": 8.3,
+          "maxMs": 10.4,
+          "before": {
+            "visibility": "visible",
+            "lab": "fight",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          },
+          "after": {
+            "visibility": "visible",
+            "lab": "fight",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          }
+        },
+        {
+          "valid": true,
+          "p95Ms": 9.5,
+          "medianMs": 8.3,
+          "maxMs": 10.3,
+          "before": {
+            "visibility": "visible",
+            "lab": "fight",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          },
+          "after": {
+            "visibility": "visible",
+            "lab": "fight",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          }
+        },
+        {
+          "valid": true,
+          "p95Ms": 9.7,
+          "medianMs": 8.3,
+          "maxMs": 33.7,
+          "before": {
+            "visibility": "visible",
+            "lab": "fight",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          },
+          "after": {
+            "visibility": "visible",
+            "lab": "fight",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": null,
+            "overflow": 0
+          }
+        }
+      ],
+      "pass": true
+    },
+    {
+      "label": "race-390x844",
+      "medianP95Ms": 18.2,
+      "runs": [
+        {
+          "valid": true,
+          "p95Ms": 18.2,
+          "medianMs": 16.5,
+          "maxMs": 18.7,
+          "before": {
+            "visibility": "visible",
+            "lab": "race",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": "run",
+            "overflow": 0
+          },
+          "after": {
+            "visibility": "visible",
+            "lab": "race",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": "run",
+            "overflow": 0
+          }
+        },
+        {
+          "valid": true,
+          "p95Ms": 18.2,
+          "medianMs": 16.3,
+          "maxMs": 25.3,
+          "before": {
+            "visibility": "visible",
+            "lab": "race",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": "run",
+            "overflow": 0
+          },
+          "after": {
+            "visibility": "visible",
+            "lab": "race",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": "run",
+            "overflow": 0
+          }
+        },
+        {
+          "valid": true,
+          "p95Ms": 18.6,
+          "medianMs": 16.6,
+          "maxMs": 25.4,
+          "before": {
+            "visibility": "visible",
+            "lab": "race",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": "run",
+            "overflow": 0
+          },
+          "after": {
+            "visibility": "visible",
+            "lab": "race",
+            "resultHidden": true,
+            "overlayHidden": true,
+            "racePhase": "run",
+            "overflow": 0
+          }
+        }
+      ],
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "external": [],
+  "httpErrors": []
+}
