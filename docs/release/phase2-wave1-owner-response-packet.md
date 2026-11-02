@@ -1,4 +1,6 @@
-# Phase 2 Wave 1 owner response packet — repository prefill
+# Phase 2 Wave 1 owner response packet
+
+**Historical intake (2026-11-02):** This prefill records the prior 27-file review request. The [internal decision packet](phase2-wave1-internal-commercial-decision-packet.md) supersedes its blanket external-review request. Six package-only files were later excluded; the six active models remain held. The older questions and requested reviewer fields below are retained as historical evidence, not current mandatory counsel gates. — repository prefill
 
 This prefill applies to the **27 exact shipped files** in [the status register](phase2-wave1-exact-file-status.csv), using each complete relative path, SHA-256 and byte count from the 210-file package at merged main `729875015a99d50a591d8bf668a57bd274b7cd25`. Each row has an observed last artifact Git commit and one of the eight evidence batch IDs below. Identical statements may be signed as a batch **only if the signed attachment includes all 27 complete exact-file rows and any exceptions per file**. Git attribution, scripts and manifests are leads, not signed rights evidence. The package remains held; zero files are cleared.
 

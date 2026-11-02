@@ -1,6 +1,6 @@
 # Phase 2 rights closeout dashboard
 
-Proposed on `codex/kicklab-w1-package-removal` from merged main `f26fdb1c7bd31a892100c07120c11019d69e46ec` and its 204-file `dist/mobile` package. This is an intake and decision dashboard. It records **zero new rights clearances**. Browser Gate 1 remains qualified on the unchanged HTML; that qualification does not grant commercial rights.
+Current at deployed main `96ed8a5dfa5de5dcf5cfcefd68ad466d369c64f3` and its 204-file `dist/mobile` package. This is an intake and decision dashboard. It records **zero adopted rights clearances**; the six active W1 models remain held under [their exact-file evidence disposition](w1-active-model-evidence-disposition.md). Browser Gate 1 remains qualified on the unchanged HTML; that qualification does not grant commercial rights.
 
 | Package ledger | Count | Current decision state |
 | --- | ---: | --- |
@@ -10,9 +10,9 @@ Proposed on `codex/kicklab-w1-package-removal` from merged main `f26fdb1c7bd31a8
 
 The 203 runtime rows total **36,181,542 bytes**. The notice is **2,461 bytes**, so the package total is **36,184,003 bytes**. The plan has 11 rights groups plus the separate N01 notice group; its 203 paths, hashes, sizes, groups, and dispositions match the current shipped ledger and action map once each.
 
-| Ordered wave | Exact rows | Pending owner attestations | Default route |
+| Ordered wave | Exact rows | Pending exact-hash owner decisions | Default route |
 | --- | ---: | ---: | --- |
-| W1 original/procedural | 21 | 21 | Verify source and inputs for six retained models, nine effects, and six awards; six package-only candidates are excluded in this draft |
+| W1 original/procedural | 21 | 21 | Keep six active models held for the [model-by-model evidence](w1-active-model-evidence-disposition.md); assess nine effects and six awards against exact-hash owner evidence. Six package-only candidates are excluded from the current package. |
 | W2 upstream/license/dependent stills | 11 | 11 | Resolve imported source, MIT copy, MakeHuman CC0 chain, and model-linked thumbnails |
 | W3 generated portraits/effect | 25 | 25 | Review generation terms and likeness; five Fight v1 portraits require live-reference/fallback review |
 | W4 captured derivatives | 146 | 146 | Wait for upstream decisions; recapture affected media or clear unchanged captures with complete input proof |

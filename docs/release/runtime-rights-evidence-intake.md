@@ -1,11 +1,11 @@
 # Phase 2 rights evidence intake
 
-Use the [203-row exact-file plan](runtime-rights-evidence-plan.csv) as the intake queue. This draft is bound to the 204-file package on `codex/kicklab-w1-package-removal` from merged main `f26fdb1c7bd31a892100c07120c11019d69e46ec`. Keep source binaries, generated-image originals, private prompts, licenses, contracts, and reviewer correspondence in restricted owner-controlled storage. The release packet holds hashes, dated decisions, and references to those records. Do not place child profiles, real names, precise location, challenge codes, private chats, or unredacted screenshots in the intake or PR.
+Use the [203-row exact-file plan](runtime-rights-evidence-plan.csv) as the intake queue. This intake is bound to the 204-file package on deployed main `96ed8a5dfa5de5dcf5cfcefd68ad466d369c64f3`. Keep source binaries, generated-image originals, private prompts, licenses, contracts, and reviewer correspondence in restricted owner-controlled storage. The release packet holds hashes, dated decisions, and references to those records. Do not place child profiles, real names, precise location, challenge codes, private chats, or unredacted screenshots in the intake or PR.
 
 ## Intake for each path
 
 - [ ] Match relative path, SHA-256, bytes, rights group, and candidate commit to the shipped ledger. Reject duplicates or a stale/rebuilt file.
-- [ ] Confirm the actual product consumer and visible surface. For the 11 packaged-only candidates, inspect default, prototype, fallback, and offline paths before claiming no live consumer.
+- [ ] Confirm the actual product consumer and visible surface. For any proposed packaged-only exclusion, inspect default, prototype, fallback, and offline paths before claiming no live consumer.
 - [ ] Identify all creators and contributors; collect signed assignment, license, or original-author evidence that permits paid redistribution. Record dates and terms in force when each input was made.
 - [ ] Trace generator/script, editable source, export command, input files, output hash, and any later compression or capture. A manifest is a pointer to evidence, not the signed chain.
 - [ ] Inspect third-party geometry, texture, art, fonts, sound, source photos, provider output terms, likeness, logo, trademark, vehicle trade dress, and required attribution. Record “none found” only after inspection.

@@ -1,6 +1,6 @@
 # Runtime rights replacement and recapture sequence
 
-Proposed on `codex/kicklab-w1-package-removal` from merged main `f26fdb1c7bd31a892100c07120c11019d69e46ec`. The [exact-file plan](runtime-rights-evidence-plan.csv) assigns every one of the 203 remaining held runtime candidates to one wave. A wave is an evidence decision stage, not authorization to edit or publish. If the owner cannot prove a current file, create a separate scoped implementation PR and rerun the dependent checks before signing the replacement hash.
+Current for deployed main `96ed8a5dfa5de5dcf5cfcefd68ad466d369c64f3`. The [exact-file plan](runtime-rights-evidence-plan.csv) assigns every one of the 203 remaining held runtime candidates to one wave. A wave is an evidence decision stage, not authorization to edit or publish. If the owner cannot prove a current file, create a separate scoped implementation PR and rerun the dependent checks before signing the replacement hash.
 
 | Wave | Rows | Work in order | Exit before next wave |
 | --- | ---: | --- | --- |
