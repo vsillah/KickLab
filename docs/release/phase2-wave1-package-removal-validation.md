@@ -4,7 +4,7 @@ Draft branch `codex/kicklab-w1-package-removal`, based on merged main `f26fdb1c7
 
 The mobile package has **204 files and 36,184,003 bytes**, down from 210 files and 37,660,565 bytes. Its sorted `path\0sha256\0bytes\n` tree digest is `6ac87b156f150ebcde2ef70f8dff812bb018533b9e711b17a84cf91431b99a3c`. A path/hash comparison against the base rights ledger found exactly the six named removals, no additions, and unchanged hashes for all 204 shared paths. The [shipped-file ledger](shipped-file-rights.csv) and [action map](rights-action-map.csv) each have 204 matching rows. The [runtime plan](runtime-rights-evidence-plan.csv) has 203 rows plus the installed notice. All remaining rights rows remain held.
 
-The web and Pages HTML SHA-256 remains `20fd645fd25f10589724eabcc22a1a57ad795688ab39597a8225d38d66c`. Mobile HTML remains `c3c963ffc2ad3314068c857dc44c9b82ff640a310ec662fcef9404132ddb0294`. The installed `THIRD-PARTY-NOTICES.txt` remains `78741a4d19c7fbe12bdd943497aa03bbf0c8fd99b44fb6c0f8e6e01cb6e964bc`. Thus the game code, profile schema, default/prototype behavior, and notice bytes did not change in this draft.
+The web and Pages HTML SHA-256 remains `20fd645fd25f10589724eabcc22a1a57ad795688ab39597a8225d80d5d38d66c`. Mobile HTML remains `c3c963ffc2ad3314068c857dc44c9b82ff640a310ec662fcef9404132ddb0294`. The installed `THIRD-PARTY-NOTICES.txt` remains `78741a4d19c7fbe12bdd943497aa03bbf0c8fd99b44fb6c0f8e6e01cb6e964bc`. Thus the game code, profile schema, default/prototype behavior, and notice bytes did not change in this draft.
 
 ## Validation
 
