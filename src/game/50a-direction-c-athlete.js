@@ -3,6 +3,22 @@ const DIRECTION_C_PARAMS=new URLSearchParams(location.search);
 const DIRECTION_C_FLAG=DIRECTION_C_PARAMS.get('renderer')==='direction-c';
 const DIRECTION_C_ASSET='assets/3d/kicklab-direction-c-athlete/v2/kicklab-makehuman-athlete.glb';
 const DIRECTION_C_ASSET_BYTES=1643096;
+// Hold only the local athlete GLB for this document's later offline Kick entry.
+// The stadium is procedural and Three.js is bundled in the loaded document.
+const DIRECTION_C_HOME_ASSET={bytes:null,status:'empty',
+  prepare(){
+    if(DIRECTION_C.fallbackReason()||!navigator.onLine||this.status==='loading'||this.status==='ready')return;
+    this.status='loading';
+    fetch(DIRECTION_C_ASSET,{priority:'low'}).then(async response=>{
+      if(!response.ok)throw Error('Athlete asset unavailable');
+      const bytes=await response.arrayBuffer();
+      if(bytes.byteLength!==DIRECTION_C_ASSET_BYTES||new DataView(bytes).getUint32(0,true)!==0x46546c67)throw Error('Athlete asset outside contract');
+      this.bytes=bytes;this.status='ready';
+    }).catch(()=>{this.bytes=null;this.status='unavailable';});
+  },
+  get(){return this.status==='ready'?this.bytes:null;}
+};
+Object.defineProperty(globalThis,'__KICKLAB_KICK_3D_PREP__',{get:()=>({status:DIRECTION_C_HOME_ASSET.status,bytes:DIRECTION_C_HOME_ASSET.bytes?.byteLength||0})});
 const DIRECTION_C_CLIPS=Object.freeze(['Ready','RunUp','Plant','Strike','FollowThrough','Celebrate','Recovery','HeaderReady','HeaderContact','DribbleCycle','PassContact','ComboVolley','KeeperReady','KeeperDive','PenaltyStrike','CrossbarStrike']);
 const DIRECTION_C_BUDGETS=Object.freeze({assetBytes:2500000,firstPlayBytes:8000000,contactDriftMm:10,plantGroundMm:10,frameDesktopP95Ms:20,frameMobileP95Ms:40,memoryProxyBytes:24*1024*1024,materials:6,overflowPx:0});
 const DIRECTION_C_ORIENTATION=Object.freeze({
@@ -59,7 +75,7 @@ const DIRECTION_C={enabled:DIRECTION_C_FLAG,status:'flag-off',root:null,mixer:nu
   prepareOpponent(p,target){const reason=this.fallbackReason();if(reason){this.audit.opponentRenderer='procedural-fallback';return false;}this.opponent.target=Object.assign({profile:p},target);if(!this.root)this.load();const ready=this.status==='ready'&&!!this.opponent.root;this.audit.opponentRenderer=ready?'shared-direction-c':'procedural-fallback';return ready;},
   useForSide(K,o,x){const p=this.profile();if(p.space!=='side')return false;if(p===this.profiles.header&&o.headX!==undefined&&!o.rec&&!o.kicker)return this.prepareOpponent(p,{space:'side',model:K,o,x,y:0,role:'opponent'});const selected=p.role==='kicker'?!!o.kicker:p.role==='header'?!!o.rec&&!o.kicker:false;if(!selected)return false;const ready=this.prepare(p,{space:'side',model:K,o,x,y:0,role:p.role});if(p===this.profiles.header&&K.opt.duel==='duel'&&!this.opponent.target)this.prepareOpponent(p,{space:'side',model:K,o:{z:0},x:K.HX+.55,y:0,role:'opponent'});return ready;},
   useForWorld(D,o,x,y){const p=this.profile();if(p.space!=='world')return false;const role=p.role==='dynamic'&&D.state==='keep'?'keeper':p.role==='dynamic'?'attacker':p.role;const selected=role==='keeper'?(!!o.gloves&&!!o.avatar||D.state!=='keep'&&!!o.back&&!o.tag):!!o.back&&!o.tag;return selected&&this.prepare(p,{space:'world',model:D,o,x,y,role});},
-  load(){if(this.status==='loading'||this.status==='ready'||this.status==='failed')return;this.status='loading';this.audit.status='loading';this.audit.loads++;this.publish();const started=performance.now();new THREE.GLTFLoader().load(this.assetUrl,gltf=>{try{this.install(gltf,performance.now()-started);}catch(error){this.fail(error);}},undefined,error=>this.fail(error));},
+  load(){if(this.status==='loading'||this.status==='ready'||this.status==='failed')return;this.status='loading';this.audit.status='loading';this.audit.loads++;this.publish();const started=performance.now(),loader=new THREE.GLTFLoader(),onLoad=gltf=>{try{this.install(gltf,performance.now()-started);}catch(error){this.fail(error);}},onError=error=>this.fail(error),prepared=!navigator.onLine?DIRECTION_C_HOME_ASSET.get():null;if(prepared)loader.parse(prepared,'',onLoad,onError);else loader.load(this.assetUrl,onLoad,undefined,onError);},
   fail(error){this.status='failed';this.audit.status='load-failed';this.audit.error=String(error&&error.message||error).slice(0,120);this.publish();},
   /* Color.set converts CSS sRGB once. The bundled body PNG is opaque RGB despite its GLB BLEND flag. */
   styleRoot(root,palette){root.traverse(object=>{if(!object.isMesh)return;object.castShadow=true;object.receiveShadow=true;if(!object.material)return;const mats=Array.isArray(object.material)?object.material:[object.material];mats.forEach(mat=>{if(mat.map){const body=mat.name==='KickLabMakeHumanAthlete.body';mat.color.set(body?palette.SkinTint||0xffffff:0xffffff);mat.emissive.set(0xffffff);mat.emissiveMap=mat.map;mat.emissiveIntensity=.24;if(body){mat.transparent=false;mat.depthWrite=true;}}else if(palette[mat.name]){mat.color.set(palette[mat.name]);mat.emissive.copy(mat.color);mat.emissiveIntensity=mat.name==='KickLabCyan'?.32:mat.name==='KickLabSockWhite'?.12:mat.name==='HairEyesStuds'?.06:.18;}mat.roughness=Math.max(.34,mat.roughness||.6);mat.userData=mat.userData||{};mat.userData.kickLabBaseEmissiveIntensity=mat.emissiveIntensity||0;});});},

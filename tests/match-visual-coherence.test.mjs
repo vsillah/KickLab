@@ -40,7 +40,17 @@ test('marks only the controlled Direction C athlete with the local responsive Ki
   assert.match(athlete,/if\(RP\.on\)return['"]hidden-replay['"]/);
   assert.match(athlete,/physicsVisionVisible\(\)\)return['"]hidden-xray['"]/);
   assert.match(athlete,/visibility:`hidden-\$\{initialFallback\}`/);
-  assert.doesNotMatch(athlete,/fetch\(|XMLHttpRequest|sendBeacon|https?:\/\//);
+  assert.equal((athlete.match(/fetch\(/g)||[]).length,1);
+  assert.match(athlete,/fetch\(DIRECTION_C_ASSET,\{priority:'low'\}\)/);
+  assert.doesNotMatch(athlete,/XMLHttpRequest|sendBeacon|https?:\/\//);
+});
+
+test('prepares only the bounded local athlete for same-document offline Kick entry',()=>{
+  assert.match(athlete,/if\(DIRECTION_C\.fallbackReason\(\)\|\|!navigator\.onLine/);
+  assert.match(athlete,/bytes\.byteLength!==DIRECTION_C_ASSET_BYTES/);
+  assert.match(athlete,/prepared=!navigator\.onLine\?DIRECTION_C_HOME_ASSET\.get\(\):null/);
+  assert.match(athlete,/if\(prepared\)loader\.parse\(prepared,'',onLoad,onError\);else loader\.load\(this\.assetUrl/);
+  assert.doesNotMatch(athlete,/localStorage|sessionStorage|caches\.|serviceWorker/);
 });
 
 test('keeps one procedural spectator language across near and distant views',()=>{
