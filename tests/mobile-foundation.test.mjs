@@ -90,7 +90,12 @@ test('retains explicit no-authority boundaries and no generated native projects'
   assert.equal(existsSync(join(root,'android')),false);
 });
 
-test('keeps every unqualified release gate explicit',()=>{
+test('binds browser qualification to its merged artifact and keeps later gates unqualified',()=>{
   assert.deepEqual(qualification.gates.map(gate=>gate.id),['browser-baseline','ios-simulator-android-emulator','physical-devices','accessibility','signing','testflight-play-internal','feedback-release-candidate']);
-  for(const gate of qualification.gates)assert.ok(['not_run','not_qualified'].includes(gate.status),`${gate.id} cannot be inferred as qualified`);
+  const [browser,...laterGates]=qualification.gates;
+  assert.equal(browser.status,'qualified');
+  for(const identity of ['7e16186ba85d5f8048104819ae53602870ffecb3','20fd645fd25f10589724eabcc22a1a57ad795688ab39597a8225d80d5d38d66c','c3c963ffc2ad3314068c857dc44c9b82ff640a310ec662fcef9404132ddb0294']){
+    assert.ok(browser.evidence.includes(identity),`browser qualification must cite ${identity}`);
+  }
+  for(const gate of laterGates)assert.ok(['not_run','not_qualified'].includes(gate.status),`${gate.id} cannot be inferred as qualified`);
 });

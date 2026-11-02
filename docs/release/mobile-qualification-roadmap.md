@@ -2,9 +2,11 @@
 
 This is a finite seven-gate evidence path. A later gate cannot inherit qualification from an earlier gate, and build success never substitutes for rendered or device evidence. The machine-readable status is in [`mobile-qualification-status.json`](mobile-qualification-status.json).
 
+**Current disposition, 2026-11-01:** Browser Gate 1 was qualified by the Integration Captain at merged PR #143 / `origin/main` `7e16186ba85d5f8048104819ae53602870ffecb3`, on web/Pages SHA-256 `20fd645fd25f10589724eabcc22a1a57ad795688ab39597a8225d80d5d38d66c`. See the [current-artifact checkpoint](../browser-gate1-59abddb-checkpoint.md). Rights and notices remain Phase 2 holds; native generation is Phase 3 and requires separate authorization.
+
 | Gate | Required evidence | Current shared-lane state |
 | --- | --- | --- |
-| 1. Browser baseline | Exact commit, built artifact hash, desktop/mobile interaction smoke, storage continuity, offline check, console log, screenshots/MP4 where client-facing review applies | `not_qualified` — automated checks only |
+| 1. Browser baseline | Exact commit, built artifact hash, desktop/mobile interaction smoke, storage continuity, offline check, console log, screenshots/MP4 where client-facing review applies | `qualified` — merged PR #143 at `7e16186`; exact artifact and scope in linked checkpoint |
 | 2. Unsigned iOS Simulator and Android emulator | Generated platform project from the shared config, exact simulator/emulator and OS, clean install, offline launch, Fight/Race/Kick round, background/resume, held-input cancellation, local-profile restart | `not_run` |
 | 3. Physical devices | Named supported devices/OS versions, offline install and cold launch, touch/gesture/audio/haptic behavior, memory/thermal observations, background/interruption recovery | `not_run` |
 | 4. Accessibility | VoiceOver and TalkBack, keyboard/switch path where supported, dynamic text/zoom, contrast, reduced motion, focus order/names, canvas alternatives | `not_run` |
@@ -28,7 +30,7 @@ The shared foundation pins Capacitor 8 and Node 22 or newer. Platform projects g
 
 Amina owns iOS project generation and iOS Simulator evidence in her branch. Yaa Asantewaa owns Android project generation and emulator evidence in her branch. Each starts from the merged shared-foundation commit with Node 22 or newer, runs `npm ci` and `npm run mobile:check`, generates only its platform project, and confirms the copied web artifact hash matches `dist/mobile/kicklab-mobile-manifest.json`. Amina must confirm the generated deployment target is iOS 15 or newer. Yaa must confirm Android minimum SDK 24 and compile/target SDK 36. Neither platform lane may mark physical-device, accessibility, signing, internal-testing, feedback, or release-candidate gates qualified without the evidence listed above.
 
-The Integration Captain must provide the exact merged foundation commit before either lane starts. Amina must preserve the earlier SwiftUI/WKWebView experiment unchanged and use a clean Capacitor worktree rather than overwriting or deleting it.
+The Integration Captain must provide the exact merged foundation commit **and separate Phase 3 authorization** before either lane starts. Amina must preserve the earlier SwiftUI/WKWebView experiment unchanged and use a clean Capacitor worktree rather than overwriting or deleting it.
 
 ```sh
 # Amina, in a clean iOS-only branch/worktree based on the supplied merge commit
