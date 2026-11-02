@@ -14,10 +14,11 @@ The owner-controlled bundle is outside Git. Only these receipt identifiers and h
 
 | Receipt | ID | SHA-256 | Scope |
 | --- | --- | --- | --- |
-| Electronic owner-attestation record | `KL-W1-OA-20261102-FBB7DDB-27-001` | `6409bf1680c8dfeac32d6e255bddb58104ef09630f22f912463acd4196b05d56` | Annotated owner intent, owner-stated `NONE`, and all 27 exact paths/hashes/bytes; no handwritten signature. |
+| Active electronic owner-attestation receipt | `KL-W1-OA-20261102-FBB7DDB-27-002` | `c887854e843ea105ed5ddee36098eb8631ef243473891fdff352ec088ac5c759` | Versioned addendum with restricted owner/review-coordinator contact; binds the immutable prior 27-file receipt by ID and hash. No handwritten signature. |
+| Immutable prior exact-file receipt | `KL-W1-OA-20261102-FBB7DDB-27-001` | `6409bf1680c8dfeac32d6e255bddb58104ef09630f22f912463acd4196b05d56` | Annotated owner intent, owner-stated `NONE`, and all 27 exact paths/hashes/bytes. |
 | Repository creator/input evidence index | `KL-W1-CI-20261102-FBB7DDB-27-001` | `b5286e2eba39d2006571303d338900ea4bd20f4ed9dbd854fe9204c3b96d2d32` | Eight repository evidence batches; no third-party assignment/license receipts. |
 
-The private files are owner-controlled local records. The creator/input index points to repository artifacts; it does not prove creator identity or provide a signed third-party assignment. The reviewer must determine whether more underlying evidence is needed.
+The private files are owner-controlled local records. The active owner receipt includes coordinator contact only in the restricted file; no address is published here. That contact is **not** a selected reviewer, approved secure delivery channel or authorization to send anything. The creator/input index points to repository artifacts; it does not prove creator identity or provide a signed third-party assignment. The reviewer must determine whether more underlying evidence is needed.
 
 ## Evidence available to the reviewer
 
@@ -45,11 +46,11 @@ At minimum, assess: chain of title and contributor assignments; third-party mode
 ## Exact next gates and handoff
 
 1. **Owner exception schedule — answered:** On 2026-11-02 the owner stated `NONE` for all 27 exact W1 hashes. This records the owner's answer; it does not independently prove absence of an exception. Reopen the schedule if the owner or reviewer identifies one.
-2. **Electronic owner-attestation receipt — recorded:** The owner approved the attestation action by response annotation; the exact-file private receipt and repository index now exist with the IDs/hashes above. The annotation contained placeholders, so no handwritten signature or owner-supplied receipt values are implied. Any actual creator/assignment or external input receipts remain to be supplied if required by the reviewer.
+2. **Electronic owner-attestation receipt — recorded:** The owner approved the attestation action by response annotation; the versioned exact-file private receipt chain and repository index now exist with the IDs/hashes above. The owner subsequently supplied coordinator contact, recorded only in the restricted addendum. The annotation contained placeholders, so no handwritten signature or owner-supplied receipt values are implied. Any actual creator/assignment or external input receipts remain to be supplied if required by the reviewer.
 3. **Reviewer handoff — pending:** The owner or authorized coordinator selects a qualified external IP/privacy reviewer and supplies this packet, the exact schedule and private receipts through an approved restricted channel. Ask the reviewer to assess whether the electronic attestation and repository evidence suffice, request further source/assignment proof where needed, and return row-level findings and obligations. No reviewer has been named or contacted by this PR.
 4. **Post-review decision — pending:** Keep rejected or uncertain rows held. Any replacement, packaged-only removal, recapture or package rebuild requires a separate product-change authorization and new exact-file validation. Phase 2 release closeout remains separate from this W1 review.
 
-The smallest remaining decision is the external reviewer handoff: identify the qualified reviewer and restricted delivery channel, then authorize sharing the packet and two private receipts. The reviewer can request additional creator/assignment or source-input evidence and must return exact-row findings. No file is cleared by the owner receipt alone; no reviewer contact or sharing occurred in this lane.
+The smallest remaining decision is the external reviewer handoff: identify the qualified reviewer and restricted delivery channel, then separately authorize sharing this packet and the private receipt chain/index. The recorded coordinator contact does not supply either missing value. The reviewer can request additional creator/assignment or source-input evidence and must return exact-row findings. No file is cleared by the owner receipt alone; no reviewer contact or sharing occurred in this lane.
 
 ## Validation for this documentation-only lane
 
@@ -62,5 +63,7 @@ From branch `codex/kicklab-phase2-wave1-external-review` based on `fbb7ddbdca198
 - Canonical package-tree SHA-256 over sorted `path\\0file_sha256\\0byte_count\\n` lines for 210 packaged files: `7a7d778c8582002c2e692226af92ed0b17ed25b764fd7a9edb16c79bbe29e3db`. All three values matched the pre-build snapshot and the prior W1 documentation lane; product outputs did not change.
 
 The dated `NONE` follow-up changed only the reviewer schedule and this packet. Revalidation repeated `npm run check` (317 passed), `npm run mobile:check` (seven passed), and exact 27/209/210 path/hash/byte reconciliation before and after the builds. The web, mobile and package-tree digests above were unchanged from the pre-build snapshot. The 27 rows remain held. The later electronic-attestation receipt update again passed `npm run check` (317), `npm run mobile:check` (seven), private-receipt-to-27-row identity/hash checks, and 27/209/210 package reconciliation. All three product/package digests remained unchanged; reviewer findings remain pending.
+
+The later coordinator-contact update created a restricted versioned addendum while preserving the original exact-file receipt and its hash. Documentation/hash validation confirmed the new addendum's SHA-256 and its parent/index hashes, the parent receipt's exact 27-file identity table, owner-only file permissions, absence of the restricted contact address in both public PR files, and 27/209/210 ledger/package reconciliation. The web, mobile and package-tree digests above matched the prior run. Product code and assets were unchanged, so full product checks were not repeated for this contact-only edit. Reviewer identity, delivery channel, findings and obligations remain pending; all 27 rows remain held.
 
 Only this packet and its CSV findings schedule are changed in Git. No client-facing behavior changes are proposed, so Human QA does not apply. No native project, asset removal, policy publication, provider setup, store record, app signing, upload or distribution occurred.
