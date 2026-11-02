@@ -1,6 +1,6 @@
 # Phase 2 rights evidence intake
 
-Use the [209-row exact-file plan](runtime-rights-evidence-plan.csv) as the intake queue. It is bound to the 210-file package at merged main `2140e0cf0c3d74845a7e384aa8200a46cde9115f`. Keep source binaries, generated-image originals, private prompts, licenses, contracts, and reviewer correspondence in restricted owner-controlled storage. The release packet holds hashes, dated decisions, and references to those records. Do not place child profiles, real names, precise location, challenge codes, private chats, or unredacted screenshots in the intake or PR.
+Use the [203-row exact-file plan](runtime-rights-evidence-plan.csv) as the intake queue. This draft is bound to the 204-file package on `codex/kicklab-w1-package-removal` from merged main `f26fdb1c7bd31a892100c07120c11019d69e46ec`. Keep source binaries, generated-image originals, private prompts, licenses, contracts, and reviewer correspondence in restricted owner-controlled storage. The release packet holds hashes, dated decisions, and references to those records. Do not place child profiles, real names, precise location, challenge codes, private chats, or unredacted screenshots in the intake or PR.
 
 ## Intake for each path
 

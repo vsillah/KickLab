@@ -21,15 +21,18 @@ for(const file of ['fight.mp4','fight-poster.png','race.mp4','race-poster.png','
   assert.equal(readFileSync(join(pagesRoot,'media','home-previews',file)).compare(readFileSync(join(root,'dist','media','home-previews',file))),0,`${file} must match the checked build`);
 }
 for(const file of [
-  'assets/3d/kicklab-placeholder-athlete/v1/kicklab-placeholder-athlete.glb',
-  'assets/3d/kicklab-placeholder-athlete/v1/asset-manifest.json',
-  'assets/3d/kicklab-direction-c-athlete/v1/kicklab-direction-c-athlete.glb',
-  'assets/3d/kicklab-direction-c-athlete/v1/asset-manifest.json',
+  'assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb',
+  'assets/3d/kicklab-direction-c-athlete/v2/kicklab-makehuman-athlete.glb',
   'build-metrics.json',
   'party-qr.js',
 ]){
   assert.ok(!lstatSync(join(pagesRoot,file)).isSymbolicLink(),`${file} must be a regular local artifact`);
   assert.equal(readFileSync(join(pagesRoot,file)).compare(readFileSync(join(root,'dist',file))),0,`${file} must match the checked build`);
+}
+const removed=JSON.parse(readFileSync(join(root,'config','package-only-asset-exclusions.json'),'utf8')).files;
+for(const {path} of removed){
+  assert.throws(()=>lstatSync(join(root,'dist',path)),{code:'ENOENT'},`${path} must be absent from web output`);
+  assert.throws(()=>lstatSync(join(pagesRoot,path)),{code:'ENOENT'},`${path} must be absent from Pages output`);
 }
 
 assert.match(workflow, /^permissions:\n  contents: read$/m, 'workflow permissions must remain read-only');

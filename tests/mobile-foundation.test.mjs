@@ -12,6 +12,7 @@ const config=json('capacitor.config.json');
 const contract=json('config/mobile-release-contract.json');
 const manifest=json('dist/kicklab-mobile-manifest.json');
 const exclusions=json('config/mobile-package-exclusions.json');
+const packageOnly=json('config/package-only-asset-exclusions.json');
 const packageJson=json('package.json');
 const mobile=read('dist/mobile/index.html');
 const lifecycle=read('src/game/56-mobile-lifecycle.js');
@@ -58,8 +59,7 @@ test('keeps the packaged shell offline and fail-closed for navigation and egress
   assert.doesNotMatch(mobile,/fonts\.(?:googleapis|gstatic)\.com/);
   for(const file of ['fight.mp4','fight-poster.png','race.mp4','race-poster.png','kick.mp4','kick-poster.png'])assert.ok(existsSync(join(root,'dist','mobile','media','home-previews',file)),`${file} must be packaged locally`);
   for(const file of [
-    'assets/3d/kicklab-placeholder-athlete/v1/kicklab-placeholder-athlete.glb',
-    'assets/3d/kicklab-direction-c-athlete/v1/kicklab-direction-c-athlete.glb',
+    'assets/3d/kicklab-direction-c-athlete/v2/kicklab-makehuman-athlete.glb',
     'assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb',
   ])assert.ok(existsSync(join(root,'dist','mobile',file)),`${file} must be packaged locally`);
 });
@@ -86,11 +86,27 @@ test('packages only reviewed runtime files and notices while preserving source e
     assert.equal(existsSync(join(packageRoot,path)),false,`${path} must not ship`);
     assert.ok(!mobile.includes(path),`${path} has a runtime HTML reference`);
   }
+  assert.equal(packageOnly.files.length,6);
+  assert.deepEqual(packageOnly.files.map(file=>file.path).sort(),[
+    'assets/3d/kicklab-direction-c-athlete/v1/DirectionCColorAtlas.png',
+    'assets/3d/kicklab-direction-c-athlete/v1/DirectionCNormalAtlas.png',
+    'assets/3d/kicklab-direction-c-athlete/v1/DirectionCRoughnessAtlas.png',
+    'assets/3d/kicklab-direction-c-athlete/v1/kicklab-direction-c-athlete.glb',
+    'assets/3d/kicklab-placeholder-athlete/v1/kicklab-placeholder-athlete.glb',
+    'assets/3d/kicklab-race-vehicle/v1/kicklab-race-vehicle.glb',
+  ].sort());
+  for(const {path,sha256} of packageOnly.files){
+    assert.equal(createHash('sha256').update(readFileSync(join(sourceRoot,path))).digest('hex'),sha256,`${path} source evidence changed`);
+    assert.equal(existsSync(join(packageRoot,path)),false,`${path} must not ship`);
+    assert.equal(existsSync(join(root,'dist','pages',path)),false,`${path} must not ship on Pages`);
+    assert.ok(!mobile.includes(path),`${path} has a runtime HTML reference`);
+  }
   for(const metadata of ['build-metrics.json','kicklab-mobile-manifest.json']){
     assert.equal(existsSync(join(packageRoot,metadata)),false,`${metadata} must remain outside the package`);
     assert.ok(!mobile.includes(metadata),`${metadata} has a runtime HTML reference`);
   }
-  const expected=[...sourceFiles.filter(path=>!exclusions.paths.includes(path)),'index.html','party-qr.js','THIRD-PARTY-NOTICES.txt'].sort();
+  const removed=new Set([...exclusions.paths,...packageOnly.files.map(file=>file.path)]);
+  const expected=[...sourceFiles.filter(path=>!removed.has(path)),'index.html','party-qr.js','THIRD-PARTY-NOTICES.txt'].sort();
   const packaged=(directory)=>readdirSync(directory,{withFileTypes:true}).flatMap(entry=>{
     const path=join(directory,entry.name);
     return entry.isDirectory()?packaged(path):[relative(packageRoot,path)];
@@ -98,8 +114,8 @@ test('packages only reviewed runtime files and notices while preserving source e
   assert.deepEqual(packaged(packageRoot).sort(),expected);
   const ledgerRows=read('docs/release/shipped-file-rights.csv').split(/\r?\n/).map(line=>line.match(/^([^,]+),([a-f0-9]{64}),(\d+),/)).filter(Boolean);
   const actionRows=read('docs/release/rights-action-map.csv').split(/\r?\n/).map(line=>line.match(/^([^,]+),([a-f0-9]{64}),([^,]+),/)).filter(Boolean);
-  assert.equal(ledgerRows.length,210);
-  assert.equal(actionRows.length,210);
+  assert.equal(ledgerRows.length,204);
+  assert.equal(actionRows.length,204);
   assert.deepEqual(ledgerRows.map(row=>row[1]).sort(),expected);
   assert.deepEqual(actionRows.map(row=>row[1]).sort(),expected);
   for(const [,path,sha256,bytes] of ledgerRows){

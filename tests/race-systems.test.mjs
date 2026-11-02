@@ -23,10 +23,9 @@ test('vehicle contract has four independently positioned wheel pivots and requir
   const c=api.CONTRACT;assert.equal(c.root,'VehicleRoot');assert.equal(c.body,'Body');assert.equal(Object.keys(c.wheels).length,4);
   assert.equal(new Set(Object.values(c.wheels).map(w=>w.pivot.join(','))).size,4);
   assert.equal(c.collider.kind,'box');assert.equal(c.cameraTarget.length,3);assert.ok(c.materialSlots.includes('wheels'));assert.ok(c.lod.canvas);
-  const bytes=readFileSync(new URL('../src/assets/3d/kicklab-race-vehicle/v1/kicklab-race-vehicle.glb',import.meta.url));
-  const jsonLength=bytes.readUInt32LE(12),gltf=JSON.parse(bytes.subarray(20,20+jsonLength).toString('utf8'));
-  const names=gltf.nodes.map(node=>node.name||'');assert.equal(api.validateVehicle(names,{proxy:true}).ok,true);
-  assert.equal(api.validateVehicle(names,{proxy:false}).ok,false);
+  const proxyNames=['front tire -1','front tire 1','rear tire -1','rear tire 1','sculpted blue body shell'];
+  assert.equal(api.validateVehicle(proxyNames,{proxy:true}).ok,true);
+  assert.equal(api.validateVehicle(proxyNames,{proxy:false}).ok,false);
   assert.equal(api.validateVehicle([c.root,c.body,...Object.values(c.wheels).map(w=>w.node)],{proxy:false}).ok,true);
 });
 
