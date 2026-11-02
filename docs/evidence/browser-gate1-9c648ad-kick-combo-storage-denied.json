@@ -1,0 +1,103 @@
+{
+  "head": "9c648ad0c66ff9d2b32990f3a7d23b57e6e83981",
+  "artifactSha256": "03a4b73fae4134fce01de43604d6ce69225595c536f84fbe3f919c58ec730794",
+  "offline": false,
+  "denyStorage": true,
+  "cases": [
+    {
+      "label": "390-combo",
+      "width": 390,
+      "height": 844,
+      "activity": "combo",
+      "initial": {
+        "activity": "ExperienceFreestylePlaying Combo attack⌄",
+        "actions": [],
+        "overflow": 0
+      },
+      "steps": [
+        {
+          "result": false,
+          "primary": [],
+          "coach": null
+        },
+        {
+          "result": false,
+          "primary": [],
+          "coach": null
+        },
+        {
+          "result": true,
+          "primary": [],
+          "coach": null
+        }
+      ],
+      "outcome": {
+        "result": true,
+        "mini": false,
+        "visibleActions": [
+          "rPost",
+          "rReview",
+          "rReplay",
+          "rNext"
+        ],
+        "title": "RIO INTERCEPTED THE PASS",
+        "sub": "combo so far: pass",
+        "rows": "attempt+10",
+        "observedResults": [
+          {
+            "title": "RIO INTERCEPTED THE PASS",
+            "sub": "combo so far: pass",
+            "rows": "attempt+10"
+          }
+        ],
+        "permissions": [],
+        "overflow": 0,
+        "nextHitRight": true,
+        "geometry": {
+          "results": {
+            "x": 17,
+            "y": 303.421875,
+            "width": 356,
+            "height": 293.703125,
+            "top": 303.421875,
+            "right": 373,
+            "bottom": 597.125,
+            "left": 17
+          },
+          "rail": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          },
+          "next": {
+            "x": 219.234375,
+            "y": 554.125,
+            "width": 127.765625,
+            "height": 33,
+            "top": 554.125,
+            "right": 347,
+            "bottom": 587.125,
+            "left": 219.234375
+          },
+          "railZ": "26",
+          "resultZ": "15",
+          "rightEdgeHit": {
+            "id": "rNext",
+            "className": "rnext"
+          }
+        }
+      }
+    }
+  ],
+  "errors": [],
+  "external": [],
+  "popups": [],
+  "downloads": [],
+  "permissions": [],
+  "offlineRequests": []
+}

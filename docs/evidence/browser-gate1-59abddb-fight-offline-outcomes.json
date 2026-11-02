@@ -1,0 +1,123 @@
+{
+  "head": "59abddbc6f90d4affdfe4f9ec9190b45a5b2f811",
+  "artifactSha256": "20fd645fd25f10589724eabcc22a1a57ad795688ab39597a8225d80d5d38d66c",
+  "cases": [
+    {
+      "width": 390,
+      "height": 844,
+      "actions": [],
+      "outcome": {
+        "result": true,
+        "title": "KNOCKED DOWN",
+        "sub": "Rex Mk I had 100 HP left",
+        "permissions": [],
+        "overflow": 0,
+        "boxes": {
+          "results": {
+            "x": 17,
+            "y": 303.421875,
+            "width": 356,
+            "height": 275.015625,
+            "top": 303.421875,
+            "right": 373,
+            "bottom": 578.4375,
+            "left": 17
+          },
+          "rail": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          },
+          "next": {
+            "x": 219.234375,
+            "y": 535.4375,
+            "width": 127.765625,
+            "height": 33,
+            "top": 535.4375,
+            "right": 347,
+            "bottom": 568.4375,
+            "left": 219.234375
+          }
+        },
+        "layers": {
+          "results": "3",
+          "rail": "26"
+        }
+      },
+      "errors": [],
+      "external": [],
+      "offlineRequests": [],
+      "popups": [],
+      "downloads": []
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "actions": [
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventMove log readyYour next punch, dodge or block will appear here.\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventK.O.! Rex Mk I is down0:02.4 · WIN\n              ⌄\n            "
+        }
+      ],
+      "outcome": {
+        "result": true,
+        "title": "K.O.!",
+        "sub": "Rex Mk I down · 100 HP left · 2 punches landed",
+        "permissions": [],
+        "overflow": 0,
+        "boxes": {
+          "results": {
+            "x": 61,
+            "y": 69.1875,
+            "width": 1318,
+            "height": 425.265625,
+            "top": 69.1875,
+            "right": 1379,
+            "bottom": 494.453125,
+            "left": 61
+          },
+          "rail": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          },
+          "next": {
+            "x": 796.2278442382812,
+            "y": 437.5766296386719,
+            "width": 203.86297607421875,
+            "height": 41.0133056640625,
+            "top": 437.5766296386719,
+            "right": 1000.0908203125,
+            "bottom": 478.5899353027344,
+            "left": 796.2278442382812
+          }
+        },
+        "layers": {
+          "results": "3",
+          "rail": "26"
+        }
+      },
+      "errors": [],
+      "external": [],
+      "offlineRequests": [],
+      "popups": [],
+      "downloads": []
+    }
+  ]
+}

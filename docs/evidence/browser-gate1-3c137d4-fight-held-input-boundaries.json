@@ -1,0 +1,23 @@
+{
+  "head": "3c137d40906f84cb391f17ce1559da3bfe5847b2",
+  "artifactSha256": "f4350121f4fb23cf756554bdd63b826243e723aa201a22acce2d90a0d948c8fd",
+  "cases": [
+    {
+      "label": "390x844",
+      "pointerCancel": true,
+      "keyboardRelease": false,
+      "pagehideReleased": true,
+      "overflow": 0
+    },
+    {
+      "label": "1113x834",
+      "pointerCancel": false,
+      "keyboardRelease": true,
+      "pagehideReleased": true,
+      "overflow": 0
+    }
+  ],
+  "errors": [],
+  "external": [],
+  "httpErrors": []
+}

@@ -1,0 +1,46 @@
+{
+  "head": "3c137d40906f84cb391f17ce1559da3bfe5847b2",
+  "artifactSha256": "f4350121f4fb23cf756554bdd63b826243e723aa201a22acce2d90a0d948c8fd",
+  "url": "https://vsillah.github.io/KickLab/?rev=3c137d40906f84cb391f17ce1559da3bfe5847b2&raceExpansion=prototype&raceCompetition=prototype&raceChampionship=prototype&raceMultiplayer=prototype&raceSimulator=prototype&raceCornerTrace=prototype&raceTelemetry=prototype&racePreflight=prototype",
+  "cases": [
+    {
+      "name": "390-close-button",
+      "focusId": "raceCoachSetupStart",
+      "focusTag": "BUTTON",
+      "startVisible": true,
+      "phase": "grid",
+      "preflightOpen": false,
+      "renderer": "rendering",
+      "overflow": 0,
+      "savedUnchanged": true,
+      "pass": true
+    },
+    {
+      "name": "390-escape",
+      "focusId": "raceCoachSetupStart",
+      "focusTag": "BUTTON",
+      "startVisible": true,
+      "phase": "grid",
+      "preflightOpen": false,
+      "renderer": "rendering",
+      "overflow": 0,
+      "savedUnchanged": true,
+      "pass": true
+    },
+    {
+      "name": "1440-close-button",
+      "focusId": "raceCoachSetupStart",
+      "focusTag": "BUTTON",
+      "startVisible": true,
+      "phase": "grid",
+      "preflightOpen": false,
+      "renderer": "rendering",
+      "overflow": 0,
+      "savedUnchanged": true,
+      "pass": true
+    }
+  ],
+  "pageErrors": [],
+  "external": [],
+  "httpErrors": []
+}

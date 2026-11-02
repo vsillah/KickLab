@@ -1,0 +1,83 @@
+{
+  "head": "9c648ad0c66ff9d2b32990f3a7d23b57e6e83981",
+  "artifactSha256": "03a4b73fae4134fce01de43604d6ce69225595c536f84fbe3f919c58ec730794",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "inputStyle": "classic",
+  "cleanPace": true,
+  "offlineAt": "2026-11-01T23:09:02.609Z",
+  "offlineRequests": [
+    {
+      "origin": "http://127.0.0.1:43311",
+      "path": "/assets/drivers/v2/rocket.webp"
+    },
+    {
+      "origin": "http://127.0.0.1:43311",
+      "path": "/assets/players/v2/fight/rocket.webp"
+    },
+    {
+      "origin": "http://127.0.0.1:43311",
+      "path": "/assets/players/v1/kick/rocket.webp"
+    },
+    {
+      "origin": "http://127.0.0.1:43311",
+      "path": "/assets/drivers/v2/rocket.webp"
+    }
+  ],
+  "offlineRequestDetails": [
+    {
+      "method": "GET",
+      "origin": "http://127.0.0.1:43311",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": null
+    },
+    {
+      "method": "GET",
+      "origin": "http://127.0.0.1:43311",
+      "path": "/assets/players/v2/fight/rocket.webp",
+      "type": "image",
+      "status": null
+    },
+    {
+      "method": "GET",
+      "origin": "http://127.0.0.1:43311",
+      "path": "/assets/players/v1/kick/rocket.webp",
+      "type": "image",
+      "status": null
+    },
+    {
+      "method": "GET",
+      "origin": "http://127.0.0.1:43311",
+      "path": "/assets/drivers/v2/rocket.webp",
+      "type": "image",
+      "status": null
+    }
+  ],
+  "errors": [],
+  "external": [],
+  "httpErrors": [],
+  "popups": [],
+  "downloads": [],
+  "final": {
+    "race": {
+      "mode": "circuit",
+      "phase": "done",
+      "elapsed": 86.65250000000172,
+      "laps": 2,
+      "result": {
+        "pass": true,
+        "score": 354,
+        "measure": "2/2 laps · 86.65 s · laps 43.3 / 43.4 s · slide 1.8 s"
+      }
+    },
+    "overflow": 0
+  },
+  "result": {
+    "title": "CIRCUIT LAPS COMPLETE",
+    "coach": "COACH NIA · RUN ASSESSMENTWhat workedYou reached the finish.Next focusEase the wheel or speed to stay within tire grip.Open full Coach review ›",
+    "overflow": 0
+  }
+}

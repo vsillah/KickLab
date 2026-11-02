@@ -1,0 +1,55 @@
+{
+  "head": "3c137d40906f84cb391f17ce1559da3bfe5847b2",
+  "entryCases": [
+    {
+      "name": "circuit-360",
+      "mode": "circuit",
+      "phase": "count",
+      "overflow": 0
+    },
+    {
+      "name": "circuit-390",
+      "mode": "circuit",
+      "phase": "count",
+      "overflow": 0
+    },
+    {
+      "name": "circuit-768",
+      "mode": "circuit",
+      "phase": "count",
+      "overflow": 0
+    },
+    {
+      "name": "circuit-1113",
+      "mode": "circuit",
+      "phase": "count",
+      "overflow": 0
+    },
+    {
+      "name": "circuit-1440",
+      "mode": "circuit",
+      "phase": "count",
+      "overflow": 0
+    }
+  ],
+  "controllerCases": [
+    {
+      "name": "circuit-classic",
+      "controller": "classic",
+      "mode": "circuit",
+      "phase": "run",
+      "speedKmh": 48.4089053899959,
+      "overflow": 0
+    },
+    {
+      "name": "circuit-analog",
+      "controller": "analog",
+      "mode": "circuit",
+      "phase": "run",
+      "speedKmh": 45.62563523597891,
+      "overflow": 0
+    }
+  ],
+  "errors": [],
+  "external": []
+}

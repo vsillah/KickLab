@@ -1,0 +1,135 @@
+{
+  "revision": "9c648ad0c66ff9d2b32990f3a7d23b57e6e83981",
+  "base": "http://127.0.0.1:43311/kicklab.html",
+  "checks": [
+    {
+      "label": "victory-desktop-active",
+      "result": false,
+      "mode": "fight",
+      "railDisplay": "grid",
+      "railVisible": true,
+      "resultVisible": false,
+      "card": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "next": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "nextHit": false,
+      "nextDisabled": false,
+      "heading": "",
+      "overflow": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      }
+    },
+    {
+      "label": "victory-desktop-result",
+      "result": true,
+      "mode": "fight",
+      "railDisplay": "none",
+      "railVisible": false,
+      "resultVisible": true,
+      "card": {
+        "x": 418,
+        "y": 69.1875,
+        "width": 604,
+        "height": 425.265625,
+        "top": 69.1875,
+        "right": 1022,
+        "bottom": 494.453125,
+        "left": 418
+      },
+      "next": {
+        "x": 796.203125,
+        "y": 437.453125,
+        "width": 203.796875,
+        "height": 41,
+        "top": 437.453125,
+        "right": 1000,
+        "bottom": 478.453125,
+        "left": 796.203125
+      },
+      "nextHit": true,
+      "nextDisabled": false,
+      "heading": "K.O.!",
+      "overflow": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      }
+    },
+    {
+      "label": "victory-desktop-next-target",
+      "next": {
+        "x": 796.203125,
+        "y": 437.453125,
+        "width": 203.796875,
+        "height": 41,
+        "top": 437.453125,
+        "right": 1000,
+        "bottom": 478.453125,
+        "left": 796.203125
+      },
+      "hit": "<button type=\"button\" class=\"rnext\" id=\"rNext\">Next round <span aria-hidden=\"true\">▶</span> <kbd>Space</kbd></button>",
+      "scrollY": 240,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      }
+    },
+    {
+      "label": "victory-desktop-next-round",
+      "result": false,
+      "mode": "fight",
+      "railDisplay": "grid",
+      "railVisible": true,
+      "resultVisible": false,
+      "card": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "next": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "nextHit": false,
+      "nextDisabled": false,
+      "heading": "K.O.!",
+      "overflow": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      }
+    }
+  ],
+  "errors": [],
+  "external": []
+}

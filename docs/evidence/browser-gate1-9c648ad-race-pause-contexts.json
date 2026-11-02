@@ -1,0 +1,14 @@
+{
+  "head": "9c648ad0c66ff9d2b32990f3a7d23b57e6e83981",
+  "cases": [
+    {
+      "name": "championship active run exits without award or stale season"
+    },
+    {
+      "name": "local head-to-head active run exits without award and re-enters solo"
+    }
+  ],
+  "errors": [],
+  "external": [],
+  "httpErrors": []
+}

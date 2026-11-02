@@ -15,12 +15,12 @@ assert.ok(executablePath,'Local Chrome or Chromium is required');
 const browser=await chromium.launch({headless:true,executablePath});
 const checks=[],errors=[],external=[];
 const sizes=[['phone-360',360,800],['phone-390',390,844],['tablet',768,1024],['laptop',1113,834],['desktop',1440,900]];
-const route=(label,fixture=false)=>`${base}?qa=fight-result-rail&rev=${encodeURIComponent(revision)}&view=${label}${fixture?'&wardrobeResultsQA=1':''}`;
+const route=label=>`${base}?qa=fight-result-rail&rev=${encodeURIComponent(revision)}&view=${label}`;
 
-async function enter(page,label,fixture=false){
+async function enter(page,label){
   page.on('pageerror',error=>errors.push(`${label}: ${error}`));
   page.on('request',request=>{if(new URL(request.url()).origin!==new URL(base).origin)external.push(request.url());});
-  await page.goto(route(label,fixture),{waitUntil:'networkidle'});
+  await page.goto(route(label),{waitUntil:'networkidle'});
   if(await page.locator('#profileClose').isVisible())await page.locator('#profileClose').click();
   await page.locator('#lab-tab-fight').click();
   await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:12000});
@@ -54,8 +54,25 @@ async function frameSample(page,label){
   checks.push({label,frameP95Ms:Number(sample.toFixed(2))});
 }
 
+async function realVictory(page,label){
+  const toggle=page.locator('#controllerCollapseButton');
+  if(await toggle.getAttribute('aria-expanded')==='false')await toggle.click();
+  const cross=page.locator('#padR button[data-id="cross"]');
+  assert.equal(await cross.isVisible(),true,`${label}: Cross control unavailable`);
+  let knockout=false;
+  for(let attempt=0;attempt<24;attempt++){
+    if(await cross.isEnabled())await cross.click();
+    await page.waitForTimeout(300);
+    knockout=await page.locator('#historyHud').innerText().then(text=>text.includes('K.O.!'));
+    if(knockout)break;
+  }
+  assert.ok(knockout,`${label}: no real K.O. from visible Cross actions`);
+  await page.locator('#results:not([hidden])').waitFor({state:'visible',timeout:15000});
+  assert.match(await page.locator('#rTitle').innerText(),/^K\.O\.!!?$/,`${label}: expected real victory result`);
+}
+
 try{
-  for(const [label,width,height] of sizes){
+  for(const [label,width,height] of process.env.KICKLAB_QA_VICTORY_ONLY?[]:sizes){
     const record=label==='phone-390'||label==='desktop';
     const context=await browser.newContext({viewport:{width,height},deviceScaleFactor:1,hasTouch:width<=390,reducedMotion:label==='phone-360'?'reduce':'no-preference',recordVideo:record?{dir:videoDir,size:{width,height}}:undefined});
     await context.addInitScript(()=>{localStorage.setItem('impactlab.v1',JSON.stringify({gfx:'canvas',mute:true,ch:{fight:0,race:0,kick:0},play:{fight:'ch',race:'ch',kick:'ch'}}));localStorage.setItem('impactlab.nick','QA Player');});
@@ -85,17 +102,21 @@ try{
     const recording=page.video();await page.close();await context.close();
     if(record)checks.push({label,webm:await recording.path()});
   }
-  for(const [label,width,height] of [['victory-phone',390,844],['victory-desktop',1440,900]]){
+  for(const [label,width,height] of [['victory-phone-360',360,800],['victory-phone',390,844],['victory-tablet',768,1024],['victory-laptop',1113,834],['victory-desktop',1440,900]].filter(([,width])=>!process.env.KICKLAB_QA_VICTORY_WIDTH||width===Number(process.env.KICKLAB_QA_VICTORY_WIDTH))){
     const context=await browser.newContext({viewport:{width,height}}),page=await context.newPage();
     await context.addInitScript(()=>{localStorage.setItem('impactlab.v1',JSON.stringify({gfx:'canvas',mute:true,ch:{fight:0,race:0,kick:0},play:{fight:'ch',race:'ch',kick:'ch'}}));});
-    await enter(page,label,true);await state(page,`${label}-active`,false);
-    assert.equal(await page.evaluate(()=>window.__KICKLAB_WARDROBE_RESULTS_QA__.fixture('fight')),true);
+    await enter(page,label);await state(page,`${label}-active`,false);
+    await realVictory(page,label);
     await state(page,`${label}-result`,true);await page.screenshot({path:join(output,`${label}-result.png`)});
+    await page.locator('#rNext').scrollIntoViewIfNeeded();
+    const target=await page.locator('#rNext').evaluate(next=>{const r=next.getBoundingClientRect(),hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return{next:r.toJSON(),hit:hit?.outerHTML.slice(0,220),scrollY,viewport:{width:innerWidth,height:innerHeight}}});
+    checks.push({label:`${label}-next-target`,...target});await page.screenshot({path:join(output,`${label}-next-target.png`)});
+    assert.ok(target.hit?.includes('id="rNext"'),`${label}: Next round hit target obstructed ${JSON.stringify(target)}`);
     await page.locator('#rNext').click();await state(page,`${label}-next-round`,false);
     await context.close();
   }
   assert.deepEqual(errors,[],'Browser errors');assert.deepEqual(external,[],'External requests');
-  for(const label of ['phone-390','desktop']){
+  for(const label of process.env.KICKLAB_QA_VICTORY_ONLY?[]:['phone-390','desktop']){
     const source=checks.find(item=>item.label===label&&item.webm).webm,target=join(output,`${label}-loss-walkthrough.mp4`);
     const convert=spawnSync('ffmpeg',['-y','-v','error','-i',source,'-c:v','libx264','-pix_fmt','yuv420p','-movflags','+faststart','-an',target],{encoding:'utf8'});
     assert.equal(convert.status,0,convert.stderr);const probe=spawnSync('ffprobe',['-v','error','-show_entries','format=duration:stream=codec_name,width,height','-of','json',target],{encoding:'utf8'});

@@ -1,0 +1,476 @@
+{
+  "head": "9c648ad0c66ff9d2b32990f3a7d23b57e6e83981",
+  "artifactSha256": "03a4b73fae4134fce01de43604d6ce69225595c536f84fbe3f919c58ec730794",
+  "cases": [
+    {
+      "width": 360,
+      "height": 800,
+      "actions": [
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventMove log readyYour next punch, dodge or block will appear here.\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventK.O.! Rex Mk I is down0:02.3 · WIN\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventCross0:02.4 · −28 HP · F = 2.80 x 6.0 / 0.015 = 1,126 N\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventK.O.! Rex Mk II is down0:03.9 · WIN\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventCross · CLANK0:02.4 · 0 HP · F = 2.80 x 7.2 / 0.015 = 1,348 N < 1,800 N armor\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventCross · CLANK0:05.0 · 0 HP · F = 2.80 x 7.2 / 0.015 = 1,348 N < 1,800 N armor\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventCross · CLANK0:07.6 · 0 HP · F = 2.80 x 7.2 / 0.015 = 1,348 N < 1,800 N armor\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventCross · CLANK0:10.2 · 0 HP · F = 2.80 x 7.2 / 0.015 = 1,348 N < 1,800 N armor\n              ⌄\n            "
+        }
+      ],
+      "outcome": {
+        "result": true,
+        "title": "KNOCKED DOWN",
+        "sub": "Rex Mk III had 130 HP left",
+        "permissions": [],
+        "overflow": 0,
+        "boxes": {
+          "results": {
+            "x": 17,
+            "y": 52.5625,
+            "width": 326,
+            "height": 346.609375,
+            "top": 52.5625,
+            "right": 343,
+            "bottom": 399.171875,
+            "left": 17
+          },
+          "rail": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          },
+          "next": {
+            "x": 189.234375,
+            "y": 356.171875,
+            "width": 127.765625,
+            "height": 33,
+            "top": 356.171875,
+            "right": 317,
+            "bottom": 389.171875,
+            "left": 189.234375
+          }
+        },
+        "layers": {
+          "results": "3",
+          "rail": "26"
+        }
+      },
+      "errors": [],
+      "external": [],
+      "offlineRequests": [],
+      "popups": [],
+      "downloads": []
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "actions": [
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventMove log readyYour next punch, dodge or block will appear here.\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventRex dodged your cross0:03.5 · miss · t = 0.6 / 3.6 = 0.166 s > 0.160 s\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventRex dodged your cross0:06.2 · miss · t = 0.6 / 3.6 = 0.166 s > 0.160 s\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventRex dodged your cross0:08.4 · miss · t = 0.6 / 3.6 = 0.166 s > 0.160 s\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventRex dodged your cross0:11.1 · miss · t = 0.6 / 3.6 = 0.166 s > 0.160 s\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventRex dodged your cross0:13.8 · miss · t = 0.6 / 3.6 = 0.166 s > 0.160 s\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventRex dodged your cross0:16.5 · miss · t = 0.6 / 3.6 = 0.166 s > 0.160 s\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventRex dodged your cross0:19.2 · miss · t = 0.6 / 3.6 = 0.166 s > 0.160 s\n              ⌄\n            "
+        }
+      ],
+      "outcome": {
+        "result": true,
+        "title": "KNOCKED DOWN",
+        "sub": "Rex Mk I had 100 HP left",
+        "permissions": [],
+        "overflow": 0,
+        "boxes": {
+          "results": {
+            "x": 17,
+            "y": 29.421875,
+            "width": 356,
+            "height": 275.015625,
+            "top": 29.421875,
+            "right": 373,
+            "bottom": 304.4375,
+            "left": 17
+          },
+          "rail": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          },
+          "next": {
+            "x": 219.234375,
+            "y": 261.4375,
+            "width": 127.765625,
+            "height": 33,
+            "top": 261.4375,
+            "right": 347,
+            "bottom": 294.4375,
+            "left": 219.234375
+          }
+        },
+        "layers": {
+          "results": "3",
+          "rail": "26"
+        }
+      },
+      "errors": [],
+      "external": [],
+      "offlineRequests": [],
+      "popups": [],
+      "downloads": []
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "actions": [
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventMove log readyYour next punch, dodge or block will appear here.\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventCross0:03.5 · −19 HP · F = 2.80 x 4.1 / 0.015 = 760 N\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventK.O.! Rex Mk I is down0:04.5 · WIN\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventCross · perfect0:02.2 · −56 HP · F = 2.80 x 12.0 / 0.015 = 2,240 N\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventK.O.! Rex Mk II is down0:03.8 · WIN\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventCross · CLANK0:02.9 · 0 HP · F = 2.80 x 6.0 / 0.015 = 1,121 N < 1,800 N armor\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventCross · CLANK0:05.5 · 0 HP · F = 2.80 x 6.0 / 0.015 = 1,121 N < 1,800 N armor\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventCross · CLANK0:08.1 · 0 HP · F = 2.80 x 6.0 / 0.015 = 1,121 N < 1,800 N armor\n              ⌄\n            "
+        }
+      ],
+      "outcome": {
+        "result": true,
+        "title": "KNOCKED DOWN",
+        "sub": "Rex Mk III had 130 HP left",
+        "permissions": [],
+        "overflow": 0,
+        "boxes": {
+          "results": {
+            "x": 25,
+            "y": 341.28125,
+            "width": 718,
+            "height": 387.703125,
+            "top": 341.28125,
+            "right": 743,
+            "bottom": 728.984375,
+            "left": 25
+          },
+          "rail": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          },
+          "next": {
+            "x": 460.203125,
+            "y": 671.984375,
+            "width": 203.796875,
+            "height": 41,
+            "top": 671.984375,
+            "right": 664,
+            "bottom": 712.984375,
+            "left": 460.203125
+          }
+        },
+        "layers": {
+          "results": "3",
+          "rail": "26"
+        }
+      },
+      "errors": [],
+      "external": [],
+      "offlineRequests": [],
+      "popups": [],
+      "downloads": []
+    },
+    {
+      "width": 1113,
+      "height": 834,
+      "actions": [
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventMove log readyYour next punch, dodge or block will appear here.\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventK.O.! Rex Mk I is down0:02.9 · WIN\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventRex dodged your cross0:01.9 · miss · t = 0.6 / 3.6 = 0.166 s > 0.140 s\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventRex dodged your cross0:04.6 · miss · t = 0.6 / 3.6 = 0.166 s > 0.140 s\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventRex dodged your cross0:07.3 · miss · t = 0.6 / 3.6 = 0.166 s > 0.140 s\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventRex dodged your cross0:09.5 · miss · t = 0.6 / 3.6 = 0.166 s > 0.140 s\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventRex dodged your cross0:12.2 · miss · t = 0.6 / 3.6 = 0.166 s > 0.140 s\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventCross0:14.9 · −17 HP · F = 2.80 x 3.6 / 0.015 = 676 N\n              ⌄\n            "
+        }
+      ],
+      "outcome": {
+        "result": true,
+        "title": "K.O.!",
+        "sub": "Rex Mk II down · 100 HP left · 7 punches landed",
+        "permissions": [],
+        "overflow": 0,
+        "boxes": {
+          "results": {
+            "x": 25,
+            "y": 215.90625,
+            "width": 1063,
+            "height": 498.40625,
+            "top": 215.90625,
+            "right": 1088,
+            "bottom": 714.3125,
+            "left": 25
+          },
+          "rail": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          },
+          "next": {
+            "x": 632.703125,
+            "y": 657.3125,
+            "width": 203.796875,
+            "height": 41,
+            "top": 657.3125,
+            "right": 836.5,
+            "bottom": 698.3125,
+            "left": 632.703125
+          }
+        },
+        "layers": {
+          "results": "3",
+          "rail": "26"
+        }
+      },
+      "errors": [],
+      "external": [],
+      "offlineRequests": [],
+      "popups": [],
+      "downloads": []
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "actions": [
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventMove log readyYour next punch, dodge or block will appear here.\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventCross0:03.5 · −23 HP · F = 2.80 x 4.9 / 0.015 = 909 N\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventK.O.! Rex Mk I is down0:04.0 · WIN\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventCross0:03.4 · −27 HP · F = 2.80 x 5.7 / 0.015 = 1,063 N\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventK.O.! Rex Mk II is down0:04.0 · WIN\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventRex ducked your cross0:03.4 · miss · jab/cross go over a ducking head\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventCross · CLANK0:06.1 · 0 HP · F = 2.80 x 5.4 / 0.015 = 1,014 N < 1,800 N armor\n              ⌄\n            "
+        },
+        {
+          "result": false,
+          "live": "",
+          "history": "\n              LogLatest eventCross · CLANK0:08.7 · 0 HP · F = 2.80 x 5.4 / 0.015 = 1,014 N < 1,800 N armor\n              ⌄\n            "
+        }
+      ],
+      "outcome": {
+        "result": true,
+        "title": "KNOCKED DOWN",
+        "sub": "Rex Mk III had 130 HP left",
+        "permissions": [],
+        "overflow": 0,
+        "boxes": {
+          "results": {
+            "x": 61,
+            "y": 217.1875,
+            "width": 1318,
+            "height": 387.703125,
+            "top": 217.1875,
+            "right": 1379,
+            "bottom": 604.890625,
+            "left": 61
+          },
+          "rail": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          },
+          "next": {
+            "x": 796.203125,
+            "y": 547.890625,
+            "width": 203.796875,
+            "height": 41,
+            "top": 547.890625,
+            "right": 1000,
+            "bottom": 588.890625,
+            "left": 796.203125
+          }
+        },
+        "layers": {
+          "results": "3",
+          "rail": "26"
+        }
+      },
+      "errors": [],
+      "external": [],
+      "offlineRequests": [],
+      "popups": [],
+      "downloads": []
+    }
+  ]
+}

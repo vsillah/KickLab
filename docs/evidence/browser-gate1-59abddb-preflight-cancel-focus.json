@@ -1,0 +1,46 @@
+{
+  "head": "59abddbc6f90d4affdfe4f9ec9190b45a5b2f811",
+  "artifactSha256": "20fd645fd25f10589724eabcc22a1a57ad795688ab39597a8225d80d5d38d66c",
+  "url": "http://127.0.0.1:43311/kicklab.html?rev=59abddbc6f90d4affdfe4f9ec9190b45a5b2f811&raceExpansion=prototype&raceCompetition=prototype&raceChampionship=prototype&raceMultiplayer=prototype&raceSimulator=prototype&raceCornerTrace=prototype&raceTelemetry=prototype&racePreflight=prototype",
+  "cases": [
+    {
+      "name": "390-close-button",
+      "focusId": "raceCoachSetupStart",
+      "focusTag": "BUTTON",
+      "startVisible": true,
+      "phase": "grid",
+      "preflightOpen": false,
+      "renderer": "rendering",
+      "overflow": 0,
+      "savedUnchanged": true,
+      "pass": true
+    },
+    {
+      "name": "390-escape",
+      "focusId": "raceCoachSetupStart",
+      "focusTag": "BUTTON",
+      "startVisible": true,
+      "phase": "grid",
+      "preflightOpen": false,
+      "renderer": "rendering",
+      "overflow": 0,
+      "savedUnchanged": true,
+      "pass": true
+    },
+    {
+      "name": "1440-close-button",
+      "focusId": "raceCoachSetupStart",
+      "focusTag": "BUTTON",
+      "startVisible": true,
+      "phase": "grid",
+      "preflightOpen": false,
+      "renderer": "rendering",
+      "overflow": 0,
+      "savedUnchanged": true,
+      "pass": true
+    }
+  ],
+  "pageErrors": [],
+  "external": [],
+  "httpErrors": []
+}

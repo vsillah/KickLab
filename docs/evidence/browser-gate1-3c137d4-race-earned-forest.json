@@ -1,0 +1,118 @@
+{
+  "head": "3c137d40906f84cb391f17ce1559da3bfe5847b2",
+  "artifactSha256": "f4350121f4fb23cf756554bdd63b826243e723aa201a22acce2d90a0d948c8fd",
+  "runs": [
+    {
+      "venue": "highland",
+      "event": "Drag",
+      "pass": true,
+      "progress": {
+        "version": 1,
+        "unlocked": 1,
+        "selected": 0,
+        "heats": 0,
+        "brakeHeat": 0,
+        "tireHeat": 0
+      }
+    },
+    {
+      "venue": "marine",
+      "event": 0,
+      "entryKmh": 39.875974194643646,
+      "peakKmh": 91.61926902732083,
+      "time": 16.24587142857272,
+      "slide": 0,
+      "brakeFactor": 0.9090371675946098,
+      "finish": true,
+      "pass": true,
+      "progress": {
+        "version": 1,
+        "unlocked": 1,
+        "selected": 1,
+        "heats": 1,
+        "brakeHeat": 0.11877109402640447,
+        "tireHeat": 0.15180397499999904
+      }
+    },
+    {
+      "venue": "marine",
+      "event": 1,
+      "entryKmh": 36.33779648319304,
+      "peakKmh": 90.95705558079287,
+      "time": 17.829792307693832,
+      "slide": 0,
+      "brakeFactor": 0.9084023631981838,
+      "finish": true,
+      "pass": true,
+      "progress": {
+        "version": 1,
+        "unlocked": 2,
+        "selected": 1,
+        "heats": 0,
+        "brakeHeat": 0,
+        "tireHeat": 0
+      }
+    },
+    {
+      "venue": "forest",
+      "event": 0,
+      "entryKmh": 29.939892222540415,
+      "peakKmh": 74.77093371604334,
+      "time": 19.89204615384805,
+      "slide": 0,
+      "brakeFactor": 0.9241245725153462,
+      "finish": true,
+      "pass": true,
+      "progress": {
+        "version": 1,
+        "unlocked": 2,
+        "selected": 2,
+        "heats": 1,
+        "brakeHeat": 0.06089694462709825,
+        "tireHeat": 0.11133270000000113
+      }
+    },
+    {
+      "venue": "forest",
+      "event": 1,
+      "entryKmh": 31.897919899367835,
+      "peakKmh": 73.14497193654309,
+      "time": 19.019084615386546,
+      "slide": 0,
+      "brakeFactor": 0.9254063513343488,
+      "finish": true,
+      "pass": true,
+      "progress": {
+        "version": 1,
+        "unlocked": 2,
+        "selected": 2,
+        "heats": 2,
+        "brakeHeat": 0.055980137577937586,
+        "tireHeat": 0.11512387500000795
+      }
+    },
+    {
+      "venue": "forest",
+      "event": 2,
+      "entryKmh": 31.53607504579368,
+      "peakKmh": 72.30040752574304,
+      "time": 19.2112538461555,
+      "slide": 0,
+      "brakeFactor": 0.9264023514467365,
+      "finish": true,
+      "pass": true,
+      "progress": {
+        "version": 1,
+        "unlocked": 3,
+        "selected": 2,
+        "heats": 0,
+        "brakeHeat": 0,
+        "tireHeat": 0
+      }
+    }
+  ],
+  "errors": [],
+  "external": [],
+  "popups": 0,
+  "downloads": 0
+}

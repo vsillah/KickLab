@@ -1,0 +1,67 @@
+{
+  "head": "3c137d40906f84cb391f17ce1559da3bfe5847b2",
+  "cases": [
+    {
+      "viewport": "360x780",
+      "overflow": false,
+      "partyVisible": true,
+      "reducedMotion": true
+    },
+    {
+      "viewport": "390x844",
+      "overflow": false,
+      "partyVisible": true,
+      "reducedMotion": true
+    },
+    {
+      "viewport": "768x1024",
+      "overflow": false,
+      "partyVisible": true,
+      "reducedMotion": true
+    },
+    {
+      "viewport": "1113x900",
+      "overflow": false,
+      "partyVisible": true,
+      "reducedMotion": true
+    },
+    {
+      "viewport": "1440x900",
+      "overflow": false,
+      "partyVisible": true,
+      "reducedMotion": true
+    },
+    {
+      "menuModes": [
+        "Couch Duel",
+        "Vs Computer",
+        "Quick Challenge",
+        "Private Party"
+      ]
+    },
+    {
+      "reload": "series cleared; no saved solo mutation"
+    },
+    {
+      "mismatchedProfile": "series abandoned on switch"
+    },
+    {
+      "defaultOff": true
+    },
+    {
+      "canvasFallback": {
+        "fallback": "block",
+        "party": true
+      }
+    },
+    {
+      "cameraPermissionRequests": 0,
+      "cameraUiAbsent": true
+    },
+    {
+      "earlyClinch": "challenger wins 2-0 in round 2"
+    }
+  ],
+  "errors": [],
+  "external": []
+}

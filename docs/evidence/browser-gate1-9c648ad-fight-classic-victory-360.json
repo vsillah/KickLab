@@ -1,0 +1,135 @@
+{
+  "revision": "9c648ad0c66ff9d2b32990f3a7d23b57e6e83981",
+  "base": "http://127.0.0.1:43311/kicklab.html",
+  "checks": [
+    {
+      "label": "victory-phone-360-active",
+      "result": false,
+      "mode": "fight",
+      "railDisplay": "grid",
+      "railVisible": true,
+      "resultVisible": false,
+      "card": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "next": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "nextHit": false,
+      "nextDisabled": false,
+      "heading": "",
+      "overflow": 0,
+      "viewport": {
+        "width": 360,
+        "height": 800
+      }
+    },
+    {
+      "label": "victory-phone-360-result",
+      "result": true,
+      "mode": "fight",
+      "railDisplay": "none",
+      "railVisible": false,
+      "resultVisible": true,
+      "card": {
+        "x": 29,
+        "y": 52.5625,
+        "width": 302,
+        "height": 299.609375,
+        "top": 52.5625,
+        "right": 331,
+        "bottom": 352.171875,
+        "left": 29
+      },
+      "next": {
+        "x": 189.234375,
+        "y": 309.171875,
+        "width": 127.765625,
+        "height": 33,
+        "top": 309.171875,
+        "right": 317,
+        "bottom": 342.171875,
+        "left": 189.234375
+      },
+      "nextHit": true,
+      "nextDisabled": false,
+      "heading": "K.O.!",
+      "overflow": 0,
+      "viewport": {
+        "width": 360,
+        "height": 800
+      }
+    },
+    {
+      "label": "victory-phone-360-next-target",
+      "next": {
+        "x": 189.234375,
+        "y": 309.171875,
+        "width": 127.765625,
+        "height": 33,
+        "top": 309.171875,
+        "right": 317,
+        "bottom": 342.171875,
+        "left": 189.234375
+      },
+      "hit": "<button type=\"button\" class=\"rnext\" id=\"rNext\">Next round <span aria-hidden=\"true\">▶</span> <kbd>Space</kbd></button>",
+      "scrollY": 263,
+      "viewport": {
+        "width": 360,
+        "height": 800
+      }
+    },
+    {
+      "label": "victory-phone-360-next-round",
+      "result": false,
+      "mode": "fight",
+      "railDisplay": "grid",
+      "railVisible": true,
+      "resultVisible": false,
+      "card": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "next": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "nextHit": false,
+      "nextDisabled": false,
+      "heading": "K.O.!",
+      "overflow": 0,
+      "viewport": {
+        "width": 360,
+        "height": 800
+      }
+    }
+  ],
+  "errors": [],
+  "external": []
+}

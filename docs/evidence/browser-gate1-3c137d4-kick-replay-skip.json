@@ -1,0 +1,96 @@
+{
+  "head": "3c137d40906f84cb391f17ce1559da3bfe5847b2",
+  "base": "http://127.0.0.1:43205/kicklab.html",
+  "cases": [
+    {
+      "label": "360x800-2d-touch",
+      "requests": 35,
+      "states": [
+        "replay",
+        "skip-activated",
+        "result-replay-ready",
+        "recorded-replay-open"
+      ]
+    },
+    {
+      "label": "390x844-2d-touch-reduced",
+      "requests": 38,
+      "states": [
+        "crowd",
+        "skip-activated",
+        "result-replay-ready",
+        "recorded-replay-open"
+      ]
+    },
+    {
+      "label": "768x1024-2d-touch",
+      "requests": 38,
+      "states": [
+        "replay",
+        "skip-activated",
+        "result-replay-ready",
+        "recorded-replay-open"
+      ]
+    },
+    {
+      "label": "1024x768-3d-pointer-recovery",
+      "requests": 46,
+      "states": [
+        "foreground-recovered",
+        "replay",
+        "performance",
+        "skip-activated",
+        "result-replay-ready",
+        "recorded-replay-open",
+        "second-replay-skipped",
+        "result-replay-ready",
+        "recorded-replay-open"
+      ]
+    },
+    {
+      "label": "1024x768-2d-pointer-recovery",
+      "requests": 38,
+      "states": [
+        "foreground-recovered",
+        "replay",
+        "skip-activated",
+        "result-replay-ready",
+        "recorded-replay-open"
+      ]
+    },
+    {
+      "label": "1113x834-3d-pointer",
+      "requests": 28,
+      "states": [
+        "replay",
+        "skip-activated",
+        "result-replay-ready",
+        "recorded-replay-open"
+      ]
+    },
+    {
+      "label": "1440x900-3d-keyboard",
+      "requests": 28,
+      "states": [
+        "replay",
+        "skip-activated",
+        "result-replay-ready",
+        "recorded-replay-open"
+      ]
+    }
+  ],
+  "errors": [],
+  "external": [],
+  "media": {
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080
+      }
+    ],
+    "format": {
+      "duration": "24.000000"
+    }
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "head": "3c137d40906f84cb391f17ce1559da3bfe5847b2",
+  "artifactSha256": "f4350121f4fb23cf756554bdd63b826243e723aa201a22acce2d90a0d948c8fd",
+  "events": [
+    {
+      "step": 0,
+      "phase": "run",
+      "lap": "LAP 1/2",
+      "progress": "0%",
+      "x": 10,
+      "speedKmh": 0
+    },
+    {
+      "step": 46,
+      "phase": "run",
+      "lap": "LAP 2/2",
+      "progress": "99%",
+      "x": 10.155941933834479,
+      "speedKmh": 6.9890666412576055
+    }
+  ],
+  "errors": [],
+  "external": [],
+  "httpErrors": [],
+  "popups": [],
+  "downloads": [],
+  "final": {
+    "race": {
+      "mode": "circuit",
+      "phase": "done",
+      "lightPhase": "go",
+      "startLamps": 0,
+      "visibleBulbs": 0,
+      "reviewSettled": true,
+      "elapsed": 49.34032054612326,
+      "x": 10.29955294587382,
+      "y": 4.51337277042922,
+      "lineError": 0.19359826553126416,
+      "zone": 1,
+      "trackProgress": null,
+      "speedKmh": 52.07965949973889,
+      "laps": 2,
+      "lapTimes": [
+        24.401269963370712,
+        24.939050582752547
+      ],
+      "straightPaceSeconds": 0,
+      "peakStraightKmh": 0,
+      "peakEngineHeat": 0,
+      "criticalSeconds": 0,
+      "heat": 0.9238027517608784,
+      "thermalStage": "critical",
+      "powerFactor": 0.6085917447173648,
+      "driftPoints": 0,
+      "driftCurvePoints": [
+        0,
+        0
+      ],
+      "spinCount": 0,
+      "result": {
+        "pass": false,
+        "score": 0,
+        "measure": "2/2 laps · 49.34 s · laps 24.4 / 24.9 s · slide 20.5 s"
+      },
+      "cinematic": {
+        "intensity": 0,
+        "fieldOfView": 55,
+        "cameraVibration": 0,
+        "streakOpacity": 0,
+        "roadsideReflectors": 146,
+        "reducedMotion": true,
+        "wind": 0,
+        "roll": 0,
+        "heave": 0,
+        "setback": 0,
+        "heightDelta": 0,
+        "audioActive": false
+      },
+      "controller": "classic",
+      "garage": {
+        "version": 1,
+        "body": "street",
+        "suspension": "balanced",
+        "tires": "balanced",
+        "brakes": "standard"
+      },
+      "car": "cobalt",
+      "canvasFallback": false
+    },
+    "stage": "recover",
+    "lap": "LAP 2/2",
+    "progress": "99%",
+    "overflow": 0
+  },
+  "result": {
+    "title": "RETRY CIRCUIT LAPS",
+    "coach": "COACH NIA · RUN ASSESSMENTWhat workedYou started the run.Next focusEase the wheel or speed to stay within tire grip.Open full Coach review ›",
+    "overflow": 0
+  },
+  "recovery": {
+    "resultHidden": true,
+    "phase": "grid",
+    "mode": "circuit",
+    "overflow": 0
+  }
+}
