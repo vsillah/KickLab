@@ -1,36 +1,18 @@
 mobile_path,sha256,action_group,responsible_owner,current_disposition
+THIRD-PARTY-NOTICES.txt,78741a4d19c7fbe12bdd943497aa03bbf0c8fd99b44fb6c0f8e6e01cb6e964bc,N01,Vambah Sillah,hold: external IP review of final notice scope and placement
 assets/3d/kicklab-direction-c-athlete/v1/DirectionCColorAtlas.png,51bd4d912d5f7f7c1be97ff0bf7fd303ef71763425780fb286e2df72d31e1742,H03,Vambah Sillah,hold: verify original-asset authorship and embedded material
 assets/3d/kicklab-direction-c-athlete/v1/DirectionCNormalAtlas.png,9be4f963a866e9fc528b6a7cd765a92a66f6cc1dac97d3c22affdc52bea0e1bf,H03,Vambah Sillah,hold: verify original-asset authorship and embedded material
 assets/3d/kicklab-direction-c-athlete/v1/DirectionCRoughnessAtlas.png,9be4f963a866e9fc528b6a7cd765a92a66f6cc1dac97d3c22affdc52bea0e1bf,H03,Vambah Sillah,hold: verify original-asset authorship and embedded material
-assets/3d/kicklab-direction-c-athlete/v1/asset-manifest.json,e0e400b53548e8cb084fc0e5e6dbaa9e586f4260397055b74dec91aa55b282d1,X01,Vambah Sillah,exclude from release: provenance record copied by build
-assets/3d/kicklab-direction-c-athlete/v1/kicklab-direction-c-athlete.blend,b4f3220a5fa4e392e5b6b39125e6b4f59f72962c90a28331a84d6f214b796de3,X02,Vambah Sillah,exclude from release: editable source copied by build
 assets/3d/kicklab-direction-c-athlete/v1/kicklab-direction-c-athlete.glb,56e31448316af50ef8c8ee8becbdf86cf8f2093916a67897ad291568252962be,H03,Vambah Sillah,hold: verify original-asset authorship and embedded material
-assets/3d/kicklab-direction-c-athlete/v2/asset-manifest.json,6af471723c994df1e12204899d021673a176938cd32466a7bc7f8ac480ce6478,X05,Vambah Sillah,hold: verify upstream CC0 input inventory and derivative rights
-assets/3d/kicklab-direction-c-athlete/v2/kicklab-makehuman-athlete.blend,4d6e7a931a1857a5db8fcab6f567e6926e593addf70676bad83d1d5157b0bc1f,X05,Vambah Sillah,hold: verify upstream CC0 input inventory and derivative rights
 assets/3d/kicklab-direction-c-athlete/v2/kicklab-makehuman-athlete.glb,09b4f85b1c95e16dadd2b220a264aae3dcb012793db5df7267564bdfbf233cec,H09R,Vambah Sillah,hold: verify upstream CC0 input inventory and derivative rights
-assets/3d/kicklab-placeholder-athlete/v1/asset-manifest.json,9444f9cc8ebe42145f5f0135af2e1066301634b2646eb252c2956ea18e934ad7,X01,Vambah Sillah,exclude from release: provenance record copied by build
 assets/3d/kicklab-placeholder-athlete/v1/kicklab-placeholder-athlete.glb,67eb958761253e280dadf4ee6a03f3c9a459464503de0115c8fd399f44849daa,H03,Vambah Sillah,hold: verify original-asset authorship and embedded material
-assets/3d/kicklab-race-aegis/v1/aegis-original.blend,553719a21e90f4f09e48547fc266067b30c6684aeee692d9d255a8936bfac64b,X02,Vambah Sillah,exclude from release: editable source copied by build
 assets/3d/kicklab-race-aegis/v1/aegis-original.glb,130f89f00f420b615dbc1ca081909be8c85691c232a071628175422017fbc916,H03,Vambah Sillah,hold: verify original-asset authorship and embedded material
-assets/3d/kicklab-race-aegis/v1/asset-manifest.json,8860503fe292e8f78bca4a5fcd0ad601a5ca7d5895513307d1cd55e3c7aa1db0,X01,Vambah Sillah,exclude from release: provenance record copied by build
-assets/3d/kicklab-race-direction-a/v1/asset-manifest.json,65032f61d173b9c62ac2dfe075426167d52461b8f862f6f7f2fc85f521ecb5fd,X01,Vambah Sillah,exclude from release: provenance record copied by build
 assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb,97658df10425c45043f35778872d25d4bb674e701b13548e0a0a16139cfafbcc,H03,Vambah Sillah,hold: verify original-asset authorship and embedded material
-assets/3d/kicklab-race-direction-a/v1/direction-a-original.blend,977f976cccb957f28c1b87c620a09d2d9a3275a3fe32fbf5dfaa0d1295a7904e,X02,Vambah Sillah,exclude from release: editable source copied by build
-assets/3d/kicklab-race-internals/v1/asset-manifest.json,0c825165659c53603d8a99f561321eb18cf92d2cdf0d75629391fd3c392a8d97,X01,Vambah Sillah,exclude from release: provenance record copied by build
 assets/3d/kicklab-race-internals/v1/race-internals.glb,b82b329071bf14a68f63588e00c0f002ba9b08dba0bf4d8500766a573609e505,H03,Vambah Sillah,hold: verify original-asset authorship and embedded material
-assets/3d/kicklab-race-kestrel/v1/asset-manifest.json,ceae75e4721f1c5d5220d8bdd0b0ab97dc62db682926dd2a1ff51ddd31b560fe,X01,Vambah Sillah,exclude from release: provenance record copied by build
-assets/3d/kicklab-race-kestrel/v1/kestrel-original.blend,cac6307d70932df080512ea630782ab98a374a691970c9f7a6460071343118b1,X02,Vambah Sillah,exclude from release: editable source copied by build
 assets/3d/kicklab-race-kestrel/v1/kestrel-original.glb,1d933fb1cb3924a2b2ffa811e7c21854b7c8bfc95cd7a928ce9e3b2f89fe2adb,H03,Vambah Sillah,hold: verify original-asset authorship and embedded material
-assets/3d/kicklab-race-sable/v1/asset-manifest.json,d406bb5af0b146e24fae654a54d721732828006aa54c91fbb8980f7a8a1cdd44,X01,Vambah Sillah,exclude from release: provenance record copied by build
-assets/3d/kicklab-race-sable/v1/sable-original.blend,629fb95628e1f5510ded4fa8568a9de017f9917558f9f3f2691fedddcb284a60,X02,Vambah Sillah,exclude from release: editable source copied by build
 assets/3d/kicklab-race-sable/v1/sable-original.glb,b5eb204f6481d54a01ec84c9a5890296b61d2400013cf386cac47e4f61fab501,H03,Vambah Sillah,hold: verify original-asset authorship and embedded material
-assets/3d/kicklab-race-vehicle/v1/asset-manifest.json,b4b75c96a25120150a44b6aee1a917369ce1534f9de8aab5b137ba313663cb96,X01,Vambah Sillah,exclude from release: provenance record copied by build
-assets/3d/kicklab-race-vehicle/v1/kicklab-race-vehicle.blend,b2091729664534334ebf404cd40f08c1cd916a441ead9d18a0760d3efdaf93c5,X02,Vambah Sillah,exclude from release: editable source copied by build
 assets/3d/kicklab-race-vehicle/v1/kicklab-race-vehicle.glb,3b4884672d3499e7a03e2dcee1b305895b3e68bda4b8f720a79e6c2dda94c041,H03,Vambah Sillah,hold: verify original-asset authorship and embedded material
-assets/3d/kicklab-race-vesper/v1/asset-manifest.json,c94d748c8ac16b268fabbc994fa0cba13fa51ebb49f5860686d6912562249133,X01,Vambah Sillah,exclude from release: provenance record copied by build
-assets/3d/kicklab-race-vesper/v1/vesper-original.blend,128d094b9d4aa181228378a38d4ea73695df86dcce7fdadb372781a7ee27f6b4,X02,Vambah Sillah,exclude from release: editable source copied by build
 assets/3d/kicklab-race-vesper/v1/vesper-original.glb,f9ef70af796808b9ba02b7dce7ea356de1d3f28c3bb69906634b6857261b6ae6,H03,Vambah Sillah,hold: verify original-asset authorship and embedded material
-assets/awards/race/v1/asset-record.json,e9fcd0c2aa827d61eb1de20dccdf267a26d3297113a0f55999480fa82d593e89,X01,Vambah Sillah,exclude from release: provenance record copied by build
 assets/awards/race/v1/circuit.webp,082c035baa5f7baf7ec709e1efc9609c00098d962242072d332846bfe6a7d37a,H08,Vambah Sillah,hold: verify original artwork ownership
 assets/awards/race/v1/core.webp,30d28c08e22a6b44a8df86849594756eace34bdd7a89acb4a3001def28080d52,H08,Vambah Sillah,hold: verify original artwork ownership
 assets/awards/race/v1/drag.webp,7377f3c9cac6c6fe2fc7724f8ac7f37b725f83cb7b0bbe242717f293b4c43898,H08,Vambah Sillah,hold: verify original artwork ownership
@@ -46,7 +28,6 @@ assets/drivers/v2/rocket.webp,e4edc2f11f93c828743eb539182eebdfd62422400e049b6fe2
 assets/drivers/v2/tower.webp,415ef1e8c7abadc750ba401d5b36df949d42b4190b6c33a7c792028498a2ce75,H05,Vambah Sillah,hold: verify terms at generation date and likeness review
 assets/drivers/v2/trick.webp,43928e9724909dc044d90190ed64d67e24ef334f13c80e40bb38e62c993db4bc,H05,Vambah Sillah,hold: verify terms at generation date and likeness review
 assets/drivers/v2/wiz.webp,ed75bced6ea37b281f5f3230881885510a5a406a28fb6687e494731d34b42457,H05,Vambah Sillah,hold: verify terms at generation date and likeness review
-assets/effects/race/v1/asset-record.json,837e8441ffdb0144431675d36d84c612f89962797d531b15db9c1dd4b5a48578,X01,Vambah Sillah,exclude from release: provenance record copied by build
 assets/effects/race/v1/nitrous-flame-atlas.webp,c4f8c3b795a362905899600124d95311e17ed573ac0aaf1c288f0a50b408176b,H10,Vambah Sillah,hold: retain generation rights proof and source hash
 assets/effects/race/v1/soft-turbulent-smoke.png,4c612453d0ff7b7b87aa7fef74d5f90f9daee4748a67a5011018e04d7fe25197,H06,Vambah Sillah,hold: verify procedural authorship
 assets/effects/race/v1/tire-smoke-00.webp,a866d1b747a454d3172b2f4dccb3ebccb1c30cf098b469df5f58ea758a6d5a48,H06,Vambah Sillah,hold: verify procedural authorship
@@ -80,14 +61,11 @@ assets/players/v2/fight/rocket.webp,ada47317ec107a4a839cae8f52ad8800a4b717b7c675
 assets/players/v2/fight/tower.webp,298aabce4d5c996deae1acf661a3bfdbc30cd162fa2f6882e460241e65bebc79,H04,Vambah Sillah,"hold: verify generation terms, input rights, source and output hashes"
 assets/players/v2/fight/trick.webp,4faefdca6f6fa126bc06bc585d38aad7a563072d29b481ce06e41bb7a708d68d,H04,Vambah Sillah,"hold: verify generation terms, input rights, source and output hashes"
 assets/players/v2/fight/wiz.webp,e20df20aa24e756d96ebe8a581b8beafa82cb904d38b8ec11bd9a903c7b639b0,H04,Vambah Sillah,"hold: verify generation terms, input rights, source and output hashes"
-build-metrics.json,d7d3b4f41c3c5968a1ee3a28ebba6088035db1ebab62b04cda900d8b2dde8b3c,M01,Vambah Sillah,exclude from release or verify necessity of build metadata
 index.html,c3c963ffc2ad3314068c857dc44c9b82ff640a310ec662fcef9404132ddb0294,H01,Vambah Sillah,hold: establish imported v42 ownership and bundle MIT notice
-kicklab-mobile-manifest.json,2240980d130d80d92967248ec58d7cbfee7f519ff51674b2996d2b6a92ff47d5,M01,Vambah Sillah,exclude from release or verify necessity of build metadata
 media/home-previews/fight-poster.png,3855ff1c70c78ae1b8ebdfda8ef020144aa11e388dfd04e5af11b4f9a66db1ba,H11,Vambah Sillah,hold: verify capture rights from every rendered input
 media/home-previews/fight.mp4,7f84ffd903b08fc3dd4521b97f6598e8462b7f97f614c6af7da241877175e2f3,H11,Vambah Sillah,hold: verify capture rights from every rendered input
 media/home-previews/kick-poster.png,775d901b77f8aaee0eded0bcfbd7db25bf3214d72b68927080e550a8ce03ffca,H11,Vambah Sillah,hold: verify capture rights from every rendered input
 media/home-previews/kick.mp4,ddade56086103906c8e333e1408d5cb13ecbd99261a0c6ac804418df56eb13df,H11,Vambah Sillah,hold: verify capture rights from every rendered input
-media/home-previews/manifest.json,aaf1d35aa02fc1e7d99dac4bfef0df6c44c0d4d3d843da174d41cd168049f999,X03,Vambah Sillah,exclude from release: capture record copied by build
 media/home-previews/race-poster.png,a0e4406cfd7b93d2a1c55220d224e329f4ca43b3fe047e6ed1432853b73287c6,H11,Vambah Sillah,hold: verify capture rights from every rendered input
 media/home-previews/race.mp4,464fa2f3fa43f213679b167b6ff5f17eeeb8942b8bafacbc1503b57e9723f9d9,H11,Vambah Sillah,hold: verify capture rights from every rendered input
 media/race-preflight/arrival-circuit-aegis.jpg,87106fb5f6de2a02e6f9f9336b2b1d8838ec921b43e9ddc200619c727bb8b0fa,H11,Vambah Sillah,hold: verify capture rights from every rendered input
@@ -140,7 +118,6 @@ media/race-preflight/arrival-hill-sable.jpg,bbdf8c777277f7796a0f3fed43c833a8d4bc
 media/race-preflight/arrival-hill-sable.mp4,56bf3d6ddd69c6b2b2bee634251dd3c73e7099b5310eb7cc5bb56eda49ccb8ba,H11,Vambah Sillah,hold: verify capture rights from every rendered input
 media/race-preflight/arrival-hill-vesper.jpg,85038075dbdfdb321f79f7f1d19ef337d86236dd88b23eaf38a509a052086fd1,H11,Vambah Sillah,hold: verify capture rights from every rendered input
 media/race-preflight/arrival-hill-vesper.mp4,4b5c8aba7e73586b611862549dba9db5840ad6bec05d77d13d2f109ee6b7f557,H11,Vambah Sillah,hold: verify capture rights from every rendered input
-media/race-preflight/arrival-manifest.json,3e21b094fa586c409120aa332bb702e038ae8b3699af17f05cd3beeaec9b58c1,X03,Vambah Sillah,exclude from release: capture record copied by build
 media/race-preflight/circuit-aegis.jpg,dfa2c7873c196315d627a273bf165409d711f376bf3ebb5f7b04c1c976eb1dce,H11,Vambah Sillah,hold: verify capture rights from every rendered input
 media/race-preflight/circuit-aegis.mp4,1d5bcd89d4735e98c354a2d97f652355b796030e6c2a41f807bd9710d9faff81,H11,Vambah Sillah,hold: verify capture rights from every rendered input
 media/race-preflight/circuit-cobalt.jpg,fb5144a220408d4f1559bcbe4cef80ecf80d938827cef7f5430570adff9f3b4a,H11,Vambah Sillah,hold: verify capture rights from every rendered input
@@ -191,7 +168,6 @@ media/race-preflight/hill-sable.jpg,55a41fbb57d814852caa45690abb7e5f627ffb194f59
 media/race-preflight/hill-sable.mp4,d6c41ead8ab643c05eeb9d4102df6c1a697187088420ccbc57cace8e1ee5f6fe,H11,Vambah Sillah,hold: verify capture rights from every rendered input
 media/race-preflight/hill-vesper.jpg,46e9b7082a58d682b7942967a6ff02097cadaafa641a7bc8cc64352c316c2168,H11,Vambah Sillah,hold: verify capture rights from every rendered input
 media/race-preflight/hill-vesper.mp4,ab2ecde0062e726e74c6721e2db1372ab5b74309ecd084db377f411412c4434c,H11,Vambah Sillah,hold: verify capture rights from every rendered input
-media/race-preflight/manifest.json,610b49bc0b9d9820f91b7033f7c25b352846ae834c65a7402a50f7826ed8725e,X03,Vambah Sillah,exclude from release: capture record copied by build
 media/race-preflight/venue-arrival-forest-aegis.jpg,ec396062ec1e0cbcc36fc4d7538b197185f7f59d5e4b011e7fb1aa1c5c0b0b70,H11,Vambah Sillah,hold: verify capture rights from every rendered input
 media/race-preflight/venue-arrival-forest-aegis.mp4,1bf53ae3e45e503902d51b082076a8d64c77c07c4f02a0817d1c7a083ea6ef00,H11,Vambah Sillah,hold: verify capture rights from every rendered input
 media/race-preflight/venue-arrival-forest-cobalt.jpg,850b6da2431e59a36ee2720952af4577d5024ca684a5327690060f19249aa894,H11,Vambah Sillah,hold: verify capture rights from every rendered input
@@ -202,7 +178,6 @@ media/race-preflight/venue-arrival-forest-sable.jpg,aa0503733537058082a5dcb1be3a
 media/race-preflight/venue-arrival-forest-sable.mp4,e4455159853d6c55ba343f4414b59b2f5c4941033301e03da58f411c45da7dee,H11,Vambah Sillah,hold: verify capture rights from every rendered input
 media/race-preflight/venue-arrival-forest-vesper.jpg,ed82671d2f38716728e620317a80b6e5d0c679767678005e9297de36e8d7f55b,H11,Vambah Sillah,hold: verify capture rights from every rendered input
 media/race-preflight/venue-arrival-forest-vesper.mp4,b7e5f882adc7fc28d678360f019adc39a3121787b924b4e8216aa269f5a0bc4e,H11,Vambah Sillah,hold: verify capture rights from every rendered input
-media/race-preflight/venue-arrival-manifest.json,23adec9e46969e631e0ba8aa97073d2952691f095324504e8e3a9e90c739bda5,X04,Vambah Sillah,exclude from release: capture provenance record copied by build
 media/race-preflight/venue-arrival-marine-aegis.jpg,6b4dcb2e9df85f7cb1a81af40018402f4e0675c528d8a90e101ef97cdd6a569c,H11,Vambah Sillah,hold: verify capture rights from every rendered input
 media/race-preflight/venue-arrival-marine-aegis.mp4,4e4a102fed62aac29e5b1dbd93e82c6955d622d8252d60125d8f7f48be436cc6,H11,Vambah Sillah,hold: verify capture rights from every rendered input
 media/race-preflight/venue-arrival-marine-cobalt.jpg,8ff2537c4cb49dfb05cd6cacf5755565b753cc950b035c4cb3bf64d1aedce0d2,H11,Vambah Sillah,hold: verify capture rights from every rendered input
@@ -223,7 +198,6 @@ media/race-preflight/venue-forest-sable.jpg,d20b98e68087c1b5f0f308718486c8b9443a
 media/race-preflight/venue-forest-sable.mp4,3ac9d99fa5876d67085d588656ef092b9ef5086aa7f02baab0ef41fc4a470376,H11,Vambah Sillah,hold: verify capture rights from every rendered input
 media/race-preflight/venue-forest-vesper.jpg,cc74781998c1eec0028461bffb5b11a5682f9936f4e229f2886f7eaba3178f39,H11,Vambah Sillah,hold: verify capture rights from every rendered input
 media/race-preflight/venue-forest-vesper.mp4,5575c92dbb8c1c3b98dad22e18f97b0e52a6c49e17e543be9c96a42869447ced,H11,Vambah Sillah,hold: verify capture rights from every rendered input
-media/race-preflight/venue-manifest.json,b88e1a6b03757533d8b2c5160fffb8021c99b468737193bd08ae3bce550c29ca,X04,Vambah Sillah,exclude from release: capture provenance record copied by build
 media/race-preflight/venue-marine-aegis.jpg,f524cf8e63b3cd4cd176d0a6afc554202554e2c16d8b2fd0b62c2240dcc9a3a1,H11,Vambah Sillah,hold: verify capture rights from every rendered input
 media/race-preflight/venue-marine-aegis.mp4,0d8368dd6f8016401f2dcd7ec2e3cf62e21720dcd54ac7226fac6aae55a76e5e,H11,Vambah Sillah,hold: verify capture rights from every rendered input
 media/race-preflight/venue-marine-cobalt.jpg,b4b2d0a172a9ab720e0cebe0772d7ac3a24950207ff0a959b8b67b76dfaa5458,H11,Vambah Sillah,hold: verify capture rights from every rendered input

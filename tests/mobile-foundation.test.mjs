@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root=join(dirname(fileURLToPath(import.meta.url)),'..');
@@ -10,7 +10,8 @@ const read=(path)=>readFileSync(join(root,path),'utf8');
 const json=(path)=>JSON.parse(read(path));
 const config=json('capacitor.config.json');
 const contract=json('config/mobile-release-contract.json');
-const manifest=json('dist/mobile/kicklab-mobile-manifest.json');
+const manifest=json('dist/kicklab-mobile-manifest.json');
+const exclusions=json('config/mobile-package-exclusions.json');
 const packageJson=json('package.json');
 const mobile=read('dist/mobile/index.html');
 const lifecycle=read('src/game/56-mobile-lifecycle.js');
@@ -55,15 +56,63 @@ test('keeps the packaged shell offline and fail-closed for navigation and egress
   assert.match(mobile,/form-action 'none'/);
   assert.doesNotMatch(mobile,/<(?:script|link|img|audio|video|source)\b[^>]*(?:src|href)=["']https?:\/\//i);
   assert.doesNotMatch(mobile,/fonts\.(?:googleapis|gstatic)\.com/);
-  for(const file of ['fight.mp4','fight-poster.png','race.mp4','race-poster.png','kick.mp4','kick-poster.png','manifest.json'])assert.ok(existsSync(join(root,'dist','mobile','media','home-previews',file)),`${file} must be packaged locally`);
+  for(const file of ['fight.mp4','fight-poster.png','race.mp4','race-poster.png','kick.mp4','kick-poster.png'])assert.ok(existsSync(join(root,'dist','mobile','media','home-previews',file)),`${file} must be packaged locally`);
   for(const file of [
     'assets/3d/kicklab-placeholder-athlete/v1/kicklab-placeholder-athlete.glb',
-    'assets/3d/kicklab-placeholder-athlete/v1/asset-manifest.json',
     'assets/3d/kicklab-direction-c-athlete/v1/kicklab-direction-c-athlete.glb',
-    'assets/3d/kicklab-direction-c-athlete/v1/asset-manifest.json',
     'assets/3d/kicklab-race-direction-a/v1/direction-a-atlas.glb',
-    'build-metrics.json',
   ])assert.ok(existsSync(join(root,'dist','mobile',file)),`${file} must be packaged locally`);
+});
+
+test('packages only reviewed runtime files and notices while preserving source evidence',()=>{
+  const packageRoot=join(root,'dist','mobile');
+  const sourceRoot=join(root,'src');
+  const sourceFiles=['assets','media'].flatMap(folder=>{
+    const folderRoot=join(sourceRoot,folder);
+    const visit=(directory)=>readdirSync(directory,{withFileTypes:true}).flatMap(entry=>{
+      const path=join(directory,entry.name);
+      return entry.isDirectory()?visit(path):[relative(sourceRoot,path)];
+    });
+    return visit(folderRoot);
+  });
+  const evidenceRows=read('docs/release/excluded-source-evidence.csv').split(/\r?\n/).map(line=>line.match(/^([^,]+),([a-f0-9]{64}),X0[1-5],/)).filter(Boolean);
+  assert.deepEqual([...exclusions.paths].sort(),evidenceRows.map(match=>match[1]).sort());
+  assert.equal(exclusions.paths.length,25);
+  for(const [,path,sha256] of evidenceRows){
+    assert.equal(createHash('sha256').update(readFileSync(join(sourceRoot,path))).digest('hex'),sha256,`${path} source evidence changed`);
+  }
+  for(const path of exclusions.paths){
+    assert.ok(existsSync(join(sourceRoot,path)),`${path} source evidence must remain`);
+    assert.equal(existsSync(join(packageRoot,path)),false,`${path} must not ship`);
+    assert.ok(!mobile.includes(path),`${path} has a runtime HTML reference`);
+  }
+  for(const metadata of ['build-metrics.json','kicklab-mobile-manifest.json']){
+    assert.equal(existsSync(join(packageRoot,metadata)),false,`${metadata} must remain outside the package`);
+    assert.ok(!mobile.includes(metadata),`${metadata} has a runtime HTML reference`);
+  }
+  const expected=[...sourceFiles.filter(path=>!exclusions.paths.includes(path)),'index.html','party-qr.js','THIRD-PARTY-NOTICES.txt'].sort();
+  const packaged=(directory)=>readdirSync(directory,{withFileTypes:true}).flatMap(entry=>{
+    const path=join(directory,entry.name);
+    return entry.isDirectory()?packaged(path):[relative(packageRoot,path)];
+  });
+  assert.deepEqual(packaged(packageRoot).sort(),expected);
+  const ledgerRows=read('docs/release/shipped-file-rights.csv').split(/\r?\n/).map(line=>line.match(/^([^,]+),([a-f0-9]{64}),(\d+),/)).filter(Boolean);
+  const actionRows=read('docs/release/rights-action-map.csv').split(/\r?\n/).map(line=>line.match(/^([^,]+),([a-f0-9]{64}),([^,]+),/)).filter(Boolean);
+  assert.equal(ledgerRows.length,210);
+  assert.equal(actionRows.length,210);
+  assert.deepEqual(ledgerRows.map(row=>row[1]).sort(),expected);
+  assert.deepEqual(actionRows.map(row=>row[1]).sort(),expected);
+  for(const [,path,sha256,bytes] of ledgerRows){
+    const packagedBytes=readFileSync(join(packageRoot,path));
+    assert.equal(createHash('sha256').update(packagedBytes).digest('hex'),sha256,`${path} ledger hash changed`);
+    assert.equal(packagedBytes.length,Number(bytes),`${path} ledger size changed`);
+    assert.equal(actionRows.find(row=>row[1]===path)?.[2],sha256,`${path} action-map hash changed`);
+  }
+  const notices=read('dist/mobile/THIRD-PARTY-NOTICES.txt');
+  assert.equal(notices,read('config/mobile-distribution-notices.txt'));
+  assert.ok(notices.includes(read('node_modules/three/LICENSE').trim()));
+  assert.match(notices,/Copyright \(c\) 2009 Kazuhiko Arase/);
+  assert.match(notices,/Permission is hereby granted, free of charge/);
 });
 
 test('preserves local profiles, leaderboards, and legacy storage continuity',()=>{
