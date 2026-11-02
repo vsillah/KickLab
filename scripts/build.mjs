@@ -25,6 +25,21 @@ if (!vendor.includes(`Three.js r${threeRevision} + version-matched GLTFLoader`))
 const fill = { STYLES: src('styles.css'), VENDOR: '<script>' + vendor + '</script>', GAME: game };
 const html = src('index.html').replace(/\{\{(STYLES|VENDOR|GAME)\}\}/g, (_, k) => fill[k]);
 const { metrics: assetMetrics } = await validateAssetSet();
+const packageOnlyExclusions = JSON.parse(readFileSync(join(root, 'config', 'package-only-asset-exclusions.json'), 'utf8'));
+if (packageOnlyExclusions.schemaVersion !== 1 || packageOnlyExclusions.files.length !== 6 ||
+    new Set(packageOnlyExclusions.files.map(file => file.path)).size !== 6) {
+  throw new Error('Wave 1 package exclusion list must contain six unique exact paths');
+}
+for (const { path, sha256 } of packageOnlyExclusions.files) {
+  if (!/^assets\/3d\/[a-zA-Z0-9._/-]+$/.test(path) || path.split('/').includes('..') || !/^[a-f0-9]{64}$/.test(sha256)) {
+    throw new Error(`Unsafe package-only asset exclusion: ${path}`);
+  }
+  const bytes = readFileSync(join(root, 'src', path));
+  if (createHash('sha256').update(bytes).digest('hex') !== sha256) {
+    throw new Error(`Wave 1 source evidence hash changed: ${path}`);
+  }
+  if (html.includes(path) || game.includes(path)) throw new Error(`Live reference to excluded asset: ${path}`);
+}
 
 mkdirSync(join(root, 'dist'), { recursive: true });
 writeFileSync(join(root, 'dist', 'kicklab.html'), html);
@@ -33,6 +48,7 @@ rmSync(join(root, 'dist', 'media'), { recursive: true, force: true });
 cpSync(join(root, 'src', 'media'), join(root, 'dist', 'media'), { recursive: true });
 rmSync(join(root, 'dist', 'assets'), { recursive: true, force: true });
 cpSync(join(root, 'src', 'assets'), join(root, 'dist', 'assets'), { recursive: true });
+for (const { path } of packageOnlyExclusions.files) rmSync(join(root, 'dist', path));
 if (process.argv.includes('--emit-game')) writeFileSync(join(root, 'dist', 'game.js'), game);
 const metrics = {
   schemaVersion: '1.0.0',
@@ -49,7 +65,7 @@ const metrics = {
     gameBytes: Buffer.byteLength(game),
     gameFiles: parts.length,
   },
-  assets: assetMetrics,
+  assets: assetMetrics.filter(asset => !packageOnlyExclusions.files.some(file => file.path === asset.path)),
 };
 writeFileSync(join(root, 'dist', 'build-metrics.json'), `${JSON.stringify(metrics, null, 2)}\n`);
 console.log(`built dist/kicklab.html (${(html.length / 1024).toFixed(0)} KB) with Three.js r${metrics.runtime.threeRevision}, GLTFLoader, and ${metrics.assets.length} validated local 3D assets`);

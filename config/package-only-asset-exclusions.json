@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "source": "Wave 1 exact-file removal adopted in PR #157 at f26fdb1c7bd31a892100c07120c11019d69e46ec",
+  "files": [
+    { "path": "assets/3d/kicklab-direction-c-athlete/v1/DirectionCColorAtlas.png", "sha256": "51bd4d912d5f7f7c1be97ff0bf7fd303ef71763425780fb286e2df72d31e1742" },
+    { "path": "assets/3d/kicklab-direction-c-athlete/v1/DirectionCNormalAtlas.png", "sha256": "9be4f963a866e9fc528b6a7cd765a92a66f6cc1dac97d3c22affdc52bea0e1bf" },
+    { "path": "assets/3d/kicklab-direction-c-athlete/v1/DirectionCRoughnessAtlas.png", "sha256": "9be4f963a866e9fc528b6a7cd765a92a66f6cc1dac97d3c22affdc52bea0e1bf" },
+    { "path": "assets/3d/kicklab-direction-c-athlete/v1/kicklab-direction-c-athlete.glb", "sha256": "56e31448316af50ef8c8ee8becbdf86cf8f2093916a67897ad291568252962be" },
+    { "path": "assets/3d/kicklab-placeholder-athlete/v1/kicklab-placeholder-athlete.glb", "sha256": "67eb958761253e280dadf4ee6a03f3c9a459464503de0115c8fd399f44849daa" },
+    { "path": "assets/3d/kicklab-race-vehicle/v1/kicklab-race-vehicle.glb", "sha256": "3b4884672d3499e7a03e2dcee1b305895b3e68bda4b8f720a79e6c2dda94c041" }
+  ]
+}
