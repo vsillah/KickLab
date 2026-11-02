@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, lstatSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -7,6 +7,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (path) => readFileSync(join(root, path), 'utf8');
 const config = JSON.parse(read('capacitor.config.json'));
 const contract = JSON.parse(read('config/mobile-release-contract.json'));
+const exclusions = JSON.parse(read('config/mobile-package-exclusions.json'));
 const sourcePath = contract.app.sourceArtifact;
 const outputPath = contract.app.artifact;
 
@@ -52,14 +53,28 @@ if (/<(?:script|link|img|audio|video|source)\b[^>]*(?:src|href)=["']https?:\/\//
 }
 
 const outputDir = join(root, dirname(outputPath));
+rmSync(outputDir, { recursive: true, force: true });
 mkdirSync(outputDir, { recursive: true });
 writeFileSync(join(root, outputPath), mobile);
-rmSync(join(outputDir, 'media'), { recursive: true, force: true });
 cpSync(join(root, 'dist', 'media'), join(outputDir, 'media'), { recursive: true });
-rmSync(join(outputDir, 'assets'), { recursive: true, force: true });
 cpSync(join(root, 'dist', 'assets'), join(outputDir, 'assets'), { recursive: true });
-cpSync(join(root, 'dist', 'build-metrics.json'), join(outputDir, 'build-metrics.json'));
+if (exclusions.schemaVersion !== 1 || exclusions.paths.length !== 25 || new Set(exclusions.paths).size !== 25) {
+  throw new Error('Mobile exclusion list must contain the 25 reviewed source/provenance paths');
+}
+for (const path of exclusions.paths) {
+  if (!/^(?:assets|media)\/[a-zA-Z0-9._/-]+$/.test(path) || path.split('/').includes('..')) {
+    throw new Error(`Unsafe mobile exclusion path: ${path}`);
+  }
+  const sourceFile = join(root, 'src', path);
+  const packagedFile = join(outputDir, path);
+  if (!lstatSync(sourceFile).isFile() || !lstatSync(packagedFile).isFile() ||
+      !readFileSync(sourceFile).equals(readFileSync(packagedFile))) {
+    throw new Error(`Cannot preserve exact source evidence for ${path}`);
+  }
+  rmSync(packagedFile);
+}
 cpSync(join(root, 'dist', 'party-qr.js'), join(outputDir, 'party-qr.js'));
+cpSync(join(root, 'config', 'mobile-distribution-notices.txt'), join(outputDir, 'THIRD-PARTY-NOTICES.txt'));
 
 const manifest = {
   schemaVersion: contract.schemaVersion,
@@ -74,5 +89,5 @@ const manifest = {
   remoteSync: false,
   authority: contract.authority
 };
-writeFileSync(join(outputDir, 'kicklab-mobile-manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
+writeFileSync(join(root, 'dist', 'kicklab-mobile-manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
 console.log(`prepared ${outputPath} (${(mobile.length / 1024).toFixed(0)} KB, ${manifest.sha256.slice(0, 12)})`);

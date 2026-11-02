@@ -1,6 +1,6 @@
 # KickLab distribution notices — internal draft
 
-Prepared 2026-11-01 from the installed packages of exact `origin/main` `7e16186ba85d5f8048104819ae53602870ffecb3`. This is a proposed notice bundle, **not installed in `dist/mobile` or a native app**. Vambah Sillah and an external IP reviewer must verify exact distribution contents, attribution, and final placement before any release. Native Gradle/SPM/CocoaPods transitive components are not inventoried yet; append their notices only after Phase 3 generates and audits the projects.
+Prepared 2026-11-01 from the installed packages of exact `origin/main` `7e16186ba85d5f8048104819ae53602870ffecb3`. The package-minimization branch based on main `efee5cb` installs exact Three.js and `qrcode-generator` MIT terms in `dist/mobile/THIRD-PARTY-NOTICES.txt`; this longer draft remains an internal review source, and no native app exists. Vambah Sillah and an external IP reviewer must verify exact distribution contents, attribution, and final placement before any release. Native Gradle/SPM/CocoaPods transitive components are not inventoried yet; append their notices only after Phase 3 generates and audits the projects.
 
 The current web/mobile package embeds Three.js in `index.html` and copies `qrcode-generator` into `party-qr.js`. Capacitor Core/App/Haptics and `tslib` are production-lock candidates for later native packaging, not claims that their native code currently ships. Build-only dependencies are excluded from this draft unless the generated output proves they ship.
 
@@ -185,4 +185,4 @@ THE SOFTWARE.
 
 ## Final-binary hold
 
-Copy reviewed notices into the exact distribution through a separate build/native change; verify presence in packaged output and app-accessible legal information where required. Reconcile any bundled font, asset, native SDK, Gradle, SPM, CocoaPods, or transitive package first. This draft neither clears asset rights nor authorizes distribution.
+Verify the packaged `THIRD-PARTY-NOTICES.txt` and any app-accessible legal information required for final distribution. Reconcile any bundled font, asset, native SDK, Gradle, SPM, CocoaPods, or transitive package first. This draft neither clears asset rights nor authorizes distribution.

@@ -1,0 +1,154 @@
+{
+  "schemaVersion": 1,
+  "baseCommit": "efee5cb364aec475f36fbb82b071ef2c7a600ee1",
+  "mobileHtmlSha256": "c3c963ffc2ad3314068c857dc44c9b82ff640a310ec662fcef9404132ddb0294",
+  "cspThreeLabMatrix": {
+    "rows": [
+      {
+        "artifact": "mobile",
+        "viewport": "phone",
+        "width": 390,
+        "height": 844,
+        "raceStatus": "rendering",
+        "raceVehicleOk": true,
+        "fightComposition": true,
+        "kickStatus": "ready",
+        "horizontalOverflow": 0,
+        "errorCount": 0
+      },
+      {
+        "artifact": "mobile",
+        "viewport": "tablet",
+        "width": 768,
+        "height": 1024,
+        "raceStatus": "rendering",
+        "raceVehicleOk": true,
+        "fightComposition": true,
+        "kickStatus": "ready",
+        "horizontalOverflow": 0,
+        "errorCount": 0
+      },
+      {
+        "artifact": "mobile",
+        "viewport": "laptop",
+        "width": 1280,
+        "height": 800,
+        "raceStatus": "rendering",
+        "raceVehicleOk": true,
+        "fightComposition": true,
+        "kickStatus": "ready",
+        "horizontalOverflow": 0,
+        "errorCount": 0
+      },
+      {
+        "artifact": "mobile",
+        "viewport": "desktop",
+        "width": 1440,
+        "height": 1000,
+        "raceStatus": "rendering",
+        "raceVehicleOk": true,
+        "fightComposition": true,
+        "kickStatus": "ready",
+        "horizontalOverflow": 0,
+        "errorCount": 0
+      },
+      {
+        "artifact": "web",
+        "viewport": "phone",
+        "width": 390,
+        "height": 844,
+        "raceStatus": "rendering",
+        "raceVehicleOk": true,
+        "fightComposition": true,
+        "kickStatus": "ready",
+        "horizontalOverflow": 0,
+        "errorCount": 0
+      },
+      {
+        "artifact": "web",
+        "viewport": "tablet",
+        "width": 768,
+        "height": 1024,
+        "raceStatus": "rendering",
+        "raceVehicleOk": true,
+        "fightComposition": true,
+        "kickStatus": "ready",
+        "horizontalOverflow": 0,
+        "errorCount": 0
+      },
+      {
+        "artifact": "web",
+        "viewport": "laptop",
+        "width": 1280,
+        "height": 800,
+        "raceStatus": "rendering",
+        "raceVehicleOk": true,
+        "fightComposition": true,
+        "kickStatus": "ready",
+        "horizontalOverflow": 0,
+        "errorCount": 0
+      },
+      {
+        "artifact": "web",
+        "viewport": "desktop",
+        "width": 1440,
+        "height": 1000,
+        "raceStatus": "rendering",
+        "raceVehicleOk": true,
+        "fightComposition": true,
+        "kickStatus": "ready",
+        "horizontalOverflow": 0,
+        "errorCount": 0
+      }
+    ],
+    "fallbackStatus": "canvas-fallback",
+    "interceptedExternalCount": 0,
+    "failureCount": 0,
+    "cspViolationDirectives": [
+      "connect-src",
+      "img-src",
+      "media-src"
+    ],
+    "videoDurationSeconds": 12.24
+  },
+  "privateParty": {
+    "cases": 12,
+    "responsiveViewports": [
+      "360x780",
+      "390x844",
+      "768x1024",
+      "1113x900",
+      "1440x900"
+    ],
+    "errorCount": 0,
+    "externalCount": 0,
+    "defaultOff": true,
+    "cameraRequests": 0
+  },
+  "storageRecovery": {
+    "viewports": [
+      "360x800",
+      "390x844",
+      "768x1024",
+      "1113x834",
+      "1440x900"
+    ],
+    "allSaveRetryReload": true,
+    "totalExternalRequests": 0,
+    "videoCodec": "h264",
+    "videoDurationSeconds": 9.12
+  },
+  "localDataDeletion": {
+    "viewports": [
+      "360x800",
+      "390x844",
+      "768x1024",
+      "1113x834",
+      "1440x900"
+    ],
+    "allFirstRunAfterReload": true,
+    "totalExternalRequests": 0,
+    "videoCodec": "h264",
+    "videoDurationSeconds": 10.48
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "source": "docs/release/rights-action-map.csv at main efee5cb364aec475f36fbb82b071ef2c7a600ee1",
+  "paths": [
+    "assets/3d/kicklab-direction-c-athlete/v1/asset-manifest.json",
+    "assets/3d/kicklab-direction-c-athlete/v1/kicklab-direction-c-athlete.blend",
+    "assets/3d/kicklab-direction-c-athlete/v2/asset-manifest.json",
+    "assets/3d/kicklab-direction-c-athlete/v2/kicklab-makehuman-athlete.blend",
+    "assets/3d/kicklab-placeholder-athlete/v1/asset-manifest.json",
+    "assets/3d/kicklab-race-aegis/v1/aegis-original.blend",
+    "assets/3d/kicklab-race-aegis/v1/asset-manifest.json",
+    "assets/3d/kicklab-race-direction-a/v1/asset-manifest.json",
+    "assets/3d/kicklab-race-direction-a/v1/direction-a-original.blend",
+    "assets/3d/kicklab-race-internals/v1/asset-manifest.json",
+    "assets/3d/kicklab-race-kestrel/v1/asset-manifest.json",
+    "assets/3d/kicklab-race-kestrel/v1/kestrel-original.blend",
+    "assets/3d/kicklab-race-sable/v1/asset-manifest.json",
+    "assets/3d/kicklab-race-sable/v1/sable-original.blend",
+    "assets/3d/kicklab-race-vehicle/v1/asset-manifest.json",
+    "assets/3d/kicklab-race-vehicle/v1/kicklab-race-vehicle.blend",
+    "assets/3d/kicklab-race-vesper/v1/asset-manifest.json",
+    "assets/3d/kicklab-race-vesper/v1/vesper-original.blend",
+    "assets/awards/race/v1/asset-record.json",
+    "assets/effects/race/v1/asset-record.json",
+    "media/home-previews/manifest.json",
+    "media/race-preflight/arrival-manifest.json",
+    "media/race-preflight/manifest.json",
+    "media/race-preflight/venue-arrival-manifest.json",
+    "media/race-preflight/venue-manifest.json"
+  ]
+}
