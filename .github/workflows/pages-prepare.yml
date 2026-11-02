@@ -34,13 +34,29 @@ jobs:
     if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy_production && github.ref == 'refs/heads/main')
     needs: prepare
     runs-on: ubuntu-latest
+    concurrency:
+      group: kicklab-pages-production
+      cancel-in-progress: false
     permissions:
+      contents: read
       pages: write
       id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - uses: actions/checkout@v4
+      - name: Refuse stale main deployment
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          current_main="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha')"
+          if [ "$current_main" != "$GITHUB_SHA" ]; then
+            echo "::error::Refusing stale Pages deployment. Current main: $current_main; run: $GITHUB_SHA"
+            exit 1
+          fi
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+      - name: Verify excluded files are unavailable on Pages
+        run: node scripts/check-pages-public-exclusions.mjs "${{ steps.deployment.outputs.page_url }}"

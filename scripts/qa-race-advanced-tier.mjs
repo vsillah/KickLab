@@ -16,7 +16,7 @@ async function open(width,height,{mastery=false,canvas=false,reduced=false}={}){
  await page.goto(url.toString(),{waitUntil:'domcontentloaded'});if(await page.locator('#profileFormSave').isVisible())await page.click('#profileFormSave');if(await page.locator('#profileClose').isVisible())await page.click('#profileClose');await page.click('#lab-tab-race');await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});
  if(!canvas)await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.status==='rendering',{timeout:20000});
  if(await page.locator('#racePreflightClose').isVisible())await page.click('#racePreflightClose');
- if(await page.locator('#raceCoachSetupGarage').isVisible())await page.click('#raceCoachSetupGarage');else if(await page.locator('#racePhoneToolsToggle').isVisible()){if(await page.locator('#racePhoneToolsToggle').getAttribute('aria-expanded')!=='true')await page.click('#racePhoneToolsToggle');await page.click('#raceToolsGarage');}else{await page.click('#settingsToggle');await page.locator('#settingsCategories [data-category="garage"]').click();}
+ if(await page.locator('#raceCoachSetupGarage').isVisible())await page.click('#raceCoachSetupGarage');else{const tools=page.locator('#racePhoneToolsToggle');await tools.waitFor({state:'visible',timeout:10000});if(await tools.getAttribute('aria-expanded')!=='true')await tools.click();await page.locator('#raceToolsGarage').waitFor({state:'visible'});await page.click('#raceToolsGarage');}
  await page.locator('#raceGarage').waitFor({state:'visible'});return {context,page,url:url.toString()};
 }
 try{
