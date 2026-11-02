@@ -48,9 +48,12 @@ const deployJob = workflow.slice(workflow.indexOf('\n  deploy:\n'));
 assert.ok(deployJob.startsWith('\n  deploy:\n'), 'workflow must define a dedicated deploy job');
 assert.match(deployJob, /^    if: github\.event_name == 'push' \|\| \(github\.event_name == 'workflow_dispatch' && inputs\.deploy_production && github\.ref == 'refs\/heads\/main'\)$/m, 'deploy job must exclude pull requests and non-main manual dispatches');
 assert.match(deployJob, /^    needs: prepare$/m, 'deploy job must depend on the artifact preparation job');
-assert.match(deployJob, /^    permissions:\n      pages: write\n      id-token: write$/m, 'deploy job must have only the required write permissions');
+assert.match(deployJob, /^    concurrency:\n      group: kicklab-pages-production\n      cancel-in-progress: false$/m, 'Pages deployments must serialize without canceling the newer candidate');
+assert.match(deployJob, /^    permissions:\n      contents: read\n      pages: write\n      id-token: write$/m, 'deploy job must have read access for the current-main check and only required write permissions');
 assert.match(deployJob, /^    environment:\n      name: github-pages\n      url: \$\{\{ steps\.deployment\.outputs\.page_url \}\}$/m, 'deploy job must report the official Pages environment URL');
 assert.match(deployJob, /actions\/deploy-pages@v5/, 'deploy job must use the official Pages deployment action');
+assert.match(deployJob, /- name: Refuse stale main deployment\n        env:\n          GH_TOKEN: \$\{\{ github\.token \}\}\n        run: \|[\s\S]*?\n      - name: Deploy to GitHub Pages/, 'current-main guard must run immediately before deployment');
+assert.match(deployJob, /- name: Verify excluded files are unavailable on Pages\n        run: node scripts\/check-pages-public-exclusions\.mjs "\$\{\{ steps\.deployment\.outputs\.page_url \}\}"/, 'deployment must verify the six public paths return 404');
 assert.doesNotMatch(deployJob, /pull_request/, 'pull requests must never satisfy the deploy job condition');
 
 const actionUses = [...workflow.matchAll(/^\s+(?:- )?uses: ([^\s]+)$/gm)].map((match) => match[1]);
@@ -58,6 +61,7 @@ assert.deepEqual(actionUses, [
   'actions/checkout@v4',
   'actions/setup-node@v4',
   'actions/upload-pages-artifact@v5',
+  'actions/checkout@v4',
   'actions/deploy-pages@v5',
 ], 'workflow must not invoke provider or unreviewed actions');
 
