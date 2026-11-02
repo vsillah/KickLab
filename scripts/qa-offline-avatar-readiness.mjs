@@ -11,8 +11,10 @@ const out=resolve(process.argv[3]||`qa-artifacts/offline-avatar/${head.slice(0,1
 mkdirSync(out,{recursive:true});
 const hash=value=>createHash('sha256').update(value).digest('hex');
 const artifactSha256=hash(readFileSync('dist/kicklab.html'));
-const served=await fetch(new URL(`?rev=${head}`,base));
-if(!served.ok||hash(Buffer.from(await served.arrayBuffer()))!==artifactSha256)throw Error('Localhost does not serve the exact built artifact');
+const publicOrigin=new URL(base).origin==='https://vsillah.github.io';
+if(publicOrigin&&new URL(base).pathname!=='/KickLab/')throw Error('Production smoke requires the trusted GitHub Pages route');
+const served=await fetch(new URL(`?rev=${head}`,base),{cache:'no-store'});
+if(!served.ok||hash(Buffer.from(await served.arrayBuffer()))!==artifactSha256)throw Error('Served HTML differs from the exact-head built artifact');
 const browser=await chromium.launch({headless:true,executablePath:[process.env.KICKLAB_CHROMIUM_PATH,chromium.executablePath(),'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find(path=>path&&existsSync(path))});
 const cases=[
   {id:'rocket',width:360,height:800,video:true,canvas:true},
@@ -28,8 +30,8 @@ for(const item of cases.filter(item=>!process.env.QA_RECOVERY_ONLY&&(!process.en
   await context.addInitScript(gfx=>localStorage.setItem('impactlab.v1',JSON.stringify({gfx,ch:{fight:0,race:0,kick:0},play:{fight:'ch',race:'ch',kick:'ch'}})),item.canvas?'2d':'3d');
   const page=await context.newPage();page.setDefaultTimeout(10000);
   page.on('pageerror',error=>errors.push(error.message));
-  await page.route('**/*',route=>{const url=route.request().url();if(url.startsWith(new URL(base).origin+'/')||url.startsWith('data:')||url.startsWith('blob:'))return route.continue();errors.push(`egress ${url}`);return route.abort();});
-  const url=new URL(base);for(const [key,value] of Object.entries({raceSystems:'proxy',raceTelemetry:'prototype',raceCornerTrace:'prototype',raceProgression:'prototype',raceExpansion:'prototype',raceCompetition:'prototype',raceChampionship:'prototype',raceMultiplayer:'prototype',raceSimulator:'prototype',racePreflight:'prototype'}))url.searchParams.set(key,value);url.searchParams.set('raceResultsQA','1');url.searchParams.set('rev',head);
+  await page.route('**/*',route=>{const url=route.request().url(),target=new URL(url);if((target.origin===new URL(base).origin&&(!publicOrigin||target.pathname.startsWith('/KickLab/')))||url.startsWith('data:')||url.startsWith('blob:'))return route.continue();errors.push(`egress ${url}`);return route.abort();});
+  const url=new URL(base);for(const [key,value] of Object.entries({raceSystems:'proxy',raceTelemetry:'prototype',raceCornerTrace:'prototype',raceProgression:'prototype',raceExpansion:'prototype',raceCompetition:'prototype',raceChampionship:'prototype',raceMultiplayer:'prototype',raceSimulator:'prototype',racePreflight:'prototype'}))url.searchParams.set(key,value);url.searchParams.set('rev',head);
   try{
     let frameP95Ms=null;
     await page.goto(url.href,{waitUntil:'domcontentloaded'});
@@ -38,21 +40,25 @@ for(const item of cases.filter(item=>!process.env.QA_RECOVERY_ONLY&&(!process.en
     if(item.id!=='rocket'){
       await page.click('#homeProfileButton');await page.click('#profileEdit');await page.locator(`[data-avatar="${item.id}"]`).click();await page.click('#profileFormSave');await page.click('#profileClose');
     }
+    const identity=await page.evaluate(()=>{const saved=JSON.parse(localStorage.getItem('kicklab.profiles.v1'));return{avatar:saved.profiles.find(profile=>profile.id===saved.activeId)?.avatar,count:saved.profiles.length};});
+    if(identity.avatar!==item.id||identity.count!==1)throw Error(`Player identity or isolation changed: ${JSON.stringify(identity)}`);
     await page.waitForFunction(()=>[...document.querySelectorAll('[data-lab-player] .driver-avatar-image')].length===3&&[...document.querySelectorAll('[data-lab-player] .driver-avatar-image')].every(img=>img.naturalWidth>0));
     if(item.video)await page.waitForTimeout(800);
     await context.setOffline(true);
     if(item.video)await page.evaluate(()=>{const note=document.createElement('div');note.textContent='QA · NETWORK OFFLINE';note.style.cssText='position:fixed;z-index:100000;right:8px;top:8px;padding:5px 8px;border:1px solid #83e7c5;border-radius:6px;background:#102638;color:#fff;font:700 11px system-ui;pointer-events:none';document.body.append(note);});
     page.on('request',request=>{if(request.url().startsWith(url.origin+'/'))requests.push(request.url());});
+    const labPortraits={};
     for(const lab of ['fight','race','kick']){
       await page.click('#homeProfileButton');await page.locator(`[data-profile-lab="${lab}"]`).click();
       const portrait=await page.locator('#profileSummary .profile-lab-feature .driver-avatar-image').evaluate(img=>({src:img.getAttribute('src'),loaded:img.complete&&img.naturalWidth>0}));
       if(!portrait.loaded||!portrait.src.startsWith('data:image/webp;'))throw Error(`${lab} portrait missing after offline redraw`);
+      labPortraits[lab]=portrait.src;
       await page.screenshot({path:join(out,`${label}-${lab}.png`)});
       if(item.video)await page.waitForTimeout(600);
       await page.click('#profileClose');
       await page.locator(`#lab-tab-${lab}`).click();await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});
       const hud=await page.locator('#hudProfileAvatar .driver-avatar-image').evaluate(img=>({src:img.getAttribute('src'),loaded:img.complete&&img.naturalWidth>0})).catch(error=>{throw Error(`${error.message}; url=${page.url()}`);});
-      if(!hud.loaded||!hud.src.startsWith('data:image/webp;'))throw Error(`${lab} HUD portrait missing`);
+      if(!hud.loaded||hud.src!==labPortraits[lab])throw Error(`${lab} HUD portrait differs from the active player's offline portrait`);
       if(lab==='race'){
         frameP95Ms=await page.evaluate(()=>new Promise(resolve=>{let last=performance.now();const frames=[];function tick(now){frames.push(now-last);last=now;if(frames.length<90)requestAnimationFrame(tick);else{frames.splice(0,5);frames.sort((a,b)=>a-b);resolve(frames[Math.floor(frames.length*.95)]);}}requestAnimationFrame(tick);}));
         if(frameP95Ms>=50)throw Error(`Race frame pacing exceeded 50 ms p95: ${frameP95Ms}`);
@@ -85,12 +91,46 @@ for(const item of cases.filter(item=>!process.env.QA_RECOVERY_ONLY&&(!process.en
       if(!result)throw Error('Offline Circuit did not reach a completed two-lap result');
       await page.locator('#results').waitFor({state:'visible',timeout:10000});
     }else{
-      if(await page.locator('#racePreflight').isVisible())await page.click('#racePreflightClose');
-      result=await page.evaluate(()=>window.__KICKLAB_RACE_RESULTS_QA__?.fixture('success-new-award'));
-      if(!result||!await page.locator('#results').isVisible())throw Error('Offline Race result fixture unavailable');
+      await page.locator('#racePreflight').waitFor({state:'visible',timeout:20000});
+      await page.click('[data-preflight-venue="highland"]');
+      await page.click('[data-preflight-mode="drag"]');
+      for(let step=0;step<3;step++)await page.click('#racePreflightNext');
+      await page.click('[data-preflight-control="classic"]');
+      if(await page.locator('#racePreflightSteer').textContent()==='You steer')await page.click('#racePreflightSteer');
+      await page.click('#racePreflightNext');
+      await page.locator('#racePreflight').waitFor({state:'hidden',timeout:20000});
+      const orbit=page.locator('.race-orbit-panel button');
+      if(await orbit.isVisible())await orbit.click();
+      await page.waitForFunction(()=>window.__KICKLAB_RACE_MODES_QA__?.state()?.phase==='run',null,{timeout:30000});
+      let shifted=0,peakKmh=0;
+      await page.keyboard.down('KeyW');
+      try{
+        for(let step=0;step<240&&!await page.locator('#results').isVisible();step++){
+          const speed=await page.evaluate(()=>window.__KICKLAB_RACE_MODES_QA__?.state()?.speedKmh);
+          if(!Number.isFinite(speed))throw Error('Public Race diagnostics unavailable');
+          peakKmh=Math.max(peakKmh,speed);
+          if(shifted<3&&speed>=[46,88,132][shifted]&&await page.locator('#raceTelemetryShift').isVisible()&&await page.locator('#raceTelemetryShift').isEnabled()){
+            await page.click('#raceTelemetryShift');shifted++;
+          }
+          await page.waitForTimeout(150);
+        }
+      }finally{await page.keyboard.up('KeyW');}
+      await page.locator('#results').waitFor({state:'visible',timeout:10000});
+      const actual=await page.evaluate(()=>window.__KICKLAB_RACE_MODES_QA__.state());
+      if(actual.mode!=='drag'||actual.phase!=='done'||!actual.result?.pass)throw Error(`Offline Drag failed: ${JSON.stringify(actual)}`);
+      result={actual:true,mode:actual.mode,elapsed:actual.elapsed,outcome:actual.result,peakKmh,shifted,title:await page.locator('#rTitle').textContent()};
     }
     const coach=await page.locator('#raceResultCoach').textContent();
-    if(!coach.includes('What worked')||!coach.includes('Next focus'))throw Error('Coach result themes missing');
+    const positive=(await page.locator('#raceResultCoachPositive').textContent()).trim(),focus=(await page.locator('#raceResultCoachFocus').textContent()).trim();
+    if(!await page.locator('#raceResultCoach').isVisible()||!coach.includes('What worked')||!coach.includes('Next focus')||!positive||!focus)throw Error('Coach result themes missing');
+    const resultIdentity=await page.locator('#resultPlayer .driver-avatar-image').evaluate(img=>({source:img.getAttribute('src'),loaded:img.complete&&img.naturalWidth>0}));
+    if(!resultIdentity.loaded||resultIdentity.source!==labPortraits.race)throw Error('Race result portrait differs from the active player');
+    if(await page.locator('#raceResultCoach').isEnabled()){
+      await page.click('#raceResultCoach');
+      const detail=await page.evaluate(()=>({positive:document.querySelector('#rvRacePositive')?.textContent?.trim(),focus:document.querySelector('#rvRaceFocus')?.textContent?.trim()}));
+      if(!await page.locator('#review').isVisible()||!detail.positive||!detail.focus)throw Error('Detailed Coach review missing');
+      await page.click('#rvClose');
+    }
     await page.screenshot({path:join(out,`${label}-result.png`)});
     if(item.video)await page.waitForTimeout(1400);
     const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
