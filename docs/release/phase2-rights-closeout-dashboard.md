@@ -1,6 +1,6 @@
 # Phase 2 rights closeout dashboard
 
-Current package identity is verified against deployed main `fbce23a85a477a8efa1ae37bde0d4b5bd110c3bf` and its unchanged 204-file `dist/mobile` package. The existing owner decisions were first bound to the same file hashes at `4a8d1cefa19704c53412ea963d4b050a5dd2df63`. This is an intake and decision dashboard. [Six active W1 model hashes](w1-six-model-internal-rights-decision.md), [15 procedural art hashes and the packaged notice](phase2-w1-procedural-notice-decision.md), and [seven Wave 2 runtime hashes](phase2-wave2-internal-rights-decision.md) are internally accepted for continued commercial preparation; Cobalt carries a documented residual provenance gap. Browser Gate 1 remains qualified on the unchanged HTML; that qualification does not grant commercial rights.
+Current package identity is verified against deployed main `be2a0e24720c1dc8a077ab0b48a32bee1b063433` and its current 204-file `dist/mobile` package. The 29 previously accepted exact hashes were first bound at `4a8d1cefa19704c53412ea963d4b050a5dd2df63`; the three PR #168 still hashes and current HTML hash are later, held package identities. This is an intake and decision dashboard. [Six active W1 model hashes](w1-six-model-internal-rights-decision.md), [15 procedural art hashes and the packaged notice](phase2-w1-procedural-notice-decision.md), and [seven Wave 2 runtime hashes](phase2-wave2-internal-rights-decision.md) are internally accepted for continued commercial preparation; Cobalt carries a documented residual provenance gap. Browser Gate 1 was qualified at PR #143; later product commits received separate production validation. Neither qualification nor the PR #168 Human QA grants commercial rights.
 
 | Package ledger | Count | Current decision state |
 | --- | ---: | --- |
@@ -8,12 +8,12 @@ Current package identity is verified against deployed main `fbce23a85a477a8efa1a
 | Installed notice N01 | 1 | Internally verified for the current mobile package; future native notices require separate inventory and placement review |
 | **Total shipped paths** | **204** | **175 held; 29 internally accepted for continued commercial preparation** |
 
-The 203 runtime rows total **36,181,542 bytes**. The notice is **2,461 bytes**, so the package total is **36,184,003 bytes**. The plan has 11 rights groups plus the separate N01 notice group; its 203 paths, hashes, sizes, groups, and dispositions match the current shipped ledger and action map once each.
+The 203 runtime rows total **36,186,616 bytes**. The notice is **2,461 bytes**, so the package total is **36,189,077 bytes**. The plan has 11 rights groups plus the separate N01 notice group; its 203 paths, hashes, sizes, groups, and dispositions match the current shipped ledger and action map once each.
 
 | Ordered wave | Exact rows | Pending exact-hash owner decisions | Default route |
 | --- | ---: | ---: | --- |
 | W1 original/procedural | 21 | 0 | [Six models](w1-six-model-internal-rights-decision.md) and [15 procedural art rows](phase2-w1-procedural-notice-decision.md) internally accepted for preparation; Cobalt residual risk disclosed. Six package-only candidates remain excluded from the current package. |
-| W2 upstream/license/dependent stills | 11 | 4 | [Seven accepted for preparation; four held](phase2-wave2-internal-rights-decision.md). The [held-file recovery audit](phase2-wave2-held-recovery.md) found import/render lineage but no sufficient rights or exact still reproduction; resolve imported HTML ownership and exact render chains for Cobalt, Kestrel and Vesper roster stills. |
+| W2 upstream/license/dependent stills | 11 | 4 | [Seven accepted for preparation; four held](phase2-wave2-internal-rights-decision.md). The [held-file recovery audit](phase2-wave2-held-recovery.md) records superseded still hashes. PR #168 produced three new exact, reproducible and production-served roster stills with Human QA approved; [owner decisions](phase2-wave2-roster-still-owner-decision.md) remain pending. Imported HTML ownership stays separate in draft PR #167. |
 | W3 generated portraits/effect | 25 | 25 | Review generation terms and likeness; five Fight v1 portraits require live-reference/fallback review |
 | W4 captured derivatives | 146 | 146 | Wait for upstream decisions; recapture affected media or clear unchanged captures with complete input proof |
 | **Total** | **203** | **175** | 52 default clear-with-evidence, five default remove-behind-reviewed-fallback, 146 default recapture/regenerate |

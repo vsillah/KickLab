@@ -1,6 +1,8 @@
 # Race Garage roster still replacement candidate
 
-Base: deployed `main` `926a589b9c411f091e886cc8f02c1a44fb3e656d` (including the merged preflight card repair from PR #169). Scope is exactly the Cobalt, Kestrel, and Vesper Garage WebP stills. This candidate awaits client-facing Human QA and an owner rights decision. No distribution or Phase 2 closeout follows from this lane.
+**Current deployment update (2026-11-03):** PR #168 was approved in Human QA at exact head `75d85479be369ad91e81d359cc1181afb95a7ee9`, merged as `36d7b84b7ebfcad573f91a20adfdba18fcf20298`, and served through successful GitHub Pages run `41648916138`. The three exact WebP hashes below also matched public asset responses from the later verified `be2a0e24720c1dc8a077ab0b48a32bee1b063433` deployment (run `41658473900`), whose 16-case production matrix passed. This confirms presentation and bytes, not owner rights. All three replacement hashes remain held pending [exact-hash owner decisions](phase2-wave2-roster-still-owner-decision.md).
+
+Base: deployed `main` `926a589b9c411f091e886cc8f02c1a44fb3e656d` (including the merged preflight card repair from PR #169). Scope is exactly the Cobalt, Kestrel, and Vesper Garage WebP stills. At this historical candidate base, Human QA and owner rights decisions were pending; the current deployment update above records Human QA and production validation. The owner rights decision remains pending. No distribution or Phase 2 closeout follows from this lane.
 
 | Garage choice | Accepted read-only model SHA-256 | Superseded held WebP SHA-256 | Candidate WebP SHA-256 | Bytes |
 | --- | --- | --- | --- | ---: |
@@ -22,6 +24,6 @@ The camera, 640×400 transparent framing, lighting and encoder setting follow th
 
 The existing H11 recapture map identifies model-dependent captures. This lane changes only the three Garage still bytes and the exact package ledgers and authoring evidence. The freeze check compares every other tracked base file, including the model GLBs, Blender scenes, gameplay, catalog, capture scripts and H11 media, byte for byte. Therefore no H11 **gameplay** recapture is triggered by this candidate. Garage selection visibility in an H11 frame, if any, still requires review before the owner resolves the rights hold; an old Garage image in a capture would not be evidence of the new still.
 
-## Review gate
+## Historical review gate and result
 
-Before acceptance: inspect the exact-head Garage at 360×800, 390×844, 768×1024, 1113×834, and 1440×900; keyboard, touch, pointer, WebGL and Canvas; reduced motion, profiles and saved choices; offline, storage, privacy, performance and runtime egress. Record a playable privacy-safe MP4 at phone, tablet and desktop widths. The owner then decides whether the three new exact hashes may progress beyond the current candidate state.
+Before acceptance: inspect the exact-head Garage at 360×800, 390×844, 768×1024, 1113×834, and 1440×900; keyboard, touch, pointer, WebGL and Canvas; reduced motion, profiles and saved choices; offline, storage, privacy, performance and runtime egress. Record a playable privacy-safe MP4 at phone, tablet and desktop widths. The responsive and interaction scope passed Human QA at PR #168 head `75d8547`, and the current public assets match the three hashes. The owner must separately decide whether these hashes may advance for continued commercial preparation.
