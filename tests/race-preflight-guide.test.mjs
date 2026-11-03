@@ -22,6 +22,25 @@ test('every attributed preflight Coach comment carries the selected Coach avatar
   assert.match(styles,/\.race-preflight-coach-avatar\{/);
 });
 
+test('baseline preflight uses Nia art without enabling Coach personalities',()=>{
+  const source=preflightUi.slice(preflightUi.indexOf('function racePreflightCoachIdentity(){'),preflightUi.indexOf('function racePreflightCoachComment('));
+  const identity=(enabled,name,id)=>vm.runInNewContext(source+'\nracePreflightCoachIdentity()',{
+    RACE_COACH_PERSONAS:{enabled},raceCoachName:()=>name,raceCoachPersonaAsset:()=>`assets/coaches/v2/${id}.webp`
+  });
+  const baseline=identity(false,'Coach Imani','imani'),flagged=identity(true,'Coach Imani','imani');
+  assert.equal(baseline.name,'Coach Nia');
+  assert.match(baseline.avatar,/assets\/coaches\/v2\/nia\.webp/);
+  assert.match(baseline.avatar,/aria-label="Coach Nia, ready"/);
+  assert.match(baseline.avatar,/>NI<\/span>/);
+  assert.doesNotMatch(baseline.avatar,/imani\.webp/);
+  assert.equal(flagged.name,'Coach Imani');
+  assert.match(flagged.avatar,/assets\/coaches\/v2\/imani\.webp/);
+  assert.match(flagged.avatar,/aria-label="Coach Imani, ready"/);
+  assert.match(flagged.avatar,/>IM<\/span>/);
+  assert.match(styles,/\.race-preflight-coach-avatar\.is-loaded img\{visibility:visible\}/);
+  assert.match(preflightUi,/race-preflight-coach-avatar img'\)\)event\.target\.remove\(\)/);
+});
+
 test('each inspection category and option has a unique, nonempty local icon',()=>{
   const keys=['whole','suspension','suspension:soft','suspension:balanced','suspension:firm','tires','tires:narrow','tires:balanced','tires:wide','brakes','brakes:standard','brakes:sport','brakes:endurance'];
   assert.equal(new Set(keys.map(key=>guide.ICONS[key])).size,keys.length);

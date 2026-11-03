@@ -8,7 +8,12 @@ function raceCoachPersonaAsset(){return`assets/coaches/v2/${raceCoachPersona().i
 function raceCoachPersonaPaint(node,event='setup'){
   if(!RACE_COACH_PERSONAS.enabled||!node)return;
   const coach=raceCoachPersona(),expression=RACE_COACH_PERSONAS.expressionFor(event),index=RACE_COACH_PERSONAS.expressions.indexOf(expression);
-  node.classList.add('race-persona-avatar');node.textContent='';node.removeAttribute('aria-hidden');node.style.backgroundImage=`url("${raceCoachPersonaAsset()}")`;node.style.backgroundPosition=`${index*25}% center`;
+  node.classList.add('race-persona-avatar');node.removeAttribute('aria-hidden');
+  if(node.classList.contains('race-preflight-coach-avatar')){
+    const img=node.querySelector('img');
+    if(img){const asset=raceCoachPersonaAsset();if(!img.src.endsWith(asset)){node.classList.remove('is-loaded');img.src=asset;}img.style.transform=`translateX(-${index*20}%)`;}
+    node.querySelector('.race-preflight-coach-initials').textContent=coach.name.split(' ')[1].slice(0,2).toUpperCase();
+  }else{node.textContent='';node.style.backgroundImage=`url("${raceCoachPersonaAsset()}")`;node.style.backgroundPosition=`${index*25}% center`;}
   node.setAttribute('role','img');node.setAttribute('aria-label',`${coach.name}, ${expression==='concern'?'supportive concern':expression==='focus'?'focused instruction':expression==='celebrate'?'celebrating':expression==='encourage'?'calm encouragement':'ready'}`);
 }
 function raceCoachPersonaExpression(event){
