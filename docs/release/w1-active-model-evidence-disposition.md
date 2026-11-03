@@ -1,5 +1,7 @@
 # W1 active Race models: exact-file evidence and disposition
 
+**Current decision update (2026-11-02):** [Six exact model hashes](w1-six-model-internal-rights-decision.md) are internally accepted for continued commercial preparation; Cobalt retains a documented residual provenance gap. The assessment below preserves its historical pending state.
+
 Assessment base: merged `f26fdb1c7bd31a892100c07120c11019d69e46ec` (PR #157). This is a recommendation for Integration Captain and owner review, not a rights clearance or product change. All six exact files remain **held** in the unchanged package. The [W1 decision packet](phase2-wave1-internal-commercial-decision-packet.md) records the restricted owner addendum `KL-W1-OA-20261102-FBB7DDB-27-002` (`c887854e843ea105ed5ddee36098eb8631ef243473891fdff352ec088ac5c759`) and creator/input index `KL-W1-CI-20261102-FBB7DDB-27-001` (`b5286e2eba39d2006571303d338900ea4bd20f4ed9dbd854fe9204c3b96d2d32`). Those are owner statements and repository indexing, respectively; neither proves an unlisted visual reference is clear. Restricted records and contact details stay outside Git.
 
 ## Method and shared limits
