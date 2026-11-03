@@ -63,7 +63,9 @@ async function run(width,height,{flagged=false,canvas=false,reduced=false,broken
   }
 }
 for(const [width,height] of [[360,800],[390,844],[768,1024],[1113,834],[1440,900]])for(const flagged of [false,true])await run(width,height,{flagged});
-await run(390,844,{canvas:true});await run(390,844,{reduced:true});await run(390,844,{broken:true});
+await run(390,844,{canvas:true});await run(390,844,{flagged:true,canvas:true});
+await run(390,844,{reduced:true});await run(390,844,{flagged:true,reduced:true});
+await run(390,844,{broken:true});
 {
   const context=await browser.newContext({viewport:{width:1440,height:900}}),page=await context.newPage(),url=new URL(base);
   url.searchParams.set('rev',head.slice(0,12));
