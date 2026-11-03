@@ -103,10 +103,13 @@ function racePreflightMedia(mode,vehicle,label,kind='drive'){
 }
 function racePreflightCoachIdentity(){
   const personalized=typeof RACE_COACH_PERSONAS!=='undefined'&&RACE_COACH_PERSONAS.enabled,name=personalized?raceCoachName():'Coach Nia';
-  const avatar=personalized?`<span class="race-preflight-coach-avatar race-persona-avatar" style="background-image:url(&quot;${raceCoachPersonaAsset()}&quot;);background-position:0% center" role="img" aria-label="${name}, ready"></span>`:`<span class="race-preflight-coach-avatar" aria-hidden="true">NI</span>`;
+  const asset=personalized?raceCoachPersonaAsset():'assets/coaches/v2/nia.webp',initials=name.split(' ')[1].slice(0,2).toUpperCase();
+  const avatar=`<span class="race-preflight-coach-avatar race-persona-avatar" role="img" aria-label="${name}, ready"><span class="race-preflight-coach-initials" aria-hidden="true">${initials}</span><img src="${asset}" alt="" aria-hidden="true"></span>`;
   return{name,avatar};
 }
 function racePreflightCoachComment(message,compact=false){const coach=racePreflightCoachIdentity();return`<${compact?'p':'aside'} class="race-preflight-coach-comment${compact?' is-compact':''}">${coach.avatar}<span class="race-preflight-coach-copy"><b>${coach.name}</b><span>${message}</span></span></${compact?'p':'aside'}>`;}
+document.addEventListener('load',event=>{if(event.target?.matches?.('.race-preflight-coach-avatar img'))event.target.parentElement.classList.add('is-loaded');},true);
+document.addEventListener('error',event=>{if(event.target?.matches?.('.race-preflight-coach-avatar img'))event.target.remove();},true);
 function racePreflightLocation(){
   const d=RACE_PREFLIGHT.draft,setup=racePreflightMatchStage(),fixed=setup?.shared?.mode||(typeof RACE_CHAMP_UI!=='undefined'&&RACE_CHAMP_UI.active?RACE_CHAMP.EVENTS[RACE_CHAMP_UI.selected].mode:null);
   if(RACE_PREFLIGHT.locationStage==='venue'){
