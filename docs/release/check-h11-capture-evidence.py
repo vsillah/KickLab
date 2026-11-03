@@ -52,6 +52,7 @@ for path in recapture:
     assert source.stat().st_size == media.stat().st_size and sha(source.read_bytes()) == ledger[path]['sha256']
 
 rows = []
+race_introductions = Counter()
 def add(path, manifest, role, mode, vehicle, revision, model, upstream, identity, gap, risk=''):
     item = ledger[path]
     rec = recapture[path]
@@ -98,10 +99,10 @@ for name in race_manifests:
         video, poster = entry['video'], entry['poster']
         assert entry['bytes'] == int(ledger[video]['bytes'])
         assert entry['sha256'] == ledger[video]['sha256']
-        if entry.get('posterSha256'):
-            assert entry['posterSha256'] == ledger[poster]['sha256']
+        assert entry['posterSha256'] == ledger[poster]['sha256']
         intro = git('log', '--diff-filter=A', '--format=%H', '--', 'src/' + video).splitlines()
         assert len(intro) == 1
+        race_introductions[intro[0]] += 2
         assert git('log', '--format=%H', '--', 'src/' + video).splitlines() == intro
         assert git('log', '--format=%H', '--', 'src/' + poster).splitlines() == intro
         source_model = subprocess.check_output(('git', 'show', f'{intro[0]}:src/{model}'), cwd=ROOT)
@@ -116,8 +117,7 @@ for name in race_manifests:
         revision = f'Git media-introduction commit {intro[0]}; exact capture source revision absent from manifest'
         add(video, manifest, 'video', mode + '/' + kind, vehicle, revision, model, common,
             'Manifest video SHA-256 and bytes match shipped ledger; model SHA-256 at media-introduction commit matches current accepted model', gap, risk)
-        poster_identity = ('Manifest poster SHA-256 matches shipped ledger' if entry.get('posterSha256')
-                           else 'Poster SHA-256 absent from manifest; shipped ledger hash and bytes verified')
+        poster_identity = 'Manifest poster SHA-256 matches shipped ledger'
         add(poster, manifest, 'poster', mode + '/' + kind, vehicle, revision, model, common,
             poster_identity + '; paired video manifest SHA-256 matches; model SHA-256 at media-introduction commit matches', gap, risk)
 
@@ -129,13 +129,18 @@ for clip in home['clips']:
     assert git('cat-file', '-t', revision) == 'commit'
     assert clip['bytes'] == int(ledger[clip['mp4']]['bytes'])
     assert clip['posterBytes'] == int(ledger[clip['poster']]['bytes'])
+    assert clip['sha256'] == ledger[clip['mp4']]['sha256']
+    assert clip['posterSha256'] == ledger[clip['poster']]['sha256']
+    video_commit = git('log', '-1', '--format=%H', '--', 'src/' + clip['mp4'])
+    assert video_commit == git('log', '-1', '--format=%H', '--', 'src/' + clip['poster'])
+    assert subprocess.run(('git', 'merge-base', '--is-ancestor', revision, video_commit), cwd=ROOT).returncode == 0
     upstream = {
         'Fight': 'Current H01 HTML accepted for limited preparation; historical Canvas art and any generated inputs in frames unverified',
         'Kick': 'Current H01 and H09R athlete accepted for limited preparation; actual athlete and scene inputs at capture revision unverified',
         'Race': 'Current H01 and H03 models accepted for limited preparation; model identity and scene inputs in this Home clip unverified',
     }[lab]
-    gap = 'Frame-visible source art/model/scene/effect/portrait/mark inventory at recorded revision; exact capture and poster hash chain; capture-level owner finding'
-    identity = 'Manifest Git revision exists and media/poster byte counts match; manifest contains no media SHA-256; shipped ledger hashes verified'
+    gap = 'Frame-visible source art/model/scene/effect/portrait/mark inventory at recorded revision; source capture runtime and poster derivation receipt; capture-level owner finding'
+    identity = 'Manifest Git revision exists; MP4/poster SHA-256 and byte counts match shipped ledger'
     for role, path in (('video', clip['mp4']), ('poster', clip['poster'])):
         add(path, home_manifest, role, lab, '', f'Manifest capture revision {revision}', '', upstream, identity, gap)
 
@@ -146,6 +151,11 @@ for row in rows:
         assert not any(stream['codec_type'] == 'audio' for stream in probe['streams']), row['mobile_path']
 assert Counter(row['vehicle'] for row in rows) == {'': 6, 'aegis': 28, 'cobalt': 28, 'kestrel': 28, 'sable': 28, 'vesper': 28}
 assert Counter(row['media_role'] for row in rows) == {'video': 73, 'poster': 73}
+assert race_introductions == {
+    'd8fe62a78572be11d21f5c2afbe3953068757c50': 60,
+    '86877504645991e799ef1f6036c3c168bbaa74ee': 40,
+    '0dcbeff4a6aa72cac2f10685560c8e32139660e6': 40,
+}
 assert Counter(row['source_manifest'] for row in rows) == {
     'src/media/race-preflight/manifest.json': 50,
     'src/media/race-preflight/arrival-manifest.json': 50,
@@ -170,7 +180,7 @@ for path in actual:
     item = ledger[str(path.relative_to(ROOT / 'dist/mobile'))]
     assert path.stat().st_size == int(item['bytes']) and sha(path.read_bytes()) == item['sha256']
 print('H11 146/146 held and accounted once: Race 140; Home 6; recommend now 0; mandatory recapture now 0; capture evidence pending 146')
-print('Race models at media introduction match 140 current accepted H03 bindings; 50 poster manifest hashes and six Home media hashes remain absent')
+print('Race models at media introduction match 140 current accepted H03 bindings; 50 Highland poster and six Home manifest hashes match shipped bytes')
 canon = ''.join(f"{path.relative_to(ROOT / 'dist/mobile')}\0{sha(path.read_bytes())}\0{path.stat().st_size}\n" for path in actual)
 assert sha(canon.encode()) == '9466fda62e87a216b3a2895c861e114f7a7cfcf206adcde98bdb1cfffae96af6'
 assert sha((ROOT / 'dist/kicklab.html').read_bytes()) == '4c421ca7210d958927b9914c635f3042a3e5903ef3ba751a121648fd09a477db'

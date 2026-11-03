@@ -23,7 +23,9 @@
       ],
       "format": {
         "duration": "5.800000"
-      }
+      },
+      "sha256": "7f84ffd903b08fc3dd4521b97f6598e8462b7f97f614c6af7da241877175e2f3",
+      "posterSha256": "3855ff1c70c78ae1b8ebdfda8ef020144aa11e388dfd04e5af11b4f9a66db1ba"
     },
     {
       "lab": "Kick",
@@ -48,7 +50,9 @@
       ],
       "format": {
         "duration": "5.800000"
-      }
+      },
+      "sha256": "ddade56086103906c8e333e1408d5cb13ecbd99261a0c6ac804418df56eb13df",
+      "posterSha256": "775d901b77f8aaee0eded0bcfbd7db25bf3214d72b68927080e550a8ce03ffca"
     },
     {
       "lab": "Race",
@@ -74,7 +78,9 @@
       ],
       "format": {
         "duration": "5.800000"
-      }
+      },
+      "sha256": "464fa2f3fa43f213679b167b6ff5f17eeeb8942b8bafacbc1503b57e9723f9d9",
+      "posterSha256": "a0e4406cfd7b93d2a1c55220d224e329f4ca43b3fe047e6ed1432853b73287c6"
     }
   ]
 }
