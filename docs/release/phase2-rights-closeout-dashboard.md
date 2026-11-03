@@ -1,22 +1,22 @@
 # Phase 2 rights closeout dashboard
 
-Current rights decisions are bound to deployed main `dbcd4b97d80cc1c15254c2f4ced3dd1090a36f46` and its 204-file `dist/mobile` package. This is an intake and decision dashboard. [Six active W1 model hashes](w1-six-model-internal-rights-decision.md) are internally accepted for continued commercial preparation; Cobalt carries a documented residual provenance gap. Browser Gate 1 remains qualified on the unchanged HTML; that qualification does not grant commercial rights.
+Current rights decisions are bound to deployed main `3ad2789a38c823f2badb7a97dbd0ad14655c2a68` and its 204-file `dist/mobile` package. This is an intake and decision dashboard. [Six active W1 model hashes](w1-six-model-internal-rights-decision.md), [15 procedural art hashes and the packaged notice](phase2-w1-procedural-notice-decision.md) are internally accepted for continued commercial preparation; Cobalt carries a documented residual provenance gap. Browser Gate 1 remains qualified on the unchanged HTML; that qualification does not grant commercial rights.
 
 | Package ledger | Count | Current decision state |
 | --- | ---: | --- |
-| Runtime candidates in the [exact-file plan](runtime-rights-evidence-plan.csv) | 203 | 197 held; six internally accepted for continued commercial preparation. Counsel is optional for a specific unresolved legal question. |
-| Held installed notice N01 | 1 | MIT terms are packaged; final scope and placement review pending |
-| **Total shipped paths** | **204** | **198 held; six internally accepted for continued commercial preparation** |
+| Runtime candidates in the [exact-file plan](runtime-rights-evidence-plan.csv) | 203 | 182 held; 21 internally accepted for continued commercial preparation. Counsel is optional for a specific unresolved legal question. |
+| Installed notice N01 | 1 | Internally verified for the current mobile package; future native notices require separate inventory and placement review |
+| **Total shipped paths** | **204** | **182 held; 22 internally accepted for continued commercial preparation** |
 
 The 203 runtime rows total **36,181,542 bytes**. The notice is **2,461 bytes**, so the package total is **36,184,003 bytes**. The plan has 11 rights groups plus the separate N01 notice group; its 203 paths, hashes, sizes, groups, and dispositions match the current shipped ledger and action map once each.
 
 | Ordered wave | Exact rows | Pending exact-hash owner decisions | Default route |
 | --- | ---: | ---: | --- |
-| W1 original/procedural | 21 | 15 | [Six models internally accepted](w1-six-model-internal-rights-decision.md), with Cobalt residual risk disclosed; assess nine effects and six awards against exact-hash owner evidence. Six package-only candidates are excluded from the current package. |
-| W2 upstream/license/dependent stills | 11 | 11 | Resolve imported source, MIT copy, MakeHuman CC0 chain, and model-linked thumbnails |
+| W1 original/procedural | 21 | 0 | [Six models](w1-six-model-internal-rights-decision.md) and [15 procedural art rows](phase2-w1-procedural-notice-decision.md) internally accepted for preparation; Cobalt residual risk disclosed. Six package-only candidates remain excluded from the current package. |
+| W2 upstream/license/dependent stills | 11 | 11 | Resolve imported source, copied QR runtime row, MakeHuman CC0 chain, and model-linked thumbnails |
 | W3 generated portraits/effect | 25 | 25 | Review generation terms and likeness; five Fight v1 portraits require live-reference/fallback review |
 | W4 captured derivatives | 146 | 146 | Wait for upstream decisions; recapture affected media or clear unchanged captures with complete input proof |
-| **Total** | **203** | **197** | 52 default clear-with-evidence, five default remove-behind-reviewed-fallback, 146 default recapture/regenerate |
+| **Total** | **203** | **182** | 52 default clear-with-evidence, five default remove-behind-reviewed-fallback, 146 default recapture/regenerate |
 
 The [replacement sequence](runtime-rights-replacement-sequence.md) and [146-row recapture map](runtime-rights-recapture-map.csv) identify the downstream media impact. Use the [evidence intake checklist](runtime-rights-evidence-intake.md) and [owner attestation template](runtime-rights-owner-attestation-template.md) for each exact hash. A planned route is not a clearance, and a recapture count is not a build authorization.
 
@@ -24,8 +24,8 @@ The [replacement sequence](runtime-rights-replacement-sequence.md) and [146-row 
 
 | Gate | Current status | Required evidence before closeout |
 | --- | --- | --- |
-| Runtime rights | 197 held; six internally accepted for preparation | Dated signed exact-hash owner dispositions; replacements and dependent captures revalidated |
-| Installed notice N01 | Held, 1/1 | Internal verification of Three.js and QR license terms, exact notice text, placement, and package scope; future native transitive notices separately inventoried |
+| Runtime rights | 182 held; 21 internally accepted for preparation | Dated signed exact-hash owner dispositions; replacements and dependent captures revalidated |
+| Installed notice N01 | Internally verified for current mobile package | Preserve exact notice and separately inventory native transitive terms and placement after native generation |
 | Legal developer | Pending | Active AmaduTown Advisory Solutions registration, matching store-account identity, written KickLab ownership/license chain |
 | Guardian support | Pending | Control of reserved email and policy targets, provider access/retention/deletion workflow, incident owner and response controls; no setup done in this round |
 | Privacy policy and declarations | Pending | Tested native data flow, backup/restore, permissions, SDK traffic and matching store declarations; internal draft remains unpublished |

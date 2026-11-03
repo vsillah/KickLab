@@ -1,5 +1,7 @@
 # KickLab Phase 2: rights and privacy foundation
 
+**Current rights update (2026-11-02):** The [current decision dashboard](phase2-rights-closeout-dashboard.md) records 22 exact shipped paths internally accepted for continued commercial preparation and 182 runtime paths held. The [packaged notice](phase2-w1-procedural-notice-decision.md) is verified for the current mobile package; native notices remain a later gate. Counts and pending-state descriptions below preserve this document’s earlier assessment.
+
 The current package assessment is bound to deployed main `96ed8a5dfa5de5dcf5cfcefd68ad466d369c64f3`. See the [closeout/Phase 3 entry packet](phase2-closeout-phase3-entry.md), [203-path rights evidence plan](runtime-rights-evidence-plan.csv), [exact-file action groups](rights-owner-action-groups.md), and [Gate 1 checkpoint](../browser-gate1-59abddb-checkpoint.md). Browser Gate 1 remains qualified on the unchanged HTML. This document records rights and privacy holds; it grants no commercial clearance, policy publication, native generation, store declaration, or distribution authority.
 
 ## Commercial scope and exact package
