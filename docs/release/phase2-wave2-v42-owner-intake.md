@@ -1,6 +1,6 @@
 # Imported v42 owner intake — held `index.html`
 
-Rebound **2026-11-03** to exact deployed main `714bfb3075d26519bd0050553aab0f4d5e02ea13`. The original draft was prepared at `2da1df9e4974469473baffdbca20b167dff04dc4` against the earlier mobile HTML hash `c3c963ffc2ad3314068c857dc44c9b82ff640a310ec662fcef9404132ddb0294` (2,638,152 bytes); that dated binding remains in PR #167 history. This is a question packet for the owner, not an attestation, rights finding, or release decision. The **current held** `dist/mobile/index.html` has SHA-256 `9ad9722ae2712c3b02c13deb8e165293a4e814aac7a05d3f06b794da64c1542d` (2,639,746 bytes). Its web/Pages HTML counterpart is `4c421ca7210d958927b9914c635f3042a3e5903ef3ba751a121648fd09a477db`. No ledger status or product byte changes occur in this lane.
+Rebound **2026-11-03** to exact deployed main `714bfb3075d26519bd0050553aab0f4d5e02ea13`. The original draft was prepared at `2da1df9e4974469473baffdbca20b167dff04dc4` against the earlier mobile HTML hash `c3c963ffc2ad3314068c857dc44c9b82ff640a310ec662fcef9404132ddb0294` (2,638,152 bytes); that dated binding remains in PR #167 history. This question packet was resolved after PR #167 merged: the [dated exact-hash owner decision](phase2-wave2-v42-owner-decision.md) records continued commercial preparation only for `dist/mobile/index.html` SHA-256 `9ad9722ae2712c3b02c13deb8e165293a4e814aac7a05d3f06b794da64c1542d` (2,639,746 bytes). Its web/Pages HTML counterpart is `4c421ca7210d958927b9914c635f3042a3e5903ef3ba751a121648fd09a477db`.
 
 ## Repository facts already checked
 
@@ -12,13 +12,13 @@ An **optional blank restricted audit worksheet**, `KL-P2-W2-H01-INTAKE-TEMPLATE-
 
 ## Three bounded evidence gates
 
-The current `index.html` stays **held** while these three gates are reconciled. The 23-row source/hash map and blank restricted worksheet above are optional audit aids. They do not require 23 owner answers. Request file or component detail only when an exception or conflicting evidence identifies a specific input.
+The current `index.html` stayed **held** while these three gates were reconciled. The 23-row source/hash map and blank restricted worksheet remain optional audit aids. They did not require 23 owner answers. The [owner decision](phase2-wave2-v42-owner-decision.md) closes these three gates for the unchanged exact hash; reopen on a changed hash or conflicting evidence.
 
 1. **Dated owner attestation.** The owner identifies the original imported-v42 code and material covered, states the basis of their authority for **continued commercial preparation only** as incorporated in the exact current HTML hash above, and names any excluded or unknown material in the exceptions schedule. Do not infer creator identity, employment, assignment, or license from Git history or possession.
 2. **Identified dependency notices and permissions.** Verify the notice/permission chain for identified third-party dependencies against the exact current mobile package. The [current notice record](phase2-w1-procedural-notice-decision.md) verifies packaged Three.js `0.186.1` and qrcode-generator `1.5.2` MIT terms and placement; Three.js is embedded in HTML and the QR file is a separate packaged runtime path. Recheck if source, version, notice, or package scope changes. Any additional dependency identified by the owner needs its own terms and required notice before this gate closes.
 3. **Dated exceptions schedule.** The owner lists every known third-party input, contributor, reference, restriction, or unknown affecting imported-v42 material, including the affected component when known, evidence or missing evidence, and a proposed resolution. `NONE` is permitted only as an explicit dated owner statement after reviewing the source and input inventory; silence or an empty schedule is not `NONE`.
 
-### Concise owner attestation template
+### Historical concise owner attestation template
 
 Complete and retain the signed or otherwise attributable dated response and supporting records in restricted owner storage. Do not put names, contracts, private source bundles, or raw responses in Git.
 
@@ -38,7 +38,7 @@ Keep the completed schedule in restricted storage. Add one row per known input, 
 | --- | --- | --- | --- | --- |
 | [owner to complete] | [owner to complete] | [owner to complete] | [owner to complete] | [owner to complete] |
 
-## Owner-response gate
+## Historical owner-response gate
 
 1. Review the exact HTML and three evidence gates above. The optional 23-row worksheet may help locate an exception, but its completion is not required. Save the dated attestation, exceptions schedule, and supporting dependency/authority records in restricted storage; give each final record a receipt ID and SHA-256.
 2. Send the receipt IDs and hashes, any unresolved exceptions, and an approved public status summary to the Integration Captain. If a gate is unresolved, keep HTML held and identify the specific missing fact or conflicting input. If all three gates are reconciled against unchanged bytes, the Captain can seek a separate reviewed exact-hash disposition. No per-file answers are required unless an exception points to a file or component.
@@ -46,6 +46,6 @@ Keep the completed schedule in restricted storage. Add one row per known input, 
 
 No external contact, counsel engagement, policy publication, native project, store record, signing, upload, distribution, or release follows from this intake.
 
-### Ready-to-send owner intake
+### Historical ready-to-send owner intake
 
 > Please provide one dated, attributable attestation for your authority to continue commercial preparation of the original imported-v42 code/material in KickLab's **held** `dist/mobile/index.html` at main `714bfb3075d26519bd0050553aab0f4d5e02ea13`, SHA-256 `9ad9722ae2712c3b02c13deb8e165293a4e814aac7a05d3f06b794da64c1542d` (2,639,746 bytes). Confirm the identified dependency notice/permission records, and complete a dated exceptions schedule listing every known third-party input, contributor, reference, restriction, or unknown. Use `NONE` only as your explicit statement after review. The 23-row map and blank restricted worksheet are optional audit aids; answer by file only where an exception needs it. Keep private evidence in restricted storage and return record IDs, SHA-256 values, unresolved exceptions, and an approved public summary. Keep HTML held until all three gates are reconciled against unchanged bytes. This intake authorizes no product change, H11, Wave 3, native, policy, store, signing, upload, distribution, or release action; stop on a changed hash or conflicting evidence.
