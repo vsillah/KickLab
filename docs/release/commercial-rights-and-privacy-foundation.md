@@ -14,7 +14,7 @@ The [runtime dependency ledger](runtime-dependencies.csv) maps **128** non-root 
 
 | Rights area | Current evidence boundary |
 | --- | --- |
-| Imported v42 HTML code, art and sound | `index.html` remains held for an exact-hash creator/assignment and paid redistribution decision. Draft PR #167 intake was prepared for an earlier HTML hash and needs rebinding before owner adoption. |
+| Imported v42 HTML code, art and sound | `index.html` remains held for the three [bounded preparation gates](phase2-wave2-v42-owner-intake.md): dated owner attestation, identified dependency notice/permission verification, and a dated exceptions schedule. Draft PR #167 is bound to the current shipped HTML hash; distribution evidence and authorization remain separate. |
 | Garage stills and generated player/driver/Coach art | Three PR #168 replacement still hashes have [restricted owner decisions for continued preparation](phase2-wave2-roster-still-owner-decision.md), with Cobalt residual provenance risk expressly carried forward; W3 generated portraits/effects retain separate evidence and likeness gates. |
 | MakeHuman-derived athlete | Its exact current GLB is internally accepted for preparation; Home Kick captures still need frame-input review. |
 | Race models, awards, home and venue captures | Six exact models and procedural awards are internally accepted for preparation, with Cobalt residual risk disclosed; 146 H11 captured media paths remain held for input and capture proof. |
