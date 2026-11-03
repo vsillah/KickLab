@@ -1,0 +1,21 @@
+# Phase 2 Wave 3 exact-hash internal rights decision
+
+**Decision date:** 2026-11-03. **Base:** exact deployed `origin/main` `bec165d09e58c8726ceeb65210dd2f496f5d1045`, merged [PR #174 evidence](phase2-wave3-generated-art-evidence.md) and [PR #175 existing-provenance intake](phase2-wave3-owner-intake.md). Vambah's 2026-11-03 confirmation adopts the known project creation workflow and confirms no outside photographs were used. This record adopts the existing repository provenance and confirmation for **continued commercial preparation only** for the 25 exact SHA-256 and byte-bound shipped files in the [identity schedule](phase2-wave3-owner-intake-schedule.csv). It does not establish final legal clearance or authorize release.
+
+The schedule and [exact-file review](phase2-wave3-exact-file-review.csv) contain H04 player portraits (15), H05 driver and Coach portraits (9), and H10 flame atlas (1). Each matches the [shipped rights ledger](shipped-file-rights.csv), [action map](rights-action-map.csv), [runtime plan](runtime-rights-evidence-plan.csv), and current source asset. The disposition applies only while those exact hashes remain unchanged. The 25 Wave 3 rows move from held to internal preparation; the remaining 146 H11 captured-media rows stay held. The 204-file package now has 58 internally accepted paths, including the notice, and 146 held paths. These counts are calculated by `python3 docs/release/check-wave3-disposition.py` from the CSVs.
+
+The portrait source documents identify the built-in Codex image-generation workflow, local KickLab reference inputs, fictional and unbranded intent, and the absence of outside photos. The output hashes and available source hashes were reconciled in PR #174. This limited decision accepts that record and the owner's confirmation; it does not claim an independently verified provider transaction, complete generation request, signed input inventory, or absence of every possible likeness or mark concern. No duplicate owner questionnaire is required for this limited preparation step.
+
+**H10 residual:** The retained source WebP and shipped atlas match `src/assets/effects/race/v1/asset-record.json`. The historical original generated PNG was not located. Its generation request/date and PNG-to-WebP reproduction remain unavailable, and the atlas export was not independently reproduced in PR #174. This gap stays explicit in the exact-file review and active ledgers. It does not become a claim that a source PNG or transaction receipt was recovered.
+
+**Reopen rule:** Reopen the affected exact row on any hash change or conflicting creator, input, likeness, mark, provider-term, or rights evidence. A replacement requires its own product and rights decision, with player IDs, Coach separation, storage compatibility, and affected H11 captures reviewed. The 146 H11 paths remain held for their complete rendered-input and capture chains.
+
+**Boundary:** Phase 2 remains current in the five-phase commercial roadmap, with four phases remaining including Phase 2. Final whole-package owner acceptance, legal developer identity, support/privacy controls, native qualification, and release authorization remain separate. This decision changes no asset, product runtime, package content, H11 media, native project, policy, provider setting, signing, upload, distribution, store record, submission, deployment, or release state. Captain review of this documentation PR is the next gate; no Human QA is needed.
+
+## Validation at the disposition branch
+
+- `python3 docs/release/check-wave3-disposition.py`: 25 accepted W3 rows; runtime 57 accepted/146 held; package 58 accepted/146 held. The check binds each W3 path, SHA-256, byte count, group, source file, and current CSV disposition.
+- `npm run check`: 319 tests, web contract, Pages checks, and 3D asset validation passed.
+- `npm run mobile:check`: seven mobile foundation tests passed.
+- `git diff --check`: passed. No product, asset, package, native, or configuration source path changed.
+- A fresh `npm run mobile:prepare` before edits and the build after edits produced identical sorted `path\0sha256\0bytes\n` manifests: 204 files, 36,189,077 bytes, digest `9466fda62e87a216b3a2895c861e114f7a7cfcf206adcde98bdb1cfffae96af6`. This verifies byte identity within the disposition worktree, not a live deployment.
