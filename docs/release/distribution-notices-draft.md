@@ -1,5 +1,7 @@
 # KickLab distribution notices — internal draft
 
+**Current package update (2026-11-02):** The [exact packaged notice decision](phase2-w1-procedural-notice-decision.md) verifies the current mobile-package terms, file placement, and scope. The original draft below retains its preparation-time wording; future native notices still require separate review.
+
 Prepared 2026-11-01 from the installed packages of exact `origin/main` `7e16186ba85d5f8048104819ae53602870ffecb3`. The package-minimization branch based on main `efee5cb` installs exact Three.js and `qrcode-generator` MIT terms in `dist/mobile/THIRD-PARTY-NOTICES.txt`; this longer draft remains an internal review source, and no native app exists. The internal owner must verify exact distribution contents, attribution, and final placement before any release; counsel is optional for a specific unresolved license question. Native Gradle/SPM/CocoaPods transitive components are not inventoried yet; append their notices only after Phase 3 generates and audits the projects.
 
 The current web/mobile package embeds Three.js in `index.html` and copies `qrcode-generator` into `party-qr.js`. Capacitor Core/App/Haptics and `tslib` are production-lock candidates for later native packaging, not claims that their native code currently ships. Build-only dependencies are excluded from this draft unless the generated output proves they ship.

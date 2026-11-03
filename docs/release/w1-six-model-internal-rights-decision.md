@@ -1,5 +1,7 @@
 # W1 six-model internal rights decisions
 
+**Later Phase 2 update (2026-11-02):** The [15 procedural art rows and packaged notice](phase2-w1-procedural-notice-decision.md) now have separate exact-hash internal decisions. Counts below describe the earlier six-model decision point.
+
 **Decision base:** deployed `origin/main` `dbcd4b97d80cc1c15254c2f4ced3dd1090a36f46`, with 204 shipped mobile files. Vambah Sillah adopted sufficient owner and reconstruction evidence for **continued commercial preparation** of five exact shipped hashes on 2026-11-02. He subsequently elected to keep the existing premium Cobalt model and accepted its documented residual provenance risk for the same limited preparation scope. The restricted five-model receipt `KL-W1-ID-20261102-DBCD4B9-5-001` has SHA-256 `70c50601bbef40f36fc412923a9d2642157e4e464e11459ccd515eea1fe269a4`; the supplemental exact-hash Cobalt receipt `KL-W1-ID-20261102-DBCD4B9-C-002` has SHA-256 `540a90cdbedccb6d3c0de5c7c05d8edfc992c535f998130aa6012807030c2240`. Both remain outside Git.
 
 | Shipped mobile path | SHA-256 | Bytes | Internal decision |
