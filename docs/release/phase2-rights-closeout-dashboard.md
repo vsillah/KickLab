@@ -1,6 +1,6 @@
 # Phase 2 rights closeout dashboard
 
-Current rights decisions are bound to deployed main `4a8d1cefa19704c53412ea963d4b050a5dd2df63` and its 204-file `dist/mobile` package. This is an intake and decision dashboard. [Six active W1 model hashes](w1-six-model-internal-rights-decision.md), [15 procedural art hashes and the packaged notice](phase2-w1-procedural-notice-decision.md), and [seven Wave 2 runtime hashes](phase2-wave2-internal-rights-decision.md) are internally accepted for continued commercial preparation; Cobalt carries a documented residual provenance gap. Browser Gate 1 remains qualified on the unchanged HTML; that qualification does not grant commercial rights.
+Current package identity is verified against deployed main `fbce23a85a477a8efa1ae37bde0d4b5bd110c3bf` and its unchanged 204-file `dist/mobile` package. The existing owner decisions were first bound to the same file hashes at `4a8d1cefa19704c53412ea963d4b050a5dd2df63`. This is an intake and decision dashboard. [Six active W1 model hashes](w1-six-model-internal-rights-decision.md), [15 procedural art hashes and the packaged notice](phase2-w1-procedural-notice-decision.md), and [seven Wave 2 runtime hashes](phase2-wave2-internal-rights-decision.md) are internally accepted for continued commercial preparation; Cobalt carries a documented residual provenance gap. Browser Gate 1 remains qualified on the unchanged HTML; that qualification does not grant commercial rights.
 
 | Package ledger | Count | Current decision state |
 | --- | ---: | --- |
@@ -13,7 +13,7 @@ The 203 runtime rows total **36,181,542 bytes**. The notice is **2,461 bytes**, 
 | Ordered wave | Exact rows | Pending exact-hash owner decisions | Default route |
 | --- | ---: | ---: | --- |
 | W1 original/procedural | 21 | 0 | [Six models](w1-six-model-internal-rights-decision.md) and [15 procedural art rows](phase2-w1-procedural-notice-decision.md) internally accepted for preparation; Cobalt residual risk disclosed. Six package-only candidates remain excluded from the current package. |
-| W2 upstream/license/dependent stills | 11 | 4 | [Seven accepted for preparation; four held](phase2-wave2-internal-rights-decision.md). Resolve imported HTML ownership and exact render chains for Cobalt, Kestrel and Vesper roster stills. |
+| W2 upstream/license/dependent stills | 11 | 4 | [Seven accepted for preparation; four held](phase2-wave2-internal-rights-decision.md). The [held-file recovery audit](phase2-wave2-held-recovery.md) found import/render lineage but no sufficient rights or exact still reproduction; resolve imported HTML ownership and exact render chains for Cobalt, Kestrel and Vesper roster stills. |
 | W3 generated portraits/effect | 25 | 25 | Review generation terms and likeness; five Fight v1 portraits require live-reference/fallback review |
 | W4 captured derivatives | 146 | 146 | Wait for upstream decisions; recapture affected media or clear unchanged captures with complete input proof |
 | **Total** | **203** | **175** | 52 default clear-with-evidence, five default remove-behind-reviewed-fallback, 146 default recapture/regenerate |
