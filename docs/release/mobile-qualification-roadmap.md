@@ -2,7 +2,7 @@
 
 This is a finite seven-gate evidence path. A later gate cannot inherit qualification from an earlier gate, and build success never substitutes for rendered or device evidence. The machine-readable status is in [`mobile-qualification-status.json`](mobile-qualification-status.json).
 
-**Current disposition, 2026-11-01:** Browser Gate 1 was qualified by the Integration Captain at merged PR #143 / `origin/main` `7e16186ba85d5f8048104819ae53602870ffecb3`, on web/Pages SHA-256 `20fd645fd25f10589724eabcc22a1a57ad795688ab39597a8225d80d5d38d66c`. See the [current-artifact checkpoint](../browser-gate1-59abddb-checkpoint.md). Rights and notices remain Phase 2 holds; native generation is Phase 3 and requires separate authorization.
+**Current disposition, 2026-11-01:** Browser Gate 1 was qualified by the Integration Captain at merged PR #143 / `origin/main` `7e16186ba85d5f8048104819ae53602870ffecb3`, on web/Pages SHA-256 `20fd645fd25f10589724eabcc22a1a57ad795688ab39597a8225d80d5d38d66c`. See the [current-artifact checkpoint](../browser-gate1-59abddb-checkpoint.md). Current-package rights and notice have limited preparation decisions; legal/support/privacy foundation and exact Phase 3 plan approval remain Phase 2 gates. Native generation is Phase 3 and requires separate execution authorization.
 
 | Gate | Required evidence | Current shared-lane state |
 | --- | --- | --- |
@@ -30,7 +30,7 @@ The shared foundation pins Capacitor 8 and Node 22 or newer. Platform projects g
 
 Amina owns iOS project generation and iOS Simulator evidence in her branch. Yaa Asantewaa owns Android project generation and emulator evidence in her branch. Each starts from the merged shared-foundation commit with Node 22 or newer, runs `npm ci` and `npm run mobile:check`, generates only its platform project, and confirms the copied web artifact hash matches `dist/kicklab-mobile-manifest.json` (build evidence outside the package). Amina must confirm the generated deployment target is iOS 15 or newer. Yaa must confirm Android minimum SDK 24 and compile/target SDK 36. Neither platform lane may mark physical-device, accessibility, signing, internal-testing, feedback, or release-candidate gates qualified without the evidence listed above.
 
-The Integration Captain must provide the exact merged foundation commit **and separate Phase 3 authorization** before either lane starts. Amina must preserve the earlier SwiftUI/WKWebView experiment unchanged and use a clean Capacitor worktree rather than overwriting or deleting it.
+The Integration Captain must first record Phase 2 signoff and the approved exact [Phase 3 entry plan](phase3-native-qualification-plan.md), then provide the exact current main/package binding **and separate Phase 3 execution authorization** before either lane starts. Amina must preserve the earlier SwiftUI/WKWebView experiment unchanged and use a clean Capacitor worktree rather than overwriting or deleting it.
 
 ```sh
 # Amina, in a clean iOS-only branch/worktree based on the supplied merge commit
