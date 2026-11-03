@@ -1,6 +1,6 @@
 # Phase 2 rights evidence intake
 
-Use the [203-row exact-file plan](runtime-rights-evidence-plan.csv) as the intake queue. This intake is bound to the 204-file package on deployed main `96ed8a5dfa5de5dcf5cfcefd68ad466d369c64f3`. Keep source binaries, generated-image originals, private prompts, licenses, contracts, and reviewer correspondence in restricted owner-controlled storage. The release packet holds hashes, dated decisions, and references to those records. Do not place child profiles, real names, precise location, challenge codes, private chats, or unredacted screenshots in the intake or PR.
+Use the [203-row exact-file plan](runtime-rights-evidence-plan.csv) as the intake queue. This intake is bound to the 204-file package on deployed main `be2a0e24720c1dc8a077ab0b48a32bee1b063433`. Keep source binaries, generated-image originals, private prompts, licenses, contracts, and reviewer correspondence in restricted owner-controlled storage. The release packet holds hashes, dated decisions, and references to those records. Do not place child profiles, real names, precise location, challenge codes, private chats, or unredacted screenshots in the intake or PR.
 
 ## Intake for each path
 
