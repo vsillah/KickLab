@@ -1,6 +1,6 @@
 # Six active Race models: evidence intake status
 
-**Current decision update (2026-11-02):** [Five exact model hashes](w1-five-model-internal-rights-decision.md) are internally clear for continued commercial preparation; Cobalt remains held. The assessment below preserves its historical pending state.
+**Current decision update (2026-11-02):** [Six exact model hashes](w1-six-model-internal-rights-decision.md) are internally accepted for continued commercial preparation; Cobalt retains a documented residual provenance gap. The assessment below preserves its historical pending state.
 
 Assessment base: deployed main `4c50877a1b320730a51b1b3b6c4174da4af1ab4a`, 204-file mobile package. This packet advances the [model disposition](w1-active-model-evidence-disposition.md) into a finite intake queue. It creates no owner attestation, model clearance, replacement order, or change to the [held runtime rights ledger](runtime-rights-evidence-plan.csv). **Six of six remain held pending named evidence.**
 
