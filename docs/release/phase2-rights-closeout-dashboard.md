@@ -1,22 +1,22 @@
 # Phase 2 rights closeout dashboard
 
-Current package identity is verified against deployed main `be2a0e24720c1dc8a077ab0b48a32bee1b063433` and its current 204-file `dist/mobile` package. The 29 previously accepted exact hashes were first bound at `4a8d1cefa19704c53412ea963d4b050a5dd2df63`; the three PR #168 still hashes and current HTML hash are later package identities; only the HTML remains held after the restricted three-still owner decision. This is an intake and decision dashboard. [Six active W1 model hashes](w1-six-model-internal-rights-decision.md), [15 procedural art hashes and the packaged notice](phase2-w1-procedural-notice-decision.md), and [seven earlier Wave 2 runtime hashes](phase2-wave2-internal-rights-decision.md) and [three replacement still hashes](phase2-wave2-roster-still-owner-decision.md) are internally accepted for continued commercial preparation; Cobalt carries a documented residual provenance gap. Browser Gate 1 was qualified at PR #143; later product commits received separate production validation. Neither qualification nor the PR #168 Human QA grants commercial rights.
+Current package identity is verified against deployed main `fb56e16c35bb9b7a11c2a70f3886bac52a64a615` and its current 204-file `dist/mobile` package. The 29 previously accepted exact hashes were first bound at `4a8d1cefa19704c53412ea963d4b050a5dd2df63`; the three PR #168 still hashes and current HTML hash are later package identities. The [current HTML owner decision](phase2-wave2-v42-owner-decision.md) reconciles the remaining Wave 2 hold for continued commercial preparation only. [Six active W1 model hashes](w1-six-model-internal-rights-decision.md), [15 procedural art hashes and the packaged notice](phase2-w1-procedural-notice-decision.md), [seven earlier Wave 2 runtime hashes](phase2-wave2-internal-rights-decision.md), [three replacement still hashes](phase2-wave2-roster-still-owner-decision.md), and the exact current HTML are internally accepted for continued commercial preparation; Cobalt carries a documented residual provenance gap. Browser Gate 1 was qualified at PR #143; later product commits received separate production validation. Neither qualification nor Human QA grants commercial rights.
 
 | Package ledger | Count | Current decision state |
 | --- | ---: | --- |
-| Runtime candidates in the [exact-file plan](runtime-rights-evidence-plan.csv) | 203 | 172 held; 31 internally accepted for continued commercial preparation. Counsel is optional for a specific unresolved legal question. |
+| Runtime candidates in the [exact-file plan](runtime-rights-evidence-plan.csv) | 203 | 171 held; 32 internally accepted for continued commercial preparation. Counsel is optional for a specific unresolved legal question. |
 | Installed notice N01 | 1 | Internally verified for the current mobile package; future native notices require separate inventory and placement review |
-| **Total shipped paths** | **204** | **172 held; 32 internally accepted for continued commercial preparation** |
+| **Total shipped paths** | **204** | **171 held; 33 internally accepted for continued commercial preparation** |
 
 The 203 runtime rows total **36,186,616 bytes**. The notice is **2,461 bytes**, so the package total is **36,189,077 bytes**. The plan has 11 rights groups plus the separate N01 notice group; its 203 paths, hashes, sizes, groups, and dispositions match the current shipped ledger and action map once each.
 
 | Ordered wave | Exact rows | Pending exact-hash owner decisions | Default route |
 | --- | ---: | ---: | --- |
 | W1 original/procedural | 21 | 0 | [Six models](w1-six-model-internal-rights-decision.md) and [15 procedural art rows](phase2-w1-procedural-notice-decision.md) internally accepted for preparation; Cobalt residual risk disclosed. Six package-only candidates remain excluded from the current package. |
-| W2 upstream/license/dependent stills | 11 | 1 | [Seven earlier hashes accepted for preparation](phase2-wave2-internal-rights-decision.md); [three replacement still hashes now have a restricted exact-hash owner decision](phase2-wave2-roster-still-owner-decision.md). The recovery audit retains superseded still hashes. Imported HTML remains held separately in draft PR #167. |
+| W2 upstream/license/dependent stills | 11 | 0 | [Seven earlier hashes accepted for preparation](phase2-wave2-internal-rights-decision.md); [three replacement still hashes](phase2-wave2-roster-still-owner-decision.md) and [the current imported HTML](phase2-wave2-v42-owner-decision.md) have restricted exact-hash owner decisions. The recovery audit retains superseded still hashes. |
 | W3 generated portraits/effect | 25 | 25 | Review generation terms and likeness; five Fight v1 portraits require live-reference/fallback review |
 | W4 captured derivatives | 146 | 146 | Wait for upstream decisions; recapture affected media or clear unchanged captures with complete input proof |
-| **Total** | **203** | **172** | 52 default clear-with-evidence, five default remove-behind-reviewed-fallback, 146 default recapture/regenerate |
+| **Total** | **203** | **171** | 52 default clear-with-evidence, five default remove-behind-reviewed-fallback, 146 default recapture/regenerate |
 
 The [replacement sequence](runtime-rights-replacement-sequence.md) and [146-row recapture map](runtime-rights-recapture-map.csv) identify the downstream media impact. Use the [evidence intake checklist](runtime-rights-evidence-intake.md) and [owner attestation template](runtime-rights-owner-attestation-template.md) for each exact hash. A planned route is not a clearance, and a recapture count is not a build authorization.
 
@@ -24,7 +24,7 @@ The [replacement sequence](runtime-rights-replacement-sequence.md) and [146-row 
 
 | Gate | Current status | Required evidence before closeout |
 | --- | --- | --- |
-| Runtime rights | 172 held; 31 internally accepted for preparation | Dated signed exact-hash owner dispositions; replacements and dependent captures revalidated |
+| Runtime rights | 171 held; 32 internally accepted for preparation | Dated exact-hash owner dispositions; replacements and dependent captures revalidated |
 | Installed notice N01 | Internally verified for current mobile package | Preserve exact notice and separately inventory native transitive terms and placement after native generation |
 | Legal developer | Pending | Active AmaduTown Advisory Solutions registration, matching store-account identity, written KickLab ownership/license chain |
 | Guardian support | Pending | Control of reserved email and policy targets, provider access/retention/deletion workflow, incident owner and response controls; no setup done in this round |
