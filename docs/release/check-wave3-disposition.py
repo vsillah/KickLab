@@ -52,7 +52,7 @@ held = sum(row['review_state'].startswith('held') for row in plan)
 accepted = sum(row['review_state'].startswith('internal clear') for row in plan)
 assert held + accepted == len(plan)
 assert Counter((row['wave'], row['review_state'].startswith('held')) for row in plan) == {
-    ('W1', False): 21, ('W2', False): 11, ('W3', False): 25, ('W4', True): 146
+    ('W1', False): 21, ('W2', False): 11, ('W3', False): 25, ('W4', False): 146
 }
 assert sum(row['release_disposition'].startswith('hold') for row in ledger) == held
 assert len(ledger) - held == accepted + 1  # installed notice

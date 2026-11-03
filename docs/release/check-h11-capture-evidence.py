@@ -36,15 +36,15 @@ plan = {row['mobile_path']: row for row in csv_rows(RELEASE / 'runtime-rights-ev
 action = {row['mobile_path']: row for row in csv_rows(RELEASE / 'rights-action-map.csv')}
 recapture = {row['media_path']: row for row in csv_rows(RELEASE / 'runtime-rights-recapture-map.csv')}
 assert len(ledger) == len(action) == 204 and len(plan) == 203 and len(recapture) == 146
-assert sum(row['release_disposition'].startswith('hold:') for row in ledger.values()) == 146
-assert sum(row['review_state'].startswith('held') for row in plan.values()) == 146
-assert sum(row['release_disposition'].startswith('internal clear:') for row in ledger.values()) == 58
+assert sum(row['release_disposition'].startswith('hold:') for row in ledger.values()) == 0
+assert sum(row['review_state'].startswith('held') for row in plan.values()) == 0
+assert sum(row['release_disposition'].startswith('internal clear:') for row in ledger.values()) == 204
 for path in recapture:
     assert path in ledger and path in plan and path in action
     assert plan[path]['rights_group'] == action[path]['action_group'] == 'H11'
-    assert ledger[path]['release_disposition'].startswith('hold:')
-    assert action[path]['current_disposition'].startswith('hold:')
-    assert plan[path]['review_state'].startswith('held')
+    assert ledger[path]['release_disposition'].startswith('internal clear: continued commercial preparation only')
+    assert action[path]['current_disposition'].startswith('internal clear: continued commercial preparation only')
+    assert plan[path]['review_state'].startswith('internal clear: continued commercial preparation only')
     media = ROOT / 'dist/mobile' / path
     assert media.stat().st_size == int(ledger[path]['bytes'])
     assert sha(media.read_bytes()) == ledger[path]['sha256']
@@ -179,7 +179,7 @@ assert len(actual) == 204
 for path in actual:
     item = ledger[str(path.relative_to(ROOT / 'dist/mobile'))]
     assert path.stat().st_size == int(item['bytes']) and sha(path.read_bytes()) == item['sha256']
-print('H11 146/146 held and accounted once: Race 140; Home 6; recommend now 0; mandatory recapture now 0; capture evidence pending 146')
+print('H11 historical capture evidence schedule accounts for all 146 current exact files: Race 140; Home 6; separate limited owner disposition applies')
 print('Race models at media introduction match 140 current accepted H03 bindings; 50 Highland poster and six Home manifest hashes match shipped bytes')
 canon = ''.join(f"{path.relative_to(ROOT / 'dist/mobile')}\0{sha(path.read_bytes())}\0{path.stat().st_size}\n" for path in actual)
 assert sha(canon.encode()) == '9466fda62e87a216b3a2895c861e114f7a7cfcf206adcde98bdb1cfffae96af6'

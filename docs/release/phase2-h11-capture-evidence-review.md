@@ -1,5 +1,7 @@
 # Phase 2 H11 captured-media reconstruction
 
+**Historical evidence snapshot:** This review records the predecision PR #178 assessment. The later [2026-11-03 exact-hash owner disposition](phase2-h11-owner-disposition.md) is the current limited-preparation decision for all 146 unchanged H11 files; it preserves the reconstruction's stated technical limits and Cobalt residual risk.
+
 **Base:** deployed `origin/main` `cd36160adb41728c840566d1368939e0e4bc495c`, Pages deployment `7527067239` (2026-11-03). This is evidence-only work for the exact 204-file mobile package. The [146-row schedule](phase2-h11-capture-evidence.csv) and [verifier](check-h11-capture-evidence.py) bind every H11 MP4/poster to shipped SHA-256, bytes, manifest, source model where named, and conditional route. Source and package files match. All **146 H11 files stay held**; 58 other files retain their existing limited preparation dispositions. No product, media, or package bytes changed.
 
 ## Reconstructed chains
