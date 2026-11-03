@@ -22,6 +22,6 @@ That missing historical PNG is a documented audit limitation, not evidence of an
 
 ## Recommendation and boundary
 
-The existing records are sufficient to make the next internal exact-hash commercial-preparation decision without another owner questionnaire. The schedule remains a binding identity map; this PR does not itself rewrite the active rights ledgers or authorize release. A later disposition should reopen any row only if its hash changes or conflicting creator, input, likeness, mark, provider-term, or rights evidence appears.
+The existing records are sufficient to make the next internal exact-hash commercial-preparation decision without another owner questionnaire. The schedule remains a binding identity map. The separate [exact-hash decision](phase2-wave3-internal-rights-decision.md) now updates the active rights ledgers for continued commercial preparation only; it does not authorize release. A later disposition should reopen any row only if its hash changes or conflicting creator, input, likeness, mark, provider-term, or rights evidence appears.
 
 Preserve the 204-file package, privacy, and zero runtime egress. No asset replacement, H11 recapture, native work, policy publication, provider configuration, signing, upload, distribution, store record, submission, or release is authorized by this packet.
