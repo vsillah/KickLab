@@ -1,6 +1,6 @@
 # Phase 2 final owner decision packet — restricted completion template
 
-**Status:** template only; no final owner decision has been given. Prepare the completed packet in restricted local evidence, then publish only its ID, digest and bounded status in the repository. Bind every answer to the exact approved main commit, package digest and decision date. The current planning base is `f101d929f1c3bbff85a6c1d4023e1f873ae30d47`, 204 package paths, digest `9466fda62e87a216b3a2895c861e114f7a7cfcf206adcde98bdb1cfffae96af6`.
+**Status:** restricted working packet prepared; final owner decision remains pending. The public [progress checkpoint](phase2-owner-decision-progress.md) records only its ID, digest and bounded findings. Bind every final answer to the exact approved main commit, package digest and decision date. The current documentation base is `f41519638c9eddf029f1aa0a018e5c6f3cd4a4bd`, 204 package paths, digest `9466fda62e87a216b3a2895c861e114f7a7cfcf206adcde98bdb1cfffae96af6`.
 
 | Decision field | Required private evidence or explicit answer | Current state |
 | --- | --- | --- |
@@ -10,8 +10,8 @@
 | Legal developer | Cite current active-registration evidence, legal entity identity and date/status; record any exception without publishing private identifiers. | Pending. |
 | KickLab ownership/license | Cite attributable written assignment or license from rights holder(s) to intended legal developer, including scope and exclusions. | Pending. |
 | Apple/Google identity alignment | Cite private evidence that each intended developer/store-account legal identity matches the verified entity; list any mismatch. | Pending. |
-| Guardian support targets | Cite control and approved access to reserved support email and policy domain/path; keep publication separately gated. | Pending. |
-| Provider and child-data controls | Cite least-privilege support access, ordinary ticket deletion 90 days after resolution, documented legal/security exceptions, prohibited child-data requests, accidental-data handling, incident owner and response escalation. | Draft rules only; operating proof pending. |
+| Guardian support targets | Cite control and approved access to reserved support email and policy domain/path; keep publication separately gated. | Email inbound/outbound control verified; privacy route and publication decision pending. |
+| Provider and child-data controls | Cite least-privilege support access, ordinary ticket deletion 90 days after resolution, documented legal/security exceptions, prohibited child-data requests, accidental-data handling, incident owner and response escalation. | Manual operating statement and admin/incident surfaces evidenced; sole-admin continuity risk and absence of provider-enforced deletion must be accepted or resolved. |
 | Privacy/data-flow assumptions | Accept or reject browser-level local-data claims and unresolved native assumptions. List every SDK, backup, permission, egress and store-declaration question for Phase 3 without claiming a native result now. | Pending. |
 | Exact Phase 3 plan | Approve, revise or reject [plan `KL-P3-PLAN-20261103-F101D92-001`](phase3-native-qualification-plan.md) and its entry criteria, with exact revision/digest. State that this is **plan approval only**. | Prepared, not approved. |
 | Final exceptions and authority | List `NONE` or exact exceptions, responsible owner, review date and reopen triggers. Captain signoff is recorded separately after the owner decision. | Pending. |
