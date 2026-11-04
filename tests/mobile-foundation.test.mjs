@@ -15,10 +15,26 @@ const exclusions=json('config/mobile-package-exclusions.json');
 const packageOnly=json('config/package-only-asset-exclusions.json');
 const packageJson=json('package.json');
 const mobile=read('dist/mobile/index.html');
+const web=read('dist/kicklab.html');
+const nativeSafeArea=read('src/mobile-safe-area.css');
 const lifecycle=read('src/game/56-mobile-lifecycle.js');
 const qualification=json('docs/release/mobile-qualification-status.json');
 const ciWorkflow=read('.github/workflows/ci.yml');
 const pagesWorkflow=read('.github/workflows/pages-prepare.yml');
+
+test('applies native safe areas without changing the ordinary browser artifact',()=>{
+  assert.ok(mobile.includes(nativeSafeArea));
+  assert.ok(!web.includes(nativeSafeArea));
+  for(const edge of ['top','right','bottom','left']){
+    assert.match(nativeSafeArea,new RegExp(`env\\(safe-area-inset-${edge}, 0px\\)`));
+  }
+  assert.match(nativeSafeArea,/\.wrap\s*\{[^}]*padding-top:\s*calc\(18px \+ env\(safe-area-inset-top, 0px\)\)/s);
+  assert.match(nativeSafeArea,/\.wrap\s*\{[^}]*padding-bottom:\s*calc\(48px \+ env\(safe-area-inset-bottom, 0px\)\)/s);
+  assert.match(nativeSafeArea,/\.profile-dialog\s*\{[^}]*inset:\s*env\(safe-area-inset-top, 0px\)/s);
+  assert.match(nativeSafeArea,/\.profile-panel\s*\{[^}]*max-height:\s*100%;/s);
+  assert.match(nativeSafeArea,/\.profile-dialog:not\(\.game-profile-overlay\) \.profile-panel > \.profile-head\s*\{[^}]*position:\s*sticky;/s);
+  assert.match(nativeSafeArea,/@media \(max-height: 600px\)\s*\{[^}]*\.profile-dialog\s*\{[^}]*top:\s*max\(60px, env\(safe-area-inset-top, 0px\)\)/s);
+});
 
 test('locks artifact identity and provisional stable app id',()=>{
   assert.equal(config.appId,'com.amadutown.kicklab');

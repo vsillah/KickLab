@@ -40,7 +40,12 @@ const withoutRemoteStyles = source.replace(
   /\s*<link\b[^>]*href=["']https?:\/\/[^>]+>\s*/gi,
   '\n'
 );
-const mobile = withoutRemoteStyles.replace(
+const nativeSafeArea = read('src/mobile-safe-area.css');
+const withNativeSafeArea = withoutRemoteStyles.replace('</style>', `\n${nativeSafeArea}\n</style>`);
+if (withNativeSafeArea === withoutRemoteStyles) {
+  throw new Error('Mobile artifact has no style boundary for native safe areas');
+}
+const mobile = withNativeSafeArea.replace(
   '<meta charset="utf-8">',
   `<meta charset="utf-8">\n<meta http-equiv="Content-Security-Policy" content="${contentSecurityPolicy}">\n<meta name="kicklab-artifact" content="capacitor-local-v1">`
 );
