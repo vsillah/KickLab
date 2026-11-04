@@ -28,7 +28,8 @@ function renderAnalogControls(){
 }
 
 function setFloatingControllerCollapsed(collapsed,{focus=false}={}){
-  FLOATING_CONTROLLER.collapsed=!!collapsed;floatingControlDeck.classList.toggle('controller-collapsed',FLOATING_CONTROLLER.collapsed);controllerCollapseButton.setAttribute('aria-expanded',String(!FLOATING_CONTROLLER.collapsed));controllerCollapseButton.setAttribute('aria-label',FLOATING_CONTROLLER.collapsed?'Expand game controls':'Collapse game controls');
+  // Fight's opponent keeps attacking while the player is idle. Never hide its input pad.
+  FLOATING_CONTROLLER.collapsed=!!collapsed&&M!==Fight;floatingControlDeck.classList.toggle('controller-collapsed',FLOATING_CONTROLLER.collapsed);controllerCollapseButton.setAttribute('aria-expanded',String(!FLOATING_CONTROLLER.collapsed));controllerCollapseButton.setAttribute('aria-label',FLOATING_CONTROLLER.collapsed?'Expand game controls':'Collapse game controls');
   if(FLOATING_CONTROLLER.collapsed){cancelAnalog('Controls collapsed');cancelGesture('Controls collapsed');if(RACE_SYSTEMS.enabled()&&M===Race&&typeof releaseMobileHeldInputs==='function')releaseMobileHeldInputs('Controls collapsed');}
   if(focus)controllerCollapseButton.focus();requestAnimationFrame(resize);
 }

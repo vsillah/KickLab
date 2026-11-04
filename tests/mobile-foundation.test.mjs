@@ -43,6 +43,13 @@ test('applies native safe areas without changing the ordinary browser artifact',
   assert.match(nativeSafeArea,/@media \(orientation: landscape\) and \(max-height: 600px\) and \(max-width: 980px\)[\s\S]*?\.kicklab-wordmark\s*\{\s*max-width:\s*100%;/);
 });
 
+test('bounds native Fight controls to the visible viewport',()=>{
+  assert.match(nativeSafeArea,/html\[data-kicklab-mode="fight"\]\[data-kicklab-view="game"\] \.game-frame \.stage > canvas#cv/);
+  assert.match(nativeSafeArea,/height: min\(222\.222vw, max\(180px, calc\(100svh - 150px/);
+  assert.match(nativeSafeArea,/@media \(orientation: landscape\) and \(max-height: 600px\)/);
+  assert.match(nativeSafeArea,/\.game-frame \.stage > \.control-deck \.dpad\s*\{\s*display: flex/);
+});
+
 test('keeps the first-run Profile header and nickname clear when WKWebView pans for the keyboard',()=>{
   const values=new Map();
   const callbacks={};
