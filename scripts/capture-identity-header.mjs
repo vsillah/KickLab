@@ -8,7 +8,7 @@ const revision=process.argv[2],root=process.argv[3]||'http://127.0.0.1:4202';
 if(!/^[a-f0-9]{40}$/.test(revision||''))throw new Error('Pass the exact 40-character HEAD commit.');
 const head=spawnSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).stdout.trim();
 if(head!==revision)throw new Error(`HEAD ${head} differs from requested ${revision}`);
-const output=resolve('qa-artifacts/identity-header'),raw=join(output,'raw');mkdirSync(raw,{recursive:true});
+const output=resolve('qa-artifacts/identity-header'),raw=join(output,'raw');rmSync(raw,{recursive:true,force:true});mkdirSync(raw,{recursive:true});
 const browser=await chromium.launch({headless:true,executablePath:[process.env.KICKLAB_CHROMIUM_PATH,chromium.executablePath(),'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find(path=>path&&existsSync(path))});
 const origin=new URL(root).origin,external=new Set(),errors=[];
 const layouts=[['phone-portrait',390,844],['phone-landscape',844,390],['tablet',768,1024],['desktop',1440,900]];
@@ -24,8 +24,7 @@ try{
   await hold(page,1100);
   for(const mode of ['fight','race','kick']){await page.locator(`#lab-tab-${mode}`).click();await page.locator('#game-cockpit').waitFor({state:'visible'});await hold(page,1500);if(mode!=='kick'){await page.goto(route,{waitUntil:'domcontentloaded'});await page.locator('#modeHome').waitFor({state:'visible'});await hold(page,450);}}
   const source=page.video();await context.close();const sourcePath=await source.path();const segment=join(output,`${label}-${revision.slice(0,12)}.mp4`);
-  const textLabel=`KickLab ${label.replace('-',' ')}  |  ${revision.slice(0,12)}`;
-  const filter=`scale=w=1800:h=990:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=0x050a16,drawtext=text='${textLabel}':x=32:y=24:fontsize=26:fontcolor=white:box=1:boxcolor=0x0b1b30@0.85:boxborderw=12,fps=30`;
+  const filter='scale=w=1800:h=990:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=0x050a16,fps=30';
   const encode=spawnSync('ffmpeg',['-y','-v','error','-i',sourcePath,'-vf',filter,'-an','-c:v','libx264','-preset','fast','-crf','22','-pix_fmt','yuv420p','-movflags','+faststart',segment],{encoding:'utf8'});
   if(encode.status!==0)throw new Error(`${label} encode failed: ${encode.stderr}`);
   segments.push(segment);console.log(`${label}: ${segment}`);
