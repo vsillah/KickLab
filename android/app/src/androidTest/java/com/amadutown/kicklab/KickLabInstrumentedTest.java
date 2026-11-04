@@ -4,6 +4,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import android.webkit.WebView;
+import android.view.View;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -43,6 +44,60 @@ public class KickLabInstrumentedTest {
             Thread.sleep(150);
         }
         return result;
+    }
+
+    private void completeFirstRunIfNeeded(ActivityScenario<MainActivity> scenario) throws Exception {
+        String state = evaluate(scenario,
+            "(()=>{if(document.documentElement.dataset.kicklabIntro!=='first-run')return 'ready';" +
+                "document.querySelector('#introContinue').click();" +
+                "document.querySelector('#profileNickname').value='Native QA';" +
+                "document.querySelector('#profileForm').requestSubmit();" +
+                "document.querySelector('#profileClose').click();" +
+                "return document.documentElement.dataset.kicklabIntro})()");
+        assertTrue("First-run profile must complete before lab entry: " + state, state.contains("complete") || state.contains("ready"));
+    }
+
+    @Test
+    public void settledOfflineHomeKeepsOneLayeredCardAndStandingsSection() throws Exception {
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+            waitForKickLab(scenario);
+            String home = evaluate(scenario,
+                "(()=>{const q=s=>document.querySelector(s).getBoundingClientRect();" +
+                    "const cards=[...document.querySelectorAll('#modeHome .lab-showcase')].map(e=>e.getBoundingClientRect());" +
+                    "const standings=q('#progressHud'),header=q('.home-hero');" +
+                    "return JSON.stringify({sections:document.querySelectorAll('#modeHome').length," +
+                    "standingsSections:document.querySelectorAll('#progressHud').length,cards:cards.length," +
+                    "ordered:header.bottom<Math.min(...cards.map(r=>r.top))&&" +
+                    "cards.every((r,i)=>cards.every((other,j)=>i===j||r.right<=other.left||other.right<=r.left||r.bottom<=other.top||other.bottom<=r.top))&&" +
+                    "Math.max(...cards.map(r=>r.bottom))<standings.top," +
+                    "local:location.origin==='https://localhost',native:typeof KickLabHomePresentation==='object'})})()");
+            assertTrue(home, home.contains("\\\"sections\\\":1"));
+            assertTrue(home, home.contains("\\\"standingsSections\\\":1"));
+            assertTrue(home, home.contains("\\\"cards\\\":3"));
+            assertTrue(home, home.contains("\\\"ordered\\\":true"));
+            assertTrue(home, home.contains("\\\"local\\\":true"));
+            assertTrue(home, home.contains("\\\"native\\\":true"));
+            scenario.onActivity(activity -> assertTrue("Home must use the stable software paint layer",
+                activity.getBridge().getWebView().getLayerType() == View.LAYER_TYPE_SOFTWARE));
+
+            String ranked = evaluate(scenario,
+                "(()=>{document.querySelector('[data-standing-rank=awards]').click();return document.querySelector('#homeStandingsRankStatus').textContent})()");
+            assertTrue(ranked, ranked.contains("Ranked by Awards"));
+            scenario.recreate();
+            waitForKickLab(scenario);
+            scenario.onActivity(activity -> assertTrue("Home layer must recover after recreation",
+                activity.getBridge().getWebView().getLayerType() == View.LAYER_TYPE_SOFTWARE));
+            completeFirstRunIfNeeded(scenario);
+            assertTrue(evaluate(scenario, "(()=>{document.querySelector('#lab-tab-fight').click();return document.documentElement.dataset.kicklabView})()")
+                .contains("game"));
+            Thread.sleep(250);
+            scenario.onActivity(activity -> assertTrue("Game play must regain hardware rendering",
+                activity.getBridge().getWebView().getLayerType() == View.LAYER_TYPE_HARDWARE));
+            evaluate(scenario, "document.querySelector('#modeHomeButton').click()");
+            Thread.sleep(250);
+            scenario.onActivity(activity -> assertTrue("Home must regain stable paint after game exit",
+                activity.getBridge().getWebView().getLayerType() == View.LAYER_TYPE_SOFTWARE));
+        }
     }
 
     @Test
@@ -107,6 +162,7 @@ public class KickLabInstrumentedTest {
     public void lifecycleCancelsHeldInputAndForegroundStaysPaused() throws Exception {
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
             waitForKickLab(scenario);
+            completeFirstRunIfNeeded(scenario);
             String state = evaluate(scenario,
                 "(()=>{document.querySelector('#lab-tab-race').click();" +
                     "const gas=document.querySelector('#pad button[data-id=\\\"gas\\\"]');" +
@@ -135,6 +191,7 @@ public class KickLabInstrumentedTest {
     public void fightAndKickEnterFromThePackagedHome() throws Exception {
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
             waitForKickLab(scenario);
+            completeFirstRunIfNeeded(scenario);
             for (String mode : new String[]{"fight", "kick"}) {
                 String state = evaluate(scenario,
                     "(()=>{try{document.querySelector('#modeHomeButton').click();" +
