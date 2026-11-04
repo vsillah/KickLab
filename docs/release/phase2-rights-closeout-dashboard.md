@@ -27,7 +27,7 @@ The [replacement sequence](runtime-rights-replacement-sequence.md) and [146-row 
 | Runtime rights | 0 held; 203 internally accepted for preparation only | Reopen changed or conflicting exact hashes; final whole-package owner acceptance remains separate |
 | Installed notice N01 | Internally verified for current mobile package | Preserve exact notice and separately inventory native transitive terms and placement after native generation |
 | Legal developer | Pending | Active AmaduTown Advisory Solutions registration, matching store-account identity, written KickLab ownership/license chain |
-| Guardian support | Pending | Control of reserved email and policy targets, provider access/retention/deletion workflow, incident owner and response controls; no setup done in this round |
+| Guardian support | Partial | Email alias, inbound routing, outbound Send-mail-as and incident workflow evidenced; privacy route remains unpublished; deletion is manual; sole-admin continuity risk remains |
 | Privacy foundation | Pending | Approve bounded browser assumptions and record native SDK, backup, permission and declaration questions for Phase 3; internal draft remains unpublished |
 | Final owner decision | Pending | [Consolidated packet](phase2-final-owner-decision-template.md) accepts exact package, notice, Cobalt, legal/support/privacy findings and the Phase 3 plan as a plan only |
 | Captain Phase 2 signoff | Pending | [Objective checklist](phase2-captain-signoff-checklist.md) passes on one exact artifact, with an approved [Phase 3 entry plan](phase3-native-qualification-plan.md) and no native execution implied |
