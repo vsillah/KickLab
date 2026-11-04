@@ -53,7 +53,9 @@ body:has(.profile-dialog:not([hidden])) { overflow: hidden; }
 }
 @media (max-width: 520px) and (orientation: portrait) {
   /* WKWebView can temporarily report a zero top inset while its keyboard pans. */
-  .profile-dialog { top: max(59px, env(safe-area-inset-top, 0px)); }
+  .profile-dialog {
+    top: calc(max(59px, env(safe-area-inset-top, 0px)) + var(--kicklab-native-viewport-offset-top, 0px));
+  }
   .profile-dialog::before {
     content: '';
     position: fixed;
@@ -70,4 +72,12 @@ body:has(.profile-dialog:not([hidden])) { overflow: hidden; }
     top: max(60px, env(safe-area-inset-top, 0px));
     bottom: max(20px, env(safe-area-inset-bottom, 0px));
   }
+}
+@media (orientation: landscape) and (max-height: 600px) and (max-width: 980px) {
+  /* Side insets narrow the native Home hero below the two-column wordmark fit. */
+  .home-hero .brand {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+  .kicklab-wordmark { max-width: 100%; }
 }

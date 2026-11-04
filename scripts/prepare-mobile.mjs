@@ -45,7 +45,12 @@ const withNativeSafeArea = withoutRemoteStyles.replace('</style>', `\n${nativeSa
 if (withNativeSafeArea === withoutRemoteStyles) {
   throw new Error('Mobile artifact has no style boundary for native safe areas');
 }
-const mobile = withNativeSafeArea.replace(
+const nativeViewportScript = read('src/mobile-safe-area.js');
+const withNativeViewport = withNativeSafeArea.replace('</body>', `<script>\n${nativeViewportScript}\n</script>\n</body>`);
+if (withNativeViewport === withNativeSafeArea) {
+  throw new Error('Mobile artifact has no script boundary for native viewport correction');
+}
+const mobile = withNativeViewport.replace(
   '<meta charset="utf-8">',
   `<meta charset="utf-8">\n<meta http-equiv="Content-Security-Policy" content="${contentSecurityPolicy}">\n<meta name="kicklab-artifact" content="capacitor-local-v1">`
 );
