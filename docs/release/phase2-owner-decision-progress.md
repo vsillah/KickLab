@@ -1,6 +1,6 @@
 # Phase 2 owner-decision progress
 
-**Reconciliation date:** 2026-11-03. **Repository base:** exact `origin/main` `f41519638c9eddf029f1aa0a018e5c6f3cd4a4bd`. This is a documentation/evidence checkpoint, not final Phase 2 signoff.
+**Reconciliation date:** 2026-11-03. **Product baseline:** exact `origin/main` `a0be10e6cb23f9d13b8cba4078568b500165359a`. The later [simplified owner closeout](phase2-owner-closeout.md) supersedes this working checkpoint as the active Phase 2 decision.
 
 The restricted working packet `KL-P2-OWNER-WORKING-20261103-F415196-001` has SHA-256 `9d09a59d2c6eb007d14cbebb265a836278ee4c4f20fb4fdbc05166f813647bfd` and mode `0600`. It consolidates existing exact-hash rights decisions, current-package notices, the premium Cobalt residual condition and the completed support-control verification. Its private contents and location remain outside Git.
 
@@ -12,13 +12,8 @@ The restricted working packet `KL-P2-OWNER-WORKING-20261103-F415196-001` has SHA
 - The sole active Super Admin remains a continuity risk. A backup administrator is optional for current preparation but should be resolved before distribution if the owner wants operational redundancy.
 - The reserved privacy route remained unavailable during the audit. Support-email verification does not authorize policy publication.
 
-## Remaining Phase 2 gates
+## Superseded Phase 2 gates
 
-1. Authoritative current active-registration evidence for the intended legal developer.
-2. An attributable KickLab assignment or commercial license to the intended legal developer.
-3. Private Apple and Google developer-account identity alignment evidence.
-4. A separate decision on privacy-route publication.
-5. Owner approval, revision or rejection of exact plan `KL-P3-PLAN-20261103-F101D92-001` as a plan only.
-6. Final owner decision and Captain signoff bound to one exact artifact after the five items above are resolved.
+The owner removed these six items as Phase 2 blockers. Formal entity, assignment and store-account alignment moved to the protected store-identity gate; privacy publication moved to the pre-distribution gate; residual support risks were accepted for Phase 2; and the exact Phase 3 plan was adopted as scope only. No new rights-evidence packet is required unless a shipped hash changes or conflicting evidence appears.
 
-No product, package, provider, DNS, policy, native project, store record, signing, upload, distribution, submission or release action follows from this checkpoint.
+No product, package, provider, DNS, policy, native project, store record, signing, upload, distribution, submission or release action follows from this checkpoint or its closeout.

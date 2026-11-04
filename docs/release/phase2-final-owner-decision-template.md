@@ -1,6 +1,6 @@
-# Phase 2 final owner decision packet — restricted completion template
+# Phase 2 final owner decision packet — historical template
 
-**Status:** restricted working packet prepared; final owner decision remains pending. The public [progress checkpoint](phase2-owner-decision-progress.md) records only its ID, digest and bounded findings. Bind every final answer to the exact approved main commit, package digest and decision date. The current documentation base is `f41519638c9eddf029f1aa0a018e5c6f3cd4a4bd`, 204 package paths, digest `9466fda62e87a216b3a2895c861e114f7a7cfcf206adcde98bdb1cfffae96af6`.
+**Status:** superseded by the [simplified owner closeout](phase2-owner-closeout.md). This template and the restricted working packet remain audit evidence, not recurring release prerequisites. The owner adopted the exact package, notices, residual risks and Phase 3 plan scope on 2026-11-03 without authorizing native execution or release.
 
 | Decision field | Required private evidence or explicit answer | Current state |
 | --- | --- | --- |
@@ -16,6 +16,6 @@
 | Exact Phase 3 plan | Approve, revise or reject [plan `KL-P3-PLAN-20261103-F101D92-001`](phase3-native-qualification-plan.md) and its entry criteria, with exact revision/digest. State that this is **plan approval only**. | Prepared, not approved. |
 | Final exceptions and authority | List `NONE` or exact exceptions, responsible owner, review date and reopen triggers. Captain signoff is recorded separately after the owner decision. | Pending. |
 
-**Completion rule:** Every required Phase 2 field must have an attributable source, explicit owner disposition and no unsupported claim. A `pending` field prevents Phase 2 signoff. The owner may approve the exact plan in this packet while withholding native execution. A later Phase 3 execution message must separately bind the then-current commit, package, plan and iOS/Android scope. No generic “proceed” or prior limited rights approval is a substitute.
+**Historical completion rule:** The table records the former conservative evidence model. It no longer blocks Phase 2. Unsupported legal, account or native claims remain prohibited, and the deferred facts must be resolved at their actual store, publication or native gates. A later Phase 3 execution message must separately bind the then-current commit, package, plan and iOS/Android scope.
 
 **Private decision block template:** “For KickLab [exact commit], [204-file package digest], and restricted evidence packet [ID/SHA-256], I [approve/reject/condition] the final Phase 2 rights, notices, Cobalt, legal identity, support and privacy findings with exceptions [list or NONE]. I [approve/revise/reject] Phase 3 plan [ID/revision/digest] and its entry criteria **as a plan only**. This statement does not authorize native execution, provider or account changes, policy publication, signing, uploads, stores, distribution, submission or release. Reopen affected findings on changed artifact or conflicting evidence.”
