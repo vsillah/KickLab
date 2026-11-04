@@ -43,6 +43,16 @@ test('applies native safe areas without changing the ordinary browser artifact',
   assert.match(nativeSafeArea,/@media \(orientation: landscape\) and \(max-height: 600px\) and \(max-width: 980px\)[\s\S]*?\.kicklab-wordmark\s*\{\s*max-width:\s*100%;/);
 });
 
+test('binds Android offline Home paint and system bars to the packaged shell',()=>{
+  assert.equal(config.plugins.SystemBars.style,'DARK');
+  assert.match(nativeSafeAreaScript,/KickLabHomePresentation/);
+  assert.ok(!web.includes('KickLabHomePresentation'));
+  const activity=read('android/app/src/main/java/com/amadutown/kicklab/MainActivity.java');
+  assert.match(activity,/LAYER_TYPE_SOFTWARE/);
+  assert.match(activity,/LAYER_TYPE_HARDWARE/);
+  assert.match(activity,/https:\/\/localhost\//);
+});
+
 test('keeps the first-run Profile header and nickname clear when WKWebView pans for the keyboard',()=>{
   const values=new Map();
   const callbacks={};
