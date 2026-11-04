@@ -14,7 +14,7 @@ const results=[];
 try{
   for(const [artifact,width,height] of [['browser',390,844],['browser',768,1024],['browser',1440,900],['native',390,844],['native',844,390],['native',820,1180],['native',1180,820]]){
     const label=`${artifact}-${width}x${height}`;if(process.env.KICKLAB_ONLY&&!label.includes(process.env.KICKLAB_ONLY))continue;console.log(`Checking ${label}`);
-    const record=label==='native-390x844';
+    const record=artifact==='native';
     const context=await browser.newContext({viewport:{width,height},deviceScaleFactor:1,hasTouch:width<1000,reducedMotion:'reduce',recordVideo:record?{dir:join(output,'video'),size:{width,height}}:undefined});
     await context.addInitScript(()=>{
       localStorage.setItem('impactlab.v1',JSON.stringify({gfx:'canvas',mute:true,ch:{fight:0,race:0,kick:0},play:{fight:'ch',race:'ch',kick:'ch'}}));
@@ -31,10 +31,12 @@ try{
     const before=await page.evaluate(()=>{
       const deck=document.querySelector('.control-deck'),buttons=[...document.querySelectorAll('#pad button:not(:disabled)')],action=document.querySelector('#padR button:not(:disabled)'),movement=document.querySelector('#padL button:not(:disabled)'),box=action?.getBoundingClientRect();
       const inViewport=rect=>rect&&rect.width>=40&&rect.height>=40&&rect.left>=0&&rect.right<=innerWidth&&rect.top>=0&&rect.bottom<=innerHeight;
-      return {damage:document.querySelector('#mlList .mv.rex')?.textContent,collapsed:deck.classList.contains('controller-collapsed'),buttonCount:buttons.length,action:action?.getAttribute('aria-label'),movement:movement?.getAttribute('aria-label'),actionRect:box?.toJSON(),movementRect:movement?.getBoundingClientRect().toJSON(),actionVisible:inViewport(box),movementVisible:inViewport(movement?.getBoundingClientRect()),stage:document.querySelector('.stage').getBoundingClientRect().toJSON(),deck:deck.getBoundingClientRect().toJSON(),viewport:{width:innerWidth,height:innerHeight}};
+      const rect=selector=>document.querySelector(selector)?.getBoundingClientRect().toJSON();
+      const controls=[...document.querySelectorAll('#padL .dpad .arm,#padR .arcade .abtn')].filter(item=>getComputedStyle(item).display!=='none').map(item=>({name:item.getAttribute('aria-label')||item.textContent.trim(),rect:item.getBoundingClientRect().toJSON(),reachable:inViewport(item.getBoundingClientRect())}));
+      return {damage:document.querySelector('#mlList .mv.rex')?.textContent,collapsed:deck.classList.contains('controller-collapsed'),buttonCount:buttons.length,action:action?.getAttribute('aria-label'),movement:movement?.getAttribute('aria-label'),actionRect:box?.toJSON(),movementRect:movement?.getBoundingClientRect().toJSON(),actionVisible:inViewport(box),movementVisible:inViewport(movement?.getBoundingClientRect()),controls,stage:rect('.stage'),canvas:rect('canvas#cv'),deck:deck.getBoundingClientRect().toJSON(),pad:rect('.control-deck .pad'),head:rect('.control-deck .floating-control-head'),left:rect('.control-deck .control-left-slot'),center:rect('.control-deck .control-center-slot'),right:rect('.control-deck #padR'),viewport:{width:innerWidth,height:innerHeight}};
     });
     await page.screenshot({path:join(output,`${label}-damage.png`)});
-    if(before.collapsed||(artifact==='native'&&(!before.actionVisible||!before.movementVisible))||before.buttonCount<2||errors.length||requests.some(url=>!url.startsWith(base)))throw new Error(`${label}: damaging play without reachable Fight controls: ${JSON.stringify({before,errors,requests})}`);
+    if(before.collapsed||(artifact==='native'&&(!before.actionVisible||!before.movementVisible||before.controls.some(control=>!control.reachable)))||before.buttonCount<2||errors.length||requests.some(url=>!url.startsWith(base)))throw new Error(`${label}: damaging play without reachable Fight controls: ${JSON.stringify({before,errors,requests})}`);
     if(record)await page.waitForTimeout(700);
     await page.locator('#padR button:not(:disabled)').first().press('Enter');
     await page.waitForFunction(()=>document.querySelector('#mlList .mv.you'),null,{timeout:3000});
