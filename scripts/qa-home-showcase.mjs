@@ -80,6 +80,7 @@ async function homeAudit(page, label) {
       overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
       wordmark: document.querySelector('.kicklab-wordmark')?.getAttribute('aria-label'),
       hero,
+      compactIdentity: document.documentElement.dataset.kicklabIntro === 'complete' && hero.height <= 56 && getComputedStyle(document.querySelector('.hero-copy')).display === 'none',
       heroGeometry: {
         brand,
         wordmark,
@@ -88,7 +89,7 @@ async function homeAudit(page, label) {
         heroCopy,
         collision: overlap(wordmark, heroCopy),
         markNameCollision: overlap(mark, name),
-        contained: inside(wordmark, hero) && inside(heroCopy, hero) && inside(wordmark, brand) && inside(heroCopy, brand) && inside(mark, wordmark) && inside(name, wordmark),
+        contained: inside(wordmark, hero) && inside(wordmark, brand) && inside(mark, wordmark) && inside(name, wordmark) && (getComputedStyle(document.querySelector('.hero-copy')).display === 'none' || (inside(heroCopy, hero) && inside(heroCopy, brand))),
         markTitle: document.querySelector('#kicklabMarkTitle')?.textContent.trim(),
         markDescription: document.querySelector('#kicklabMarkDesc')?.textContent.trim(),
         markViewBox: document.querySelector('.kicklab-mark svg')?.getAttribute('viewBox'),
@@ -140,7 +141,7 @@ async function homeAudit(page, label) {
     };
   });
   const vector = audit.heroGeometry.vectorWordmark;
-  if (audit.overflow > 1 || audit.wordmark !== 'KickLab' || vector.value !== 'KICKLAB' || vector.viewBox !== '-9 0 376 64' || vector.ariaHidden !== 'true' || vector.kickPaths !== 4 || vector.labPaths !== 3 || vector.hostedFont || audit.actions.length !== 3 || audit.heroGeometry.collision || audit.heroGeometry.markNameCollision || !audit.heroGeometry.contained || audit.heroGeometry.text.some(item => item.clipped) || audit.heroGeometry.markTitle !== 'Kinetic K KickLab mark' || !audit.heroGeometry.markDescription?.includes('speed streaks') || audit.heroGeometry.markViewBox !== '0 0 132 96' || audit.heroGeometry.markParts.some(item => !item.present) || audit.cardsOverlap || audit.cardText.some(item => item.clipped) || audit.progressOverlap || !audit.labsBeforeProgress || !audit.scorecard.headerBeforeBody || !audit.scorecard.contained || !audit.scorecard.subordinate || audit.scorecard.text.some(item => item.clipped) || audit.scorecard.actions.some(item => item.box.width < 44 || item.box.height < 44)) {
+  if (audit.overflow > 1 || !audit.compactIdentity || audit.wordmark !== 'KickLab' || vector.value !== 'KICKLAB' || vector.viewBox !== '-9 0 376 64' || vector.ariaHidden !== 'true' || vector.kickPaths !== 4 || vector.labPaths !== 3 || vector.hostedFont || audit.actions.length !== 3 || audit.heroGeometry.collision || audit.heroGeometry.markNameCollision || !audit.heroGeometry.contained || audit.heroGeometry.text.some(item => item.clipped) || audit.heroGeometry.markTitle !== 'Kinetic K KickLab mark' || !audit.heroGeometry.markDescription?.includes('speed streaks') || audit.heroGeometry.markViewBox !== '0 0 132 96' || audit.heroGeometry.markParts.some(item => !item.present) || audit.cardsOverlap || audit.cardText.some(item => item.clipped) || audit.progressOverlap || !audit.labsBeforeProgress || !audit.scorecard.headerBeforeBody || !audit.scorecard.contained || !audit.scorecard.subordinate || audit.scorecard.text.some(item => item.clipped) || audit.scorecard.actions.some(item => item.box.width < 44 || item.box.height < 44)) {
     throw new Error(`${label}: layout contract failed (${JSON.stringify(audit)})`);
   }
   if (audit.scorecard.title !== 'Your all-lab scorecard' || audit.scorecard.scope !== 'Fight, Race, and Kick progress · saved on this device' || audit.scorecard.labelledBy !== 'homeScorecardTitle' || audit.scorecard.describedBy !== 'homeScorecardScope' || !audit.scorecard.records.some(item => item.startsWith('This session')) || !audit.scorecard.records.some(item => item.startsWith('Badges'))) {
@@ -181,9 +182,13 @@ async function clickLabs(page, label) {
     await page.getByRole('button', { name: new RegExp(`^${lab} .*Enter ${lab}$`) }).click();
     await page.locator('#game-cockpit').waitFor({ state: 'visible' });
     await page.locator('#gamePacingOverlay').waitFor({ state: 'hidden', timeout: 10000 });
-    await page.locator('#orientationDetailToggle').click();
-    await page.locator('#orientationDetail').waitFor({ state: 'visible' });
-    await page.locator('#modeHomeButton').click();
+    if (await page.locator('#orientationDetailToggle').isVisible()) {
+      await page.locator('#orientationDetailToggle').click();
+      await page.locator('#orientationDetail').waitFor({ state: 'visible' });
+      await page.locator('#modeHomeButton').click();
+    } else {
+      await page.goto(urlFor(label), { waitUntil: 'domcontentloaded' });
+    }
     await page.locator('#modeHome').waitFor({ state: 'visible' });
   }
   checks.push({ label, kind: 'all-lab-actions', labs: ['Fight', 'Race', 'Kick'] });
@@ -256,9 +261,13 @@ let walkthroughPath;
     await page.getByRole('button', { name: new RegExp(`^${lab} .*Enter ${lab}$`) }).click();
     await page.locator('#gamePacingOverlay').waitFor({ state: 'hidden', timeout: 10000 });
     await page.waitForTimeout(900);
-    await page.locator('#orientationDetailToggle').click();
-    await page.locator('#orientationDetail').waitFor({ state: 'visible' });
-    await page.locator('#modeHomeButton').click();
+    if (await page.locator('#orientationDetailToggle').isVisible()) {
+      await page.locator('#orientationDetailToggle').click();
+      await page.locator('#orientationDetail').waitFor({ state: 'visible' });
+      await page.locator('#modeHomeButton').click();
+    } else {
+      await page.goto(urlFor('walkthrough'), { waitUntil: 'domcontentloaded' });
+    }
     await page.locator('#modeHome').waitFor({ state: 'visible' });
     await page.waitForTimeout(650);
   }

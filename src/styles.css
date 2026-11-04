@@ -2521,3 +2521,39 @@ html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .race-navigat
 
 /* Fight and Kick results own the stage until the next round starts. */
 html:is([data-kicklab-mode="fight"],[data-kicklab-mode="kick"]) .stage:has(>.results:not([hidden]))>#gameGuidanceHud{display:none!important}
+
+/* One local-player introduction, then a compact identity on every screen. */
+.home-hero .hero-copy #introContinue{appearance:none;min-height:44px;border:1px solid var(--xray);border-radius:10px;background:#12324b;color:#fff;padding:8px 14px;font:700 12px var(--f-body);cursor:pointer}
+.home-hero .hero-copy #introContinue:focus-visible{outline:2px solid var(--hot);outline-offset:3px}
+.compact-lab-name{display:none;color:var(--xray);font:400 clamp(15px,2vw,20px)/1 var(--f-display);white-space:nowrap}
+html:not([data-kicklab-intro="first-run"]) .home-hero .hero-copy,
+html[data-kicklab-view="game"] .home-hero .hero-copy{display:none}
+html:not([data-kicklab-intro="first-run"]) header.top.home-hero,
+html[data-kicklab-view="game"] header.top.home-hero{box-sizing:border-box;min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:10px;overflow:visible;border-radius:12px;padding:6px 12px}
+html:not([data-kicklab-intro="first-run"]) .home-hero .brand,
+html[data-kicklab-view="game"] .home-hero .brand{display:block;min-width:0}
+html:not([data-kicklab-intro="first-run"]) .home-hero .kicklab-wordmark,
+html[data-kicklab-view="game"] .home-hero .kicklab-wordmark{gap:7px}
+html:not([data-kicklab-intro="first-run"]) .home-hero .kicklab-mark,
+html[data-kicklab-view="game"] .home-hero .kicklab-mark{width:42px}
+html:not([data-kicklab-intro="first-run"]) .home-hero .kicklab-name,
+html[data-kicklab-view="game"] .home-hero .kicklab-name{width:clamp(118px,16vw,158px)}
+html[data-kicklab-view="game"] .compact-lab-name{display:block}
+@media (max-width:520px){
+  html:not([data-kicklab-intro="first-run"]) header.top.home-hero,
+  html[data-kicklab-view="game"] header.top.home-hero{min-height:44px;padding:5px 9px}
+  html:not([data-kicklab-intro="first-run"]) .home-hero .kicklab-mark,
+  html[data-kicklab-view="game"] .home-hero .kicklab-mark{width:36px}
+  html:not([data-kicklab-intro="first-run"]) .home-hero .kicklab-name,
+  html[data-kicklab-view="game"] .home-hero .kicklab-name{width:118px}
+}
+@media (orientation:landscape) and (max-height:520px){
+  html:not([data-kicklab-intro="first-run"]) header.top.home-hero,
+  html[data-kicklab-view="game"] header.top.home-hero{min-height:0;max-height:56px;padding:4px 9px}
+  html:not([data-kicklab-intro="first-run"]) .home-hero .kicklab-mark,
+  html[data-kicklab-view="game"] .home-hero .kicklab-mark{width:34px}
+  html[data-kicklab-view="home"][data-kicklab-intro="first-run"] .home-hero .kicklab-wordmark{gap:7px}
+  html[data-kicklab-view="home"][data-kicklab-intro="first-run"] .home-hero .kicklab-mark{width:48px}
+  html[data-kicklab-view="home"][data-kicklab-intro="first-run"] .home-hero .kicklab-name{width:148px}
+}
+@media (max-width:520px){html[data-kicklab-view="home"][data-kicklab-intro="first-run"] .hero-badges span:nth-child(2){display:inline}}
