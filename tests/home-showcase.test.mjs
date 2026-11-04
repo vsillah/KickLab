@@ -85,6 +85,10 @@ test('shows device-local player standings with separate support actions',()=>{
   assert.match(html,/id="homeScorecardTitle">Device standings</);
   assert.match(html,/id="homeScorecardScope">Total points = combined XP across Fight, Race, and Kick · local to this browser\./);
   assert.match(html,/<th scope="col">Rank<\/th><th scope="col">Player<\/th><th scope="col">Total points<\/th>/);
+  assert.match(html,/role="group" aria-label="Device standings ranking metric"/);
+  for(const metric of ['points','level','awards'])assert.match(html,new RegExp(`data-standing-rank="${metric}"`));
+  assert.match(html,/id="homeStandingsRankStatus" role="status" aria-live="polite"/);
+  assert.match(html,/aria-describedby="homeScorecardScope homeStandingsRankStatus"/);
   assert.match(html,/class="home-standings-table"[^>]*><thead>[\s\S]*id="homeStandingsRows"/);
   assert.match(html,/id="homeStandingsEmpty" hidden>One player on this device\./);
   assert.match(html,/class="home-standings-actions" aria-label="Player and device tools"/);

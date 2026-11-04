@@ -2566,6 +2566,12 @@ html[data-kicklab-view="game"] .compact-lab-name{display:block}
 
 /* Real device-local standings; profile tools remain outside the ranked rows. */
 .home-progress .home-scorecard-header{align-items:center}
+.home-standings-rankbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;border-bottom:1px solid rgba(127,220,255,.16);padding:8px 14px;color:#d2e5f4;font:700 10px var(--f-body)}
+.home-standings-rankchoices{display:flex;align-items:center;gap:5px}
+.home-standings-rankchoices button{appearance:none;display:flex;align-items:center;justify-content:center;gap:5px;min-height:44px;border:1px solid #38567e;border-radius:8px;background:#101c31;color:#c8d8ef;padding:7px 10px;font:700 10px var(--f-body);cursor:pointer}
+.home-standings-rankchoices button svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.home-standings-rankchoices button:hover{border-color:var(--xray);color:#fff}.home-standings-rankchoices button:focus-visible{outline:2px solid #fff;outline-offset:2px}.home-standings-rankchoices button[aria-pressed="true"]{background:linear-gradient(135deg,#18445b,#173248);border-color:var(--xray);box-shadow:inset 0 -2px 0 var(--xray);color:#fff}
+.home-standings-rankstatus{margin-left:auto;color:var(--xray);font:700 9px var(--f-mono)}
 .home-standings-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(200px,245px);gap:14px;align-items:start;padding:12px 14px}
 .home-standings-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:12px}
 .home-standings-table th{text-align:left;color:var(--muted);font:700 9px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;padding:2px 9px 8px}
@@ -2575,9 +2581,11 @@ html[data-kicklab-view="game"] .compact-lab-name{display:block}
 .home-standings-table tbody tr.standings-current{background:linear-gradient(90deg,rgba(95,227,161,.18),rgba(127,220,255,.08));box-shadow:inset 3px 0 0 var(--profile-color,var(--good))}
 .standings-rank{color:var(--xray);font:700 15px var(--f-mono);white-space:nowrap}
 .standings-player{display:flex;align-items:center;gap:9px;min-width:0}
-.standings-player>span:last-child{display:grid;min-width:0}
+.standings-player-info{display:grid;gap:3px;min-width:0}
+.standings-player-name,.standings-meta{display:flex;align-items:baseline;flex-wrap:wrap;gap:3px 8px;min-width:0}
 .standings-player b{font:700 12px/1.2 var(--f-body);overflow-wrap:anywhere}
 .standings-player small{color:var(--good);font:700 9px var(--f-body)}
+.standings-meta{color:#b6cbe0;font:700 10px var(--f-body)}.standings-meta data{color:#fff;font-variant-numeric:tabular-nums}.standings-meta>span+span:before{content:'·';color:#7999b7;margin-right:6px}
 .standings-avatar{display:grid;place-items:center;flex:none;width:32px;height:32px;border-radius:9px;overflow:hidden}
 .standings-points{text-align:right;color:#fff;font:700 16px var(--f-mono);font-variant-numeric:tabular-nums}
 .home-standings-empty{grid-column:1;margin:0;color:var(--muted);font:500 11px/1.4 var(--f-body)}
@@ -2593,3 +2601,4 @@ html[data-kicklab-view="game"] .compact-lab-name{display:block}
 .home-standings-actions .hudtools #mute{grid-column:auto}
 @media(max-width:760px){.home-standings-body{grid-template-columns:minmax(0,1fr);gap:10px;padding:10px}.home-standings-actions{grid-column:1;grid-row:auto;grid-template-columns:minmax(0,1fr) auto;border-left:0;border-top:1px solid rgba(127,220,255,.2);padding:10px 0 0}.home-standings-actions .hudtools{grid-template-columns:auto auto}.home-standings-empty{grid-column:1}.home-standings-table th:first-child{width:54px}.home-standings-table th:last-child{width:104px}}
 @media(max-width:520px){.home-standings-actions{grid-template-columns:minmax(0,1fr)}.home-standings-actions .home-profile,.home-standings-actions .hudtools{grid-column:1;grid-row:auto}.home-standings-actions .hudtools{grid-template-columns:1fr 1fr}.home-standings-table th,.home-standings-table td{padding-inline:6px}.home-standings-table th:last-child{width:92px}.standings-player{gap:6px}.standings-avatar{width:28px;height:28px}.standings-points{font-size:14px}}
+@media(max-width:520px){.home-standings-rankbar{display:grid;grid-template-columns:auto minmax(0,1fr);gap:5px 8px;padding:8px 10px}.home-standings-rankstatus{grid-column:2;grid-row:1;text-align:right}.home-standings-rankchoices{grid-column:1/-1;grid-row:2;display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.home-standings-rankchoices button{min-width:0;padding:6px 3px;font-size:9px}.standings-meta{gap:2px 6px}.home-standings-table th:first-child{width:42px}.home-standings-table th:last-child{width:75px}}
