@@ -2522,6 +2522,9 @@ html[data-race-corner-trace="prototype"][data-kicklab-mode="race"] .race-navigat
 /* Fight and Kick results own the stage until the next round starts. */
 html:is([data-kicklab-mode="fight"],[data-kicklab-mode="kick"]) .stage:has(>.results:not([hidden]))>#gameGuidanceHud{display:none!important}
 
+/* The Fight opponent acts during idle play, so its action pad stays available. */
+html[data-kicklab-mode="fight"] .control-deck .controller-collapse{display:none}
+
 /* One local-player introduction, then a compact identity on every screen. */
 .home-hero .hero-copy #introContinue{appearance:none;min-height:44px;border:1px solid var(--xray);border-radius:10px;background:#12324b;color:#fff;padding:8px 14px;font:700 12px var(--f-body);cursor:pointer}
 .home-hero .hero-copy #introContinue:focus-visible{outline:2px solid var(--hot);outline-offset:3px}

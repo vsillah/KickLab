@@ -1,4 +1,66 @@
 /* Packaged native shell only. Browser output keeps its existing layout. */
+/* Bound Fight's bottom-anchored controls to the native visible viewport. */
+@media (max-width: 480px) {
+  html[data-kicklab-mode="fight"][data-kicklab-view="game"] .game-frame .stage > canvas#cv {
+    height: min(222.222vw, max(180px, calc(100svh - 150px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))));
+    min-height: 0;
+    aspect-ratio: auto;
+  }
+}
+@media (min-width: 481px) and (max-width: 1199px) {
+  html[data-kicklab-mode="fight"][data-kicklab-view="game"] .game-frame .stage > canvas#cv {
+    max-height: max(180px, calc(100svh - 150px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)));
+  }
+}
+@media (orientation: landscape) and (max-height: 600px) {
+  html[data-kicklab-mode="fight"][data-kicklab-view="game"] .game-frame .stage > .control-deck {
+    bottom: max(8px, env(safe-area-inset-bottom, 0px));
+    max-height: none;
+    overflow: visible;
+  }
+  html[data-kicklab-mode="fight"][data-kicklab-view="game"] .game-frame .stage > .control-deck .pad {
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr) 180px;
+    min-height: 100px;
+    align-items: end;
+  }
+  html[data-kicklab-mode="fight"][data-kicklab-view="game"] .game-frame .stage > .control-deck .control-left-slot,
+  html[data-kicklab-mode="fight"][data-kicklab-view="game"] .game-frame .stage > .control-deck #padR {
+    width: 180px;
+    height: 100px;
+    min-height: 0;
+  }
+  html[data-kicklab-mode="fight"][data-kicklab-view="game"] .game-frame .stage > .control-deck .dpad {
+    display: flex;
+    flex-direction: row;
+    width: 176px;
+    height: 44px;
+  }
+  html[data-kicklab-mode="fight"][data-kicklab-view="game"] .game-frame .stage > .control-deck .dpad .hub { display: none; }
+  html[data-kicklab-mode="fight"][data-kicklab-view="game"] .game-frame .stage > .control-deck #padR .arcade {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(44px, 1fr));
+    gap: 2px;
+  }
+  html[data-kicklab-mode="fight"][data-kicklab-view="game"] .game-frame .stage > .control-deck .abtn .cap,
+  html[data-kicklab-mode="fight"][data-kicklab-view="game"] .game-frame .stage > .control-deck .abtn.big .cap {
+    width: 44px;
+    height: 44px;
+  }
+  html[data-kicklab-mode="fight"][data-kicklab-view="game"] .game-frame .stage > .control-deck .floating-control-head {
+    position: absolute;
+    z-index: 2;
+    top: 4px;
+    left: 50%;
+    width: 110px;
+    transform: translateX(-50%);
+  }
+  html[data-kicklab-mode="fight"][data-kicklab-view="game"] .game-frame .stage > .control-deck .control-center-slot {
+    padding-top: 48px;
+    box-sizing: border-box;
+    height: 100px;
+  }
+}
 .wrap {
   padding-top: calc(18px + env(safe-area-inset-top, 0px));
   padding-right: calc(16px + env(safe-area-inset-right, 0px));

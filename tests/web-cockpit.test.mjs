@@ -332,7 +332,7 @@ test('shows adjustment math temporarily while keeping environment context persis
   assert.ok(html.indexOf('id="gameBar"')<html.indexOf('id="environmentContext"'));
   assert.ok(html.indexOf('id="environmentContext"')<html.indexOf('<div class="stage">'));
   assert.match(games,/function renderEnvironmentContext\(\).*el\.hidden=!active.*environmentContextLabel.*environmentContextDetail/);
-  assert.match(live,/function renderAll\(intro=true\)\{renderGameBar\(\);renderEnvironmentContext\(\);/);
+  assert.match(live,/function renderAll\(intro=true\)\{if\(M===Fight\)setFloatingControllerCollapsed\(false\);renderGameBar\(\);renderEnvironmentContext\(\);/);
   assert.match(live,/id="experienceSelector"[^>]+aria-describedby="environmentContext"/);
   assert.match(css,/\.game-context-header\{[^}]+grid-template-columns:minmax\(280px,1\.45fr\) minmax\(220px,1fr\)/);
   assert.match(css,/\.game-context-header \.environment-context\{[^}]+min-height:32px[^}]+justify-content:flex-start/);
@@ -397,6 +397,8 @@ test('keeps one bounded collapsible controller surface and a clear central Class
   assert.match(html,/id="controllerCollapseButton" aria-expanded="true" aria-controls="pad" aria-label="Collapse game controls"/);
   assert.match(analog,/const FLOATING_CONTROLLER=\{collapsed:matchMedia\('\(max-width:480px\)'\)\.matches\}/);
   assert.match(analog,/function setFloatingControllerCollapsed\(collapsed,\{focus=false\}=\{\}\)/);
+  assert.match(analog,/FLOATING_CONTROLLER\.collapsed=!!collapsed&&M!==Fight/);
+  assert.match(css,/html\[data-kicklab-mode="fight"\] \.control-deck \.controller-collapse\{display:none\}/);
   assert.match(analog,/cancelAnalog\('Controls collapsed'\);cancelGesture\('Controls collapsed'\)/);
   assert.match(analog,/floatingControlDeck\.addEventListener\('pointerdown',event=>event\.stopPropagation\(\)\)/);
   assert.doesNotMatch(cockpit,/manual-active|setControllerMode|CONTROLLER\.mode/);
