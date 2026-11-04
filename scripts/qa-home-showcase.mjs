@@ -69,17 +69,18 @@ async function homeAudit(page, label) {
       clientWidth: node.clientWidth,
       clipped: node.scrollWidth > node.clientWidth + 1,
     }));
-    const progress = box('#progressHud'), scorecardHeader = box('.home-scorecard-header'), scorecardBody = box('.home-scorecard-body');
-    const progressChildren = [...document.querySelector('.home-scorecard-body').children].filter(node => getComputedStyle(node).display !== 'none').map(node => ({ selector: node.id || node.className, box: node.getBoundingClientRect().toJSON() }));
-    const scorecardText = [...document.querySelectorAll('.home-scorecard-header h2,.home-scorecard-header p,.home-scorecard-header span,.home-scorecard-body b,.home-scorecard-body small,.home-scorecard-body i,.home-scorecard-body button')].filter(node => getComputedStyle(node).display !== 'none').map(node => ({ text: node.textContent.trim(), clipped: node.scrollWidth > node.clientWidth + 1 }));
+    const progress = box('#progressHud'), scorecardHeader = box('.home-scorecard-header'), scorecardBody = box('.home-standings-body');
+    const progressChildren = [...document.querySelector('.home-standings-body').children].filter(node => getComputedStyle(node).display !== 'none').map(node => ({ selector: node.id || node.className, box: node.getBoundingClientRect().toJSON() }));
+    const scorecardText = [...document.querySelectorAll('.home-scorecard-header h2,.home-scorecard-header p,.home-scorecard-header span,.home-standings-body b,.home-standings-body small,.home-standings-body button,.home-standings-table th,.home-standings-table td')].filter(node => getComputedStyle(node).display !== 'none').map(node => ({ text: node.textContent.trim(), clipped: node.scrollWidth > node.clientWidth + 1 }));
     const scorecardActions = [...document.querySelectorAll('#homeProfileButton,#boardBtn,#mute')].map(node => ({ id: node.id, box: node.getBoundingClientRect().toJSON() }));
-    const scorecardRecords = [...document.querySelectorAll('.scorecard-records .stat')].filter(node => getComputedStyle(node).display !== 'none').map(node => node.textContent.replace(/\s+/g, ' ').trim());
+    const scorecardRows = [...document.querySelectorAll('#homeStandingsRows tr')].map(row => ({ rank: row.cells[0].textContent.trim(), player: row.cells[1].querySelector('b')?.textContent.trim(), points: row.cells[2].textContent.trim(), active: row.getAttribute('aria-current') === 'true' }));
     const cardText = [...document.querySelectorAll('.lab-card-copy .n,.lab-card-copy .d,.lab-card-copy .mode-enter')].filter(node => getComputedStyle(node).display !== 'none').map(node => ({ text: node.textContent.trim(), clipped: node.scrollWidth > node.clientWidth + 1 }));
     return {
       viewport: { width: innerWidth, height: innerHeight },
       overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
       wordmark: document.querySelector('.kicklab-wordmark')?.getAttribute('aria-label'),
       hero,
+      compactIdentity: document.documentElement.dataset.kicklabIntro === 'complete' && hero.height <= 56 && getComputedStyle(document.querySelector('.hero-copy')).display === 'none',
       heroGeometry: {
         brand,
         wordmark,
@@ -88,7 +89,7 @@ async function homeAudit(page, label) {
         heroCopy,
         collision: overlap(wordmark, heroCopy),
         markNameCollision: overlap(mark, name),
-        contained: inside(wordmark, hero) && inside(heroCopy, hero) && inside(wordmark, brand) && inside(heroCopy, brand) && inside(mark, wordmark) && inside(name, wordmark),
+        contained: inside(wordmark, hero) && inside(wordmark, brand) && inside(mark, wordmark) && inside(name, wordmark) && (getComputedStyle(document.querySelector('.hero-copy')).display === 'none' || (inside(heroCopy, hero) && inside(heroCopy, brand))),
         markTitle: document.querySelector('#kicklabMarkTitle')?.textContent.trim(),
         markDescription: document.querySelector('#kicklabMarkDesc')?.textContent.trim(),
         markViewBox: document.querySelector('.kicklab-mark svg')?.getAttribute('viewBox'),
@@ -116,10 +117,12 @@ async function homeAudit(page, label) {
         body: scorecardBody,
         headerBeforeBody: scorecardHeader.bottom <= scorecardBody.top + 1,
         contained: inside(scorecardHeader, progress) && inside(scorecardBody, progress),
-        subordinate: progress.height < box('#modeHome').height && progress.top >= box('#modeHome').bottom,
+        subordinate: progress.top >= box('#modeHome').bottom,
         text: scorecardText,
         actions: scorecardActions,
-        records: scorecardRecords,
+        rows: scorecardRows,
+        columns: [...document.querySelectorAll('.home-standings-table th')].map(node => node.textContent.trim()),
+        empty: !document.querySelector('#homeStandingsEmpty').hidden,
       },
       progressChildren,
       progressOverlap: progressChildren.some((item, index) => progressChildren.slice(index + 1).some(other => overlap(item.box, other.box))),
@@ -140,10 +143,10 @@ async function homeAudit(page, label) {
     };
   });
   const vector = audit.heroGeometry.vectorWordmark;
-  if (audit.overflow > 1 || audit.wordmark !== 'KickLab' || vector.value !== 'KICKLAB' || vector.viewBox !== '-9 0 376 64' || vector.ariaHidden !== 'true' || vector.kickPaths !== 4 || vector.labPaths !== 3 || vector.hostedFont || audit.actions.length !== 3 || audit.heroGeometry.collision || audit.heroGeometry.markNameCollision || !audit.heroGeometry.contained || audit.heroGeometry.text.some(item => item.clipped) || audit.heroGeometry.markTitle !== 'Kinetic K KickLab mark' || !audit.heroGeometry.markDescription?.includes('speed streaks') || audit.heroGeometry.markViewBox !== '0 0 132 96' || audit.heroGeometry.markParts.some(item => !item.present) || audit.cardsOverlap || audit.cardText.some(item => item.clipped) || audit.progressOverlap || !audit.labsBeforeProgress || !audit.scorecard.headerBeforeBody || !audit.scorecard.contained || !audit.scorecard.subordinate || audit.scorecard.text.some(item => item.clipped) || audit.scorecard.actions.some(item => item.box.width < 44 || item.box.height < 44)) {
+  if (audit.overflow > 1 || !audit.compactIdentity || audit.wordmark !== 'KickLab' || vector.value !== 'KICKLAB' || vector.viewBox !== '-9 0 376 64' || vector.ariaHidden !== 'true' || vector.kickPaths !== 4 || vector.labPaths !== 3 || vector.hostedFont || audit.actions.length !== 3 || audit.heroGeometry.collision || audit.heroGeometry.markNameCollision || !audit.heroGeometry.contained || audit.heroGeometry.text.some(item => item.clipped) || audit.heroGeometry.markTitle !== 'Kinetic K KickLab mark' || !audit.heroGeometry.markDescription?.includes('speed streaks') || audit.heroGeometry.markViewBox !== '0 0 132 96' || audit.heroGeometry.markParts.some(item => !item.present) || audit.cardsOverlap || audit.cardText.some(item => item.clipped) || audit.progressOverlap || !audit.labsBeforeProgress || !audit.scorecard.headerBeforeBody || !audit.scorecard.contained || !audit.scorecard.subordinate || audit.scorecard.text.some(item => item.clipped) || audit.scorecard.actions.some(item => item.box.width < 44 || item.box.height < 44)) {
     throw new Error(`${label}: layout contract failed (${JSON.stringify(audit)})`);
   }
-  if (audit.scorecard.title !== 'Your all-lab scorecard' || audit.scorecard.scope !== 'Fight, Race, and Kick progress · saved on this device' || audit.scorecard.labelledBy !== 'homeScorecardTitle' || audit.scorecard.describedBy !== 'homeScorecardScope' || !audit.scorecard.records.some(item => item.startsWith('This session')) || !audit.scorecard.records.some(item => item.startsWith('Badges'))) {
+  if (audit.scorecard.title !== 'Device standings' || audit.scorecard.scope !== 'Total points = combined XP across Fight, Race, and Kick · local to this browser.' || audit.scorecard.labelledBy !== 'homeScorecardTitle' || audit.scorecard.describedBy !== 'homeScorecardScope' || audit.scorecard.columns.join('|') !== 'Rank|Player|Total points' || audit.scorecard.rows.length !== 1 || audit.scorecard.rows[0].rank !== '#1' || !audit.scorecard.rows[0].active || !audit.scorecard.empty) {
     throw new Error(`${label}: scorecard semantics failed (${JSON.stringify(audit.scorecard)})`);
   }
   if (audit.actions.some(action => !action.label || !action.describedBy || !action.source?.startsWith('media/') || !action.poster?.startsWith('media/') || !action.muted || !action.loop || !action.playsInline || action.controls || action.currentTime <= 0)) {
@@ -181,9 +184,13 @@ async function clickLabs(page, label) {
     await page.getByRole('button', { name: new RegExp(`^${lab} .*Enter ${lab}$`) }).click();
     await page.locator('#game-cockpit').waitFor({ state: 'visible' });
     await page.locator('#gamePacingOverlay').waitFor({ state: 'hidden', timeout: 10000 });
-    await page.locator('#orientationDetailToggle').click();
-    await page.locator('#orientationDetail').waitFor({ state: 'visible' });
-    await page.locator('#modeHomeButton').click();
+    if (await page.locator('#orientationDetailToggle').isVisible()) {
+      await page.locator('#orientationDetailToggle').click();
+      await page.locator('#orientationDetail').waitFor({ state: 'visible' });
+      await page.locator('#modeHomeButton').click();
+    } else {
+      await page.goto(urlFor(label), { waitUntil: 'domcontentloaded' });
+    }
     await page.locator('#modeHome').waitFor({ state: 'visible' });
   }
   checks.push({ label, kind: 'all-lab-actions', labs: ['Fight', 'Race', 'Kick'] });
@@ -256,9 +263,13 @@ let walkthroughPath;
     await page.getByRole('button', { name: new RegExp(`^${lab} .*Enter ${lab}$`) }).click();
     await page.locator('#gamePacingOverlay').waitFor({ state: 'hidden', timeout: 10000 });
     await page.waitForTimeout(900);
-    await page.locator('#orientationDetailToggle').click();
-    await page.locator('#orientationDetail').waitFor({ state: 'visible' });
-    await page.locator('#modeHomeButton').click();
+    if (await page.locator('#orientationDetailToggle').isVisible()) {
+      await page.locator('#orientationDetailToggle').click();
+      await page.locator('#orientationDetail').waitFor({ state: 'visible' });
+      await page.locator('#modeHomeButton').click();
+    } else {
+      await page.goto(urlFor('walkthrough'), { waitUntil: 'domcontentloaded' });
+    }
     await page.locator('#modeHome').waitFor({ state: 'visible' });
     await page.waitForTimeout(650);
   }

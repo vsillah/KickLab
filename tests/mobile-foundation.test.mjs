@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { runInNewContext } from 'node:vm';
 
 const root=join(dirname(fileURLToPath(import.meta.url)),'..');
 const read=(path)=>readFileSync(join(root,path),'utf8');
@@ -15,10 +16,69 @@ const exclusions=json('config/mobile-package-exclusions.json');
 const packageOnly=json('config/package-only-asset-exclusions.json');
 const packageJson=json('package.json');
 const mobile=read('dist/mobile/index.html');
+const web=read('dist/kicklab.html');
+const nativeSafeArea=read('src/mobile-safe-area.css');
+const nativeSafeAreaScript=read('src/mobile-safe-area.js');
 const lifecycle=read('src/game/56-mobile-lifecycle.js');
 const qualification=json('docs/release/mobile-qualification-status.json');
 const ciWorkflow=read('.github/workflows/ci.yml');
 const pagesWorkflow=read('.github/workflows/pages-prepare.yml');
+
+test('applies native safe areas without changing the ordinary browser artifact',()=>{
+  assert.ok(mobile.includes(nativeSafeArea));
+  assert.ok(mobile.includes(nativeSafeAreaScript));
+  assert.ok(!web.includes(nativeSafeArea));
+  assert.ok(!web.includes(nativeSafeAreaScript));
+  for(const edge of ['top','right','bottom','left']){
+    assert.match(nativeSafeArea,new RegExp(`env\\(safe-area-inset-${edge}, 0px\\)`));
+  }
+  assert.match(nativeSafeArea,/\.wrap\s*\{[^}]*padding-top:\s*calc\(18px \+ env\(safe-area-inset-top, 0px\)\)/s);
+  assert.match(nativeSafeArea,/\.wrap\s*\{[^}]*padding-bottom:\s*calc\(48px \+ env\(safe-area-inset-bottom, 0px\)\)/s);
+  assert.match(nativeSafeArea,/\.profile-dialog\s*\{[^}]*inset:\s*env\(safe-area-inset-top, 0px\)/s);
+  assert.match(nativeSafeArea,/\.profile-panel\s*\{[^}]*max-height:\s*100%;/s);
+  assert.match(nativeSafeArea,/\.profile-dialog:not\(\.game-profile-overlay\) \.profile-panel > \.profile-head\s*\{[^}]*position:\s*sticky;/s);
+  assert.match(nativeSafeArea,/top:\s*calc\(max\(59px, env\(safe-area-inset-top, 0px\)\) \+ var\(--kicklab-native-viewport-offset-top, 0px\)\)/);
+  assert.match(nativeSafeArea,/@media \(max-height: 600px\)\s*\{[^}]*\.profile-dialog\s*\{[^}]*top:\s*max\(60px, env\(safe-area-inset-top, 0px\)\)/s);
+  assert.match(nativeSafeArea,/@media \(orientation: landscape\) and \(max-height: 600px\) and \(max-width: 980px\)\s*\{\s*\/\*[^*]*\*\/\s*\.home-hero \.brand\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\);/s);
+  assert.match(nativeSafeArea,/@media \(orientation: landscape\) and \(max-height: 600px\) and \(max-width: 980px\)[\s\S]*?\.kicklab-wordmark\s*\{\s*max-width:\s*100%;/);
+});
+
+test('binds Android offline Home paint and system bars to the packaged shell',()=>{
+  assert.equal(config.plugins.SystemBars.style,'DARK');
+  assert.match(nativeSafeAreaScript,/KickLabHomePresentation/);
+  assert.ok(!web.includes('KickLabHomePresentation'));
+  const activity=read('android/app/src/main/java/com/amadutown/kicklab/MainActivity.java');
+  assert.match(activity,/LAYER_TYPE_SOFTWARE/);
+  assert.match(activity,/LAYER_TYPE_HARDWARE/);
+  assert.match(activity,/https:\/\/localhost\//);
+});
+
+test('keeps the first-run Profile header and nickname clear when WKWebView pans for the keyboard',()=>{
+  const values=new Map();
+  const callbacks={};
+  let mutationCallback;
+  let restoredScrollY;
+  const panel={scrollTop:845,getBoundingClientRect:()=>({bottom:437})};
+  const input={id:'profileNickname',getBoundingClientRect:()=>({bottom:474})};
+  const dialog={hidden:false,querySelector:()=>panel};
+  const document={
+    activeElement:input,
+    documentElement:{style:{setProperty:(key,value)=>values.set(key,value)}},
+    getElementById:(id)=>id==='profileDialog'?dialog:input,
+  };
+  const viewport={offsetTop:403,addEventListener:(name,callback)=>{callbacks[name]=callback;}};
+  const window={visualViewport:viewport,scrollY:574,addEventListener:()=>{},scrollTo:(_x,y)=>{restoredScrollY=y;}};
+  class MutationObserverStub { constructor(callback){mutationCallback=callback;} observe(){} }
+  runInNewContext(nativeSafeAreaScript,{window,document,MutationObserver:MutationObserverStub,requestAnimationFrame:(callback)=>callback()});
+  assert.equal(values.get('--kicklab-native-viewport-offset-top'),'403px');
+  assert.equal(panel.scrollTop,894,'nickname clears the panel bottom by 12px');
+  dialog.hidden=true;
+  mutationCallback();
+  assert.equal(restoredScrollY,0,'closing first-run Profile returns Home to the top');
+  viewport.offsetTop=0;
+  callbacks.resize();
+  assert.equal(values.get('--kicklab-native-viewport-offset-top'),'0px');
+});
 
 test('locks artifact identity and provisional stable app id',()=>{
   assert.equal(config.appId,'com.amadutown.kicklab');
