@@ -1,10 +1,10 @@
 # Proposed Phase 3 unsigned native qualification plan
 
-**Plan ID:** `KL-P3-PLAN-20261103-F101D92-001`. **Prepared, not approved.** Planning baseline: deployed `origin/main` `f101d929f1c3bbff85a6c1d4023e1f873ae30d47`; 204-file mobile package digest `9466fda62e87a216b3a2895c861e114f7a7cfcf206adcde98bdb1cfffae96af6`; public product SHA-256 `4c421ca7210d958927b9914c635f3042a3e5903ef3ba751a121648fd09a477db`. A later execution authorization must bind a then-current exact main commit, dependency lock, generated package and plan revision. If those differ, review the delta before starting.
+**Plan ID:** `KL-P3-PLAN-20261103-F101D92-001`. **Owner-adopted as qualification scope on 2026-11-03; execution is not authorized.** Product baseline: exact `origin/main` `a0be10e6cb23f9d13b8cba4078568b500165359a`; 204-file mobile package digest `9466fda62e87a216b3a2895c861e114f7a7cfcf206adcde98bdb1cfffae96af6`; public product SHA-256 `4c421ca7210d958927b9914c635f3042a3e5903ef3ba751a121648fd09a477db`. A later execution authorization must bind a then-current exact main commit, dependency lock, generated package and this plan revision. If those differ, review the delta before starting.
 
 ## Phase 2 approval boundary
 
-The owner may approve this **plan and entry criteria only** within the [final owner packet](phase2-final-owner-decision-template.md) after the evidence inventory is complete. The Captain then applies the [signoff checklist](phase2-captain-signoff-checklist.md). Plan approval is a decision about scope and tests. It does not authorize platform generation, SDK install, account action, device testing, signing, upload, or release. Phase 3 starts only after a separate execution authorization bound to the exact artifact.
+The owner has approved this **plan and entry criteria only** through the [simplified Phase 2 owner closeout](phase2-owner-closeout.md). The Captain applies the [signoff checklist](phase2-captain-signoff-checklist.md). Plan approval is a decision about scope and tests. It does not authorize platform generation, SDK install, account action, device testing, signing, upload, or release. Phase 3 starts only after a separate execution authorization bound to the exact artifact.
 
 ## Phase 3 work packages after separate authorization
 

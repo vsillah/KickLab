@@ -20,16 +20,16 @@ The 203 runtime rows total **36,186,616 bytes**. The notice is **2,461 bytes**, 
 
 The [replacement sequence](runtime-rights-replacement-sequence.md) and [146-row recapture map](runtime-rights-recapture-map.csv) identify the downstream media impact. Use the [evidence intake checklist](runtime-rights-evidence-intake.md) and [owner attestation template](runtime-rights-owner-attestation-template.md) for a changed hash or conflicting evidence; Wave 3 and H11 require no duplicate questionnaire for their limited dispositions. A planned route is not a clearance, and a recapture count is not a build authorization.
 
-## Separate Phase 2 exit gates
+## Phase 2 closeout decisions
 
 | Gate | Current status | Required evidence before closeout |
 | --- | --- | --- |
-| Runtime rights | 0 held; 203 internally accepted for preparation only | Reopen changed or conflicting exact hashes; final whole-package owner acceptance remains separate |
+| Runtime rights | Closed | 203 runtime rows and the 204-file package are owner-adopted; reopen changed or conflicting exact hashes only |
 | Installed notice N01 | Internally verified for current mobile package | Preserve exact notice and separately inventory native transitive terms and placement after native generation |
-| Legal developer | Pending | Active AmaduTown Advisory Solutions registration, matching store-account identity, written KickLab ownership/license chain |
-| Guardian support | Partial | Email alias, inbound routing, outbound Send-mail-as and incident workflow evidenced; privacy route remains unpublished; deletion is manual; sole-admin continuity risk remains |
-| Privacy foundation | Pending | Approve bounded browser assumptions and record native SDK, backup, permission and declaration questions for Phase 3; internal draft remains unpublished |
-| Final owner decision | Pending | [Consolidated packet](phase2-final-owner-decision-template.md) accepts exact package, notice, Cobalt, legal/support/privacy findings and the Phase 3 plan as a plan only |
-| Captain Phase 2 signoff | Pending | [Objective checklist](phase2-captain-signoff-checklist.md) passes on one exact artifact, with an approved [Phase 3 entry plan](phase3-native-qualification-plan.md) and no native execution implied |
+| Legal/store identity | Deferred | Resolve before account or store action; do not infer status now |
+| Guardian support | Owner-accepted for Phase 2 | Email verified; privacy publication and residual operational risks remain pre-distribution gates |
+| Privacy foundation | Closed for browser scope | Native SDK, backup, permission and egress facts move to Phase 3 |
+| Final owner decision | Complete | [Simplified closeout](phase2-owner-closeout.md) adopts the package, notice, Cobalt condition, residual risks and Phase 3 plan scope |
+| Captain Phase 2 signoff | Complete on green merge | [Objective checklist](phase2-captain-signoff-checklist.md) requires unchanged bytes and passing checks; native execution remains separate |
 
-**Stop:** Phase 2 remains open. Do not enter Phase 3, sign, upload, publish policy, contact providers/reviewers, configure support or DNS, or distribute from this plan. The [local evidence inventory](phase2-closeout-evidence-inventory.md) records the pending legal/support proofs. The five-phase commercial roadmap remains in [Phase 2 closeout and Phase 3 entry](phase2-closeout-phase3-entry.md): Phase 2 is current, with four phases remaining including it.
+**Boundary:** Phase 2 is closed. Phase 3 is current but has not started; use the separate [unsigned native authorization](phase3-unsigned-native-qualification-authorization.md). Do not sign, upload, publish policy, contact providers, configure DNS, create store records or distribute from this dashboard.

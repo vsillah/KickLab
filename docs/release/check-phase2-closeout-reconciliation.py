@@ -7,7 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 RELEASE = ROOT / 'docs/release'
 ARTIFACT_BASE = 'f101d929f1c3bbff85a6c1d4023e1f873ae30d47'
-CURRENT_DOC_BASE = 'f41519638c9eddf029f1aa0a018e5c6f3cd4a4bd'
+CURRENT_DOC_BASE = 'a0be10e6cb23f9d13b8cba4078568b500165359a'
 PACKAGE_SHA = '9466fda62e87a216b3a2895c861e114f7a7cfcf206adcde98bdb1cfffae96af6'
 WEB_SHA = '4c421ca7210d958927b9914c635f3042a3e5903ef3ba751a121648fd09a477db'
 MOBILE_SHA = '9ad9722ae2712c3b02c13deb8e165293a4e814aac7a05d3f06b794da64c1542d'
@@ -15,18 +15,18 @@ RECEIPT_ID = 'KL-P2-CLOSEOUT-INVENTORY-20261103-F101D92-001'
 RECEIPT_SHA = 'cf2104fb2f8397c396df4451062aaac8ebeeac7aadd4e549faf376e307bb1c32'
 PLAN_ID = 'KL-P3-PLAN-20261103-F101D92-001'
 EXPECTED = {
-    '204_file_rights': 'limited_preparation_accepted',
-    'installed_notice': 'verified_current_package',
-    'cobalt_residual': 'limited_risk_accepted',
-    'legal_registration': 'pending',
-    'kicklab_company_chain': 'pending',
-    'store_account_alignment': 'pending',
-    'support_target_control': 'email_verified_policy_route_pending',
-    'support_provider_controls': 'manual_controls_documented',
-    'child_data_incident_process': 'owner_operating_statement_recorded',
-    'privacy_data_flow': 'pending',
-    'phase3_exact_plan': 'prepared_pending_approval',
-    'captain_signoff': 'pending',
+    '204_file_rights': 'owner_adopted_phase2',
+    'installed_notice': 'owner_adopted_current_package',
+    'cobalt_residual': 'owner_accepted_residual_risk',
+    'legal_registration': 'deferred_to_store_identity_gate',
+    'kicklab_company_chain': 'owner_personal_creation_attested',
+    'store_account_alignment': 'deferred_to_store_identity_gate',
+    'support_target_control': 'email_verified_policy_deferred',
+    'support_provider_controls': 'manual_controls_risk_accepted',
+    'child_data_incident_process': 'owner_operating_statement_adopted',
+    'privacy_data_flow': 'browser_scope_accepted_native_pending',
+    'phase3_exact_plan': 'owner_adopted_plan_scope',
+    'captain_signoff': 'phase2_closed',
 }
 
 def sha(data):
@@ -58,28 +58,29 @@ checklist = (RELEASE / 'phase2-captain-signoff-checklist.md').read_text()
 plan = (RELEASE / 'phase3-native-qualification-plan.md').read_text()
 roadmap = (RELEASE / 'phase2-closeout-phase3-entry.md').read_text()
 mobile_roadmap = (RELEASE / 'mobile-qualification-roadmap.md').read_text()
-for document in (inventory, owner, checklist):
+closeout = (RELEASE / 'phase2-owner-closeout.md').read_text()
+authorization = (RELEASE / 'phase3-unsigned-native-qualification-authorization.md').read_text()
+for document in (inventory, checklist, plan, roadmap, closeout, authorization):
     assert CURRENT_DOC_BASE in document
-for document in (plan, roadmap):
-    assert ARTIFACT_BASE in document
 assert RECEIPT_ID in inventory and RECEIPT_SHA in inventory
 assert PLAN_ID in owner and PLAN_ID in plan
-assert 'Prepared, not approved' in plan
+assert 'Owner-adopted as qualification scope' in plan
 assert 'plan and entry criteria only' in plan
 assert 'separate execution authorization' in plan and 'separate execution authorization' in checklist
 assert 'Native qualification is a Phase 3 execution item' in roadmap
 assert 'Actual native qualification is Phase 3 work' in roadmap
 assert 'separate Phase 3 execution authorization' in mobile_roadmap
-assert 'Fail: pending evidence' in checklist and 'email control passed' in checklist
-assert '204 path' in owner and 'Cobalt' in owner and 'not authorize native execution' in owner
-assert 'No legal status, account ownership, domain control, provider setting or native behavior is inferred' in inventory
+assert 'Pass for Phase 2' in checklist and 'Pass with owner-accepted residual risk' in checklist
+assert '204 shipped package paths' in closeout and 'premium Cobalt' in closeout
+assert 'No additional rights-evidence packet is required' in closeout
+assert 'prepared for owner authorization; not executed' in authorization
+assert 'no legal status, account ownership, domain control, provider setting or native behavior is inferred' in inventory
 
 progress = (RELEASE / 'phase2-owner-decision-progress.md').read_text()
-assert CURRENT_DOC_BASE in progress
 assert 'KL-P2-OWNER-WORKING-20261103-F415196-001' in progress
 assert '9d09a59d2c6eb007d14cbebb265a836278ee4c4f20fb4fdbc05166f813647bfd' in progress
 assert 'Controlled inbound routing and controlled outbound delivery' in progress
-assert 'privacy-route publication' in progress
+assert 'policy publication' in progress
 
 ledger = rows('shipped-file-rights.csv')
 plan_rows = rows('runtime-rights-evidence-plan.csv')
@@ -102,5 +103,5 @@ canon = ''.join(f'{path.relative_to(package)}\0{sha(path.read_bytes())}\0{path.s
 assert sha(canon.encode()) == PACKAGE_SHA
 assert sha((ROOT / 'dist/kicklab.html').read_bytes()) == WEB_SHA
 assert sha((package / 'index.html').read_bytes()) == MOBILE_SHA
-print('Phase 2 matrix: 12 required states; support email and manual incident controls evidenced; legal/store/policy/owner/plan gates pending')
+print('Phase 2 matrix: 12 required states; owner closeout adopted; store identity and privacy publication deferred to their operational gates')
 print('Restricted inventory receipt bound; 204 exact package paths and deployed web/mobile/package digests match')
