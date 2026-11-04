@@ -1,5 +1,7 @@
 # Unsigned iOS qualification at the current package
 
+Historical checkpoint for main `c0de978`. The [latest f53f968 checkpoint](f53-checkpoint.md) confirms the same iPhone Fight control failure on the newer 204-file package.
+
 **Result: stopped on an iPhone Fight product defect.** This packet records checks completed before the stop; it does not qualify the full iOS matrix.
 
 ## Exact binding
