@@ -2557,3 +2557,39 @@ html[data-kicklab-view="game"] .compact-lab-name{display:block}
   html[data-kicklab-view="home"][data-kicklab-intro="first-run"] .home-hero .kicklab-name{width:148px}
 }
 @media (max-width:520px){html[data-kicklab-view="home"][data-kicklab-intro="first-run"] .hero-badges span:nth-child(2){display:inline}}
+
+/* Home cards carry their action through the full button and accessible name. */
+.mode-home-copy{display:block;padding:2px 4px}
+.lab-card-copy{grid-template-rows:auto auto;align-content:center;padding:10px 13px 12px}
+@media (max-width:760px){.lab-card-copy{padding:8px}}
+@media (max-width:520px){.lab-card-copy{grid-template-rows:auto auto;align-content:center;padding:9px}}
+
+/* Real device-local standings; profile tools remain outside the ranked rows. */
+.home-progress .home-scorecard-header{align-items:center}
+.home-standings-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(200px,245px);gap:14px;align-items:start;padding:12px 14px}
+.home-standings-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:12px}
+.home-standings-table th{text-align:left;color:var(--muted);font:700 9px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;padding:2px 9px 8px}
+.home-standings-table th:first-child{width:68px}.home-standings-table th:last-child{width:118px;text-align:right}
+.home-standings-table td{border-top:1px solid rgba(127,220,255,.17);padding:8px 9px;vertical-align:middle}
+.home-standings-table tbody tr{background:rgba(7,16,31,.4)}
+.home-standings-table tbody tr.standings-current{background:linear-gradient(90deg,rgba(95,227,161,.18),rgba(127,220,255,.08));box-shadow:inset 3px 0 0 var(--profile-color,var(--good))}
+.standings-rank{color:var(--xray);font:700 15px var(--f-mono);white-space:nowrap}
+.standings-player{display:flex;align-items:center;gap:9px;min-width:0}
+.standings-player>span:last-child{display:grid;min-width:0}
+.standings-player b{font:700 12px/1.2 var(--f-body);overflow-wrap:anywhere}
+.standings-player small{color:var(--good);font:700 9px var(--f-body)}
+.standings-avatar{display:grid;place-items:center;flex:none;width:32px;height:32px;border-radius:9px;overflow:hidden}
+.standings-points{text-align:right;color:#fff;font:700 16px var(--f-mono);font-variant-numeric:tabular-nums}
+.home-standings-empty{grid-column:1;margin:0;color:var(--muted);font:500 11px/1.4 var(--f-body)}
+.home-standings-actions{grid-column:2;grid-row:1/3;display:grid;gap:8px;border-left:1px solid rgba(127,220,255,.2);padding-left:14px}
+.home-standings-actions .home-profile{display:flex;align-items:center;gap:9px;width:100%;min-height:52px;margin:0;border:1px solid #426b92;border-radius:10px;background:#18304a;padding:7px 9px;text-align:left}
+.home-standings-actions .home-profile>span:nth-child(2){display:grid;min-width:0}
+.home-standings-actions .home-profile b{font:700 11px var(--f-body);color:#fff}
+.home-standings-actions .home-profile small{font:500 9px var(--f-body);color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.home-standings-actions .home-profile .profile-avatar{width:34px;height:34px;border-radius:9px}
+.home-standings-actions .home-profile-meta{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.home-standings-actions .hudtools{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.home-standings-actions .hudtools button{min-height:44px;width:100%;padding:7px 8px;font-size:9px}
+.home-standings-actions .hudtools #mute{grid-column:auto}
+@media(max-width:760px){.home-standings-body{grid-template-columns:minmax(0,1fr);gap:10px;padding:10px}.home-standings-actions{grid-column:1;grid-row:auto;grid-template-columns:minmax(0,1fr) auto;border-left:0;border-top:1px solid rgba(127,220,255,.2);padding:10px 0 0}.home-standings-actions .hudtools{grid-template-columns:auto auto}.home-standings-empty{grid-column:1}.home-standings-table th:first-child{width:54px}.home-standings-table th:last-child{width:104px}}
+@media(max-width:520px){.home-standings-actions{grid-template-columns:minmax(0,1fr)}.home-standings-actions .home-profile,.home-standings-actions .hudtools{grid-column:1;grid-row:auto}.home-standings-actions .hudtools{grid-template-columns:1fr 1fr}.home-standings-table th,.home-standings-table td{padding-inline:6px}.home-standings-table th:last-child{width:92px}.standings-player{gap:6px}.standings-avatar{width:28px;height:28px}.standings-points{font-size:14px}}

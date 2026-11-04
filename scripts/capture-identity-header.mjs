@@ -22,6 +22,10 @@ try{
   await page.goto(route,{waitUntil:'domcontentloaded'});await page.locator('#modeHome').waitFor({state:'visible'});await hold(page,1200);
   if(await page.locator('#introContinue').isVisible()){await page.locator('#introContinue').click();await page.locator('#profileForm').waitFor({state:'visible'});await hold(page,750);await page.locator('#profileNickname').fill('QA Player');await page.locator('#profileFormSave').click();await page.locator('#profileForm').waitFor({state:'hidden'});await page.locator('#profileClose').click();}
   await hold(page,1100);
+  await page.evaluate(()=>{const key='kicklab.profiles.v1',saved=JSON.parse(localStorage.getItem(key)),base=saved.profiles[0];saved.profiles=[['QA Player',120],['QA Teammate',120],['QA Rookie',40]].map(([nickname,xp],index)=>({...base,id:`qa-player-${index+1}`,nickname,progress:{...base.progress,xp},needsSetup:false}));saved.activeId='qa-player-3';saved.legacyProfileId='qa-player-1';localStorage.setItem(key,JSON.stringify(saved));});
+  await page.reload({waitUntil:'domcontentloaded'});await page.locator('#modeHome').waitFor({state:'visible'});
+  if(await page.locator('#homeStandingsRows tr').count()!==3)throw new Error(`${label}: multi-player standings did not render`);
+  await hold(page,1600);
   for(const mode of ['fight','race','kick']){await page.locator(`#lab-tab-${mode}`).click();await page.locator('#game-cockpit').waitFor({state:'visible'});if(mode==='race'&&await page.locator('#racePreflight').isVisible())await page.locator('#racePreflightClose').click();await hold(page,1500);if(mode!=='kick'){await page.goto(route,{waitUntil:'domcontentloaded'});await page.locator('#modeHome').waitFor({state:'visible'});await hold(page,450);}}
   const source=page.video();await context.close();const sourcePath=await source.path();const segment=join(output,`${label}-${revision.slice(0,12)}.mp4`);
   const filter='scale=w=1800:h=990:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=0x050a16,fps=30';
