@@ -130,4 +130,24 @@ public class KickLabInstrumentedTest {
             assertTrue(state.contains("\\\"nativeHaptics\\\":true"));
         }
     }
+
+    @Test
+    public void fightAndKickEnterFromThePackagedHome() throws Exception {
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+            waitForKickLab(scenario);
+            for (String mode : new String[]{"fight", "kick"}) {
+                String state = evaluate(scenario,
+                    "(()=>{try{document.querySelector('#modeHomeButton').click();" +
+                    "document.querySelector('#lab-tab-" + mode + "').click();" +
+                    "return JSON.stringify({mode:document.documentElement.dataset.kicklabMode," +
+                    "homeHidden:document.querySelector('#modeHome').hidden," +
+                    "gameVisible:!document.querySelector('#game-cockpit').hidden," +
+                    "stage:!!document.querySelector('#cv')})}catch(e){return 'ERROR: '+e.message}})()");
+                assertTrue(mode + " did not enter its lab: " + state, state.contains("\\\"mode\\\":\\\"" + mode + "\\\""));
+                assertTrue(state, state.contains("\\\"homeHidden\\\":true"));
+                assertTrue(state, state.contains("\\\"gameVisible\\\":true"));
+                assertTrue(state, state.contains("\\\"stage\\\":true"));
+            }
+        }
+    }
 }
