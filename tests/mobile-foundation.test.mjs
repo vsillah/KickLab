@@ -197,12 +197,26 @@ test('exposes only narrow lifecycle and haptic hooks and cancels held inputs',()
   assert.deepEqual(contract.hooks.haptics,['target','perfect','overcharge']);
 });
 
-test('retains explicit no-authority boundaries and no generated native projects',()=>{
+test('retains release boundaries and confines the generated Android shell',()=>{
   for(const [capability,allowed] of Object.entries(contract.authority))assert.equal(allowed,false,`${capability} must remain unauthorized`);
   assert.deepEqual(manifest.authority,contract.authority);
   assert.doesNotMatch(packageJson.scripts['mobile:prepare'],/cap\s+(?:add|sync|open|run|build)/);
   assert.equal(existsSync(join(root,'ios')),false);
-  assert.equal(existsSync(join(root,'android')),false);
+  assert.equal(existsSync(join(root,'android')),true);
+  assert.equal(packageJson.dependencies['@capacitor/android'],'8.5.3');
+  const androidManifest=read('android/app/src/main/AndroidManifest.xml');
+  assert.match(androidManifest,/android:allowBackup="false"/);
+  assert.match(androidManifest,/android:usesCleartextTraffic="false"/);
+  assert.doesNotMatch(androidManifest,/uses-permission|FileProvider|file_paths/);
+  const androidGradle=read('android/app/build.gradle');
+  assert.match(androidGradle,/applicationId "com\.amadutown\.kicklab"/);
+  assert.doesNotMatch(androidGradle,/google-services|firebase/i);
+  const variablesGradle=read('android/variables.gradle');
+  for(const [key,value] of [['minSdkVersion',24],['compileSdkVersion',36],['targetSdkVersion',36]])assert.match(variablesGradle,new RegExp(`${key} = ${value}`));
+  const nativeAssets=join(root,'android/app/src/main/assets/public');
+  if(existsSync(nativeAssets)){
+    assert.equal(createHash('sha256').update(readFileSync(join(nativeAssets,'index.html'))).digest('hex'),manifest.sha256);
+  }
 });
 
 test('binds browser qualification to its merged artifact and keeps later gates unqualified',()=>{
