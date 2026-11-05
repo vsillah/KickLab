@@ -44,6 +44,10 @@ try{
         await page.screenshot({path:join(out,`${label}-grid-viewport.png`)});
         state.push({name:'grid-viewport',...grid});
         const orbit=page.locator('.race-orbit-panel button');if(await orbit.isVisible())await orbit.click();
+        await page.waitForFunction(()=>document.documentElement.dataset.racePhase==='count',null,{timeout:20000});
+        const lights=await page.evaluate(()=>{const r=document.querySelector('#game-cockpit .stage').getBoundingClientRect();return{phase:document.documentElement.dataset.racePhase,bounds:[r.x,r.y,r.right,r.bottom]};});
+        if(lights.bounds[0]<0||lights.bounds[1]<0||lights.bounds[2]>width+1||lights.bounds[3]>height+1)throw Error(`Race lights clipped: ${JSON.stringify(lights)}`);
+        state.push({name:'count-viewport',...lights});
         await page.waitForFunction(()=>document.documentElement.dataset.racePhase==='run',null,{timeout:25000});
         for(const [mode,button,selectors,gasCandidates] of [['classic',null,['#padL','#padR [data-id="brake"]','#raceActionDial'],['#raceDialGas','#padR [data-id="gas"]']],['analog','#analogControlsButton',['.analog-zone','#raceAnalogActions [data-race-assist="brake"]','#raceActionDial'],['#raceDialGas','#gestureAction']],['simulator','#simulatorControlsButton',['.sim-status','.sim-live-top','.sim-live-foot','.sim-controls'],['#raceDialGas','#simGas']]]){
           if(button)await page.locator(button).click();
