@@ -2561,6 +2561,24 @@ html[data-kicklab-view="game"] .compact-lab-name{display:block}
 }
 @media (max-width:520px){html[data-kicklab-view="home"][data-kicklab-intro="first-run"] .hero-badges span:nth-child(2){display:inline}}
 
+/* Keep the Race preparation and its start cue inside short phone landscape viewports. */
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  .race-preflight-shell{height:100dvh;gap:6px;padding:8px max(8px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))}
+  .race-preflight-header{padding-bottom:5px}
+  .race-preflight h2{font-size:clamp(20px,4.5vh,25px);margin-top:0}
+  .race-preflight-header button{min-height:44px;padding:5px 12px}
+  .race-preflight-steps button{min-height:44px;padding:4px 8px}
+  .race-preflight-steps b{width:24px;height:24px}
+  .race-preflight-status{min-height:16px;font-size:11px;line-height:1.2}
+  .race-preflight-content{min-height:0;overscroll-behavior:contain;scrollbar-width:thin}
+  .race-preflight-intro{margin-bottom:8px}
+  .race-preflight-footer{flex:none;padding:5px 0 0;bottom:0}
+  .race-preflight-footer button{min-height:44px;padding:5px 12px}
+  html[data-race-telemetry="prototype"][data-kicklab-mode="race"] .race-stage-start:not([hidden]){position:fixed;z-index:30;top:50dvh;left:50vw;width:min(360px,calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right) - 20px));max-height:calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 16px);transform:translate(-50%,-50%)}
+  html[data-race-telemetry="prototype"][data-kicklab-mode="race"] .race-stage-start-card{max-height:inherit;overflow-y:auto;overscroll-behavior:contain}
+  html[data-kicklab-mode="race"] .game-pacing-overlay[data-state="countdown"]:not([hidden]){position:fixed;z-index:30;inset:0;padding:max(8px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));place-items:center}
+}
+
 /* Home cards carry their action through the full button and accessible name. */
 .mode-home-copy{display:block;padding:2px 4px}
 .lab-card-copy{grid-template-rows:auto auto;align-content:center;padding:10px 13px 12px}
