@@ -41,6 +41,7 @@ try{
         await page.waitForFunction(()=>document.documentElement.dataset.racePhase==='grid');
         const grid=await page.evaluate(()=>{const bounds=selector=>{const r=document.querySelector(selector).getBoundingClientRect();return{x:r.x,y:r.y,right:r.right,bottom:r.bottom,width:r.width,height:r.height};};return{cockpit:bounds('#game-cockpit'),stage:bounds('#game-cockpit .stage'),pad:bounds('#padL'),gas:bounds('#raceDialGas'),phase:document.documentElement.dataset.racePhase};});
         if(grid.cockpit.x<0||grid.cockpit.y<0||grid.cockpit.right>width+1||grid.cockpit.bottom>height+1||grid.stage.bottom>height+1||grid.pad.bottom>height+1||grid.gas.bottom>height+1)throw Error(`Race grid clipped before lights: ${JSON.stringify(grid)}`);
+        await page.screenshot({path:join(out,`${label}-grid-viewport.png`)});
         state.push({name:'grid-viewport',...grid});
         const orbit=page.locator('.race-orbit-panel button');if(await orbit.isVisible())await orbit.click();
         await page.waitForFunction(()=>document.documentElement.dataset.racePhase==='run',null,{timeout:25000});
