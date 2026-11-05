@@ -21,7 +21,7 @@ try{
     page.on('pageerror',error=>report.errors.push(`${label}: ${error.message}`));
     await page.route('**/*',route=>{const url=route.request().url();if(url.startsWith(new URL(base).origin)||url.startsWith('data:')||url.startsWith('blob:'))return route.continue();report.external.push(`${label}: ${url}`);route.abort();});
     try{
-      const url=new URL(base);for(const key of ['raceTelemetry','raceCornerTrace','raceProgression','raceExpansion','raceCompetition','raceChampionship','raceMultiplayer','raceSimulator','racePreflight','raceInstruments'])url.searchParams.set(key,'prototype');url.searchParams.set('raceSystems','proxy');url.searchParams.set('rev',process.env.KICKLAB_QA_REV||'ios-race-landscape');
+      const url=new URL(base);for(const key of ['raceTelemetry','raceCornerTrace','raceProgression','raceExpansion','raceCompetition','raceChampionship','raceMultiplayer','raceSimulator','racePreflight','raceInstruments'])url.searchParams.set(key,'prototype');url.searchParams.set('raceSystems','proxy');url.searchParams.set('raceCompactGuidanceQA','1');url.searchParams.set('rev',process.env.KICKLAB_QA_REV||'ios-race-landscape');
       await page.goto(url.toString(),{waitUntil:'domcontentloaded'});
       if(await page.locator('#profileFormSave').isVisible())await page.locator('#profileFormSave').click();
       if(await page.locator('#profileClose').isVisible())await page.locator('#profileClose').click();
@@ -66,6 +66,16 @@ try{
           await page.screenshot({path:join(out,`${label}-${mode}-live.png`)});if(width===812)await page.waitForTimeout(1600);state.push({name:mode,controls,occupancy,presentation,notices});
         }
         if(width===812){
+          const guidance=await page.evaluate(()=>{
+            const points=[];for(let x=-35;x<=120;x+=3)points.push({x,y:0,tx:1,ty:0});for(let i=1;i<=60;i++){const a=-Math.PI/2+i*Math.PI/120;points.push({x:120+40*Math.cos(a),y:40+40*Math.sin(a),tx:-Math.sin(a),ty:Math.cos(a)});}for(let y=43;y<=150;y+=3)points.push({x:160,y,tx:0,ty:1});
+            const route=KickLabRaceDriverNavigation.route(points,false),bounds={minX:-35,maxX:160,minY:0,maxY:150},parameters={top:55,mu:1,response:1,stability:1,turnIn:1,brakePower:1},samples=[['brake',{x:111,y:0,v:25,th:0}],['turn',{x:120,y:0,v:15,th:0}],['apex',{x:148,y:10,v:15,th:0}],['accelerate',{x:160,y:40,v:14,th:Math.PI/2}],['recover',{x:148,y:10,v:16,th:0,slipAngle:.3}]],result=[];
+            for(const [expected,state] of samples){const nav=KickLabRaceDriverNavigation.plan({route,state:{e:0,slipAngle:0,...state},parameters,mode:'hill',grip:1});window.__KICKLAB_RACE_COMPACT_GUIDANCE_QA__.paint(route,nav,bounds);const canvas=document.querySelector('#raceNavigationCanvas'),pixels=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;let colored=0;const rgb=({brake:[255,136,121],turn:[255,202,119],apex:[249,237,155],accelerate:[121,233,187],recover:[255,152,156]})[expected];for(let i=canvas.width*28*4;i<pixels.length;i+=4)if(pixels[i]===rgb[0]&&pixels[i+1]===rgb[1]&&pixels[i+2]===rgb[2])colored++;result.push({expected,stage:nav.stage,target:canvas.dataset.guidanceTarget,colored,accessible:canvas.getAttribute('aria-label'),image:canvas.toDataURL()});}
+            window.__KICKLAB_RACE_COMPACT_GUIDANCE_QA__.refresh();return result;
+          });
+          const targets={brake:'apex',turn:'apex',apex:'exit',accelerate:'exit',recover:'exit'};
+          if(guidance.some(item=>item.stage!==item.expected||item.target!==targets[item.expected]||item.colored<5||!item.accessible.includes(item.expected==='accelerate'?'Exit aligned':item.expected==='recover'?'Rear sliding':item.expected==='brake'?'Brake for':item.expected==='turn'?'Turn left':'At the left apex'))||new Set(guidance.map(item=>item.image)).size!==guidance.length)throw Error(`Canvas guidance did not follow navigation telemetry: ${JSON.stringify(guidance.map(({image,...item})=>item))}`);
+          for(const item of guidance)writeFileSync(join(out,`${label}-guidance-${item.expected}.png`),Buffer.from(item.image.split(',')[1],'base64'));
+          state.push({name:'canvas-guidance-stages',samples:guidance.map(({image,...item})=>item)});
           await page.locator('#classicControlsButton').click();
           await page.locator('#cv').click({position:{x:width/2,y:height/2}});
           await page.locator('#gamePacingResume').waitFor({state:'visible',timeout:3000});
