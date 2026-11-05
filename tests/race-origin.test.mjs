@@ -12,7 +12,7 @@ function homeHarness(href){
 
 const trusted=location=>raceContext(location).KickLabRaceOrigin.trusted();
 
-test('Race prototypes trust the canonical Pages path and local development only',()=>{
+test('web Race prototypes trust the canonical Pages path and local development only',()=>{
   assert.equal(trusted(local()),true);
   assert.equal(trusted({...local(),hostname:'127.0.0.1'}),true);
   assert.equal(trusted(pages()),true);
@@ -29,6 +29,44 @@ test('Race prototypes trust the canonical Pages path and local development only'
     {...local(),hostname:'localhost.evil.test'}
   ])assert.equal(trusted(location),false,JSON.stringify(location));
   assert.equal(raceContext(null).KickLabRaceOrigin.trusted(),false);
+});
+
+test('native Race trusts only the packaged Capacitor page and reviewed feature flags',()=>{
+  for(const href of ['capacitor://localhost/','capacitor://localhost/index.html','capacitor://localhost/?racePreflight=prototype&raceExpansion=prototype'])assert.equal(trusted(new URL(href)),true,href);
+  for(const href of [
+    'capacitor://localhost.evil.test/',
+    'capacitor://user@localhost/',
+    'capacitor://localhost:443/',
+    'capacitor://localhost/other.html',
+    'ionic://localhost/',
+    'https://example.test/',
+    'capacitor://localhost/?raceCompetition=prototype',
+    'capacitor://localhost/?raceChampionship=prototype',
+    'capacitor://localhost/?raceMultiplayer=prototype',
+    'capacitor://localhost/?racePrivateParty=prototype',
+    'capacitor://localhost/?raceAudio=prototype',
+    'capacitor://localhost/?raceCompactGuidanceQA=1'
+  ])assert.equal(trusted(new URL(href)),false,href);
+});
+
+test('native Home entry reloads only reviewed Race flags on the same packaged page',()=>{
+  const h=homeHarness('capacitor://localhost/?rev=native-race');
+  let activated=0;h.origin.onHomeEntry(()=>activated++);
+  assert.equal(h.enter(),'document');
+  assert.equal(activated,0);
+  assert.equal(h.replaced(),null);
+  const target=new URL(h.navigated());
+  assert.equal(target.origin,'null');
+  assert.equal(target.protocol,'capacitor:');
+  assert.equal(target.hostname,'localhost');
+  assert.equal(target.pathname,'/');
+  assert.equal(target.searchParams.get('rev'),'native-race');
+  assert.deepEqual([...target.searchParams].filter(([key])=>key.startsWith('race')).sort(),Object.entries(h.origin.NATIVE_FLAGS).sort());
+  assert.equal(h.origin.consumeHomeEntry(target,h.storage),true);
+  assert.equal(h.origin.consumeHomeEntry(target,h.storage),false);
+  const denied=homeHarness('capacitor://localhost/?raceMultiplayer=prototype');
+  assert.equal(denied.enter(),false);
+  assert.equal(denied.navigated(),null);
 });
 
 test('unflagged home Race entry updates the loaded document URL without requesting HTML',()=>{

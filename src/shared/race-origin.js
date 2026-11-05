@@ -1,9 +1,19 @@
 /* Trusted locations for opt-in Race prototypes. Other origins and paths fail closed. */
 (function installRaceOrigin(root){
   'use strict';
+  // The packaged iOS shell has a narrower Race contract than the web Home entry.
+  const NATIVE_FLAGS=Object.freeze({raceSystems:'proxy',raceTelemetry:'prototype',raceCornerTrace:'prototype',raceProgression:'prototype',raceExpansion:'prototype',raceSimulator:'prototype',racePreflight:'prototype',raceInstruments:'prototype'});
+  function native(loc){
+    return loc?.protocol==='capacitor:'&&loc.hostname==='localhost'&&!loc.port&&!loc.username&&!loc.password&&
+      (loc.pathname==='/'||loc.pathname==='/index.html');
+  }
   function trusted(loc=typeof location==='undefined'?null:location){
     if(!loc)return false;
     const {protocol,hostname,port,pathname}=loc;
+    if(native(loc)){
+      const params=new URLSearchParams(loc.search||'');
+      return [...params.keys()].every(key=>!key.startsWith('race')||Object.prototype.hasOwnProperty.call(NATIVE_FLAGS,key));
+    }
     if((hostname==='localhost'||hostname==='127.0.0.1')&&(protocol==='http:'||protocol==='https:'))return true;
     return protocol==='https:'&&hostname==='vsillah.github.io'&&!port&&
       (pathname==='/KickLab/'||pathname==='/KickLab/index.html');
@@ -16,13 +26,17 @@
   function homeUrl(loc=typeof location==='undefined'?null:location){
     if(!trusted(loc))return null;
     const url=new URL(loc.href);
-    for(const [key,value] of Object.entries(HOME_FLAGS))url.searchParams.set(key,value);
+    for(const [key,value] of Object.entries(native(loc)?NATIVE_FLAGS:HOME_FLAGS))url.searchParams.set(key,value);
     return url;
   }
   function enterFromHome(loc=location,storage=null,navigate=url=>location.replace(url),replace=url=>history.replaceState(history.state,'',url)){
     const url=homeUrl(loc);
     if(!url)return false;
     if(url.href===loc.href)return 'local';
+    if(native(loc)){
+      try{(storage||sessionStorage).setItem(ENTRY_KEY,url.href);navigate(url.href);return 'document';}
+      catch(_){return false;}
+    }
     const params=new URLSearchParams(loc.search);
     // An explicit partial flag set was initialized with that exact contract.
     // Keep its established document navigation and session handoff.
@@ -37,5 +51,5 @@
     try{const target=storage||sessionStorage,pending=target.getItem(ENTRY_KEY);target.removeItem(ENTRY_KEY);return pending===url.href;}
     catch(_){return false;}
   }
-  root.KickLabRaceOrigin=Object.freeze({trusted,HOME_FLAGS,homeUrl,onHomeEntry,enterFromHome,consumeHomeEntry});
+  root.KickLabRaceOrigin=Object.freeze({trusted,HOME_FLAGS,NATIVE_FLAGS,homeUrl,onHomeEntry,enterFromHome,consumeHomeEntry});
 })(typeof globalThis!=='undefined'?globalThis:window);
