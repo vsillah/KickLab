@@ -141,6 +141,33 @@ function raceCoachCueAction(trigger){
 }
 $('#raceTelemetryCue').addEventListener('click',event=>raceCoachCueAction(event.currentTarget));
 let raceNavigationAt=0,raceNavigationGauge='',raceNavigationRouteKey='',raceNavigationRoute=null,raceNavigationLastStage='';
+function compactRaceGuidance(route,nav){
+  const styles={prepare:['BRAKE AHEAD','#ffca77','brake'],brake:['BRAKE','#ff8879','apex'],turn:['TURN','#ffca77','apex'],apex:['APEX','#f9ed9b','exit'],accelerate:['EXIT','#79e9bb','exit'],recover:['RECOVER','#ff989c','exit'],shift:['SHIFT','#9de9f8',null],finish:['FINISH','#f9ed9b',null]};
+  const [label,color,marker]=nav.turn==='none'&&['prepare','accelerate'].includes(nav.stage)?['AIM','#9de9f8',null]:styles[nav.stage]||['AIM','#9de9f8',null],start=nav.routeProgress??route.nearest(nav.car.x,nav.car.y).progress;
+  const marked=marker&&nav.markers[marker],targetProgress=marked?route.nearest(marked.x,marked.y).progress:start+Math.min(38,route.total*.16);
+  const end=Math.max(start+Math.min(8,route.total*.05),targetProgress);
+  return{label,color,target:route.at(end),start,end,marker:marked?marker:'route'};
+}
+function paintRaceCompactNavigation(route,nav,bounds,venue){
+  const canvas=$('#raceNavigationCanvas'),svg=$('#raceNavigationMap'),compact=matchMedia('(orientation:landscape) and (max-height:520px) and (max-width:1000px)').matches;
+  canvas.hidden=!compact;svg.toggleAttribute('hidden',compact);if(!compact)return;
+  const c=canvas.getContext('2d');if(!c)return;
+  c.setTransform(2,0,0,2,0,0);c.clearRect(0,0,160,58);
+  c.fillStyle=venue.id==='marine'?'#1d303b':venue.id==='forest'?'#172a26':'#312f27';c.fillRect(0,0,160,58);
+  const scale=Math.min(142/Math.max(1,bounds.maxX-bounds.minX),40/Math.max(1,bounds.maxY-bounds.minY));
+  const ox=80-(bounds.minX+bounds.maxX)*scale/2,oy=29+(bounds.minY+bounds.maxY)*scale/2;
+  const xy=p=>[ox+p.x*scale,oy-(p.z??p.y)*scale],pts=route.points.map(p=>({x:p.x,z:p.y,tx:p.tx,tz:p.ty}));
+  c.save();paintRaceRoadPlan(c,pts,xy,Race.HW,Math.max(scale,2.2),venue,true);c.restore();
+  const guidance=compactRaceGuidance(route,nav),span=Math.max(1,guidance.end-guidance.start),steps=Math.max(2,Math.ceil(span/5));
+  c.save();c.beginPath();for(let i=0;i<=steps;i++){const [x,y]=xy(route.at(guidance.start+span*i/steps));i?c.lineTo(x,y):c.moveTo(x,y);}c.strokeStyle='#071827';c.lineWidth=7;c.stroke();c.strokeStyle=guidance.color;c.lineWidth=3.5;c.stroke();
+  const [tx,ty]=xy(guidance.target);c.fillStyle='#071827';c.beginPath();c.arc(tx,ty,7,0,Math.PI*2);c.fill();c.strokeStyle=guidance.color;c.lineWidth=2.5;c.beginPath();c.arc(tx,ty,6,0,Math.PI*2);c.stroke();c.fillStyle=guidance.color;c.beginPath();c.arc(tx,ty,2.5,0,Math.PI*2);c.fill();
+  c.fillStyle='rgba(4,18,31,.92)';c.fillRect(2,2,Math.max(48,guidance.label.length*5.3+10),12);c.fillStyle=guidance.color;c.font='bold 8px monospace';c.fillText(guidance.label,7,11);c.restore();
+  const finish=route.at(route.total),[fx,fy]=xy({x:finish.x,z:finish.y});
+  c.save();c.translate(fx,fy);c.rotate(-Math.atan2(finish.ty,finish.tx));for(let row=0;row<2;row++)for(let col=0;col<4;col++){c.fillStyle=(row+col)%2?'#101820':'#f7fbf5';c.fillRect(-2+row*2,-5+col*2.5,2,2.5);}c.restore();
+  const [cx,cy]=xy({x:nav.car.x,z:nav.car.y});c.save();c.translate(cx,cy);c.rotate(-nav.heading);c.fillStyle=Race.CARS[Race.opt.car]?.col||'#5fe3a1';c.strokeStyle='#071827';c.lineWidth=1.5;c.beginPath();c.moveTo(6,0);c.lineTo(-4,-3.5);c.lineTo(-4,3.5);c.closePath();c.fill();c.stroke();c.restore();
+  canvas.dataset.renderer='canvas-road-plan';canvas.dataset.guidanceStage=nav.stage;canvas.dataset.guidanceTarget=guidance.marker;canvas.setAttribute('aria-label',`Canvas course map, ${Math.round(nav.progress*100)} percent complete. ${guidance.label.toLowerCase()} guidance toward ${guidance.marker==='route'?'the road ahead':`the ${guidance.marker} marker`}. ${nav.detail}`);
+}
+if(['localhost','127.0.0.1'].includes(location.hostname)&&new URLSearchParams(location.search).get('raceCompactGuidanceQA')==='1')globalThis.__KICKLAB_RACE_COMPACT_GUIDANCE_QA__=Object.freeze({paint:(route,nav,bounds)=>paintRaceCompactNavigation(route,nav,bounds,RACE_SYSTEMS.venue('highland')),refresh:()=>renderRaceTelemetry()});
 function renderRaceNavigation({gauge,value,unit,fraction,phase,cue}){
   const panel=$('#raceNavigation'),cockpit=$('#raceCockpit');panel.hidden=!(RACE_CORNER_TRACE.enabled&&Race.state==='run'&&!RP.on&&!RACE_3D.shouldBlockInput());cockpit.hidden=panel.hidden;if(panel.hidden){raceNavigationLastStage='';if(globalThis.__KICKLAB_RACE_NAVIGATION__)globalThis.__KICKLAB_RACE_NAVIGATION__.visible=false;return;}
   const now=performance.now();if(now-raceNavigationAt<90&&gauge===raceNavigationGauge)return;raceNavigationAt=now;raceNavigationGauge=gauge;
@@ -155,6 +182,7 @@ function renderRaceNavigation({gauge,value,unit,fraction,phase,cue}){
   const previousStage=raceNavigationLastStage,nav=KickLabRaceDriverNavigation.plan({route,state:car,parameters:P,mode,grip,heat:Race.telemetry.heat,brakeFactor,telemetry:Race.telemetry,input:Race.inp,attempt:Race.modeAttempt,previousStage});raceNavigationLastStage=nav.stage;
   if(nav.stage!==previousStage)racePhoneNotice(nav.detail.replace(/ kilometres per hour/g,' km/h').replace(/ metres/g,' m').replace(/\. (?=[A-Z])/g,'; '),nav.stage==='brake'||nav.stage==='recover'?'warn':'tip');
   const bounds=route.points.reduce((b,p)=>({minX:Math.min(b.minX,p.x),maxX:Math.max(b.maxX,p.x),minY:Math.min(b.minY,p.y),maxY:Math.max(b.maxY,p.y)}),{minX:Infinity,maxX:-Infinity,minY:Infinity,maxY:-Infinity});
+  paintRaceCompactNavigation(route,nav,bounds,venue);
   const scale=Math.min(145/Math.max(1,bounds.maxX-bounds.minX),68/Math.max(1,bounds.maxY-bounds.minY));
   const ox=80-(bounds.minX+bounds.maxX)*scale/2,oy=43+(bounds.minY+bounds.maxY)*scale/2;
   const xy=p=>[ox+p.x*scale,oy-p.y*scale];
