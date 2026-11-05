@@ -191,3 +191,18 @@ body:has(.profile-dialog:not([hidden])) { overflow: hidden; }
   }
   .kicklab-wordmark { max-width: 100%; }
 }
+
+/* Race preparation occupies the native viewport, including the system status area. */
+.race-preflight-shell {
+  padding-top: max(32px, calc(clamp(15px, 2vw, 32px) + env(safe-area-inset-top, 0px)));
+}
+@media (orientation: portrait) and (max-width: 520px) {
+  .race-preflight-shell {
+    padding-top: max(72px, calc(12px + env(safe-area-inset-top, 0px)));
+  }
+}
+@media (orientation: landscape) and (max-height: 520px) and (max-width: 1000px) {
+  .race-preflight-shell {
+    padding-top: max(32px, calc(8px + env(safe-area-inset-top, 0px)));
+  }
+}

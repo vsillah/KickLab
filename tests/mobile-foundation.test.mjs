@@ -39,6 +39,9 @@ test('applies native safe areas without changing the ordinary browser artifact',
   assert.match(nativeSafeArea,/\.profile-dialog:not\(\.game-profile-overlay\) \.profile-panel > \.profile-head\s*\{[^}]*position:\s*sticky;/s);
   assert.match(nativeSafeArea,/top:\s*calc\(max\(59px, env\(safe-area-inset-top, 0px\)\) \+ var\(--kicklab-native-viewport-offset-top, 0px\)\)/);
   assert.match(nativeSafeArea,/@media \(max-height: 600px\)\s*\{[^}]*\.profile-dialog\s*\{[^}]*top:\s*max\(60px, env\(safe-area-inset-top, 0px\)\)/s);
+  assert.match(nativeSafeArea,/\.race-preflight-shell\s*\{\s*padding-top:\s*max\(32px, calc\(clamp\(15px, 2vw, 32px\) \+ env\(safe-area-inset-top, 0px\)\)\);/);
+  assert.match(nativeSafeArea,/@media \(orientation: portrait\) and \(max-width: 520px\)[\s\S]*?\.race-preflight-shell\s*\{\s*padding-top:\s*max\(72px,/);
+  assert.match(nativeSafeArea,/@media \(orientation: landscape\) and \(max-height: 520px\) and \(max-width: 1000px\)[\s\S]*?\.race-preflight-shell\s*\{\s*padding-top:\s*max\(32px,/);
   assert.match(nativeSafeArea,/@media \(orientation: landscape\) and \(max-height: 600px\) and \(max-width: 980px\)\s*\{\s*\/\*[^*]*\*\/\s*\.home-hero \.brand\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\);/s);
   assert.match(nativeSafeArea,/@media \(orientation: landscape\) and \(max-height: 600px\) and \(max-width: 980px\)[\s\S]*?\.kicklab-wordmark\s*\{\s*max-width:\s*100%;/);
 });
