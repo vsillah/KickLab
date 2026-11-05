@@ -11,7 +11,7 @@ mkdirSync(out,{recursive:true});
 const browser=await chromium.launch({headless:true,executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
 const report={cases:[],errors:[],external:[]};
 try{
-  for(const [width,height] of [[812,375],[844,390],[932,430],[390,844],[768,1024],[1440,900]]){
+  for(const [width,height] of [[812,375],[844,390],[874,402],[932,430],[390,844],[768,1024],[1440,900]]){
     if(process.env.KICKLAB_QA_WIDTH&&Number(process.env.KICKLAB_QA_WIDTH)!==width)continue;
     const label=`${width}x${height}`;console.log(`Preflight ${label}`);
     const context=await browser.newContext({viewport:{width,height},reducedMotion:'reduce',...(width===812?{recordVideo:{dir:out,size:{width,height}}}:{})});
@@ -38,7 +38,16 @@ try{
       if(width>height&&height<=430){
         await page.locator('#racePreflightNext').click();
         await page.locator('#racePreflight').waitFor({state:'hidden',timeout:20000});
+        await page.waitForFunction(()=>document.documentElement.dataset.racePhase==='grid');
+        const grid=await page.evaluate(()=>{const bounds=selector=>{const r=document.querySelector(selector).getBoundingClientRect();return{x:r.x,y:r.y,right:r.right,bottom:r.bottom,width:r.width,height:r.height};};return{cockpit:bounds('#game-cockpit'),stage:bounds('#game-cockpit .stage'),pad:bounds('#padL'),gas:bounds('#raceDialGas'),phase:document.documentElement.dataset.racePhase};});
+        if(grid.cockpit.x<0||grid.cockpit.y<0||grid.cockpit.right>width+1||grid.cockpit.bottom>height+1||grid.stage.bottom>height+1||grid.pad.bottom>height+1||grid.gas.bottom>height+1)throw Error(`Race grid clipped before lights: ${JSON.stringify(grid)}`);
+        await page.screenshot({path:join(out,`${label}-grid-viewport.png`)});
+        state.push({name:'grid-viewport',...grid});
         const orbit=page.locator('.race-orbit-panel button');if(await orbit.isVisible())await orbit.click();
+        await page.waitForFunction(()=>document.documentElement.dataset.racePhase==='count',null,{timeout:20000});
+        const lights=await page.evaluate(()=>{const r=document.querySelector('#game-cockpit .stage').getBoundingClientRect();return{phase:document.documentElement.dataset.racePhase,bounds:[r.x,r.y,r.right,r.bottom]};});
+        if(lights.bounds[0]<0||lights.bounds[1]<0||lights.bounds[2]>width+1||lights.bounds[3]>height+1)throw Error(`Race lights clipped: ${JSON.stringify(lights)}`);
+        state.push({name:'count-viewport',...lights});
         await page.waitForFunction(()=>document.documentElement.dataset.racePhase==='run',null,{timeout:25000});
         for(const [mode,button,selectors,gasCandidates] of [['classic',null,['#padL','#padR [data-id="brake"]','#raceActionDial'],['#raceDialGas','#padR [data-id="gas"]']],['analog','#analogControlsButton',['.analog-zone','#raceAnalogActions [data-race-assist="brake"]','#raceActionDial'],['#raceDialGas','#gestureAction']],['simulator','#simulatorControlsButton',['.sim-status','.sim-live-top','.sim-live-foot','.sim-controls'],['#raceDialGas','#simGas']]]){
           if(button)await page.locator(button).click();
