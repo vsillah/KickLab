@@ -141,6 +141,21 @@ function raceCoachCueAction(trigger){
 }
 $('#raceTelemetryCue').addEventListener('click',event=>raceCoachCueAction(event.currentTarget));
 let raceNavigationAt=0,raceNavigationGauge='',raceNavigationRouteKey='',raceNavigationRoute=null,raceNavigationLastStage='';
+function paintRaceCompactNavigation(route,nav,bounds,venue){
+  const canvas=$('#raceNavigationCanvas'),svg=$('#raceNavigationMap'),compact=matchMedia('(orientation:landscape) and (max-height:520px) and (max-width:1000px)').matches;
+  canvas.hidden=!compact;svg.toggleAttribute('hidden',compact);if(!compact)return;
+  const c=canvas.getContext('2d');if(!c)return;
+  c.setTransform(2,0,0,2,0,0);c.clearRect(0,0,160,58);
+  c.fillStyle=venue.id==='marine'?'#1d303b':venue.id==='forest'?'#172a26':'#312f27';c.fillRect(0,0,160,58);
+  const scale=Math.min(142/Math.max(1,bounds.maxX-bounds.minX),40/Math.max(1,bounds.maxY-bounds.minY));
+  const ox=80-(bounds.minX+bounds.maxX)*scale/2,oy=29+(bounds.minY+bounds.maxY)*scale/2;
+  const xy=p=>[ox+p.x*scale,oy-p.z*scale],pts=route.points.map(p=>({x:p.x,z:p.y,tx:p.tx,tz:p.ty}));
+  c.save();paintRaceRoadPlan(c,pts,xy,Race.HW,Math.max(scale,2.2),venue,true);c.restore();
+  const finish=route.at(route.total),[fx,fy]=xy({x:finish.x,z:finish.y});
+  c.save();c.translate(fx,fy);c.rotate(-Math.atan2(finish.ty,finish.tx));for(let row=0;row<2;row++)for(let col=0;col<4;col++){c.fillStyle=(row+col)%2?'#101820':'#f7fbf5';c.fillRect(-2+row*2,-5+col*2.5,2,2.5);}c.restore();
+  const [cx,cy]=xy({x:nav.car.x,z:nav.car.y});c.save();c.translate(cx,cy);c.rotate(-nav.heading);c.fillStyle=Race.CARS[Race.opt.car]?.col||'#5fe3a1';c.strokeStyle='#071827';c.lineWidth=1.5;c.beginPath();c.moveTo(6,0);c.lineTo(-4,-3.5);c.lineTo(-4,3.5);c.closePath();c.fill();c.stroke();c.restore();
+  canvas.dataset.renderer='canvas-road-plan';canvas.setAttribute('aria-label',`Canvas course map, ${Math.round(nav.progress*100)} percent complete. ${nav.detail}`);
+}
 function renderRaceNavigation({gauge,value,unit,fraction,phase,cue}){
   const panel=$('#raceNavigation'),cockpit=$('#raceCockpit');panel.hidden=!(RACE_CORNER_TRACE.enabled&&Race.state==='run'&&!RP.on&&!RACE_3D.shouldBlockInput());cockpit.hidden=panel.hidden;if(panel.hidden){raceNavigationLastStage='';if(globalThis.__KICKLAB_RACE_NAVIGATION__)globalThis.__KICKLAB_RACE_NAVIGATION__.visible=false;return;}
   const now=performance.now();if(now-raceNavigationAt<90&&gauge===raceNavigationGauge)return;raceNavigationAt=now;raceNavigationGauge=gauge;
@@ -155,6 +170,7 @@ function renderRaceNavigation({gauge,value,unit,fraction,phase,cue}){
   const previousStage=raceNavigationLastStage,nav=KickLabRaceDriverNavigation.plan({route,state:car,parameters:P,mode,grip,heat:Race.telemetry.heat,brakeFactor,telemetry:Race.telemetry,input:Race.inp,attempt:Race.modeAttempt,previousStage});raceNavigationLastStage=nav.stage;
   if(nav.stage!==previousStage)racePhoneNotice(nav.detail.replace(/ kilometres per hour/g,' km/h').replace(/ metres/g,' m').replace(/\. (?=[A-Z])/g,'; '),nav.stage==='brake'||nav.stage==='recover'?'warn':'tip');
   const bounds=route.points.reduce((b,p)=>({minX:Math.min(b.minX,p.x),maxX:Math.max(b.maxX,p.x),minY:Math.min(b.minY,p.y),maxY:Math.max(b.maxY,p.y)}),{minX:Infinity,maxX:-Infinity,minY:Infinity,maxY:-Infinity});
+  paintRaceCompactNavigation(route,nav,bounds,venue);
   const scale=Math.min(145/Math.max(1,bounds.maxX-bounds.minX),68/Math.max(1,bounds.maxY-bounds.minY));
   const ox=80-(bounds.minX+bounds.maxX)*scale/2,oy=43+(bounds.minY+bounds.maxY)*scale/2;
   const xy=p=>[ox+p.x*scale,oy-p.y*scale];

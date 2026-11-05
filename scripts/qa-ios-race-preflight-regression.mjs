@@ -40,20 +40,47 @@ try{
         await page.locator('#racePreflight').waitFor({state:'hidden',timeout:20000});
         const orbit=page.locator('.race-orbit-panel button');if(await orbit.isVisible())await orbit.click();
         await page.waitForFunction(()=>document.documentElement.dataset.racePhase==='run',null,{timeout:25000});
-        for(const [mode,button,selectors,gasCandidates] of [['classic',null,['#padL','#padR [data-id="brake"]','#raceActionDial'],['#raceDialGas','#padR [data-id="gas"]']],['analog','#analogControlsButton',['.analog-zone','#raceAnalogActions [data-race-assist="brake"]','#raceActionDial'],['#raceDialGas','#gestureAction']],['simulator','#simulatorControlsButton',['#raceSimulator','#simBrake'],['#raceDialGas','#simGas']]]){
+        for(const [mode,button,selectors,gasCandidates] of [['classic',null,['#padL','#padR [data-id="brake"]','#raceActionDial'],['#raceDialGas','#padR [data-id="gas"]']],['analog','#analogControlsButton',['.analog-zone','#raceAnalogActions [data-race-assist="brake"]','#raceActionDial'],['#raceDialGas','#gestureAction']],['simulator','#simulatorControlsButton',['.sim-status','.sim-live-top','.sim-live-foot','.sim-controls'],['#raceDialGas','#simGas']]]){
           if(button)await page.locator(button).click();
           await page.waitForTimeout(150);
           const controls=await page.evaluate(selectors=>selectors.map(selector=>{const e=document.querySelector(selector),r=e?.getBoundingClientRect();return{selector,visible:!!e?.getClientRects().length,x:r?.x,y:r?.y,right:r?.right,bottom:r?.bottom,width:r?.width,height:r?.height};}),[...selectors,...gasCandidates,'.stage>.floating-control-head']);
           const fits=c=>c.visible&&c.x>=0&&c.y>=0&&c.right<=width&&c.bottom<=height;
           if(controls.slice(0,selectors.length).some(c=>!fits(c))||!controls.slice(selectors.length).some(fits))throw Error(`${mode} control clipped: ${JSON.stringify(controls)}`);
-          const surfaces=mode==='simulator'?[controls[0],controls.at(-1)]:[...controls.slice(0,selectors.length),controls.at(-1)].filter(c=>c.visible);
+          const surfaces=[...controls.slice(0,selectors.length),controls.at(-1)].filter(c=>c.visible);
           const overlap=(a,b)=>Math.min(a.right,b.right)-Math.max(a.x,b.x)>-6&&Math.min(a.bottom,b.bottom)-Math.max(a.y,b.y)>-6;
           for(let i=0;i<surfaces.length;i++)for(let j=i+1;j<surfaces.length;j++)if(overlap(surfaces[i],surfaces[j]))throw Error(`${mode} control surfaces collide: ${JSON.stringify([surfaces[i],surfaces[j]])}`);
           const occupancy=surfaces.reduce((sum,c)=>sum+c.width*c.height,0)/(width*height);
-          if(occupancy>.35)throw Error(`${mode} control area ${occupancy.toFixed(3)} exceeds 35% viewport budget`);
+          if(occupancy>.22)throw Error(`${mode} control area ${occupancy.toFixed(3)} exceeds 22% viewport budget`);
+          const presentation=await page.evaluate(()=>{const canvas=document.querySelector('#raceNavigationCanvas'),svg=document.querySelector('#raceNavigationMap'),dial=document.querySelector('#raceActionDial');const pixels=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data,colors=new Set();for(let i=0;i<pixels.length;i+=32)colors.add(`${pixels[i]},${pixels[i+1]},${pixels[i+2]}`);return{canvas:!!canvas.getClientRects().length,renderer:canvas.dataset.renderer,svg:!!svg.getClientRects().length,colors:colors.size,wheel:getComputedStyle(dial.querySelector('.race-dial-housing')).display,gauge:getComputedStyle(dial.querySelector('.race-dial-gauge')).display,feed:getComputedStyle(document.querySelector('#feed')).display};});
+          if(!presentation.canvas||presentation.renderer!=='canvas-road-plan'||presentation.svg||presentation.colors<6||presentation.wheel!=='none'||presentation.gauge!=='none'||presentation.feed!=='none')throw Error(`${mode} map/wheel presentation: ${JSON.stringify(presentation)}`);
           const dialHits=await page.evaluate(()=>['#raceDialGas','#raceDialAction','#raceDialPrevious','#raceDialNext'].map(selector=>{const e=document.querySelector(selector);if(!e||!e.getClientRects().length)return{selector,visible:false};const r=e.getBoundingClientRect(),found=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return{selector,visible:true,hit:found===e||e.contains(found),bottom:r.bottom}}));
           if(dialHits.some(c=>c.visible&&(!c.hit||c.bottom>height)))throw Error(`${mode} dial button clipped or covered: ${JSON.stringify(dialHits)}`);
-          await page.screenshot({path:join(out,`${label}-${mode}-live.png`)});if(width===812)await page.waitForTimeout(1600);state.push({name:mode,controls,occupancy});
+          const gasBox=await page.locator('#raceDialGas').boundingBox();await page.mouse.move(gasBox.x+gasBox.width/2,gasBox.y+gasBox.height/2);await page.mouse.down();
+          await page.evaluate(mode=>{const t=document.createElement('div');t.className='toast race-phone-notice';t.setAttribute('role','status');t.innerHTML='<div class="ic" aria-hidden="true">★</div><div class="toast-copy"><b>QA notification</b><span></span></div><button type="button" class="toast-close" aria-label="Dismiss QA notification">×</button>';t.querySelector('span').textContent=`${mode} control held; stay in lane.`;document.querySelector('#toasts').replaceChildren(t);const coach=document.querySelector('#raceCoachNotice');coach.hidden=false;coach.querySelector('.race-coach-notice-text').textContent=`QA ${mode} braking notice.`;},mode);
+          await page.waitForTimeout(350);
+          const notices=await page.evaluate(selectors=>selectors.map(selector=>{const e=document.querySelector(selector),r=e?.getBoundingClientRect();return{selector,visible:!!e?.getClientRects().length,x:r?.x,y:r?.y,right:r?.right,bottom:r?.bottom,width:r?.width,height:r?.height};}),[...selectors,'.stage>.floating-control-head','#raceNavigation','#racePhoneProgress','#raceCoachNotice','#toasts .toast','#racePhoneToolsToggle']);
+          await page.mouse.up();
+          const visible=notices.filter(c=>c.visible&&c.width&&c.height);
+          if(visible.some(c=>!fits(c)))throw Error(`${mode} notification or control clipped: ${JSON.stringify(visible)}`);
+          for(let i=0;i<visible.length;i++)for(let j=i+1;j<visible.length;j++)if(overlap(visible[i],visible[j]))throw Error(`${mode} notification/control collision: ${JSON.stringify([visible[i],visible[j]])}`);
+          await page.screenshot({path:join(out,`${label}-${mode}-live.png`)});if(width===812)await page.waitForTimeout(1600);state.push({name:mode,controls,occupancy,presentation,notices});
+        }
+        if(width===812){
+          await page.locator('#classicControlsButton').click();
+          await page.locator('#cv').click({position:{x:width/2,y:height/2}});
+          await page.locator('#gamePacingResume').waitFor({state:'visible',timeout:3000});
+          const paused=await page.evaluate(()=>({coach:!!document.querySelector('#raceCoachNotice').getClientRects().length,toast:!!document.querySelector('#toasts .toast')?.getClientRects().length,map:!!document.querySelector('#raceNavigation').getClientRects().length}));
+          if(paused.coach||paused.toast||paused.map)throw Error(`Pause left live notices/map over overlay: ${JSON.stringify(paused)}`);
+          await page.screenshot({path:join(out,`${label}-paused-with-notices.png`)});
+          await page.locator('#gamePacingResume').click();
+          await page.waitForFunction(()=>document.documentElement.dataset.racePhase==='run'&&!document.querySelector('#gamePacingOverlay').getClientRects().length,null,{timeout:3000});
+          await page.setViewportSize({width:375,height:812});await page.waitForTimeout(200);
+          const portrait=await page.evaluate(()=>({canvas:!!document.querySelector('#raceNavigationCanvas').getClientRects().length,svg:!!document.querySelector('#raceNavigationMap').getClientRects().length,phase:document.documentElement.dataset.racePhase}));
+          if(portrait.canvas||!portrait.svg||portrait.phase!=='run')throw Error(`Rotation map presentation: ${JSON.stringify(portrait)}`);
+          await page.setViewportSize({width,height});await page.waitForTimeout(200);
+          const returned=await page.evaluate(()=>({canvas:!!document.querySelector('#raceNavigationCanvas').getClientRects().length,svg:!!document.querySelector('#raceNavigationMap').getClientRects().length,phase:document.documentElement.dataset.racePhase}));
+          if(!returned.canvas||returned.svg||returned.phase!=='run')throw Error(`Landscape return map presentation: ${JSON.stringify(returned)}`);
+          state.push({name:'pause-rotation',paused,portrait,returned});
         }
       }
       report.cases.push({label,state});

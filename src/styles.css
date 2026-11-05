@@ -2609,6 +2609,53 @@ html[data-kicklab-view="game"] .compact-lab-name{display:block}
   html[data-kicklab-mode="race"][data-race-phase="run"] #raceSimulator[data-phase="live"] .sim-live-foot{grid-column:1;grid-row:2;min-height:44px;align-self:end}
 }
 
+/* Phone landscape uses edge controls and a short map; the circular wheel and dial artwork stay out of live play. */
+@media (orientation:landscape) and (max-height:520px) and (max-width:1000px){
+  html[data-kicklab-mode="race"] #raceNavigation:not([hidden]){height:76px!important;max-height:76px}
+  html[data-kicklab-mode="race"] #raceNavigationMap[hidden]{display:none!important}
+  html[data-kicklab-mode="race"] #raceNavigationCanvas:not([hidden]){display:block;box-sizing:border-box;width:100%;height:58px;padding:0 3px}
+  html[data-kicklab-mode="race"] .stage .toasts{left:auto!important;right:max(56px,calc(env(safe-area-inset-right) + 56px))!important;top:max(62px,calc(env(safe-area-inset-top) + 62px))!important;width:min(220px,calc(100vw - 324px))!important;max-height:96px;overflow-y:auto;overflow-x:hidden}
+  html[data-kicklab-mode="race"] .stage .toast{min-height:44px;height:auto;max-height:48px;overflow:hidden}
+  html[data-kicklab-mode="race"] .race-coach-notice:not([hidden]){max-width:220px;overflow:hidden}
+  html[data-kicklab-mode="race"] .stage>.floating-control-head{right:max(8px,env(safe-area-inset-right))}
+  html[data-kicklab-mode="race"] .stage>.feed.race{display:none!important}
+  html[data-kicklab-mode="race"] .stage:has(>.game-pacing-overlay:not([hidden])) :is(#raceNavigation,#raceCoachNotice,.toasts,.control-deck,.floating-control-head,.race-phone-progress){display:none!important}
+  html[data-kicklab-mode="race"][data-race-phase="run"] .game-frame .stage>.control-deck .control-center-slot{display:none!important}
+  html[data-kicklab-mode="race"][data-race-phase="run"] .game-frame .stage>.control-deck:not(.controller-collapsed,.simulator-active){bottom:max(8px,env(safe-area-inset-bottom));height:132px;max-height:132px}
+  html[data-kicklab-mode="race"][data-race-phase="run"] .game-frame .stage>.control-deck:not(.controller-collapsed,.simulator-active) .pad{height:132px!important}
+  html[data-kicklab-mode="race"][data-race-phase="run"] .game-frame .stage>.control-deck:not(.controller-collapsed,.simulator-active) .control-left-slot{height:132px!important}
+  html[data-kicklab-mode="race"][data-race-phase="run"] .game-frame .stage>.control-deck:not(.controller-collapsed,.simulator-active) #padL{position:fixed;left:max(24px,calc(env(safe-area-inset-left) + 16px));bottom:max(8px,env(safe-area-inset-bottom));width:132px;height:132px}
+  html[data-kicklab-mode="race"][data-race-phase="run"] .game-frame .stage>.control-deck:not(.controller-collapsed,.simulator-active) #padR{position:fixed;left:auto;right:max(12px,env(safe-area-inset-right));bottom:max(70px,calc(env(safe-area-inset-bottom) + 62px));height:96px!important;width:148px!important}
+  html[data-kicklab-mode="race"][data-race-phase="run"] .game-frame .stage>.control-deck:not(.controller-collapsed,.simulator-active) #padR .arcade{grid-template-columns:44px 96px!important;column-gap:8px!important}
+  html[data-kicklab-mode="race"][data-race-phase="run"] .game-frame .stage>.control-deck:not(.controller-collapsed,.simulator-active) #padR .arcade>[data-id="brake"]{min-height:54px!important;height:54px}
+  html[data-kicklab-mode="race"][data-race-phase="run"] .game-frame .stage>.control-deck.prototype-active:not(.controller-collapsed) #touchController{position:fixed;left:max(24px,calc(env(safe-area-inset-left) + 16px));bottom:max(8px,env(safe-area-inset-bottom));width:278px;height:132px!important;grid-template-columns:114px 44px 96px!important;column-gap:8px!important}
+  html[data-kicklab-mode="race"][data-race-phase="run"] .game-frame .stage>.control-deck.prototype-active:not(.controller-collapsed) .analog-zone{grid-template-columns:8px 94px 8px;grid-template-rows:10px 94px 14px}
+  html[data-kicklab-mode="race"][data-race-phase="run"] .game-frame .stage>.control-deck.prototype-active:not(.controller-collapsed) .analog-stick{width:94px;height:94px}
+  html[data-kicklab-mode="race"][data-race-phase="run"] .game-frame .stage>.control-deck.prototype-active:not(.controller-collapsed) #raceAnalogActions{width:44px;margin-bottom:20px}
+  html[data-kicklab-mode="race"][data-race-phase="run"] .game-frame .stage>.control-deck.prototype-active:not(.controller-collapsed) #raceAnalogActions [data-race-assist="brake"]{width:44px;min-height:54px}
+  html[data-kicklab-mode="race"][data-race-phase="run"] #raceActionDial:not([hidden]){--dial-size:96px;display:grid;grid-template-columns:44px 44px;grid-template-rows:44px 44px;gap:8px;width:96px;height:96px;min-width:96px;min-height:96px;background:transparent;border:0;box-shadow:none;filter:none}
+  html[data-kicklab-mode="race"][data-race-phase="run"] #raceActionDial :is(.race-dial-housing,.race-dial-gauge,.race-dial-metric,.race-control-ghost){display:none!important}
+  html[data-kicklab-mode="race"][data-race-phase="run"] #raceActionDial button{position:static!important;box-sizing:border-box;width:44px!important;height:44px!important;min-width:44px;min-height:44px;margin:0;padding:1px;border:1px solid #81c8d4;border-radius:9px;box-shadow:0 3px 7px #010811aa;transform:none!important}
+  html[data-kicklab-mode="race"][data-race-phase="run"] #raceDialGas{grid-column:1;grid-row:1}
+  html[data-kicklab-mode="race"][data-race-phase="run"] #raceDialAction{grid-column:2;grid-row:1}
+  html[data-kicklab-mode="race"][data-race-phase="run"] #raceDialPrevious{grid-column:1;grid-row:2}
+  html[data-kicklab-mode="race"][data-race-phase="run"] #raceDialNext{grid-column:2;grid-row:2}
+  html[data-kicklab-mode="race"][data-race-phase="run"] #raceDialPrevious::after{content:"Prev";font:800 8px var(--f-body)}
+  html[data-kicklab-mode="race"][data-race-phase="run"] #raceDialNext::after{content:"Next";font:800 8px var(--f-body)}
+  html[data-kicklab-mode="race"][data-race-phase="run"] .game-frame .stage>.control-deck.simulator-active:not(.controller-collapsed){width:min(500px,calc(100vw - 218px));max-height:154px}
+  html[data-kicklab-mode="race"][data-race-phase="run"] #raceSimulator[data-phase="live"] .sim-live{grid-template-columns:minmax(150px,1fr) minmax(260px,1.5fr);grid-template-rows:32px 72px}
+  html[data-kicklab-mode="race"][data-race-phase="run"] #raceSimulator[data-phase="live"] .sim-controls{min-height:104px!important;grid-template-columns:44px minmax(0,1fr) 96px 44px!important;gap:4px}
+  html[data-kicklab-mode="race"][data-race-phase="run"] #raceSimulator[data-phase="live"] .sim-controls :is(.sim-pedal,.sim-paddle){height:54px;min-height:54px}
+  html[data-kicklab-mode="race"][data-race-phase="run"] .game-frame .stage>.control-deck.simulator-active:not(.controller-collapsed){left:0;bottom:0;width:100%;height:0;max-height:0;overflow:visible;pointer-events:none!important}
+  html[data-kicklab-mode="race"][data-race-phase="run"] .game-frame .stage>.control-deck.simulator-active:not(.controller-collapsed) .pad{height:0!important;pointer-events:none!important}
+  html[data-kicklab-mode="race"][data-race-phase="run"] #raceSimulator[data-phase="live"]{position:fixed;inset:auto auto 0 0;width:0!important;height:0;padding:0!important;border:0;box-shadow:none;background:transparent!important;overflow:visible;pointer-events:none}
+  html[data-kicklab-mode="race"][data-race-phase="run"] #raceSimulator[data-phase="live"] .sim-live{display:contents}
+  html[data-kicklab-mode="race"][data-race-phase="run"] #raceSimulator[data-phase="live"] .sim-status{position:fixed;left:max(8px,env(safe-area-inset-left));top:max(194px,calc(env(safe-area-inset-top) + 139px));width:204px;min-height:18px;padding:1px 5px;border-radius:7px;background:rgba(5,19,35,.86);pointer-events:auto}
+  html[data-kicklab-mode="race"][data-race-phase="run"] #raceSimulator[data-phase="live"] .sim-live-top{position:fixed;left:max(8px,env(safe-area-inset-left));top:max(220px,calc(env(safe-area-inset-top) + 165px));width:204px;min-height:32px;padding:2px 5px;border-radius:7px;background:rgba(5,19,35,.86);pointer-events:auto}
+  html[data-kicklab-mode="race"][data-race-phase="run"] #raceSimulator[data-phase="live"] .sim-live-foot{position:fixed;left:max(8px,env(safe-area-inset-left));bottom:max(8px,env(safe-area-inset-bottom));width:222px;height:46px;min-height:46px;padding:1px 4px;border-radius:8px;background:rgba(5,19,35,.9);pointer-events:auto}
+  html[data-kicklab-mode="race"][data-race-phase="run"] #raceSimulator[data-phase="live"] .sim-controls{position:fixed;left:auto;right:max(8px,env(safe-area-inset-right));bottom:max(74px,calc(env(safe-area-inset-bottom) + 66px));width:286px;height:96px;min-height:96px!important;padding:0!important;pointer-events:auto}
+}
+
 /* Home cards carry their action through the full button and accessible name. */
 .mode-home-copy{display:block;padding:2px 4px}
 .lab-card-copy{grid-template-rows:auto auto;align-content:center;padding:10px 13px 12px}
