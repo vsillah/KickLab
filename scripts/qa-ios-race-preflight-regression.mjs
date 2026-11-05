@@ -14,14 +14,14 @@ try{
   for(const [width,height] of [[812,375],[844,390],[932,430],[390,844],[768,1024],[1440,900]]){
     if(process.env.KICKLAB_QA_WIDTH&&Number(process.env.KICKLAB_QA_WIDTH)!==width)continue;
     const label=`${width}x${height}`;console.log(`Preflight ${label}`);
-    const context=await browser.newContext({viewport:{width,height},reducedMotion:'reduce'});
+    const context=await browser.newContext({viewport:{width,height},reducedMotion:'reduce',...(width===812?{recordVideo:{dir:out,size:{width,height}}}:{})});
     await context.addInitScript(()=>{localStorage.setItem('impactlab.v1',JSON.stringify({gfx:'3d'}));localStorage.setItem('impactlab.nick','QA Player');});
     const page=await context.newPage();
     page.setDefaultTimeout(10000);
     page.on('pageerror',error=>report.errors.push(`${label}: ${error.message}`));
     await page.route('**/*',route=>{const url=route.request().url();if(url.startsWith(new URL(base).origin)||url.startsWith('data:')||url.startsWith('blob:'))return route.continue();report.external.push(`${label}: ${url}`);route.abort();});
     try{
-      const url=new URL(base);for(const key of ['raceTelemetry','raceCornerTrace','raceProgression','raceExpansion','raceCompetition','raceChampionship','raceMultiplayer','raceSimulator','racePreflight','raceInstruments'])url.searchParams.set(key,'prototype');url.searchParams.set('raceSystems','proxy');url.searchParams.set('rev','ios-race-landscape');
+      const url=new URL(base);for(const key of ['raceTelemetry','raceCornerTrace','raceProgression','raceExpansion','raceCompetition','raceChampionship','raceMultiplayer','raceSimulator','racePreflight','raceInstruments'])url.searchParams.set(key,'prototype');url.searchParams.set('raceSystems','proxy');url.searchParams.set('rev',process.env.KICKLAB_QA_REV||'ios-race-landscape');
       await page.goto(url.toString(),{waitUntil:'domcontentloaded'});
       if(await page.locator('#profileFormSave').isVisible())await page.locator('#profileFormSave').click();
       if(await page.locator('#profileClose').isVisible())await page.locator('#profileClose').click();
@@ -35,23 +35,29 @@ try{
         await page.screenshot({path:join(out,`${label}-${name}.png`)});state.push({name,...view});
       }
       if(state.at(-1).draft.vehicle!=='kestrel'||state.at(-1).draft.garage.brakes!=='sport')throw Error(`Selection did not reach grid: ${JSON.stringify(state.at(-1))}`);
-      if(width===812){
+      if(width>height&&height<=430){
         await page.locator('#racePreflightNext').click();
         await page.locator('#racePreflight').waitFor({state:'hidden',timeout:20000});
         const orbit=page.locator('.race-orbit-panel button');if(await orbit.isVisible())await orbit.click();
         await page.waitForFunction(()=>document.documentElement.dataset.racePhase==='run',null,{timeout:25000});
-        for(const [mode,button,selectors,gasCandidates] of [['analog','#analogControlsButton',['.analog-zone','#raceAnalogActions [data-race-assist="brake"]'],['#raceDialGas','#gestureAction']],['simulator','#simulatorControlsButton',['#simBrake'],['#raceDialGas','#simGas']]]){
-          await page.locator(button).click();
+        for(const [mode,button,selectors,gasCandidates] of [['classic',null,['#padL','#padR [data-id="brake"]','#raceActionDial'],['#raceDialGas','#padR [data-id="gas"]']],['analog','#analogControlsButton',['.analog-zone','#raceAnalogActions [data-race-assist="brake"]','#raceActionDial'],['#raceDialGas','#gestureAction']],['simulator','#simulatorControlsButton',['#raceSimulator','#simBrake'],['#raceDialGas','#simGas']]]){
+          if(button)await page.locator(button).click();
           await page.waitForTimeout(150);
-          const controls=await page.evaluate(selectors=>selectors.map(selector=>{const e=document.querySelector(selector),r=e?.getBoundingClientRect();return{selector,visible:!!e?.getClientRects().length,x:r?.x,y:r?.y,right:r?.right,bottom:r?.bottom};}),[...selectors,...gasCandidates]);
+          const controls=await page.evaluate(selectors=>selectors.map(selector=>{const e=document.querySelector(selector),r=e?.getBoundingClientRect();return{selector,visible:!!e?.getClientRects().length,x:r?.x,y:r?.y,right:r?.right,bottom:r?.bottom,width:r?.width,height:r?.height};}),[...selectors,...gasCandidates,'.stage>.floating-control-head']);
           const fits=c=>c.visible&&c.x>=0&&c.y>=0&&c.right<=width&&c.bottom<=height;
-          if(mode==='simulator')console.log('Simulator geometry',JSON.stringify(await page.evaluate(()=>Object.fromEntries(['.game-frame .stage','.control-deck','#raceSimulator','.sim-live-top','.sim-controls','.sim-live-foot','#simBrake','#simShiftDown','#simShiftUp','#simLiveEnable'].map(s=>{const e=document.querySelector(s),r=e?.getBoundingClientRect();return[s,r&&{top:r.top,bottom:r.bottom,height:r.height}]})))));
           if(controls.slice(0,selectors.length).some(c=>!fits(c))||!controls.slice(selectors.length).some(fits))throw Error(`${mode} control clipped: ${JSON.stringify(controls)}`);
-          await page.screenshot({path:join(out,`${label}-${mode}-live.png`)});state.push({name:mode,controls});
+          const surfaces=mode==='simulator'?[controls[0],controls.at(-1)]:[...controls.slice(0,selectors.length),controls.at(-1)].filter(c=>c.visible);
+          const overlap=(a,b)=>Math.min(a.right,b.right)-Math.max(a.x,b.x)>-6&&Math.min(a.bottom,b.bottom)-Math.max(a.y,b.y)>-6;
+          for(let i=0;i<surfaces.length;i++)for(let j=i+1;j<surfaces.length;j++)if(overlap(surfaces[i],surfaces[j]))throw Error(`${mode} control surfaces collide: ${JSON.stringify([surfaces[i],surfaces[j]])}`);
+          const occupancy=surfaces.reduce((sum,c)=>sum+c.width*c.height,0)/(width*height);
+          if(occupancy>.35)throw Error(`${mode} control area ${occupancy.toFixed(3)} exceeds 35% viewport budget`);
+          const dialHits=await page.evaluate(()=>['#raceDialGas','#raceDialAction','#raceDialPrevious','#raceDialNext'].map(selector=>{const e=document.querySelector(selector);if(!e||!e.getClientRects().length)return{selector,visible:false};const r=e.getBoundingClientRect(),found=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return{selector,visible:true,hit:found===e||e.contains(found),bottom:r.bottom}}));
+          if(dialHits.some(c=>c.visible&&(!c.hit||c.bottom>height)))throw Error(`${mode} dial button clipped or covered: ${JSON.stringify(dialHits)}`);
+          await page.screenshot({path:join(out,`${label}-${mode}-live.png`)});if(width===812)await page.waitForTimeout(1600);state.push({name:mode,controls,occupancy});
         }
       }
       report.cases.push({label,state});
-    }catch(error){report.errors.push(`${label}: ${error.message}`);}finally{await context.close();}
+    }catch(error){report.errors.push(`${label}: ${error.message}`);}finally{await context.close();if(width===812&&page.video())await page.video().saveAs(join(out,'812x375-three-modes.webm'));}
   }
 }finally{await browser.close();writeFileSync(join(out,'report.json'),JSON.stringify(report,null,2)+'\n');}
 console.log(JSON.stringify({cases:report.cases.map(c=>c.label),errors:report.errors,external:report.external},null,2));

@@ -32,6 +32,7 @@ async function enter(page){
 }
 try{
   for(const [width,height] of sizes){
+    if(process.env.KICKLAB_QA_WIDTH&&Number(process.env.KICKLAB_QA_WIDTH)!==width)continue;
     const label=`${width}x${height}`;
     const context=await browser.newContext({viewport:{width,height},deviceScaleFactor:1,reducedMotion:'reduce',hasTouch:width<=932,...(width===812?{recordVideo:{dir:out,size:{width,height}}}:{})});
     await context.addInitScript(()=>{localStorage.setItem('impactlab.v1',JSON.stringify({gfx:'3d'}));localStorage.setItem('impactlab.nick','QA Player');});
