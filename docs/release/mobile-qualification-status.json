@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-11-01",
+  "updatedAt": "2026-11-08",
   "platformFloor": {
     "node": ">=22",
     "ios": ">=15",
@@ -18,18 +18,18 @@
     },
     {
       "id": "ios-simulator-android-emulator",
-      "status": "not_run",
-      "evidence": "Native projects are intentionally absent from the shared lane."
+      "status": "not_qualified",
+      "evidence": "Owner decision: iOS Phase 3 is simulator-qualified only for the temporary combined candidate bound in docs/qa/ios-phase3-simulator-disposition.md. This combined iOS/Android gate is not qualified; the iOS result does not establish Android emulator or an integrated PR build."
     },
     {
       "id": "physical-devices",
       "status": "not_run",
-      "evidence": "No device installation or device session was authorized."
+      "evidence": "Physical-device VoiceOver, touch and gestures, lifecycle/interruption, thermal behavior and performance were not run and are not qualified. They remain mandatory pre-release gates; no physical device was attached for this iOS candidate."
     },
     {
       "id": "accessibility",
-      "status": "not_run",
-      "evidence": "Native screen reader, text scaling, contrast, motion, and switch-control qualification remain open."
+      "status": "not_qualified",
+      "evidence": "The bounded iOS Simulator OS Reduce Motion Race journey is recorded in docs/qa/ios-phase3-simulator-disposition.md. Physical-device VoiceOver was not run and is not qualified. Full native accessibility qualification remains open."
     },
     {
       "id": "signing",
