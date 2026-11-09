@@ -43,11 +43,16 @@ test('applies native safe areas without changing the ordinary browser artifact',
   assert.match(nativeSafeArea,/@media \(orientation: landscape\) and \(max-height: 600px\) and \(max-width: 980px\)[\s\S]*?\.kicklab-wordmark\s*\{\s*max-width:\s*100%;/);
 });
 
-test('bounds native Fight controls to the visible viewport',()=>{
-  assert.match(nativeSafeArea,/html\[data-kicklab-mode="fight"\]\[data-kicklab-view="game"\] \.game-frame \.stage > canvas#cv/);
-  assert.match(nativeSafeArea,/height: min\(222\.222vw, max\(180px, calc\(100svh - 150px/);
-  assert.match(nativeSafeArea,/@media \(orientation: landscape\) and \(max-height: 600px\)/);
-  assert.match(nativeSafeArea,/\.game-frame \.stage > \.control-deck \.dpad\s*\{\s*display: flex/);
+test('binds Android offline Home paint and system bars to the packaged shell',()=>{
+  assert.equal(config.plugins.SystemBars.style,'DARK');
+  assert.match(nativeSafeAreaScript,/KickLabHomePresentation/);
+  assert.ok(!web.includes('KickLabHomePresentation'));
+  const activity=read('android/app/src/main/java/com/amadutown/kicklab/MainActivity.java');
+  assert.match(activity,/LAYER_TYPE_SOFTWARE/);
+  assert.match(activity,/LAYER_TYPE_NONE/);
+  assert.doesNotMatch(activity,/LAYER_TYPE_HARDWARE/);
+  assert.match(activity,/onConfigurationChanged\(Configuration newConfig\)[\s\S]*?addOnLayoutChangeListener[\s\S]*?postVisualStateCallback[\s\S]*?postInvalidateOnAnimation\(\)/);
+  assert.match(activity,/https:\/\/localhost\//);
 });
 
 test('keeps the first-run Profile header and nickname clear when WKWebView pans for the keyboard',()=>{
@@ -204,12 +209,26 @@ test('exposes only narrow lifecycle and haptic hooks and cancels held inputs',()
   assert.deepEqual(contract.hooks.haptics,['target','perfect','overcharge']);
 });
 
-test('retains explicit no-authority boundaries and no generated native projects',()=>{
+test('retains release boundaries and confines the generated Android shell',()=>{
   for(const [capability,allowed] of Object.entries(contract.authority))assert.equal(allowed,false,`${capability} must remain unauthorized`);
   assert.deepEqual(manifest.authority,contract.authority);
   assert.doesNotMatch(packageJson.scripts['mobile:prepare'],/cap\s+(?:add|sync|open|run|build)/);
   assert.equal(existsSync(join(root,'ios')),false);
-  assert.equal(existsSync(join(root,'android')),false);
+  assert.equal(existsSync(join(root,'android')),true);
+  assert.equal(packageJson.dependencies['@capacitor/android'],'8.5.3');
+  const androidManifest=read('android/app/src/main/AndroidManifest.xml');
+  assert.match(androidManifest,/android:allowBackup="false"/);
+  assert.match(androidManifest,/android:usesCleartextTraffic="false"/);
+  assert.doesNotMatch(androidManifest,/uses-permission|FileProvider|file_paths/);
+  const androidGradle=read('android/app/build.gradle');
+  assert.match(androidGradle,/applicationId "com\.amadutown\.kicklab"/);
+  assert.doesNotMatch(androidGradle,/google-services|firebase/i);
+  const variablesGradle=read('android/variables.gradle');
+  for(const [key,value] of [['minSdkVersion',24],['compileSdkVersion',36],['targetSdkVersion',36]])assert.match(variablesGradle,new RegExp(`${key} = ${value}`));
+  const nativeAssets=join(root,'android/app/src/main/assets/public');
+  if(existsSync(nativeAssets)){
+    assert.equal(createHash('sha256').update(readFileSync(join(nativeAssets,'index.html'))).digest('hex'),manifest.sha256);
+  }
 });
 
 test('binds browser qualification to its merged artifact and keeps later gates unqualified',()=>{
