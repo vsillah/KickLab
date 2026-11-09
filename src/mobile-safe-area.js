@@ -1,6 +1,16 @@
 // Packaged native shell only. WKWebView pans its visual viewport on keyboard focus,
 // including when the document and Profile dialog are otherwise scroll locked.
 (() => {
+  // Android WebView's accelerated Home paint can retain stale card layers.
+  // Keep Home in a single software layer; return to hardware for 3D play.
+  const homePresentation = window.KickLabHomePresentation;
+  if (homePresentation) {
+    const syncHomeLayer = () => homePresentation.setHomeVisible(document.documentElement.dataset.kicklabView !== 'game');
+    new MutationObserver(syncHomeLayer).observe(document.documentElement, {
+      attributes: true, attributeFilter: ['data-kicklab-view']
+    });
+    syncHomeLayer();
+  }
   const viewport = window.visualViewport;
   if (!viewport) return;
   const dialog = document.getElementById('profileDialog');

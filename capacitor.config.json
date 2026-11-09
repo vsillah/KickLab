@@ -6,5 +6,10 @@
     "androidScheme": "https",
     "cleartext": false,
     "allowNavigation": []
+  },
+  "plugins": {
+    "SystemBars": {
+      "style": "DARK"
+    }
   }
 }

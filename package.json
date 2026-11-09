@@ -24,6 +24,7 @@
     "check": "node scripts/build.mjs --emit-game && node scripts/validate-3d-assets.mjs && node scripts/prepare-pages.mjs && node scripts/prepare-mobile.mjs && node --check dist/game.js && node --test && node scripts/check-web.mjs && node scripts/check-pages-prepare.mjs"
   },
   "dependencies": {
+    "@capacitor/android": "8.5.3",
     "@capacitor/app": "8.1.2",
     "@capacitor/core": "8.5.3",
     "@capacitor/haptics": "8.0.2",
