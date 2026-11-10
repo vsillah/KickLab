@@ -2,7 +2,7 @@
 let RACE_PREFLIGHT_ON=RACE_VENUE_PREFLIGHT_ACTIVE;
 if(RACE_PREFLIGHT_ON)document.documentElement.dataset.racePreflight='prototype';
 globalThis.KickLabRaceOrigin.onHomeEntry(()=>{RACE_PREFLIGHT_ON=true;document.documentElement.dataset.racePreflight='prototype';});
-const RACE_PREFLIGHT={phase:0,locationStage:'venue',lastRenderedPhase:null,draft:null,profileId:null,lastEpoch:-1,committing:false,committed:false,arriving:false,pendingStart:false,lastRaceState:null,returnFocus:null,focusAfterClose:null,notice:'',focusPart:'tires'};
+const RACE_PREFLIGHT={phase:0,locationStage:'venue',lastRenderedPhase:null,draft:null,profileId:null,lastEpoch:-1,committing:false,committed:false,arriving:false,pendingStart:false,lastRaceState:null,returnHomeOnClose:false,returnFocus:null,focusAfterClose:null,notice:'',focusPart:'tires'};
 const RACE_PREFLIGHT_PHASES=['Location','Vehicle','Garage tuning','Starting grid'];
 const RACE_PREFLIGHT_PHASE_SHORT=['Track','Car','Garage','Grid'];
 const RACE_ROUTE_TRAITS={
@@ -27,7 +27,7 @@ function racePreflightCanOpen(){return RACE_PREFLIGHT_ON&&M===Race&&Race.state==
 function racePreflightPrepareHomeEntry(){
   if(!RACE_PREFLIGHT_ON)return;
   RACE_INSPECT.dispose();
-  Object.assign(RACE_PREFLIGHT,{phase:0,locationStage:'venue',lastRenderedPhase:null,draft:null,profileId:null,lastEpoch:-1,committing:false,committed:false,arriving:false,pendingStart:false,lastRaceState:null,returnFocus:null,focusAfterClose:null,notice:'',focusPart:'tires',startControl:null});
+  Object.assign(RACE_PREFLIGHT,{phase:0,locationStage:'venue',lastRenderedPhase:null,draft:null,profileId:null,lastEpoch:-1,committing:false,committed:false,arriving:false,pendingStart:false,lastRaceState:null,returnHomeOnClose:true,returnFocus:null,focusAfterClose:null,notice:'',focusPart:'tires',startControl:null});
   $('#racePreflight').hidden=true;
   document.documentElement.dataset.racePreflightOpen='false';
   document.documentElement.dataset.racePreflightArriving='false';
@@ -61,7 +61,7 @@ function racePreflightMaybeOpen(){
   RACE_PREFLIGHT.draft=null;
   racePreflightOpen($('#raceCoachSetupStart'));
 }
-function racePreflightClose(){
+function racePreflightClose({returnHome=true}={}){
   if(RACE_PREFLIGHT.arriving)return;
   const matchStage=racePreflightMatchStage();
   RACE_INSPECT.dispose();
@@ -70,7 +70,15 @@ function racePreflightClose(){
   document.documentElement.dataset.racePreflightOpen='false';
   RACE_PREFLIGHT.lastEpoch=Race.preflightEpoch||0;
   RACE_PREFLIGHT.draft=null;
+  RACE_PREFLIGHT.pendingStart=false;
   if(matchStage)raceMultiplayerSetupCancel();
+  if(returnHome&&RACE_PREFLIGHT.returnHomeOnClose){
+    RACE_PREFLIGHT.returnHomeOnClose=false;
+    RACE_PREFLIGHT.returnFocus=null;
+    RACE_PREFLIGHT.focusAfterClose=null;
+    showModeHome();
+    return;
+  }
   const target=RACE_PREFLIGHT.returnFocus;
   RACE_PREFLIGHT.returnFocus=null;
   RACE_PREFLIGHT.focusAfterClose=target&&target.isConnected?target:$('#raceCoachSetupStart');
@@ -262,7 +270,7 @@ window.addEventListener('keydown',event=>{if($('#racePreflight').hidden||event.k
 if(RACE_PREFLIGHT_ON&&['localhost','127.0.0.1'].includes(location.hostname))globalThis.__KICKLAB_RACE_PREFLIGHT_QA__=Object.freeze({state:()=>({open:!$('#racePreflight').hidden,phase:RACE_PREFLIGHT.phase,arriving:RACE_PREFLIGHT.arriving,pendingStart:RACE_PREFLIGHT.pendingStart,draft:RACE_PREFLIGHT.draft?{...RACE_PREFLIGHT.draft,garage:{...RACE_PREFLIGHT.draft.garage}}:null,profileId:RACE_PREFLIGHT.profileId,recommendation:RACE_PREFLIGHT.draft?racePreflightRecommendation():null,raceState:Race.state,epoch:Race.preflightEpoch,lastEpoch:RACE_PREFLIGHT.lastEpoch,saved:{mode:best.raceModes?.selected,garage:{...best.raceGarage},xp:best.xp},active:{vehicle:Race.vehicle().id,mode:Race.mode().id,garage:{...Race.garage},parameters:{...Race.P()},record:RECS.race?.meta?{...RECS.race.meta}:null,recordTitle:RECS.race?.title||null},inspection:RACE_INSPECT.state()}),open:()=>racePreflightOpen(),close:racePreflightClose,resetForQA:()=>{Race.reset();renderRaceTelemetry();return{garage:{...Race.garage},vehicle:Race.vehicle().id,mode:Race.mode().id};},finishForQA:()=>{if(M!==Race||Race.state!=='run')return false;Race.state='crashed';Race.finish(false,'timeout');return true;}});
 let racePreflightArrivalFrame=0,racePreflightDriveFrame=0;
 if(RACE_PREFLIGHT_ON&&['localhost','127.0.0.1'].includes(location.hostname)&&new URLSearchParams(location.search).get('racePreflightCapture')==='1')globalThis.__KICKLAB_RACE_PREFLIGHT_CAPTURE__=Object.freeze({
-  select(mode,vehicle){if(M!==Race||!RACE_MODES.MODES[mode]&&!['marine','forest'].includes(mode))return false;racePreflightClose();if(['marine','forest'].includes(mode)){best.raceProgression={...RACE_PROGRESSION.normalize(best.raceProgression),unlocked:2,selected:mode==='marine'?1:2};best.raceVenue=mode;saveBest();Race.reset();}else{best.raceVenue='highland';Race.opt.venue='highland';Race.selectMode(mode);}if(globalThis.KickLabRaceVehicleCatalog.get(vehicle).availability==='mastery')best.raceMastery={version:1,cleared:['drag','drift','circuit']};if(!Race.setGaragePart('body',globalThis.KickLabRaceVehicleCatalog.get(vehicle).legacyBodyId))return false;Race.reset();return true;},
+  select(mode,vehicle){if(M!==Race||!RACE_MODES.MODES[mode]&&!['marine','forest'].includes(mode))return false;racePreflightClose({returnHome:false});if(['marine','forest'].includes(mode)){best.raceProgression={...RACE_PROGRESSION.normalize(best.raceProgression),unlocked:2,selected:mode==='marine'?1:2};best.raceVenue=mode;saveBest();Race.reset();}else{best.raceVenue='highland';Race.opt.venue='highland';Race.selectMode(mode);}if(globalThis.KickLabRaceVehicleCatalog.get(vehicle).availability==='mastery')best.raceMastery={version:1,cleared:['drag','drift','circuit']};if(!Race.setGaragePart('body',globalThis.KickLabRaceVehicleCatalog.get(vehicle).legacyBodyId))return false;Race.reset();return true;},
   ready(){return RACE_3D.ready&&!RACE_3D.failed&&!!RACE_3D.canvas&&RACE_3D.trackKey.includes(Race.progressionActive()?'legacy':Race.mode().course);},
   prepare(){
     RACE_PREFLIGHT.committed=true;RACE_3D.orbit.phase='done';RACE_3D.orbit.done=true;

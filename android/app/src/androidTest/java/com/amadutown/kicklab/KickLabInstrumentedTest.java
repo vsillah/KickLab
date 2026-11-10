@@ -11,6 +11,7 @@ import android.graphics.Color;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.lifecycle.Lifecycle;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,6 +25,24 @@ import java.util.concurrent.atomic.AtomicReference;
 @RunWith(AndroidJUnit4.class)
 public class KickLabInstrumentedTest {
     private static final long TIMEOUT_SECONDS = 20;
+
+    private ActivityScenario<MainActivity> launchForegroundScenario() throws Exception {
+        ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
+        // On the physical Pixel, the instrumentation launch is immediately moved
+        // behind Home. Explicitly foreground the existing singleTask activity.
+        try (android.os.ParcelFileDescriptor command = InstrumentationRegistry.getInstrumentation()
+            .getUiAutomation().executeShellCommand(
+                "am start -W -n com.amadutown.kicklab/.MainActivity")) {
+            assertTrue("Could not foreground the packaged activity", command != null);
+        }
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(TIMEOUT_SECONDS);
+        while (System.nanoTime() < deadline) {
+            if (scenario.getState() == Lifecycle.State.RESUMED) return scenario;
+            Thread.sleep(100);
+        }
+        scenario.close();
+        throw new AssertionError("Packaged activity did not stay foreground after explicit launch");
+    }
 
     private String evaluate(ActivityScenario<MainActivity> scenario, String script) throws Exception {
         CountDownLatch latch = new CountDownLatch(1);
@@ -64,7 +83,7 @@ public class KickLabInstrumentedTest {
 
     @Test
     public void settledOfflineHomeKeepsOneLayeredCardAndStandingsSection() throws Exception {
-        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+        try (ActivityScenario<MainActivity> scenario = launchForegroundScenario()) {
             waitForKickLab(scenario);
             String home = evaluate(scenario,
                 "(()=>{const q=s=>document.querySelector(s).getBoundingClientRect();" +
@@ -113,7 +132,7 @@ public class KickLabInstrumentedTest {
         assertTrue("Base screen capture unavailable", baseFrame != null);
         boolean baseLandscape = baseFrame.getWidth() > baseFrame.getHeight();
         baseFrame.recycle();
-        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+        try (ActivityScenario<MainActivity> scenario = launchForegroundScenario()) {
             waitForKickLab(scenario);
             completeFirstRunIfNeeded(scenario);
             for (int entry = 0; entry < 2; entry++) {
@@ -193,7 +212,7 @@ public class KickLabInstrumentedTest {
 
     @Test
     public void packagedArtifactIsLocalOfflineAndResponsive() throws Exception {
-        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+        try (ActivityScenario<MainActivity> scenario = launchForegroundScenario()) {
             String ready = waitForKickLab(scenario);
             assertTrue(ready.contains("KickLab"));
             assertTrue(ready.contains("capacitor-local-v1"));
@@ -219,7 +238,7 @@ public class KickLabInstrumentedTest {
 
     @Test
     public void localProfileAndLegacyKeysSurviveActivityRecreation() throws Exception {
-        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+        try (ActivityScenario<MainActivity> scenario = launchForegroundScenario()) {
             waitForKickLab(scenario);
             String saved = evaluate(scenario,
                 "(()=>{const manager=KickLabProfiles.createManager(localStorage);" +
@@ -251,7 +270,7 @@ public class KickLabInstrumentedTest {
 
     @Test
     public void lifecycleCancelsHeldInputAndForegroundStaysPaused() throws Exception {
-        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+        try (ActivityScenario<MainActivity> scenario = launchForegroundScenario()) {
             waitForKickLab(scenario);
             completeFirstRunIfNeeded(scenario);
             String state = evaluate(scenario,
@@ -279,8 +298,49 @@ public class KickLabInstrumentedTest {
     }
 
     @Test
+    public void backgroundedRacePreparationClosesHomeWithoutStartingAttempt() throws Exception {
+        try (ActivityScenario<MainActivity> scenario = launchForegroundScenario()) {
+            waitForKickLab(scenario);
+            completeFirstRunIfNeeded(scenario);
+            evaluate(scenario, "document.querySelector('#lab-tab-race').click()");
+            long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(TIMEOUT_SECONDS);
+            String before = "null";
+            while (System.nanoTime() < deadline) {
+                before = evaluate(scenario, "JSON.stringify({open:!document.querySelector('#racePreflight').hidden,phase:document.documentElement.dataset.racePhase})");
+                if (before.contains("\\\"open\\\":true")) break;
+                Thread.sleep(150);
+            }
+            assertTrue("Race preparation did not open: " + before, before.contains("\\\"open\\\":true"));
+            assertTrue("Race attempt started before preparation closed: " + before, before.contains("\\\"phase\\\":\\\"grid\\\""));
+            scenario.moveToState(Lifecycle.State.CREATED);
+            scenario.moveToState(Lifecycle.State.RESUMED);
+            String after = evaluate(scenario,
+                "(()=>{document.querySelector('#racePreflightClose').click();return JSON.stringify({" +
+                "home:!document.querySelector('#modeHome').hidden," +
+                "preflightClosed:document.querySelector('#racePreflight').hidden," +
+                "racePhase:document.documentElement.dataset.racePhase,result:!document.querySelector('#results').hidden," +
+                "resultText:document.querySelector('#results').textContent.includes('TIME-OUT')})})()");
+            assertTrue("Close must return to Home: " + after, after.contains("\\\"home\\\":true"));
+            assertTrue("Preparation must close: " + after, after.contains("\\\"preflightClosed\\\":true"));
+            assertTrue("Race must remain at grid: " + after, after.contains("\\\"racePhase\\\":\\\"grid\\\""));
+            assertTrue("No Race result may appear: " + after, after.contains("\\\"result\\\":false"));
+            assertTrue("TIME-OUT is a regression: " + after, after.contains("\\\"resultText\\\":false"));
+            Thread.sleep(1200);
+            String settled = evaluate(scenario,
+                "JSON.stringify({home:!document.querySelector('#modeHome').hidden," +
+                "phase:document.documentElement.dataset.racePhase," +
+                "result:!document.querySelector('#results').hidden," +
+                "timeOut:document.querySelector('#results').textContent.includes('TIME-OUT')})");
+            assertTrue("Home must remain visible after lifecycle settles: " + settled, settled.contains("\\\"home\\\":true"));
+            assertTrue("Race must not activate after Close: " + settled, settled.contains("\\\"phase\\\":\\\"grid\\\""));
+            assertTrue("No delayed result may appear: " + settled, settled.contains("\\\"result\\\":false"));
+            assertTrue("No delayed TIME-OUT may appear: " + settled, settled.contains("\\\"timeOut\\\":false"));
+        }
+    }
+
+    @Test
     public void fightAndKickEnterFromThePackagedHome() throws Exception {
-        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+        try (ActivityScenario<MainActivity> scenario = launchForegroundScenario()) {
             waitForKickLab(scenario);
             completeFirstRunIfNeeded(scenario);
             for (String mode : new String[]{"fight", "kick"}) {
