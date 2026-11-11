@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">KickLab</string>
+    <string name="title_activity_main">KickLab</string>
+    <string name="package_name">com.amadutown.kicklab</string>
+    <string name="custom_url_scheme">com.amadutown.kicklab</string>
+</resources>
