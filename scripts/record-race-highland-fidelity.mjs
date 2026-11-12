@@ -1,0 +1,41 @@
+import {createRequire} from 'node:module';
+import {existsSync,mkdirSync,readFileSync,statSync,writeFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+import {execFileSync,spawnSync} from 'node:child_process';
+import {resolve,join} from 'node:path';
+const {chromium}=createRequire(import.meta.url)('playwright');
+const head=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
+const base=process.env.QA_BASE||'http://127.0.0.1:4973/kicklab.html';
+const origin=new URL(base).origin;
+const html=readFileSync('dist/kicklab.html');
+const served=Buffer.from(await(await fetch(base)).arrayBuffer());
+if(!html.equals(served))throw Error('Localhost does not serve the current build');
+const out=resolve('qa-artifacts/race-highland-fidelity/exact-head-'+head.slice(0,12));mkdirSync(out,{recursive:true});
+const executablePath=[process.env.KICKLAB_CHROMIUM_PATH,chromium.executablePath(),'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find(path=>path&&existsSync(path));
+const browser=await chromium.launch({headless:true,executablePath});
+const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:1,recordVideo:{dir:out,size:{width:390,height:844}}});
+await context.addInitScript(()=>localStorage.setItem('impactlab.v1',JSON.stringify({gfx:'3d',ch:{fight:0,race:0,kick:0},play:{fight:'ch',race:'ch',kick:'ch'}})));
+const page=await context.newPage(),video=page.video(),errors=[],external=[];
+page.on('pageerror',error=>errors.push(error.message));page.on('request',request=>{const target=new URL(request.url());if(target.origin!==origin&&!['blob:','data:'].includes(target.protocol))external.push(target.href);});
+await page.route('**/kicklab.html*',async route=>{const response=await route.fetch();let body=await response.text();const close=body.lastIndexOf('})();');if(close<0)throw Error('Game script not found');body=body.slice(0,close)+'globalThis.__KL_HIGHLAND_QA__={Race,RACE_3D,best,PAUSE};\n'+body.slice(close);return route.fulfill({response,body});});
+const url=new URL(base);for(const [key,value] of Object.entries({raceSystems:'proxy',raceTelemetry:'prototype',raceCornerTrace:'prototype',raceProgression:'prototype',raceExpansion:'prototype',raceCompetition:'prototype',raceChampionship:'prototype',raceMultiplayer:'prototype',raceSimulator:'prototype',racePreflight:'prototype',raceHighlandFidelity:'prototype'}))url.searchParams.set(key,value);url.searchParams.set('rev',head);
+const states=[['Starting grid',P=>[0,0,0,0]],['Launch',P=>[24,0,0,9]],['Straight at speed',P=>[P.L-38,0,0,25]],['Braking approach',P=>[P.L-9,0,0,14]],['Corner apex',P=>[P.L+P.R*.7071,P.R*(1-.7071),Math.PI/4,12]],['Recovery and finish',P=>[P.L+P.R,P.R+24,Math.PI/2,16]]];
+const report={head,url:url.href,artifactSha256:createHash('sha256').update(html).digest('hex'),states:states.map(s=>s[0]),realGameplay:false,errors,external};
+try{
+  await page.goto(url.href,{waitUntil:'domcontentloaded'});if(await page.locator('#profileFormSave').isVisible())await page.click('#profileFormSave');if(await page.locator('#profileClose').isVisible())await page.click('#profileClose');await page.click('#lab-tab-race');if(await page.locator('#racePreflight').isVisible())await page.click('#racePreflightClose');
+  await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.vehicle===true,null,{timeout:15000});
+  await page.evaluate(()=>{const {Race,RACE_3D,best,PAUSE}=window.__KL_HIGHLAND_QA__;best.raceModes.selected='hill';Race.opt.venue='highland';Race.state='grid';Race.st.v=0;Race.inp.gas=false;Race.inp.brake=false;RACE_3D.orbit={phase:'done',elapsed:0,transition:0,done:true};if(RACE_3D.orbitPanel)RACE_3D.orbitPanel.hidden=true;RACE_3D.trackKey='';PAUSE.on=true;const label=document.createElement('div');label.id='qaHighlandLabel';label.style.cssText='position:absolute;left:10px;top:10px;z-index:25;background:#071d28df;color:#fff;padding:8px 12px;border-radius:8px;font:700 16px system-ui';RACE_3D.canvas.parentElement.append(label);});
+  const P=await page.evaluate(()=>{const p=window.__KL_HIGHLAND_QA__.Race.P();return{L:p.L,R:p.R};});
+  await page.locator('.stage:visible').first().scrollIntoViewIfNeeded();
+  for(const [name,pose] of states){await page.evaluate(({name,pose})=>{const {Race,RACE_3D}=window.__KL_HIGHLAND_QA__;const [x,y,heading,speed]=pose;Race.st.x=x;Race.st.y=y;Race.st.th=heading;Race.st.v=speed;Race.st.wheel=0;RACE_3D.cameraPose=null;RACE_3D.speedMotion=null;RACE_3D.wheelSpin=0;document.querySelector('#qaHighlandLabel').textContent=name;RACE_3D.render(0);},{name,pose:pose(P)});await page.waitForTimeout(1100);}
+  await page.reload({waitUntil:'domcontentloaded'});if(await page.locator('#profileClose').isVisible())await page.click('#profileClose');await page.click('#lab-tab-race');
+  await page.locator('[data-preflight-venue="highland"]').click();await page.locator('[data-preflight-mode="hill"]').click();
+  for(let i=0;i<4;i++)await page.locator('#racePreflightNext').click();
+  const skip=page.locator('.race-orbit-panel button');await skip.waitFor({state:'visible',timeout:12000}).catch(()=>{});if(await skip.isVisible())await skip.click();await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});
+  await page.waitForFunction(()=>window.__KICKLAB_RACE_3D__?.dynamics?.state==='run',null,{timeout:12000});await page.locator('.stage:visible').first().scrollIntoViewIfNeeded();await page.keyboard.down('Space');await page.waitForTimeout(2800);await page.keyboard.up('Space');await page.keyboard.down('b');await page.waitForTimeout(900);await page.keyboard.up('b');
+  report.realGameplay=true;
+}catch(error){errors.push(error.stack||String(error));}finally{await context.close();await browser.close();}
+const source=await video.path(),target=join(out,`race-highland-${head.slice(0,12)}.mp4`);
+const encode=spawnSync('ffmpeg',['-y','-loglevel','error','-i',source,'-c:v','libx264','-preset','medium','-crf','21','-pix_fmt','yuv420p','-movflags','+faststart',target],{encoding:'utf8'});if(encode.status!==0)throw Error(encode.stderr);
+const probe=spawnSync('ffprobe',['-v','error','-show_entries','format=duration:stream=codec_name,width,height','-of','json',target],{encoding:'utf8'});if(probe.status!==0)throw Error(probe.stderr);report.mp4={path:target,bytes:statSync(target).size,...JSON.parse(probe.stdout)};
+writeFileSync(join(out,'report.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report,null,2));if(errors.length||external.length||!report.realGameplay||!report.mp4.streams?.some(s=>s.codec_name==='h264'&&s.width===390&&s.height===844)||Number(report.mp4.format.duration)<12)process.exitCode=1;
