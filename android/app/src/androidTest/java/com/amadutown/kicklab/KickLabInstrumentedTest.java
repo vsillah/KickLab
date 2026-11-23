@@ -7,6 +7,7 @@ import android.webkit.WebView;
 import android.view.View;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.net.TrafficStats;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -172,6 +173,243 @@ public class KickLabInstrumentedTest {
     private void rotateDisplay(int rotation) throws Exception {
         InstrumentationRegistry.getInstrumentation().getUiAutomation()
             .executeShellCommand("wm user-rotation lock " + rotation).close();
+    }
+
+    @Test
+    public void offlineRaceEntryKeepsProfileAndHasNoUidNetworkTraffic() throws Exception {
+        try (ActivityScenario<MainActivity> scenario = launchForegroundScenario()) {
+            waitForKickLab(scenario);
+            completeFirstRunIfNeeded(scenario);
+            String profile = evaluate(scenario,
+                "JSON.stringify({id:KickLabProfiles.createManager(localStorage).active().id," +
+                "xp:Number(KickLabProfiles.createManager(localStorage).active().progress.xp||0)})");
+            int uid = InstrumentationRegistry.getInstrumentation().getTargetContext().getApplicationInfo().uid;
+            long txBefore = TrafficStats.getUidTxBytes(uid), rxBefore = TrafficStats.getUidRxBytes(uid);
+            assertTrue("Android UID traffic counters unavailable", txBefore >= 0 && rxBefore >= 0);
+            try {
+                scenario.onActivity(activity -> {
+                    WebView webView = activity.getBridge().getWebView();
+                    webView.setNetworkAvailable(false);
+                });
+                // Keep the already-loaded packaged document. A separate radio-off
+                // cold launch covers reload without racing evaluateJavascript.
+                String state = evaluate(scenario,
+                    "JSON.stringify({online:navigator.onLine,local:location.origin==='https://localhost'," +
+                    "id:KickLabProfiles.createManager(localStorage).active().id," +
+                    "xp:Number(KickLabProfiles.createManager(localStorage).active().progress.xp||0)})");
+                assertTrue("Packaged Race must load locally under offline WebView: " + state,
+                    state.contains("\\\"online\\\":false") && state.contains("\\\"local\\\":true"));
+                JSONObject beforeProfile = new JSONObject(new JSONArray("[" + profile + "]").getString(0));
+                JSONObject afterProfile = new JSONObject(new JSONArray("[" + state + "]").getString(0));
+                assertTrue("Offline mode changed active profile: " + state,
+                    beforeProfile.getString("id").equals(afterProfile.getString("id")) &&
+                    beforeProfile.getInt("xp") == afterProfile.getInt("xp"));
+                evaluate(scenario, "document.querySelector('#lab-tab-race').click()");
+                String entry = "null";
+                String lastEntry = null;
+                long entryDeadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(TIMEOUT_SECONDS);
+                while (System.nanoTime() < entryDeadline) {
+                    entry = evaluate(scenario,
+                        "(()=>{try{const preflight=document.querySelector('#racePreflight')," +
+                        "race3d=typeof RACE_3D==='undefined'?null:RACE_3D;" +
+                        "return JSON.stringify({url:location.href,ready:document.readyState," +
+                        "mode:document.documentElement.dataset.kicklabMode||''," +
+                        "hasPreflight:!!preflight,open:!!preflight&&!preflight.hidden," +
+                        "preflightFlag:document.documentElement.dataset.racePreflight||''," +
+                        "venueFlag:typeof RACE_VENUE_PREFLIGHT_ACTIVE==='undefined'?null:RACE_VENUE_PREFLIGHT_ACTIVE," +
+                        "preflightOn:typeof RACE_PREFLIGHT_ON==='undefined'?null:RACE_PREFLIGHT_ON," +
+                        "raceState:typeof Race==='undefined'?null:Race.state," +
+                        "profileReady:typeof profileManager==='undefined'?null:!profileManager.active().needsSetup," +
+                        "cockpitHidden:document.querySelector('#game-cockpit')?.hidden??null," +
+                        "dialogHidden:document.querySelector('#profileDialog')?.hidden??null," +
+                        "paused:typeof PAUSE==='undefined'?null:PAUSE.on," +
+                        "pacingVisible:!!document.querySelector('#gamePacingOverlay')&&!document.querySelector('#gamePacingOverlay').hidden," +
+                        "race3d:race3d?{ready:race3d.ready,loading:race3d.loading,failed:race3d.failed," +
+                        "orbit:race3d.orbit?.phase||'',orbitDone:race3d.orbit?.done??null," +
+                        "error:globalThis.__KICKLAB_RACE_3D__?.error||''}:null," +
+                        "notice:document.querySelector('#toasts')?.innerText?.slice(0,180)||''});" +
+                        "}catch(error){return JSON.stringify({diagnosticError:String(error)," +
+                        "url:location.href,ready:document.readyState})}})()");
+                    if (!entry.equals(lastEntry)) {
+                        System.out.println("Offline Race entry state: " + entry);
+                        lastEntry = entry;
+                    }
+                    if (entry.contains("\\\"open\\\":true")) break;
+                    Thread.sleep(150);
+                }
+                if ("null".equals(entry)) {
+                    String documentProbe = evaluate(scenario,
+                        "JSON.stringify({url:location.href,ready:document.readyState})");
+                    entry = "probe returned null; document=" + documentProbe;
+                }
+                System.out.println("Offline Race entry diagnostic: " + entry);
+                assertTrue("Offline Race preparation did not open: " + entry,
+                    entry.contains("\\\"open\\\":true"));
+                Thread.sleep(5000);
+                String requests = evaluate(scenario,
+                    "(()=>{const names=performance.getEntriesByType('resource').map(e=>e.name)," +
+                    "origins=[...new Set(names.map(name=>new URL(name).origin))].sort()," +
+                    "external=names.filter(name=>/^https?:/.test(name)&&new URL(name).origin!=='https://localhost').length;" +
+                    "return JSON.stringify({origins,resources:names.length,external})})()");
+                System.out.println("Offline Race resource origins: " + requests);
+                assertTrue("Packaged offline Race requested an external origin: " + requests,
+                    requests.contains("\\\"external\\\":0"));
+                String profileAfter = evaluate(scenario,
+                    "JSON.stringify({id:KickLabProfiles.createManager(localStorage).active().id," +
+                    "xp:Number(KickLabProfiles.createManager(localStorage).active().progress.xp||0)})");
+                JSONObject finalProfile = new JSONObject(new JSONArray("[" + profileAfter + "]").getString(0));
+                assertTrue("Offline Race changed active profile after entry",
+                    beforeProfile.getString("id").equals(finalProfile.getString("id")) &&
+                    beforeProfile.getInt("xp") == finalProfile.getInt("xp"));
+                System.out.println("Offline Race profile preserved: true");
+                long txAfter = TrafficStats.getUidTxBytes(uid), rxAfter = TrafficStats.getUidRxBytes(uid);
+                assertTrue("Packaged offline Race emitted UID network traffic: tx=" +
+                    (txAfter - txBefore) + " rx=" + (rxAfter - rxBefore),
+                    txAfter == txBefore && rxAfter == rxBefore);
+            } finally {
+                scenario.onActivity(activity -> activity.getBridge().getWebView().setNetworkAvailable(true));
+            }
+        }
+    }
+
+    @Test
+    public void raceWebGlAndCanvasMeasurePhoneFrames() throws Exception {
+        // Test-only CDP network trace; the packaged app APK is unchanged.
+        WebView.setWebContentsDebuggingEnabled(true);
+        try (ActivityScenario<MainActivity> scenario = launchForegroundScenario()) {
+            waitForKickLab(scenario);
+            completeFirstRunIfNeeded(scenario);
+            long traceDeadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(TIMEOUT_SECONDS);
+            while (System.nanoTime() < traceDeadline &&
+                    !"true".equals(evaluate(scenario, "window.__kicklabNetworkTraceReady===true"))) {
+                Thread.sleep(150);
+            }
+            assertTrue("CDP Network trace did not attach before packaged-page reload",
+                "true".equals(evaluate(scenario, "window.__kicklabNetworkTraceReady===true")));
+            Thread.sleep(2000); // Let pre-existing WebView requests settle before the bounded window.
+            String originalGfx = evaluate(scenario,
+                "KickLabProfiles.createManager(localStorage).active().progress.gfx||'3d'");
+            try {
+                evaluate(scenario, "(()=>{const manager=KickLabProfiles.createManager(localStorage),progress=manager.active().progress;progress.gfx='3d';manager.saveActiveProgress(progress)})()");
+                int uid = InstrumentationRegistry.getInstrumentation().getTargetContext().getApplicationInfo().uid;
+                long txBefore = TrafficStats.getUidTxBytes(uid), rxBefore = TrafficStats.getUidRxBytes(uid);
+                evaluate(scenario, "console.info('KickLabTraceWindowStart')");
+                scenario.onActivity(activity -> activity.getBridge().getWebView().reload());
+                Thread.sleep(1000);
+                assertTrue("Packaged Race document did not reload", waitForKickLab(scenario).contains("\\\"ready\\\":true"));
+                evaluate(scenario, "document.querySelector('#lab-tab-race').click()");
+                String webGl = "null";
+                long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(TIMEOUT_SECONDS);
+                while (System.nanoTime() < deadline) {
+                    webGl = evaluate(scenario,
+                        "JSON.stringify({gfx:KickLabProfiles.createManager(localStorage).active().progress.gfx," +
+                        "status:window.__KICKLAB_RACE_3D__?.status||'waiting'," +
+                        "canvas:!!document.querySelector('#race3')?.width&&!!document.querySelector('#race3')?.height})");
+                    if (webGl.contains("\\\"status\\\":\\\"rendering\\\"") ||
+                        webGl.contains("\\\"status\\\":\\\"canvas-fallback\\\"")) break;
+                    Thread.sleep(250);
+                }
+                assertTrue("Pixel Race WebGL did not render: " + webGl,
+                    webGl.contains("\\\"gfx\\\":\\\"3d\\\"") &&
+                    webGl.contains("\\\"status\\\":\\\"rendering\\\"") &&
+                    webGl.contains("\\\"canvas\\\":true"));
+                evaluate(scenario,
+                    "(()=>{const samples=[];let last=performance.now(),start=last;window.__racePacingQA={done:false};" +
+                    "function tick(now){samples.push(now-last);last=now;if(now-start<20000)requestAnimationFrame(tick);" +
+                    "else{const sorted=samples.slice(10).sort((a,b)=>a-b);window.__racePacingQA={done:true," +
+                    "p50:sorted[Math.floor(sorted.length*.5)],p95:sorted[Math.floor(sorted.length*.95)],max:sorted.at(-1),count:sorted.length}}}" +
+                    "requestAnimationFrame(tick)})()");
+                Thread.sleep(23000);
+                String pacing = evaluate(scenario, "JSON.stringify(window.__racePacingQA)");
+                JSONObject frame = new JSONObject(new JSONArray("[" + pacing + "]").getString(0));
+                assertTrue("Pixel Race WebGL frame sample incomplete: " + pacing, frame.getBoolean("done"));
+                System.out.println("Race WebGL sustained pacing: " + pacing);
+                evaluate(scenario, "(()=>{const manager=KickLabProfiles.createManager(localStorage),progress=manager.active().progress;progress.gfx='2d';manager.saveActiveProgress(progress)})()");
+                scenario.onActivity(activity -> activity.getBridge().getWebView().reload());
+                Thread.sleep(1000);
+                assertTrue("Packaged Canvas document did not reload", waitForKickLab(scenario).contains("\\\"ready\\\":true"));
+                evaluate(scenario, "document.querySelector('#lab-tab-race').click()");
+                Thread.sleep(1000);
+                String canvas = evaluate(scenario,
+                    "JSON.stringify({gfx:KickLabProfiles.createManager(localStorage).active().progress.gfx," +
+                    "webgl:!!document.querySelector('#race3')?.getClientRects().length," +
+                    "canvas:document.querySelector('#cv').width>0&&document.querySelector('#cv').height>0})");
+                assertTrue("Pixel Race Canvas fallback did not render: " + canvas,
+                    canvas.contains("\\\"gfx\\\":\\\"2d\\\"") &&
+                    canvas.contains("\\\"webgl\\\":false") &&
+                    canvas.contains("\\\"canvas\\\":true"));
+                evaluate(scenario,
+                    "(()=>{const samples=[];let last=performance.now(),start=last;window.__racePacingQA={done:false};" +
+                    "function tick(now){samples.push(now-last);last=now;if(now-start<10000)requestAnimationFrame(tick);" +
+                    "else{const sorted=samples.slice(10).sort((a,b)=>a-b);window.__racePacingQA={done:true," +
+                    "p50:sorted[Math.floor(sorted.length*.5)],p95:sorted[Math.floor(sorted.length*.95)],max:sorted.at(-1),count:sorted.length}}}" +
+                    "requestAnimationFrame(tick)})()");
+                Thread.sleep(13000);
+                String canvasPacing = evaluate(scenario, "JSON.stringify(window.__racePacingQA)");
+                JSONObject canvasFrame = new JSONObject(new JSONArray("[" + canvasPacing + "]").getString(0));
+                assertTrue("Pixel Race Canvas frame sample incomplete: " + canvasPacing, canvasFrame.getBoolean("done"));
+                System.out.println("Race Canvas sustained pacing: " + canvasPacing);
+                long txAfter = TrafficStats.getUidTxBytes(uid), rxAfter = TrafficStats.getUidRxBytes(uid);
+                System.out.println("Race renderer UID bytes: tx=" + (txAfter - txBefore) +
+                    " rx=" + (rxAfter - rxBefore));
+                assertTrue("Race renderer selection emitted UID network traffic: tx=" +
+                    (txAfter - txBefore) + " rx=" + (rxAfter - rxBefore),
+                    txAfter == txBefore && rxAfter == rxBefore);
+            } finally {
+                evaluate(scenario, "(()=>{const manager=KickLabProfiles.createManager(localStorage),progress=manager.active().progress;progress.gfx=" + originalGfx + ";manager.saveActiveProgress(progress)})()");
+            }
+        } finally {
+            WebView.setWebContentsDebuggingEnabled(false);
+        }
+    }
+
+    @Test
+    public void racePreflightHeaderClearsPixelSystemBarsInEveryPhase() throws Exception {
+        rotateDisplay(0);
+        try (ActivityScenario<MainActivity> scenario = launchForegroundScenario()) {
+            waitForKickLab(scenario);
+            completeFirstRunIfNeeded(scenario);
+            evaluate(scenario, "document.querySelector('#lab-tab-race').click()");
+            long openDeadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(TIMEOUT_SECONDS);
+            while (System.nanoTime() < openDeadline &&
+                !"true".equals(evaluate(scenario, "!document.querySelector('#racePreflight').hidden"))) {
+                Thread.sleep(150);
+            }
+            assertTrue("Race preparation did not open",
+                "true".equals(evaluate(scenario, "!document.querySelector('#racePreflight').hidden")));
+            for (int phase = 0; phase < 4; phase++) {
+                if (phase == 1) {
+                    evaluate(scenario, "document.querySelector('#racePreflightNext').click();document.querySelector('#racePreflightNext').click()");
+                } else if (phase > 1) {
+                    evaluate(scenario, "document.querySelector('#racePreflightNext').click()");
+                }
+                for (int rotation : new int[]{0, 1, 0}) {
+                    rotateDisplay(rotation);
+                    Thread.sleep(450);
+                    String raw = evaluate(scenario,
+                        "(()=>{const box=s=>{const r=document.querySelector(s).getBoundingClientRect();return {top:r.top,bottom:r.bottom,right:r.right}};" +
+                        "const inset=KickLabAndroidSafeArea.topInsetCssPx(),label=box('.race-preflight-header span')," +
+                        "heading=box('#racePreflightTitle'),close=box('#racePreflightClose');" +
+                        "return JSON.stringify({phase:Number(document.querySelector('[data-preflight-step][aria-current=step]').dataset.preflightStep),inset,label,heading,close," +
+                        "height:innerHeight,width:innerWidth,padding:getComputedStyle(document.querySelector('.race-preflight-shell')).paddingTop})})()");
+                    assertFalse("Race geometry JavaScript failed", "null".equals(raw));
+                    JSONObject geometry = new JSONObject(new JSONArray("[" + raw + "]").getString(0));
+                    double inset = geometry.getDouble("inset");
+                    assertTrue("Android top inset must be available: " + geometry, inset > 0);
+                    assertTrue("Wrong Race preparation phase: " + geometry, geometry.getInt("phase") == phase);
+                    for (String key : new String[]{"label", "heading", "close"}) {
+                        JSONObject box = geometry.getJSONObject(key);
+                        assertTrue(key + " overlaps Android status bar: " + geometry, box.getDouble("top") >= inset + 4);
+                        assertTrue(key + " clips viewport: " + geometry,
+                            box.getDouble("bottom") <= geometry.getDouble("height") &&
+                            box.getDouble("right") <= geometry.getDouble("width"));
+                    }
+                }
+            }
+        } finally {
+            InstrumentationRegistry.getInstrumentation().getUiAutomation()
+                .executeShellCommand("wm user-rotation free").close();
+        }
     }
 
     private void assertRaceScreenPainted(ActivityScenario<MainActivity> scenario, boolean landscape) throws Exception {

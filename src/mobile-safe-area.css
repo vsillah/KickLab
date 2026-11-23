@@ -115,6 +115,15 @@
   padding-bottom: calc(48px + env(safe-area-inset-bottom, 0px));
   padding-left: calc(16px + env(safe-area-inset-left, 0px));
 }
+/* Android WebView may report a zero CSS safe-area inset beneath edge-to-edge system bars. */
+.race-preflight-shell {
+  padding-top: calc(clamp(15px, 2vw, 32px) + max(env(safe-area-inset-top, 0px), var(--kicklab-android-race-top-inset, 0px)));
+}
+@media (orientation: landscape) and (max-height: 520px) and (max-width: 1000px) {
+  .race-preflight-shell {
+    padding-top: calc(8px + max(env(safe-area-inset-top, 0px), var(--kicklab-android-race-top-inset, 0px)));
+  }
+}
 .skip-link {
   top: calc(12px + env(safe-area-inset-top, 0px));
   transform: translateY(calc(-100% - 20px - env(safe-area-inset-top, 0px)));

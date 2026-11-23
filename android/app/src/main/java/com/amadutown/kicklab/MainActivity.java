@@ -4,6 +4,7 @@ import com.getcapacitor.BridgeActivity;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowInsets;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
@@ -44,5 +45,19 @@ public class MainActivity extends BridgeActivity {
                 });
             }
         }, "KickLabHomePresentation");
+        webView.addJavascriptInterface(new Object() {
+            @JavascriptInterface public float topInsetCssPx() {
+                WindowInsets insets = webView.getRootWindowInsets();
+                if (insets == null) return 0;
+                int top;
+                if (android.os.Build.VERSION.SDK_INT >= 30) {
+                    top = insets.getInsetsIgnoringVisibility(
+                        WindowInsets.Type.statusBars() | WindowInsets.Type.displayCutout()).top;
+                } else {
+                    top = Math.max(insets.getStableInsetTop(), insets.getSystemWindowInsetTop());
+                }
+                return top / webView.getResources().getDisplayMetrics().density;
+            }
+        }, "KickLabAndroidSafeArea");
     }
 }

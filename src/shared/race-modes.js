@@ -9,7 +9,16 @@
   });
   const NEXT=Object.freeze({id:'endurance',name:'Endurance / Heat Management',available:true});
   const DEFAULT=Object.freeze({version:1,selected:'drag',best:{}});
-  function enabled(){return typeof location!=='undefined'&&root.KickLabRaceOrigin.trusted()&&new URLSearchParams(location.search).get('raceExpansion')==='prototype';}
+  let enabledUrl=null,enabledForUrl=false;
+  function enabled(){
+    if(typeof location==='undefined')return false;
+    const currentUrl=location.href;
+    if(currentUrl!==enabledUrl){
+      enabledUrl=currentUrl;
+      enabledForUrl=root.KickLabRaceOrigin.trusted()&&new URLSearchParams(location.search).get('raceExpansion')==='prototype';
+    }
+    return enabledForUrl;
+  }
   function normalize(raw){if(!raw||typeof raw!=='object'||raw.version!==1)return{version:1,selected:'drag',best:{}};const best={};for(const id of Object.keys(MODES)){const n=Number(raw.best?.[id]);if(Number.isFinite(n)&&n>=0)best[id]=n;}return{version:1,selected:MODES[raw.selected]?raw.selected:'drag',best};}
   function config(id){return MODES[id]||MODES.drag;}
   function initial(id){return{mode:id,phase:'grid',elapsed:0,distance:0,trapKmh:0,launchSpin:0,nosUsed:0,peakHeat:0,peakEngineHeat:0,criticalSeconds:0,peakStraightKmh:0,straightPaceSeconds:0,gear:1,shifts:0,badShifts:0,shiftCooldown:0,driftPoints:0,driftCurvePoints:[0,0],driftSeconds:0,spinCount:0,offLineSeconds:0,laps:0,lapTimes:[],lastLapAt:0,routeArmed:false,lastAngle:null,lastProgress:null,lastX:null,lastY:null};}
