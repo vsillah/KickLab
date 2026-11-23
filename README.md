@@ -29,7 +29,7 @@ src/
     42-match.js
     49-profiles.js          local player setup, switching and stats
     50-renderer-3d.js       Three.js stadium
-    50e-kick-fidelity.js    default-off stadium fidelity experiment (?kickFidelity=dusk|night), see docs/kick-dusk-fidelity.md
+    50e-kick-fidelity.js    default-off stadium fidelity experiment (?kickFidelity=day|dusk|night), see docs/kick-dusk-fidelity.md
     51-live-match.js
     52-leaderboard.js       local device and optional family boards
     53-weekly-challenge.js

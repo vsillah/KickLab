@@ -1,7 +1,7 @@
-// QA for the Kick stadium fidelity experiment (?kickFidelity=dusk|night).
-// Usage: node scripts/qa-kick-fidelity.mjs http://127.0.0.1:4173/kicklab.html [outDir] [--time=dusk|night] [--software-gl] [--only=states|parity|outcome]
-// Checks: flag off never activates; six review states capture with the flag on and off; the look follows a dusk/night
-// switch; leaving for day restores the exact scene state; a seeded free kick gives the same outcome with the flag on and off; no external requests.
+// QA for the Kick stadium fidelity experiment (?kickFidelity=day|dusk|night).
+// Usage: node scripts/qa-kick-fidelity.mjs http://127.0.0.1:4173/kicklab.html [outDir] [--time=day|dusk|night] [--software-gl] [--only=states|parity|outcome]
+// Checks: flag off never activates; six review states capture with the flag on and off; the look follows a switch
+// to another enabled time of day; leaving for a time that is not enabled restores the exact scene state; a seeded free kick gives the same outcome with the flag on and off; no external requests.
 import { createRequire } from 'node:module';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { resolve, join } from 'node:path';
@@ -10,8 +10,9 @@ const { chromium } = createRequire(import.meta.url)('playwright');
 const args = process.argv.slice(2), base = args.find(a => /^http/.test(a)), out = resolve(args.find(a => !/^(http|--)/.test(a)) || 'qa-artifacts/kick-fidelity');
 if (!base || !/^http:\/\/127\.0\.0\.1:\d+\/kicklab\.html$/.test(base)) throw new Error('Pass localhost kicklab.html URL.');
 const software = args.includes('--software-gl'), only = (args.find(a => a.startsWith('--only=')) || '').slice(7);
-const time = (args.find(a => a.startsWith('--time=')) || '--time=dusk').slice(7), other = time === 'dusk' ? 'night' : 'dusk';
-if (!['dusk', 'night'].includes(time)) throw new Error('--time must be dusk or night.');
+const TIMES = ['day', 'dusk', 'night'], time = (args.find(a => a.startsWith('--time=')) || '--time=dusk').slice(7);
+if (!TIMES.includes(time)) throw new Error('--time must be day, dusk or night.');
+const other = time === 'dusk' ? 'night' : 'dusk', leave = TIMES.find(name => name !== time && name !== other);   // other: also enabled in the parity run; leave: not enabled
 mkdirSync(out, { recursive: true });
 const executablePath = [process.env.KICKLAB_CHROMIUM_PATH, chromium.executablePath(), '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', '/usr/bin/google-chrome'].find(path => path && existsSync(path));
 const browser = await chromium.launch({ headless: true, executablePath, args: software ? ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] : [] });
@@ -112,19 +113,19 @@ try {
     await context.close();
   }
   if (!only || only === 'parity') {
-    const never = await open('parity-never', 'kickReview=K3', { time: 'day', reducedMotion: 'reduce' });
+    const never = await open('parity-never', 'kickReview=K3', { time: leave, reducedMotion: 'reduce' });
     await choose(never.page, 'shot', 'dribble'); await never.page.waitForTimeout(1000);
     const a = await digest(never.page); await never.context.close();
-    const used = await open('parity-disposed', `kickFidelity=dusk,night&kickFidelityLadder=off&kickReview=K3`, { reducedMotion: 'reduce' });
+    const used = await open('parity-disposed', `kickFidelity=${time},${other}&kickFidelityLadder=off&kickReview=K3`, { reducedMotion: 'reduce' });
     await choose(used.page, 'shot', 'dribble'); await used.page.waitForTimeout(1000);
     let state = await audit(used.page);
     if (!(state?.active && state.time === time)) throw new Error(`parity: experiment did not activate at ${time} (${JSON.stringify(state)})`);
     await choose(used.page, 'time', other); await used.page.waitForTimeout(1500);
     state = await audit(used.page);
     if (!(state?.active && state.time === other)) throw new Error(`parity: look did not follow the switch to ${other} (${JSON.stringify(state)})`);
-    await choose(used.page, 'time', 'day'); await used.page.waitForTimeout(1500);
+    await choose(used.page, 'time', leave); await used.page.waitForTimeout(1500);
     const b = await digest(used.page), after = await audit(used.page); await used.context.close();
-    if (after?.active) throw new Error('parity: experiment still active after leaving for day');
+    if (after?.active) throw new Error(`parity: experiment still active after leaving for ${leave}`);
     if (JSON.stringify(a) !== JSON.stringify(b)) throw new Error(`parity: scene state differs after dispose\n${JSON.stringify(a)}\n${JSON.stringify(b)}`);
     report.checks.push({ label: 'dispose-parity', digest: a });
   }
