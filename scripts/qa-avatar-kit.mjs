@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, writeFileSync, readdirSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { createRequire } from 'node:module';
+import { seedQaProfile } from './lib/qa-profile-bootstrap.mjs';
 
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
@@ -18,6 +19,8 @@ const context = await browser.newContext({
   recordVideo: { dir: videoDir, size: { width: 1440, height: 1000 } },
   reducedMotion: 'no-preference'
 });
+// A complete device-local player, so lab tabs open the live stage and not first-run profile setup.
+await context.addInitScript(seedQaProfile);
 const page = await context.newPage();
 const errors = [];
 const rigAudits = [];
@@ -82,7 +85,9 @@ const setEnvironment = async (name, id) => {
   environmentAudits.push(scene);
 };
 
-await page.goto(`${baseUrl}?qa=avatar-kit-final`, { waitUntil: 'networkidle' });
+// The rig audit below reads the procedural rig's joints. The GLB athlete is the default Kick player now and leaves that audit
+// empty, so this suite opts into the procedural rig, which remains the fallback on constrained devices.
+await page.goto(`${baseUrl}?qa=avatar-kit-final&renderer=procedural`, { waitUntil: 'networkidle' });
 await pause(900);
 await page.keyboard.press('Space');
 await pause(170);
