@@ -67,20 +67,28 @@ const selectLab = async (name) => {
   await page.locator('.stage').waitFor({ state: 'visible' });
   await blurControls();
 };
+// Kick activities are chosen through #experienceSelector → #experienceFreestyle, which opens the Freestyle picker. Each
+// activity is a role=checkbox button with a stable id; with exactly one selected, #freestyleStart reads "Play activity".
+const activityIds = { 'Free kick': 'game-free', 'Header duel': 'game-header', '1v1 Dribble': 'game-run', Goalkeeper: 'game-gk' };
 const openActivity = async (name) => {
-  await page.getByRole('button', { name: /Freestyle/ }).click();
-  for (;;) {
-    const selected = page.getByRole('checkbox', { name: /, selected$/ });
-    if (await selected.count() === 0) break;
-    const aria = await selected.first().getAttribute('aria-label');
-    if (aria?.startsWith(name)) break;
-    await selected.first().click();
-    await page.getByRole('button', { name: /Freestyle/ }).click();
+  const id = activityIds[name];
+  if (!id) throw new Error(`No activity id is mapped for ${name}`);
+  const target = page.locator(`#${id}`);
+  if (!(await target.isVisible())) {
+    const freestyle = page.locator('#experienceFreestyle');
+    if (!(await freestyle.isVisible())) await page.locator('#experienceSelector').click();
+    await freestyle.click();
+    await target.waitFor({ state: 'visible' });
   }
-  const target = page.getByRole('checkbox', { name: new RegExp(`^${name}`) });
-  const aria = await target.getAttribute('aria-label');
-  if (!aria || !/, selected$/.test(aria)) await target.click();
-  await page.getByRole('button', { name: 'Play activity', exact: true }).click();
+  for (;;) {
+    const others = page.locator(`#gameBar [role="checkbox"][aria-checked="true"]:not(#${id})`);
+    if (await others.count() === 0) break;
+    await others.first().click();
+  }
+  if (await target.getAttribute('aria-checked') !== 'true') await target.click();
+  const start = page.locator('#freestyleStart');
+  if ((await start.textContent())?.trim() !== 'Play activity') throw new Error(`${name} is not the only selected activity`);
+  await start.click();
   await blurControls();
   await pause();
 };
