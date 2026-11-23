@@ -84,8 +84,24 @@ const openActivity = async (name) => {
   await blurControls();
   await pause();
 };
+// Settings are reached through the lab-controls rail: #orientationDetailToggle ("Open lab controls") reveals #settingsToggle
+// ("Open game settings"), which opens the drawer on its category list. The former quick-setting shortcuts ("Open Kit
+// settings", "Open Player settings", "Open Environment settings") are still rendered, hidden, with the category each one
+// opened, so a named shortcut resolves its category there and opens the same category from the list.
+const openSettings = async (shortcut) => {
+  const settingsToggle = page.locator('#settingsToggle');
+  if (!(await settingsToggle.isVisible())) await page.locator('#orientationDetailToggle').click();
+  await settingsToggle.click();
+  await page.locator('#settingsDrawer').waitFor({ state: 'visible' });
+  if (!shortcut) return;
+  const category = await page
+    .locator(`#quickSettings .quick-setting[aria-label^="Open ${shortcut} settings"]`)
+    .getAttribute('data-category');
+  if (!category) throw new Error(`${shortcut}: settings category was not exposed`);
+  await page.locator(`#settingsCategories [data-category="${category}"]`).click();
+};
 const setEnvironment = async (name, id) => {
-  await page.getByRole('button', { name: /Open Environment settings/ }).click();
+  await openSettings('Environment');
   await page.getByRole('button', { name: new RegExp(`^${name}`) }).click();
   await page.getByRole('button', { name: /Close settings/ }).click();
   await blurControls();
@@ -133,7 +149,7 @@ await dismissToasts();
 await snap('1440-free-kick');
 await stageSnap('1440-free-kick');
 
-await page.getByRole('button', { name: /Open Kit settings/ }).click();
+await openSettings('Kit');
 await page.getByRole('button', { name: /Customize equipment/ }).click();
 for (const choice of [/Rock hard/, /Size 4/, /Smooth/, /Soft-ground studs/, /Light.*quick feet/]) {
   await page.getByRole('button', { name: choice }).click();
@@ -147,7 +163,7 @@ await pause(3300);
 await dismissToasts();
 
 await openActivity('1v1 Dribble');
-await page.getByRole('button', { name: /Open Player settings/ }).click();
+await openSettings('Player');
 await page.getByRole('button', { name: /The Tower/ }).click();
 await page.getByRole('button', { name: /Close settings/ }).click();
 await page.keyboard.down('Space');
@@ -165,7 +181,7 @@ await snap('1440-dribble-tower');
 await stageSnap('1440-dribble-tower');
 await auditRig('tower-cut');
 
-await page.getByRole('button', { name: /Open Player settings/ }).click();
+await openSettings('Player');
 await page.getByRole('button', { name: /The Trickster/ }).click();
 await page.getByRole('button', { name: /Close settings/ }).click();
 await blurControls();
@@ -199,7 +215,7 @@ const frameTimes = await page.evaluate(() => new Promise((resolve) => {
   requestAnimationFrame(tick);
 }));
 
-await page.getByRole('button', { name: 'Settings', exact: true }).click();
+await openSettings();
 await page.getByRole('button', { name: /Graphics 3D stadium/ }).click();
 await page.getByRole('button', { name: /Classic lighter/ }).click();
 await page.getByRole('button', { name: /Close settings/ }).click();
