@@ -88,6 +88,9 @@ const setEnvironment = async (name, id) => {
 // The rig audit below reads the procedural rig's joints. The GLB athlete is the default Kick player now and leaves that audit
 // empty, so this suite opts into the procedural rig, which remains the fallback on constrained devices.
 await page.goto(`${baseUrl}?qa=avatar-kit-final&renderer=procedural`, { waitUntil: 'networkidle' });
+// The app opens on the Home chooser. Enter Fight and wait for the live stage before the first input and capture.
+await selectLab('Fight');
+await page.locator('.stage').waitFor({ state: 'visible' });
 await pause(900);
 await page.keyboard.press('Space');
 await pause(170);
