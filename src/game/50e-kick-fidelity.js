@@ -188,7 +188,7 @@ kfCol=mix(kfCol,kfWorn*(0.8+0.4*kfFine),kfWear*0.55);diffuseColor.rgb*=kfCol;`)
   /* soft floodlight shadows: one contact blob and four long faint shadows per figure and for the ball */
   shadows(V3,D){const T=THREE,res=this.res,m=res.blobs,o=res.dummy,side=D===Kick,shift=side?V3.world.position.x:0,pts=[];
     const n=side?V3.sents.length:V3.ents.length;for(let i=0;i<n&&i<V3.rigs.length;i++){const r=V3.rigs[i];if(r.g.visible&&r.pelvis)pts.push([r.pelvis.position.x,r.pelvis.position.z,r.pelvis.position.y*1.85,Math.max(0,r.pelvis.position.y-1.15),.62]);}
-    const C=V3.directionC;if(C)for(const root of [C.root,C.opponent&&C.opponent.root]){if(root&&root.visible&&root.parent){const p=root.getWorldPosition(new T.Vector3());pts.push([p.x,p.z,1.75,Math.max(0,p.y),.62]);}}
+    const C=V3.directionC;if(C)for(const root of [C.root,C.opponent&&C.opponent.root,...(C.squad||[]).map(actor=>actor.root)]){if(root&&root.visible&&root.parent){const p=root.getWorldPosition(new T.Vector3());pts.push([p.x,p.z,1.75,Math.max(0,p.y),.62]);}}
     {const b=V3.ball.position;pts.push([b.x,b.z,.22,Math.max(0,b.y-.11),.2]);}
     let k=0;for(const[x,z,h,lift,w]of pts){if(k+6>160)break;const fade=1/(1+lift*1.6);
       o.position.set(x,.016,z);o.rotation.set(0,0,0);o.scale.set(w*1.25*fade,1,w*1.25*fade);o.updateMatrix();m.setMatrixAt(k++,o.matrix);m.setMatrixAt(k++,o.matrix);
