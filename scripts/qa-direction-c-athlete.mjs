@@ -3,6 +3,7 @@ import { execFileSync } from 'node:child_process';
 import { join, resolve } from 'node:path';
 import { createRequire } from 'node:module';
 
+import { seedQaProfile } from './lib/qa-profile-bootstrap.mjs';
 const require=createRequire(import.meta.url);
 const {chromium}=require('playwright');
 const baseUrl=process.argv[2]||'http://127.0.0.1:4211/kicklab.html';
@@ -11,6 +12,8 @@ mkdirSync(outputDir,{recursive:true});
 const executablePath=[process.env.KICKLAB_CHROMIUM_PATH,chromium.executablePath(),'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find(path=>path&&existsSync(path));
 if(!executablePath)throw new Error('No local Chrome or Chromium executable found.');
 const browser=await chromium.launch({headless:true,executablePath});
+// Every context starts with a complete device-local player; without one a lab tab click opens first-run profile setup.
+const openContext=browser.newContext.bind(browser);browser.newContext=async options=>{const context=await openContext(options);await context.addInitScript(seedQaProfile);return context;};
 const errors=[],externalRequests=new Set(),screenshots=[],responsive=[],framePacing={},fallbacks={},localOrigin=new URL(baseUrl).origin;
 const budgets={assetBytes:2_500_000,firstPlayBytes:8_000_000,contactDriftMm:10,plantGroundMm:10,desktopP95Ms:20,mobileP95Ms:40,memoryProxyBytes:24*1024*1024,materials:6,overflowPx:0};
 
@@ -44,7 +47,7 @@ await captureClose('follow-through');
 
 {
   const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:1});const page=await context.newPage();watch(page);
-  await page.addInitScript(()=>localStorage.setItem('impactlab.v1',JSON.stringify({gfx:'2d'})));
+  await page.addInitScript(seedQaProfile,{progress:{gfx:'2d'}});
   await page.goto(urlFor({view:'canvas-fallback'}),{waitUntil:'networkidle'});await dismissProfile(page);await page.locator('#lab-tab-kick').click();await page.locator('.stage').waitFor({state:'visible'});await page.waitForTimeout(2600);
   const state=await page.evaluate(()=>({audit:window.__KICKLAB_DIRECTION_C__,cv3:!!document.querySelector('#cv3'),canvas:getComputedStyle(document.querySelector('#cv')).display,fallback:window.__KICKLAB_SIDE_STADIUM__,overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth}));fallbacks.canvas=state;if(state.cv3||state.canvas!=='block'||state.audit.status!=='canvas')throw new Error(`Canvas fallback failed: ${JSON.stringify(state)}`);const path=join(outputDir,'mobile-canvas-fallback.png');await page.screenshot({path,fullPage:true});screenshots.push(path);await context.close();
 }
@@ -52,7 +55,7 @@ await captureClose('follow-through');
   const context=await browser.newContext({viewport:{width:768,height:1024},deviceScaleFactor:1});const page=await context.newPage();watch(page);await page.goto(urlFor({quality:'low',view:'reduced-quality'}),{waitUntil:'networkidle'});const state=await page.evaluate(()=>window.__KICKLAB_DIRECTION_C__);fallbacks.reducedQuality=state;if(state.status!=='reduced-quality'||state.loads!==0)throw new Error(`Reduced-quality fallback failed: ${JSON.stringify(state)}`);await context.close();
 }
 {
-  const context=await browser.newContext({viewport:{width:1440,height:1000},deviceScaleFactor:1});const page=await context.newPage();watch(page);await page.goto(`${baseUrl}?qa=direction-c-default-off`,{waitUntil:'networkidle'});const state=await page.evaluate(()=>window.__KICKLAB_DIRECTION_C__);fallbacks.defaultOff=state;if(state.enabled||state.status!=='flag-off'||state.loads!==0)throw new Error(`Default-off gate failed: ${JSON.stringify(state)}`);await context.close();
+  const context=await browser.newContext({viewport:{width:1440,height:1000},deviceScaleFactor:1});const page=await context.newPage();watch(page);await page.goto(`${baseUrl}?renderer=procedural&qa=direction-c-opt-out`,{waitUntil:'networkidle'});const state=await page.evaluate(()=>window.__KICKLAB_DIRECTION_C__);fallbacks.defaultOff=state;if(state.enabled||state.status!=='flag-off'||state.loads!==0)throw new Error(`Opt-out gate failed: ${JSON.stringify(state)}`);await context.close();
 }
 {
   const context=await browser.newContext({viewport:{width:1440,height:1000},deviceScaleFactor:1});const page=await context.newPage();watch(page);await openKick(page,{athletePhase:'ready',view:'lifecycle'});const before=await page.evaluate(()=>window.__KICKLAB_DIRECTION_C__.phaseTime);await page.evaluate(()=>KickLabMobileLifecycle.suspend('direction-c-qa'));await page.waitForTimeout(500);const after=await page.evaluate(()=>window.__KICKLAB_DIRECTION_C__.phaseTime);await page.evaluate(()=>KickLabMobileLifecycle.foreground('direction-c-qa'));fallbacks.lifecycle={before,after,frozen:before===after};if(before!==after)throw new Error(`Lifecycle animation advanced while paused: ${before} -> ${after}`);await context.close();

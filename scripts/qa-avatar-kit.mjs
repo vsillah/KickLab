@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, writeFileSync, readdirSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { createRequire } from 'node:module';
+import { seedQaProfile } from './lib/qa-profile-bootstrap.mjs';
 
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
@@ -18,6 +19,8 @@ const context = await browser.newContext({
   recordVideo: { dir: videoDir, size: { width: 1440, height: 1000 } },
   reducedMotion: 'no-preference'
 });
+// A complete device-local player, so lab tabs open the live stage and not first-run profile setup.
+await context.addInitScript(seedQaProfile);
 const page = await context.newPage();
 const errors = [];
 const rigAudits = [];
@@ -48,31 +51,65 @@ const dismissToasts = async () => {
   }
   await pause(500);
 };
+const homeUrl = `${baseUrl}?qa=avatar-kit-final&renderer=procedural`;
+// The Home chooser shows each lab as a full-card button (#lab-tab-fight, #lab-tab-race, #lab-tab-kick) with aria-pressed.
+// The cards are hidden inside a lab, so a switch between labs reloads the Home chooser first.
 const selectLab = async (name) => {
-  const tab = page.getByRole('tab', { name: new RegExp(`^${name}`) });
-  await tab.click();
-  if (await tab.getAttribute('aria-selected') !== 'true') throw new Error(`${name} lab did not become selected`);
+  const mode = name.toLowerCase();
+  const card = page.locator(`#lab-tab-${mode}`);
+  if (!(await card.isVisible())) {
+    await page.goto(homeUrl, { waitUntil: 'networkidle' });
+    await card.waitFor({ state: 'visible' });
+  }
+  await card.click();
+  await page.waitForFunction((expected) => document.documentElement.dataset.kicklabMode === expected, mode);
+  if (await card.getAttribute('aria-pressed') !== 'true') throw new Error(`${name} lab did not become selected`);
+  await page.locator('.stage').waitFor({ state: 'visible' });
   await blurControls();
 };
+// Kick activities are chosen through #experienceSelector → #experienceFreestyle, which opens the Freestyle picker. Each
+// activity is a role=checkbox button with a stable id; with exactly one selected, #freestyleStart reads "Play activity".
+const activityIds = { 'Free kick': 'game-free', 'Header duel': 'game-header', '1v1 Dribble': 'game-run', Goalkeeper: 'game-gk' };
 const openActivity = async (name) => {
-  await page.getByRole('button', { name: /Freestyle/ }).click();
-  for (;;) {
-    const selected = page.getByRole('checkbox', { name: /, selected$/ });
-    if (await selected.count() === 0) break;
-    const aria = await selected.first().getAttribute('aria-label');
-    if (aria?.startsWith(name)) break;
-    await selected.first().click();
-    await page.getByRole('button', { name: /Freestyle/ }).click();
+  const id = activityIds[name];
+  if (!id) throw new Error(`No activity id is mapped for ${name}`);
+  const target = page.locator(`#${id}`);
+  if (!(await target.isVisible())) {
+    const freestyle = page.locator('#experienceFreestyle');
+    if (!(await freestyle.isVisible())) await page.locator('#experienceSelector').click();
+    await freestyle.click();
+    await target.waitFor({ state: 'visible' });
   }
-  const target = page.getByRole('checkbox', { name: new RegExp(`^${name}`) });
-  const aria = await target.getAttribute('aria-label');
-  if (!aria || !/, selected$/.test(aria)) await target.click();
-  await page.getByRole('button', { name: 'Play activity', exact: true }).click();
+  for (;;) {
+    const others = page.locator(`#gameBar [role="checkbox"][aria-checked="true"]:not(#${id})`);
+    if (await others.count() === 0) break;
+    await others.first().click();
+  }
+  if (await target.getAttribute('aria-checked') !== 'true') await target.click();
+  const start = page.locator('#freestyleStart');
+  if ((await start.textContent())?.trim() !== 'Play activity') throw new Error(`${name} is not the only selected activity`);
+  await start.click();
   await blurControls();
   await pause();
 };
+// Settings are reached through the lab-controls rail: #orientationDetailToggle ("Open lab controls") reveals #settingsToggle
+// ("Open game settings"), which opens the drawer on its category list. The former quick-setting shortcuts ("Open Kit
+// settings", "Open Player settings", "Open Environment settings") are still rendered, hidden, with the category each one
+// opened, so a named shortcut resolves its category there and opens the same category from the list.
+const openSettings = async (shortcut) => {
+  const settingsToggle = page.locator('#settingsToggle');
+  if (!(await settingsToggle.isVisible())) await page.locator('#orientationDetailToggle').click();
+  await settingsToggle.click();
+  await page.locator('#settingsDrawer').waitFor({ state: 'visible' });
+  if (!shortcut) return;
+  const category = await page
+    .locator(`#quickSettings .quick-setting[aria-label^="Open ${shortcut} settings"]`)
+    .getAttribute('data-category');
+  if (!category) throw new Error(`${shortcut}: settings category was not exposed`);
+  await page.locator(`#settingsCategories [data-category="${category}"]`).click();
+};
 const setEnvironment = async (name, id) => {
-  await page.getByRole('button', { name: /Open Environment settings/ }).click();
+  await openSettings('Environment');
   await page.getByRole('button', { name: new RegExp(`^${name}`) }).click();
   await page.getByRole('button', { name: /Close settings/ }).click();
   await blurControls();
@@ -82,7 +119,12 @@ const setEnvironment = async (name, id) => {
   environmentAudits.push(scene);
 };
 
-await page.goto(`${baseUrl}?qa=avatar-kit-final`, { waitUntil: 'networkidle' });
+// The rig audit below reads the procedural rig's joints. The GLB athlete is the default Kick player now and leaves that audit
+// empty, so this suite opts into the procedural rig, which remains the fallback on constrained devices.
+await page.goto(homeUrl, { waitUntil: 'networkidle' });
+// The app opens on the Home chooser. Enter Fight and wait for the live stage before the first input and capture.
+await selectLab('Fight');
+await page.locator('.stage').waitFor({ state: 'visible' });
 await pause(900);
 await page.keyboard.press('Space');
 await pause(170);
@@ -115,7 +157,7 @@ await dismissToasts();
 await snap('1440-free-kick');
 await stageSnap('1440-free-kick');
 
-await page.getByRole('button', { name: /Open Kit settings/ }).click();
+await openSettings('Kit');
 await page.getByRole('button', { name: /Customize equipment/ }).click();
 for (const choice of [/Rock hard/, /Size 4/, /Smooth/, /Soft-ground studs/, /Light.*quick feet/]) {
   await page.getByRole('button', { name: choice }).click();
@@ -129,7 +171,7 @@ await pause(3300);
 await dismissToasts();
 
 await openActivity('1v1 Dribble');
-await page.getByRole('button', { name: /Open Player settings/ }).click();
+await openSettings('Player');
 await page.getByRole('button', { name: /The Tower/ }).click();
 await page.getByRole('button', { name: /Close settings/ }).click();
 await page.keyboard.down('Space');
@@ -147,7 +189,7 @@ await snap('1440-dribble-tower');
 await stageSnap('1440-dribble-tower');
 await auditRig('tower-cut');
 
-await page.getByRole('button', { name: /Open Player settings/ }).click();
+await openSettings('Player');
 await page.getByRole('button', { name: /The Trickster/ }).click();
 await page.getByRole('button', { name: /Close settings/ }).click();
 await blurControls();
@@ -181,7 +223,7 @@ const frameTimes = await page.evaluate(() => new Promise((resolve) => {
   requestAnimationFrame(tick);
 }));
 
-await page.getByRole('button', { name: 'Settings', exact: true }).click();
+await openSettings();
 await page.getByRole('button', { name: /Graphics 3D stadium/ }).click();
 await page.getByRole('button', { name: /Classic lighter/ }).click();
 await page.getByRole('button', { name: /Close settings/ }).click();

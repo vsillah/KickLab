@@ -3,6 +3,7 @@ import {existsSync,mkdirSync,writeFileSync} from 'node:fs';
 import {resolve,join} from 'node:path';
 import {execFileSync} from 'node:child_process';
 import assert from 'node:assert/strict';
+import {seedQaProfile} from './lib/qa-profile-bootstrap.mjs';
 const require=createRequire(import.meta.url),{chromium}=require('playwright');
 const base=process.argv[2]||'http://127.0.0.1:4211/kicklab.html',out=resolve(process.argv[3]||'qa-artifacts/offline-kick-fidelity');
 mkdirSync(out,{recursive:true});
@@ -17,6 +18,8 @@ async function caseRun(width,height,key,{offline=true,reducedMotion='no-preferen
  const context=await browser.newContext({viewport:{width,height},deviceScaleFactor:1,reducedMotion,recordVideo:video?{dir:join(out,'recordings'),size:{width,height}}:undefined});
  if(storage==='denied')await context.addInitScript(()=>{const original=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){if(this===localStorage&&String(key).startsWith('kicklab.profiles.'))throw new DOMException('denied','QuotaExceededError');return original.call(this,key,value);};});
  if(storage==='corrupt')await context.addInitScript(()=>{try{localStorage.setItem('impactlab.v1','{broken')}catch{}});
+ // A complete player, so the Kick tab opens gameplay and not first-run setup. The denied and corrupt fixtures keep their broken store and get only the legacy nickname marker.
+ await context.addInitScript(seedQaProfile,{legacyOnly:storage!=='normal'});
  const page=await context.newPage(),requests=[],errors=[],external=[];let lost=false;
  page.on('request',r=>{const u=r.url();if(lost)requests.push(u);if(/^https?:/.test(u)&&new URL(u).origin!==origin)external.push(u)});
  page.on('pageerror',e=>errors.push(String(e)));
@@ -46,7 +49,7 @@ try{
  await caseRun(390,844,'run',{reducedMotion:'reduce'});
  await caseRun(390,844,'free',{storage:'corrupt'});
  await caseRun(390,844,'free',{storage:'denied'});
- const context=await browser.newContext({viewport:{width:390,height:844}});await context.addInitScript(()=>{const original=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(type,...args){return /^webgl/.test(type)?null:original.call(this,type,...args)}});const page=await context.newPage();await page.goto(url(),{waitUntil:'networkidle'});await closeProfile(page);await page.locator('#lab-tab-kick').click();await page.waitForTimeout(800);const fallback=await state(page);assert.equal(fallback.athlete.status,'webgl-unavailable');assert.equal(fallback.cv3,false);await context.close();
+ const context=await browser.newContext({viewport:{width:390,height:844}});await context.addInitScript(()=>{const original=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(type,...args){return /^webgl/.test(type)?null:original.call(this,type,...args)}});await context.addInitScript(seedQaProfile);const page=await context.newPage();await page.goto(url(),{waitUntil:'networkidle'});await closeProfile(page);await page.locator('#lab-tab-kick').click();await page.waitForTimeout(800);const fallback=await state(page);assert.equal(fallback.athlete.status,'webgl-unavailable');assert.equal(fallback.cv3,false);await context.close();
  writeFileSync(join(out,'report.json'),JSON.stringify({base,viewports,activities,rows,fallback:{status:fallback.athlete.status,cv3:fallback.cv3}},null,2));
 }
 }finally{await browser.close();}

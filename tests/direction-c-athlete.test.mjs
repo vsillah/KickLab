@@ -64,7 +64,7 @@ test('keeps the shared skeleton and approved free-kick contact events within ten
 
 test('keeps the player-facing switch hidden and fails closed to existing fallbacks',()=>{
   const runtime=read('src/game/50a-direction-c-athlete.js'),renderer=read('src/game/50-renderer-3d.js'),html=read('src/index.html'),generator=read('scripts/generate-makehuman-athlete.py'),extension=read('scripts/extend-multi-activity-athlete.py');
-  assert.match(runtime,/get\('renderer'\)===['"]direction-c['"]/);
+  assert.match(runtime,/get\('renderer'\)!==['"]procedural['"]/);
   assert.match(runtime,/status:'flag-off'/);
   assert.match(runtime,/best\.gfx===['"]2d['"]\)return['"]canvas['"]/);
   assert.match(runtime,/get\('quality'\)===['"]low['"]\)return['"]reduced-quality['"]/);
