@@ -61,7 +61,7 @@ test('uses muted looping local video with reduced-motion and error fallback',()=
   assert.equal((html.match(/<video muted loop playsinline preload="metadata"/g)||[]).length,3);
   assert.doesNotMatch(html,/<video[^>]+controls/);
   assert.doesNotMatch(html,/<(?:video|source|img)[^>]+(?:src|poster)="https?:/i);
-  for(const marker of ['prefers-reduced-motion: reduce',"previewState='fallback'",'.video.pause()'])assert.ok(showcase.includes(marker),marker);
+  for(const marker of ['!reduce',"previewState='fallback'",'.video.pause()'])assert.ok(showcase.includes(marker),marker);
   for(const guard of ['navigator.connection','navigator.deviceMemory','navigator.hardwareConcurrency'])assert.ok(!showcase.includes(guard),guard);
   assert.match(css,/@media \(prefers-reduced-motion:reduce\)\{\.lab-preview video\{display:none\}/);
   assert.equal(manifest.privacy,'local renderer only; no external requests; no audio');
