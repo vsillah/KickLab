@@ -4,12 +4,14 @@ This is a finite seven-gate evidence path. A later gate cannot inherit qualifica
 
 **Current disposition, 2026-11-01:** Browser Gate 1 was qualified by the Integration Captain at merged PR #143 / `origin/main` `7e16186ba85d5f8048104819ae53602870ffecb3`, on web/Pages SHA-256 `20fd645fd25f10589724eabcc22a1a57ad795688ab39597a8225d80d5d38d66c`. See the [current-artifact checkpoint](../browser-gate1-59abddb-checkpoint.md). Current-package rights and notice have limited preparation decisions; legal/support/privacy foundation and exact Phase 3 plan approval remain Phase 2 gates. Native generation is Phase 3 and requires separate execution authorization.
 
+**iOS owner disposition, 2026-11-08:** Phase 3 iOS is [simulator-qualified only](../qa/ios-phase3-simulator-disposition.md) for the exact temporary candidate recorded there. Physical-device VoiceOver, touch, lifecycle, thermal and performance cases are not run, not qualified and mandatory before release. The combined iOS/Android, accessibility, signing, distribution and release gates remain open.
+
 | Gate | Required evidence | Current shared-lane state |
 | --- | --- | --- |
 | 1. Browser baseline | Exact commit, built artifact hash, desktop/mobile interaction smoke, storage continuity, offline check, console log, screenshots/MP4 where client-facing review applies | `qualified` — merged PR #143 at `7e16186`; exact artifact and scope in linked checkpoint |
-| 2. Unsigned iOS Simulator and Android emulator | Generated platform project from the shared config, exact simulator/emulator and OS, clean install, offline launch, Fight/Race/Kick round, background/resume, held-input cancellation, local-profile restart | `not_run` |
-| 3. Physical devices | Named supported devices/OS versions, offline install and cold launch, touch/gesture/audio/haptic behavior, memory/thermal observations, background/interruption recovery | `not_run` |
-| 4. Accessibility | VoiceOver and TalkBack, keyboard/switch path where supported, dynamic text/zoom, contrast, reduced motion, focus order/names, canvas alternatives | `not_run` |
+| 2. Unsigned iOS Simulator and Android emulator | Generated platform project from the shared config, exact simulator/emulator and OS, clean install, offline launch, Fight/Race/Kick round, background/resume, held-input cancellation, local-profile restart | `not_qualified` — bounded iOS simulator-only owner disposition; combined gate remains open |
+| 3. Physical devices | Named supported devices/OS versions, offline install and cold launch, touch/gesture/audio/haptic behavior, memory/thermal observations, background/interruption recovery | `not_run` — iOS VoiceOver, touch, lifecycle, thermal and performance remain mandatory pre-release |
+| 4. Accessibility | VoiceOver and TalkBack, keyboard/switch path where supported, dynamic text/zoom, contrast, reduced motion, focus order/names, canvas alternatives | `not_qualified` — bounded iOS Simulator Reduce Motion run only; physical VoiceOver not run |
 | 5. Signing | Separately approved identifiers, certificates/keystore, provisioning, entitlements, secrets handling, reproducible signed archives | `not_run` |
 | 6. TestFlight and Play internal testing | Separately approved store records, privacy/data-safety declarations, uploaded exact builds, tester access, install evidence, crash/feedback intake | `not_run` |
 | 7. Feedback and release candidate | Triaged tester evidence, fixed blockers, rerun affected gates, version/build numbers, release notes, rollback decision, explicit release approval | `not_run` |
