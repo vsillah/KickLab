@@ -1,6 +1,7 @@
-/* ---------- Direction C: default-off local GLB athlete for every Kick activity ---------- */
+/* ---------- Direction C: local GLB athlete for every Kick activity. Default on; ?renderer=procedural opts out.
+   Canvas, WebGL failure, quality=low, constrained devices and a failed asset load keep the procedural rig. ---------- */
 const DIRECTION_C_PARAMS=new URLSearchParams(location.search);
-const DIRECTION_C_FLAG=DIRECTION_C_PARAMS.get('renderer')==='direction-c';
+const DIRECTION_C_FLAG=DIRECTION_C_PARAMS.get('renderer')!=='procedural';
 const DIRECTION_C_ASSET='assets/3d/kicklab-direction-c-athlete/v2/kicklab-makehuman-athlete.glb';
 const DIRECTION_C_ASSET_BYTES=1643096;
 // Hold only the local athlete GLB for this document's later offline Kick entry.

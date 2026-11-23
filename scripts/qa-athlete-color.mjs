@@ -51,7 +51,7 @@ try{
   }
   {
     const context=await browser.newContext({viewport:{width:390,height:844}}),page=await context.newPage();watch(page,'procedural-3d');
-    const url=new URL(baseUrl);url.searchParams.set('rev',revision);url.searchParams.set('view','procedural-3d');
+    const url=new URL(baseUrl);url.searchParams.set('rev',revision);url.searchParams.set('view','procedural-3d');url.searchParams.set('renderer','procedural');
     await page.goto(url.href,{waitUntil:'networkidle'});if(await page.locator('#profileClose').isVisible())await page.locator('#profileClose').click();await page.locator('#lab-tab-kick').click();
     await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:25000});
     const procedural=await page.evaluate(()=>({athlete:window.__KICKLAB_DIRECTION_C__?.status,canvas3d:!!document.querySelector('#cv3')&&getComputedStyle(document.querySelector('#cv3')).display!=='none',overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth}));
