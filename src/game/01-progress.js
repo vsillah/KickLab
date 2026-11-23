@@ -128,10 +128,10 @@ const RACE_REPLAY_PREVIEW={timer:0,started:0,frames:null};
 function stopRaceReplayPreview(){clearInterval(RACE_REPLAY_PREVIEW.timer);RACE_REPLAY_PREVIEW.timer=0;RACE_REPLAY_PREVIEW.frames=null;}
 function drawRaceReplayPreview(){
   const frames=RACE_REPLAY_PREVIEW.frames;if(!frames?.length)return;
-  const canvas=$('#raceReplayCanvas'),context=canvas.getContext('2d'),phase=matchMedia('(prefers-reduced-motion:reduce)').matches?.5:(performance.now()-RACE_REPLAY_PREVIEW.started)%3000/3000,index=Math.min(frames.length-1,Math.floor(phase*frames.length));
+  const canvas=$('#raceReplayCanvas'),context=canvas.getContext('2d'),phase=reduce?.5:(performance.now()-RACE_REPLAY_PREVIEW.started)%3000/3000,index=Math.min(frames.length-1,Math.floor(phase*frames.length));
   context.drawImage(frames[index].canvas,0,0,canvas.width,canvas.height);
 }
-function startRaceReplayPreview(record){stopRaceReplayPreview();RACE_REPLAY_PREVIEW.frames=record.preview3d;RACE_REPLAY_PREVIEW.started=performance.now();drawRaceReplayPreview();if(!matchMedia('(prefers-reduced-motion:reduce)').matches)RACE_REPLAY_PREVIEW.timer=setInterval(()=>{if(!document.hidden&&!$('#results').hidden)drawRaceReplayPreview();},120);}
+function startRaceReplayPreview(record){stopRaceReplayPreview();RACE_REPLAY_PREVIEW.frames=record.preview3d;RACE_REPLAY_PREVIEW.started=performance.now();drawRaceReplayPreview();if(!reduce)RACE_REPLAY_PREVIEW.timer=setInterval(()=>{if(!document.hidden&&!$('#results').hidden)drawRaceReplayPreview();},120);}
 
 let LVL_STASH=0;
 function lvlRibbon(n){const u=unlocksAt(n),r=$('#rLvl');r.innerHTML=`LEVEL UP <b>${n}</b> ${LEVEL_T[Math.min(n-1,LEVEL_T.length-1)]}`+(u.length?` <small>· unlocked ${u.join(', ')}</small>`:'');r.hidden=false;SND.fanfare();energizeControlledPlayer('level-up',1800);

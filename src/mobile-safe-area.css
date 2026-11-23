@@ -1,4 +1,20 @@
 /* Packaged native shell only. Browser output keeps its existing layout. */
+html[data-kicklab-native-reduced-motion="true"] *,
+html[data-kicklab-native-reduced-motion="true"] *::before,
+html[data-kicklab-native-reduced-motion="true"] *::after {
+  animation-duration: 0s !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0s !important;
+  scroll-behavior: auto !important;
+}
+html[data-kicklab-native-reduced-motion="true"] .lab-preview video { display: none; }
+html[data-kicklab-native-reduced-motion="true"] .preview-badge::after { content: ' · poster'; }
+html[data-kicklab-native-reduced-motion="true"] .gesture-ring { filter: none; }
+html[data-kicklab-native-reduced-motion="true"] .race-journey-art img,
+html[data-kicklab-native-reduced-motion="true"] .toast.race-award-toast .ic img { transform: none !important; }
+html[data-kicklab-native-reduced-motion="false"] .race-action-dial[data-shift-timing="optimal"][data-action-phase="act"] .race-dial-action {
+  animation: race-shift-opt .58s ease-in-out infinite alternate;
+}
 /* Bound Fight's bottom-anchored controls to the native visible viewport. */
 @media (max-width: 480px) {
   html[data-kicklab-mode="fight"][data-kicklab-view="game"] .game-frame .stage > canvas#cv {

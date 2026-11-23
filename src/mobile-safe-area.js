@@ -1,6 +1,38 @@
 // Packaged native shell only. WKWebView pans its visual viewport on keyboard focus,
 // including when the document and Profile dialog are otherwise scroll locked.
 (() => {
+  // Android's Remove animations setting may change while WebView keeps its
+  // original media-query result. The native value is authoritative in this shell.
+  const androidMotion = window.KickLabAndroidMotion;
+  if (androidMotion) {
+    const motionRules=[];
+    const collectMotionRules=rules=>{
+      for(const rule of rules){
+        if(rule.media && /prefers-reduced-motion/.test(rule.media.mediaText)){
+          motionRules.push({rule,original:rule.media.mediaText});
+        }else if(rule.cssRules)collectMotionRules(rule.cssRules);
+      }
+    };
+    for(const sheet of document.styleSheets){
+      try{collectMotionRules(sheet.cssRules);}catch(_){/* only local inline styles are controllable */}
+    }
+    const applyMotion = value => {
+      if (typeof value !== 'boolean') return;
+      document.documentElement.dataset.kicklabNativeReducedMotion = String(value);
+      // A hot WebView can retain the opposite media-query result. Disable only
+      // those stale motion media rules; packaged native CSS supplies the live state.
+      const stale = window.matchMedia('(prefers-reduced-motion: reduce)').matches !== value;
+      for(const {rule,original} of motionRules)rule.media.mediaText=stale?'not all':original;
+      window.KickLabMotion?.setNativeReducedMotion(value);
+    };
+    window.KickLabAndroidMotionChanged = applyMotion;
+    applyMotion(androidMotion.isReducedMotion());
+    window.matchMedia('(prefers-reduced-motion: reduce)').addEventListener?.('change',
+      () => applyMotion(androidMotion.isReducedMotion()));
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) applyMotion(androidMotion.isReducedMotion());
+    });
+  }
   // Android WebView's accelerated Home paint can retain stale card layers.
   // Keep Home in a single software layer; return to hardware for 3D play.
   const homePresentation = window.KickLabHomePresentation;

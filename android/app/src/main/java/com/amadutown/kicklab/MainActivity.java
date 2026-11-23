@@ -2,13 +2,45 @@ package com.amadutown.kicklab;
 
 import com.getcapacitor.BridgeActivity;
 import android.content.res.Configuration;
+import android.database.ContentObserver;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.provider.Settings;
 import android.view.View;
 import android.view.WindowInsets;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
 public class MainActivity extends BridgeActivity {
+    private ContentObserver motionObserver;
+    private Boolean lastReducedMotion;
+
+    private boolean isReducedMotion() {
+        return Settings.Global.getFloat(getContentResolver(), Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f
+            || Settings.Global.getFloat(getContentResolver(), Settings.Global.TRANSITION_ANIMATION_SCALE, 1f) == 0f
+            || Settings.Global.getFloat(getContentResolver(), Settings.Global.WINDOW_ANIMATION_SCALE, 1f) == 0f;
+    }
+
+    private void syncReducedMotion(WebView webView) {
+        boolean reduced = isReducedMotion();
+        if (lastReducedMotion != null && lastReducedMotion == reduced) return;
+        lastReducedMotion = reduced;
+        if (webView.getUrl() != null && webView.getUrl().startsWith("https://localhost/")) {
+            webView.evaluateJavascript("window.KickLabAndroidMotionChanged?.(" + reduced + ")", null);
+        }
+    }
+
+    @Override public void onResume() {
+        super.onResume();
+        if (getBridge() != null) syncReducedMotion(getBridge().getWebView());
+    }
+
+    @Override public void onDestroy() {
+        if (motionObserver != null) getContentResolver().unregisterContentObserver(motionObserver);
+        super.onDestroy();
+    }
+
     @Override public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         // This activity retains its WebView across rotation. The configuration
@@ -32,6 +64,17 @@ public class MainActivity extends BridgeActivity {
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         WebView webView = getBridge().getWebView();
+        webView.addJavascriptInterface(new Object() {
+            @JavascriptInterface public boolean isReducedMotion() { return MainActivity.this.isReducedMotion(); }
+        }, "KickLabAndroidMotion");
+        motionObserver = new ContentObserver(new Handler(Looper.getMainLooper())) {
+            @Override public void onChange(boolean selfChange) { syncReducedMotion(webView); }
+        };
+        for (String key : new String[] { Settings.Global.ANIMATOR_DURATION_SCALE,
+                Settings.Global.TRANSITION_ANIMATION_SCALE, Settings.Global.WINDOW_ANIMATION_SCALE }) {
+            getContentResolver().registerContentObserver(Settings.Global.getUriFor(key), false, motionObserver);
+        }
+        syncReducedMotion(webView);
         webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         webView.addJavascriptInterface(new Object() {
             @JavascriptInterface public void setHomeVisible(boolean visible) {
