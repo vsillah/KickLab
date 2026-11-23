@@ -1,18 +1,20 @@
-/* ---------- Kick stadium fidelity experiment ("Dusk kickoff, lights just on" and "Night under the lights"). Default off.
-   Opt in with ?kickFidelity=dusk, ?kickFidelity=night or ?kickFidelity=dusk,night. Draw-only: reads Kick.opt, the camera and already-placed rigs; never writes game state.
+/* ---------- Kick stadium fidelity experiment ("Dusk kickoff, lights just on", "Night under the lights", "Clear afternoon"). Default off.
+   Opt in per time of day with ?kickFidelity=dusk, night, day, or a comma list such as ?kickFidelity=day,dusk,night. Draw-only: reads Kick.opt, the camera and already-placed rigs; never writes game state.
    Uses its own seeded generator (never Math.random) and the render clock only. dispose() puts today's scene back.
    ?kickReview=K1..K6 is a dev-only fixed-camera hook for screenshot review; it works with the flag on or off. ---------- */
 const KICK_FIDELITY_PARAMS=new URLSearchParams(location.search);
 const KICK_FIDELITY={
-  looks:(KICK_FIDELITY_PARAMS.get('kickFidelity')||'').split(',').filter(name=>name==='dusk'||name==='night'),get flag(){return this.looks.length>0;},cur:'',
+  looks:(KICK_FIDELITY_PARAMS.get('kickFidelity')||'').split(',').filter(name=>name==='dusk'||name==='night'||name==='day'),get flag(){return this.looks.length>0;},cur:'',
   review:/^K[1-6]$/.test(KICK_FIDELITY_PARAMS.get('kickReview')||'')?KICK_FIDELITY_PARAMS.get('kickReview'):null,
   ladderLocked:KICK_FIDELITY_PARAMS.get('kickFidelityLadder')==='off',
   active:false,failed:false,reason:'flag-off',tier:0,res:null,last:null,
   SUN:[-.793,.259,.551],
   /* one parameter set per time of day. key = direction to the shadow-casting light: the low sun at dusk (today's bearing, 15 degrees up),
-     one floodlight tower at night. keyTower names the tower the key light stands in for, so it gets no second, faked shadow. */
-  LOOKS:{dusk:{key:[-.793,.259,.551],keyTower:-1,keyColor:0xffa25c,keyPower:4.4,flood:.4,env:.5,hemi:.22,ambient:.04,lamp:2.4,exposure:1,glow:13,blob:.085,bloom:.5,haze:.6,hazeWarm:[1.05,.52,.24],hazeCool:[.2,.19,.3],fog:[75,290]},
-    night:{key:[-.656,.453,-.604],keyTower:0,keyColor:0xe8efff,keyPower:1.55,flood:1.05,env:.42,hemi:.1,ambient:.03,lamp:4.2,exposure:1.06,glow:19,blob:.15,bloom:.85,haze:.42,hazeWarm:[.07,.085,.13],hazeCool:[.018,.026,.05],fog:[60,300]}},
+     one floodlight tower at night, the afternoon sun by day (today's bearing, 27 degrees up, so the stand roof draws a hard line on the pitch).
+     star = whether figures throw the four floodlight shadows. keyTower names the tower the key light stands in for, so it gets no second, faked shadow. */
+  LOOKS:{day:{key:[-.57,.454,.684],keyTower:-1,star:false,keyColor:0xfff0d8,keyPower:3.5,flood:0,env:.75,hemi:.3,ambient:.05,lamp:.04,exposure:1,glow:.01,blob:.13,bloom:.22,haze:.22,hazeWarm:[.95,.93,.86],hazeCool:[.42,.6,.86],fog:[110,330]},
+    dusk:{key:[-.793,.259,.551],keyTower:-1,star:true,keyColor:0xffa25c,keyPower:4.4,flood:.4,env:.5,hemi:.22,ambient:.04,lamp:2.4,exposure:1,glow:13,blob:.085,bloom:.5,haze:.6,hazeWarm:[1.05,.52,.24],hazeCool:[.2,.19,.3],fog:[75,290]},
+    night:{key:[-.656,.453,-.604],keyTower:0,star:true,keyColor:0xe8efff,keyPower:1.55,flood:1.05,env:.42,hemi:.1,ambient:.03,lamp:4.2,exposure:1.06,glow:19,blob:.15,bloom:.85,haze:.42,hazeWarm:[.07,.085,.13],hazeCool:[.018,.026,.05],fog:[60,300]}},
   TOWERS:[[-50,-46],[-50,46],[50,-46],[50,46]],TOWER_H:34.5,
   publish(extra){window.__KICKLAB_KICK_FIDELITY_AUDIT__=Object.assign({flag:this.flag,active:this.active,failed:this.failed,reason:this.reason,tier:this.tier,review:this.review},extra||{});},
   wantLook(){if(!this.flag||this.failed||Kick.opt.stad!=='home')return null;const time=GAME_CORE.normalizeKickTime(Kick.opt.time);return this.looks.includes(time)?time:null;},
@@ -23,7 +25,7 @@ const KICK_FIDELITY={
     return L(L(L(H(xi,yi,zi),H(xi+1,yi,zi),u),L(H(xi,yi+1,zi),H(xi+1,yi+1,zi),u),v),L(L(H(xi,yi,zi+1),H(xi+1,yi,zi+1),u),L(H(xi,yi+1,zi+1),H(xi+1,yi+1,zi+1),u),v),w);},
   fbm(x,y,z,oct){let s=0,a=.5,f=1;for(let i=0;i<oct;i++){s+=a*this.noise(x*f,y*f,z*f);a*=.5;f*=2.03;}return s;},
   /* one analytic dusk sky, in linear light. Drives the backdrop, the reflection map and the fog colour. */
-  sky(dx,dy,dz,hdr,night){const S=this.LOOKS.dusk.key,mix=(a,b,t)=>a+(b-a)*t,sat=t=>t<0?0:t>1?1:t,hl=Math.hypot(dx,dz)||1e-6,sh=Math.hypot(S[0],S[2]);
+  sky(dx,dy,dz,hdr,name){const night=name==='night',S=this.LOOKS[name==='day'?'day':'dusk'].key,mix=(a,b,t)=>a+(b-a)*t,sat=t=>t<0?0:t>1?1:t,hl=Math.hypot(dx,dz)||1e-6,sh=Math.hypot(S[0],S[2]);
     if(night){const e=dy;if(hdr&&e<-.01){const g=sat(1+e*3);return[mix(.004,.02,g),mix(.008,.03,g),mix(.006,.022,g)];}
       /* night: near-black blue overhead, a faint warm town glow on the horizon, thin cloud lit from below (no stars: the lamps wash them out) */
       const ee=Math.max(e,0),k1=1-Math.pow(1-sat(ee/.3),2),k2=sat((ee-.2)/.6);let r=mix(mix(.06,.014,k1),.0035,k2),g=mix(mix(.052,.019,k1),.0055,k2),b=mix(mix(.058,.042,k1),.016,k2);
@@ -31,6 +33,13 @@ const KICK_FIDELITY={
       if(hdr)for(const[tx,tz]of this.TOWERS){const len=Math.hypot(tx,this.TOWER_H,tz),lamp=Math.pow(sat((dx*tx+dy*this.TOWER_H+dz*tz)/len),1400);r+=lamp*66;g+=lamp*70;b+=lamp*78;}
       return[r,g,b];}
     const toward=((dx/hl)*(S[0]/sh)+(dz/hl)*(S[2]/sh))*.5+.5,cosSun=dx*S[0]+dy*S[1]+dz*S[2],e=dy;
+    if(name==='day'){if(hdr&&e<-.01){const g=sat(1+e*3);return[mix(.03,.11,g),mix(.05,.15,g),mix(.025,.09,g)];}
+      /* day: deep blue overhead paling to a hazy horizon, a bright halo round the sun, fair-weather cloud with grey undersides */
+      const ee=Math.max(e,0),k=1-Math.pow(1-sat(ee/.55),2.2);let r=mix(.5,.04,k),g=mix(.7,.16,k),b=mix(.96,.62,k);
+      const halo=Math.pow(sat(cosSun),10)*.45+Math.pow(sat(cosSun),120)*2;r+=halo;g+=halo*.96;b+=halo*.86;
+      if(e>.03&&e<.85){const band=sat((e-.03)/.1)*sat((.85-e)/.4),n=this.fbm(dx*1.9+5,dy*5.5,dz*1.9+13,5),c=sat((n-.5)*5)*band;if(c>0){const top=sat(n*2.2-.75),w=mix(.55,1.35,top);r=mix(r,w,c*.9);g=mix(g,w*1.01,c*.9);b=mix(b,w*1.06,c*.9);}}
+      if(hdr){const disc=Math.pow(sat(cosSun),900);r+=disc*110;g+=disc*104;b+=disc*92;}
+      return[r,g,b];}
     if(hdr&&e<-.01){const g=sat(1+e*3);return[mix(.012,.05,g),mix(.02,.055,g),mix(.018,.05,g)];}     /* reflection map only: dark ground bounce below the horizon */
     const tw=toward*toward,zen=[.03,.062,.21],mid=[.2,.19,.4],warm=[1.25,.56,.22],pink=[.78,.4,.42],dusk=[.4,.33,.46];
     /* away from the sun: a blue-grey band on the horizon with a pink arch above it; toward the sun: orange */
@@ -44,15 +53,15 @@ const KICK_FIDELITY={
       for(const[tx,tz]of this.TOWERS){const len=Math.hypot(tx,this.TOWER_H,tz),lamp=Math.pow(sat((dx*tx+dy*this.TOWER_H+dz*tz)/len),1400);r+=lamp*42;g+=lamp*44;b+=lamp*48;}}
     return[r,g,b];},
   /* backdrop, reflection map and fog for one time of day, built the first time it is needed */
-  buildSky(V3,name){const T=THREE,night=name==='night',sky={};
+  buildSky(V3,name){const T=THREE,sky={};
     {const w=1024,h=512,c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d'),img=g.createImageData(w,h),d=img.data,enc=v=>{v=v/(1+v*.55);return 255*Math.pow(v<0?0:v>1?1:v,1/2.2);};   /* soft shoulder, then display gamma */
-      for(let y=0;y<h;y++){const el=(.5-(y+.5)/h)*Math.PI,ce=Math.cos(el),se=Math.sin(el);for(let x=0;x<w;x++){const az=((x+.5)/w-.5)*Math.PI*2,p=this.sky(Math.cos(az)*ce,se,Math.sin(az)*ce,false,night),i=(y*w+x)*4;d[i]=enc(p[0]);d[i+1]=enc(p[1]);d[i+2]=enc(p[2]);d[i+3]=255;}}
+      for(let y=0;y<h;y++){const el=(.5-(y+.5)/h)*Math.PI,ce=Math.cos(el),se=Math.sin(el);for(let x=0;x<w;x++){const az=((x+.5)/w-.5)*Math.PI*2,p=this.sky(Math.cos(az)*ce,se,Math.sin(az)*ce,false,name),i=(y*w+x)*4;d[i]=enc(p[0]);d[i+1]=enc(p[1]);d[i+2]=enc(p[2]);d[i+3]=255;}}
       g.putImageData(img,0,0);const t=new T.CanvasTexture(c);t.colorSpace=T.SRGBColorSpace;t.mapping=T.EquirectangularReflectionMapping;sky.backdrop=t;}
     {const w=256,h=128,data=new Uint16Array(w*h*4),hf=T.DataUtils.toHalfFloat;
-      for(let y=0;y<h;y++){const el=((y+.5)/h-.5)*Math.PI,ce=Math.cos(el),se=Math.sin(el);for(let x=0;x<w;x++){const az=((x+.5)/w-.5)*Math.PI*2,p=this.sky(Math.cos(az)*ce,se,Math.sin(az)*ce,true,night),i=(y*w+x)*4;data[i]=hf(Math.min(p[0],60000));data[i+1]=hf(Math.min(p[1],60000));data[i+2]=hf(Math.min(p[2],60000));data[i+3]=hf(1);}}
+      for(let y=0;y<h;y++){const el=((y+.5)/h-.5)*Math.PI,ce=Math.cos(el),se=Math.sin(el);for(let x=0;x<w;x++){const az=((x+.5)/w-.5)*Math.PI*2,p=this.sky(Math.cos(az)*ce,se,Math.sin(az)*ce,true,name),i=(y*w+x)*4;data[i]=hf(Math.min(p[0],60000));data[i+1]=hf(Math.min(p[1],60000));data[i+2]=hf(Math.min(p[2],60000));data[i+3]=hf(1);}}
       const src=new T.DataTexture(data,w,h,T.RGBAFormat,T.HalfFloatType);src.mapping=T.EquirectangularReflectionMapping;src.colorSpace=T.LinearSRGBColorSpace;src.magFilter=src.minFilter=T.LinearFilter;src.needsUpdate=true;
       const pm=new T.PMREMGenerator(V3.R);sky.envRT=pm.fromEquirectangular(src);pm.dispose();src.dispose();}
-    {const hz=this.sky(.6,.004,-.8,false,night),range=this.LOOKS[name].fog;sky.fog=new T.Fog(new T.Color().setRGB(hz[0],hz[1],hz[2]),range[0],range[1]);}
+    {const hz=this.sky(.6,.004,-.8,false,name),range=this.LOOKS[name].fog;sky.fog=new T.Fog(new T.Color().setRGB(hz[0],hz[1],hz[2]),range[0],range[1]);}
     return sky;},
   build(V3){const T=THREE,res=this.res={sky:{}};
     res.floods=this.TOWERS.map(([x,z])=>{const l=new T.DirectionalLight(0xdfe9ff,.4);l.position.set(x,this.TOWER_H,z);l.target.position.set(0,0,0);l.castShadow=false;return l;});
@@ -207,7 +216,7 @@ kfCol=mix(kfCol,kfWorn*(0.8+0.4*kfFine),kfWear*0.55);diffuseColor.rgb*=kfCol;`)
     {const b=V3.ball.position;pts.push([b.x,b.z,.22,Math.max(0,b.y-.11),.2]);}
     let k=0;for(const[x,z,h,lift,w]of pts){if(k+6>160)break;const fade=1/(1+lift*1.6);
       o.position.set(x,.016,z);o.rotation.set(0,0,0);o.scale.set(w*1.25*fade,1,w*1.25*fade);o.updateMatrix();m.setMatrixAt(k++,o.matrix);m.setMatrixAt(k++,o.matrix);
-      for(let t=0;t<this.TOWERS.length;t++){if(t===this.LOOKS[this.cur].keyTower)continue;const[tx,tz]=this.TOWERS[t],dx=x-(tx+shift),dz=z-tz,dist=Math.hypot(dx,dz)||1,len=Math.min(3.4,h*dist/this.TOWER_H),off=lift*dist/this.TOWER_H;
+      for(let t=0;t<this.TOWERS.length&&this.LOOKS[this.cur].star;t++){if(t===this.LOOKS[this.cur].keyTower)continue;const[tx,tz]=this.TOWERS[t],dx=x-(tx+shift),dz=z-tz,dist=Math.hypot(dx,dz)||1,len=Math.min(3.4,h*dist/this.TOWER_H),off=lift*dist/this.TOWER_H;
         o.position.set(x+dx/dist*(off+len/2),.016,z+dz/dist*(off+len/2));o.rotation.set(0,Math.atan2(dx,dz),0);o.scale.set(w*.8*fade,1,len+w*.5);o.updateMatrix();m.setMatrixAt(k++,o.matrix);}}
     m.count=k;m.instanceMatrix.needsUpdate=true;},
   /* called in place of the plain render; returns false when the caller should render as today */
