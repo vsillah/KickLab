@@ -1,6 +1,16 @@
 // Packaged native shell only. WKWebView pans its visual viewport on keyboard focus,
 // including when the document and Profile dialog are otherwise scroll locked.
 (() => {
+  // Android WebView's accelerated Home paint can retain stale card layers.
+  // Keep Home in a single software layer; return to hardware for 3D play.
+  const homePresentation = window.KickLabHomePresentation;
+  if (homePresentation) {
+    const syncHomeLayer = () => homePresentation.setHomeVisible(document.documentElement.dataset.kicklabView !== 'game');
+    new MutationObserver(syncHomeLayer).observe(document.documentElement, {
+      attributes: true, attributeFilter: ['data-kicklab-view']
+    });
+    syncHomeLayer();
+  }
   const viewport = window.visualViewport;
   if (!viewport) return;
   const dialog = document.getElementById('profileDialog');
@@ -9,6 +19,10 @@
   const sync = () => {
     const offset = Math.max(0, viewport.offsetTop || 0);
     document.documentElement.style.setProperty('--kicklab-native-viewport-offset-top', `${offset}px`);
+    const androidTop = window.KickLabAndroidSafeArea?.topInsetCssPx();
+    if (Number.isFinite(androidTop)) {
+      document.documentElement.style.setProperty('--kicklab-android-race-top-inset', `${Math.max(0, androidTop)}px`);
+    }
     if (!dialog?.hidden && document.activeElement?.id === 'profileNickname') {
       requestAnimationFrame(() => {
         const panel = dialog.querySelector('.profile-panel');
@@ -20,6 +34,7 @@
   };
   viewport.addEventListener('resize', sync);
   viewport.addEventListener('scroll', sync);
+  window.addEventListener('resize', sync);
   window.addEventListener('orientationchange', sync);
   if (dialog) {
     new MutationObserver(() => {

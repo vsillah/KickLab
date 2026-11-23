@@ -19,6 +19,39 @@ test('expansion remains trusted and its roster seam uses stable IDs',()=>{
   assert.equal(off,false);
 });
 
+test('expansion flag cache follows same-document URL changes and stays origin gated',()=>{
+  const location=new URL('https://vsillah.github.io/KickLab/');
+  const scope=raceContext(location);
+  let parses=0;
+  scope.URLSearchParams=class extends URLSearchParams{constructor(...args){super(...args);parses++;}};
+  const subject=vm.runInNewContext(read('src/shared/race-modes.js')+'\nglobalThis.KickLabRaceModes',scope);
+  const history={
+    pushState(_state,_title,url){location.href=new URL(url,location.href).href;},
+    replaceState(_state,_title,url){location.href=new URL(url,location.href).href;}
+  };
+  assert.equal(subject.enabled(),false);
+  assert.equal(subject.enabled(),false);
+  assert.equal(parses,1,'repeated reads reuse the parsed query');
+  history.pushState(null,'','?raceExpansion=prototype');
+  assert.equal(subject.enabled(),true);
+  assert.equal(subject.enabled(),true);
+  assert.equal(parses,2,'pushState invalidates the cache');
+  location.hash='#race';
+  assert.equal(subject.enabled(),true);
+  assert.equal(parses,3,'hash changes are part of the cache key');
+  history.replaceState(null,'','?raceExpansion=disabled');
+  assert.equal(subject.enabled(),false);
+  assert.equal(parses,4,'replaceState invalidates the cache');
+  location.href='https://vsillah.github.io/KickLab/?raceExpansion=prototype';
+  assert.equal(subject.enabled(),true,'popstate-style URL restoration rechecks the flag');
+  assert.equal(parses,5);
+  location.href='https://vsillah.github.io/KickLab/other.html?raceExpansion=prototype';
+  assert.equal(subject.enabled(),false,'an untrusted path stays disabled');
+  location.href='https://example.test/KickLab/?raceExpansion=prototype';
+  assert.equal(subject.enabled(),false,'an untrusted host stays disabled');
+  assert.equal(parses,5,'untrusted origins never parse an enabling flag');
+});
+
 test('all modes have different measured pass rules and safe profile migration',()=>{
   assert.equal(modes.normalize({version:99,selected:'circuit'}).selected,'drag');
   assert.equal(modes.normalize({version:1,selected:'hill',best:{hill:230,drag:-5}}).best.hill,230);
