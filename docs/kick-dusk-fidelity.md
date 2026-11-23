@@ -20,7 +20,7 @@ Not built yet: the players pass (the GLB athlete as default is a separate decisi
 ## Boundaries
 
 - Draw-only. The module reads `Kick.opt`, the camera, and the positions of rigs the renderer already placed. It does not write to `Kick`, `Drib`, `E`, `best` or storage.
-- Its own seeded generator and hash noise. It never calls `Math.random`, so gameplay randomness is undisturbed.
+- Its own seeded generator and hash noise for everything it draws. The module's own code never calls `Math.random`. Three.js does, to make an id for every object it creates, so building the experiment's resources at activation draws about 490 values (measured). After activation it draws none: the count between a kick and its result is identical with the flag on and off. This does not change gameplay odds, but a seeded test must re-seed at the input it is measuring; `scripts/qa-kick-fidelity.mjs` does.
 - Active only for the `home` venue at `dusk`. Any other venue or time restores today's scene.
 - `dispose()` and the venue/time guard put every touched material, light, shadow setting and scene property back, then ask the renderer to rebuild its own sky.
 - Any error inside the module turns it off for the session and records the reason on `window.__KICKLAB_KICK_FIDELITY_AUDIT__`.
@@ -61,7 +61,7 @@ python3 -m http.server 4173 -d dist
 node scripts/qa-kick-fidelity.mjs http://127.0.0.1:4173/kicklab.html qa-artifacts/kick-fidelity
 ```
 
-Add `--software-gl` on a machine with no GPU. The script captures all six states with the flag on and off, proves the scene digest is identical after the experiment is switched off, plays one seeded free kick with the flag on and off and compares the result card, and fails on any page error or external request.
+Add `--software-gl` on a machine with no GPU. The script captures all six states with the flag on and off, proves the scene digest is identical after the experiment is switched off, plays one seeded free kick with the flag on and off under the same fixed frame clock and compares the outcome text, and fails on any page error or external request.
 
 ## What has and has not been verified
 
@@ -72,3 +72,9 @@ Not verified, and required before merge: frame time and memory on any real GPU, 
 ## Provenance
 
 Every texture, shader and mesh is generated in this file at load from arithmetic and a seeded generator. No reference to any real club, league, broadcaster, kit or player. Crowd colours are invented blocks.
+
+## Why the outcome check uses a fixed frame clock
+
+Kick physics steps the ball with the real frame interval and records the height at the goal line on the first substep past the line, so the reported height depends on frame pacing by itself. With the flag off, the default free kick reports 1.62 m at a 16.667 ms frame and 1.63 m at a 5 ms frame, in both the 3D stadium and Classic view. A free-running on/off comparison can therefore differ by 0.01 m with no coupling at all.
+
+The outcome check gives both runs the same virtual frame clock (`--outcome-frame-ms`, default 16.667), seeds `Math.random` and re-seeds it when the kick input arrives, and reads the outcome from the run assessment and move log text, which persist, instead of the animated result card. `--only=pacing` replays the flag-off kick at 5 ms and 16.667 ms to show the pacing effect on its own.
