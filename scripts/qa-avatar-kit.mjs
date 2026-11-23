@@ -52,9 +52,21 @@ const dismissToasts = async () => {
   await pause(500);
 };
 const selectLab = async (name) => {
-  const tab = page.getByRole('tab', { name: new RegExp(`^${name}`) });
-  await tab.click();
-  if (await tab.getAttribute('aria-selected') !== 'true') throw new Error(`${name} lab did not become selected`);
+  const mode = name.toLowerCase();
+  // Labs are entered from the Home chooser's full-card buttons (#lab-tab-fight, #lab-tab-race, #lab-tab-kick), which carry
+  // aria-pressed rather than role=tab. The chooser is hidden during play, so a later switch returns to Home through
+  // "All labs" first and then enters the next lab from its card.
+  const card = page.locator(`[id^="lab-tab-"][data-mode="${mode}"]`);
+  if (await page.evaluate(() => document.documentElement.dataset.kicklabView === 'game')) {
+    await page.locator('#modeHomeButton').click();
+  }
+  await card.waitFor({ state: 'visible' });
+  await card.click();
+  await page.waitForFunction(
+    (key) => document.documentElement.dataset.kicklabView === 'game' && document.documentElement.dataset.kicklabMode === key,
+    mode,
+  );
+  if (await card.getAttribute('aria-pressed') !== 'true') throw new Error(`${name} lab did not become selected`);
   await blurControls();
 };
 const openActivity = async (name) => {
