@@ -1,7 +1,7 @@
-// QA for the Kick stadium fidelity experiment (?kickFidelity=dusk).
-// Usage: node scripts/qa-kick-fidelity.mjs http://127.0.0.1:4173/kicklab.html [outDir] [--software-gl] [--only=states|parity|outcome]
-// Checks: flag off never activates; six review states capture with the flag on and off; switching away from dusk
-// restores the exact scene state; a seeded free kick gives the same outcome with the flag on and off; no external requests.
+// QA for the Kick stadium fidelity experiment (?kickFidelity=dusk|night).
+// Usage: node scripts/qa-kick-fidelity.mjs http://127.0.0.1:4173/kicklab.html [outDir] [--time=dusk|night] [--software-gl] [--only=states|parity|outcome]
+// Checks: flag off never activates; six review states capture with the flag on and off; the look follows a dusk/night
+// switch; leaving for day restores the exact scene state; a seeded free kick gives the same outcome with the flag on and off; no external requests.
 import { createRequire } from 'node:module';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { resolve, join } from 'node:path';
@@ -10,20 +10,22 @@ const { chromium } = createRequire(import.meta.url)('playwright');
 const args = process.argv.slice(2), base = args.find(a => /^http/.test(a)), out = resolve(args.find(a => !/^(http|--)/.test(a)) || 'qa-artifacts/kick-fidelity');
 if (!base || !/^http:\/\/127\.0\.0\.1:\d+\/kicklab\.html$/.test(base)) throw new Error('Pass localhost kicklab.html URL.');
 const software = args.includes('--software-gl'), only = (args.find(a => a.startsWith('--only=')) || '').slice(7);
+const time = (args.find(a => a.startsWith('--time=')) || '--time=dusk').slice(7), other = time === 'dusk' ? 'night' : 'dusk';
+if (!['dusk', 'night'].includes(time)) throw new Error('--time must be dusk or night.');
 mkdirSync(out, { recursive: true });
 const executablePath = [process.env.KICKLAB_CHROMIUM_PATH, chromium.executablePath(), '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', '/usr/bin/google-chrome'].find(path => path && existsSync(path));
 const browser = await chromium.launch({ headless: true, executablePath, args: software ? ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] : [] });
-const origin = new URL(base).origin, report = { base, software, checks: [], errors: [], external: [] };
-const FLAG = 'kickFidelity=dusk&kickFidelityLadder=off';
+const origin = new URL(base).origin, report = { base, time, software, checks: [], errors: [], external: [] };
+const FLAG = `kickFidelity=${time}&kickFidelityLadder=off`;
 const STATES = { K1: ['free', 1280, 720], K2: ['dribble', 1280, 720], K3: ['dribble', 1280, 720], K4: ['dribble', 1280, 720], K5: ['dribble', 1280, 720], K6: ['dribble', 390, 844] };
 
-async function open(label, query, { width = 1280, height = 720, time = 'dusk', reducedMotion = 'no-preference', seedRandom = false } = {}) {
+async function open(label, query, { width = 1280, height = 720, time: startTime = time, reducedMotion = 'no-preference', seedRandom = false } = {}) {
   const context = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: 1, reducedMotion });
   await context.addInitScript(({ time, seedRandom }) => {
     if (seedRandom) { let a = 12345; Math.random = () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
     localStorage.setItem('impactlab.nick', 'Fidelity QA');
     localStorage.setItem('impactlab.v1', JSON.stringify({ kickTime: time, gfx: '3d', ch: { fight: 0, race: 0, kick: 0 }, play: { fight: 'ch', race: 'ch', kick: 'ch' } }));
-  }, { time, seedRandom });
+  }, { time: startTime, seedRandom });
   const page = await context.newPage();
   page.on('pageerror', e => report.errors.push(`${label}: ${e}`));
   page.on('console', m => { if (m.type() === 'error') report.errors.push(`${label}: ${m.text()}`); });
@@ -102,7 +104,7 @@ try {
     if (shot !== 'free') await choose(page, 'shot', shot);
     await page.waitForTimeout(software ? 3000 : 800);
     const a = await audit(page);
-    if (on && !(a?.active && a.passes?.length)) throw new Error(`${label}: experiment did not activate (${JSON.stringify(a)})`);
+    if (on && !(a?.active && a.time === time && a.passes?.length)) throw new Error(`${label}: experiment did not activate (${JSON.stringify(a)})`);
     if (!on && (a?.active || a?.flag)) throw new Error(`${label}: experiment active with the flag off`);
     await capture(page, join(out, `${label}.png`));
     if (state === 'K1' || state === 'K6') await page.screenshot({ path: join(out, `${label}-page.png`), animations: 'disabled', timeout: 120000 });
@@ -113,12 +115,16 @@ try {
     const never = await open('parity-never', 'kickReview=K3', { time: 'day', reducedMotion: 'reduce' });
     await choose(never.page, 'shot', 'dribble'); await never.page.waitForTimeout(1000);
     const a = await digest(never.page); await never.context.close();
-    const used = await open('parity-disposed', `${FLAG}&kickReview=K3`, { time: 'dusk', reducedMotion: 'reduce' });
+    const used = await open('parity-disposed', `kickFidelity=dusk,night&kickFidelityLadder=off&kickReview=K3`, { reducedMotion: 'reduce' });
     await choose(used.page, 'shot', 'dribble'); await used.page.waitForTimeout(1000);
-    if (!(await audit(used.page))?.active) throw new Error('parity: experiment did not activate at dusk');
+    let state = await audit(used.page);
+    if (!(state?.active && state.time === time)) throw new Error(`parity: experiment did not activate at ${time} (${JSON.stringify(state)})`);
+    await choose(used.page, 'time', other); await used.page.waitForTimeout(1500);
+    state = await audit(used.page);
+    if (!(state?.active && state.time === other)) throw new Error(`parity: look did not follow the switch to ${other} (${JSON.stringify(state)})`);
     await choose(used.page, 'time', 'day'); await used.page.waitForTimeout(1500);
     const b = await digest(used.page), after = await audit(used.page); await used.context.close();
-    if (after?.active) throw new Error('parity: experiment still active after leaving dusk');
+    if (after?.active) throw new Error('parity: experiment still active after leaving for day');
     if (JSON.stringify(a) !== JSON.stringify(b)) throw new Error(`parity: scene state differs after dispose\n${JSON.stringify(a)}\n${JSON.stringify(b)}`);
     report.checks.push({ label: 'dispose-parity', digest: a });
   }

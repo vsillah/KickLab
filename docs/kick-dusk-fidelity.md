@@ -1,10 +1,19 @@
-# Kick stadium fidelity experiment: "Dusk kickoff, lights just on"
+# Kick stadium fidelity experiment: dusk and night
 
 Status: draft PR, default off, not qualified for merge. Needs validation on real GPUs and phones before anyone turns it on.
 
 ## What it is
 
-An opt-in look for the Kick lab's 3D stadium at the home ground at dusk. Open the game with `?kickFidelity=dusk`. Without that parameter nothing is built, nothing is allocated, and the renderer draws exactly as before.
+An opt-in look for the Kick lab's 3D stadium at the home ground, in two versions: "Dusk kickoff, lights just on" and "Night under the lights". Open the game with `?kickFidelity=dusk`, `?kickFidelity=night` or `?kickFidelity=dusk,night`. Each name switches the look on for that time of day only. Without the parameter nothing is built, nothing is allocated, and the renderer draws exactly as before.
+
+Both versions share the pitch, crowd, lens and fallback ladder. They differ in one parameter set (`LOOKS` in the module): the sky, the shadow-casting light, floodlight strength, haze and bloom.
+
+| | Dusk | Night |
+| --- | --- | --- |
+| Sky | Warm toward the sun, pink arch and blue-grey band away from it, lit cloud | Near-black blue, faint town glow on the horizon, thin cloud lit from below |
+| Shadow-casting light | Low warm sun, 15 degrees up, so stand roofs shadow the pitch | One floodlight tower |
+| Floodlights | Four cool fills, faint four-way shadows | Three strong fills plus the tower above, so each figure throws a clear four-shadow star |
+| Haze and bloom | Warm toward the sun | Cool and thinner, stronger bloom on the lamps |
 
 All of it lives in `src/game/50e-kick-fidelity.js`, plus three one-line hooks in `src/game/50-renderer-3d.js` (end of `init()`, after `setSky()` in `render()`, and in place of the final `R.render`).
 
@@ -15,13 +24,13 @@ All of it lives in `src/game/50e-kick-fidelity.js`, plus three one-line hooks in
 | Crowd and bowl | About 2,200 instanced supporters in sectioned colour blocks (one draw call per stand), seat backs for the added seats, a goal reaction that is off under reduced motion |
 | Lens | One hand-written post pass on core render targets: bloom from bright sources only, depth-based haze that warms toward the sun, vignette, static grain (off under reduced motion) |
 
-Not built yet: the players pass (the GLB athlete as default is a separate decision and change), ball seams, grass blades near the camera, LED glow on the turf, depth of field and new replay cameras, night and day versions.
+Not built yet: the players pass (the GLB athlete as default is a separate change), ball seams, grass blades near the camera, LED glow on the turf, depth of field and new replay cameras, visible floodlight shafts (tried as cone meshes for night and removed because the geometry showed), and the day version.
 
 ## Boundaries
 
 - Draw-only. The module reads `Kick.opt`, the camera, and the positions of rigs the renderer already placed. It does not write to `Kick`, `Drib`, `E`, `best` or storage.
 - Its own seeded generator and hash noise for everything it draws. The module's own code never calls `Math.random`. Three.js does, to make an id for every object it creates, so building the experiment's resources at activation draws about 490 values (measured). After activation it draws none: the count between a kick and its result is identical with the flag on and off. This does not change gameplay odds, but a seeded test must re-seed at the input it is measuring; `scripts/qa-kick-fidelity.mjs` does.
-- Active only for the `home` venue at `dusk`. Any other venue or time restores today's scene.
+- Active only for the `home` venue at a time of day named in the flag. Any other venue or time restores today's scene.
 - `dispose()` and the venue/time guard put every touched material, light, shadow setting and scene property back, then ask the renderer to rebuild its own sky.
 - Any error inside the module turns it off for the session and records the reason on `window.__KICKLAB_KICK_FIDELITY_AUDIT__`.
 - No new files in the package, no new dependencies, no change to the vendored Three.js bundle, no network requests.
@@ -58,14 +67,15 @@ These fix the camera, venue, time and seed. They do not freeze the game's idle a
 ```
 npm run build
 python3 -m http.server 4173 -d dist
-node scripts/qa-kick-fidelity.mjs http://127.0.0.1:4173/kicklab.html qa-artifacts/kick-fidelity
+node scripts/qa-kick-fidelity.mjs http://127.0.0.1:4173/kicklab.html qa-artifacts/kick-fidelity --time=dusk
+node scripts/qa-kick-fidelity.mjs http://127.0.0.1:4173/kicklab.html qa-artifacts/kick-fidelity-night --time=night
 ```
 
-Add `--software-gl` on a machine with no GPU. The script captures all six states with the flag on and off, proves the scene digest is identical after the experiment is switched off, plays one seeded free kick with the flag on and off under the same fixed frame clock and compares the outcome text, and fails on any page error or external request.
+Add `--software-gl` on a machine with no GPU. The script captures all six states with the flag on and off, checks that the look follows a dusk/night switch, proves the scene digest is identical after leaving for day, plays one seeded free kick with the flag on and off under the same fixed frame clock and compares the outcome text, and fails on any page error or external request.
 
 ## What has and has not been verified
 
-Verified in headless Chrome with software rendering (no GPU): the build and `npm run check`; activation only with the flag; scene digest identical after leaving dusk; identical seeded free-kick outcome with the flag on and off; no page errors or external requests; the GLB athlete (`?renderer=direction-c`) renders with the experiment on.
+Verified in headless Chrome with software rendering (no GPU): the build and `npm run check`; activation only with the flag; the look following a dusk/night switch and the scene digest identical after leaving for day; identical seeded free-kick outcome with the flag on and off; no page errors or external requests; the GLB athlete (`?renderer=direction-c`) renders with the experiment on.
 
 Not verified, and required before merge: frame time and memory on any real GPU, phone or tablet; the fallback ladder under real load; overlay contrast measurements for K1 and K6; outcome parity for activities other than the free kick; the iOS and Android shells.
 

@@ -1,17 +1,21 @@
-/* ---------- Kick stadium fidelity experiment ("Dusk kickoff, lights just on"). Default off.
-   Opt in with ?kickFidelity=dusk. Draw-only: reads Kick.opt, the camera and already-placed rigs; never writes game state.
+/* ---------- Kick stadium fidelity experiment ("Dusk kickoff, lights just on" and "Night under the lights"). Default off.
+   Opt in with ?kickFidelity=dusk, ?kickFidelity=night or ?kickFidelity=dusk,night. Draw-only: reads Kick.opt, the camera and already-placed rigs; never writes game state.
    Uses its own seeded generator (never Math.random) and the render clock only. dispose() puts today's scene back.
    ?kickReview=K1..K6 is a dev-only fixed-camera hook for screenshot review; it works with the flag on or off. ---------- */
 const KICK_FIDELITY_PARAMS=new URLSearchParams(location.search);
 const KICK_FIDELITY={
-  flag:KICK_FIDELITY_PARAMS.get('kickFidelity')==='dusk',
+  looks:(KICK_FIDELITY_PARAMS.get('kickFidelity')||'').split(',').filter(name=>name==='dusk'||name==='night'),get flag(){return this.looks.length>0;},cur:'',
   review:/^K[1-6]$/.test(KICK_FIDELITY_PARAMS.get('kickReview')||'')?KICK_FIDELITY_PARAMS.get('kickReview'):null,
   ladderLocked:KICK_FIDELITY_PARAMS.get('kickFidelityLadder')==='off',
   active:false,failed:false,reason:'flag-off',tier:0,res:null,last:null,
-  SUN:[-.793,.259,.551],            /* low dusk sun: same compass bearing as today's dusk light, 15 degrees up */
+  SUN:[-.793,.259,.551],
+  /* one parameter set per time of day. key = direction to the shadow-casting light: the low sun at dusk (today's bearing, 15 degrees up),
+     one floodlight tower at night. keyTower names the tower the key light stands in for, so it gets no second, faked shadow. */
+  LOOKS:{dusk:{key:[-.793,.259,.551],keyTower:-1,keyColor:0xffa25c,keyPower:4.4,flood:.4,env:.5,hemi:.22,ambient:.04,lamp:2.4,exposure:1,glow:13,blob:.085,bloom:.5,haze:.6,hazeWarm:[1.05,.52,.24],hazeCool:[.2,.19,.3],fog:[75,290]},
+    night:{key:[-.656,.453,-.604],keyTower:0,keyColor:0xe8efff,keyPower:1.55,flood:1.05,env:.42,hemi:.1,ambient:.03,lamp:4.2,exposure:1.06,glow:19,blob:.15,bloom:.85,haze:.42,hazeWarm:[.07,.085,.13],hazeCool:[.018,.026,.05],fog:[60,300]}},
   TOWERS:[[-50,-46],[-50,46],[50,-46],[50,46]],TOWER_H:34.5,
   publish(extra){window.__KICKLAB_KICK_FIDELITY_AUDIT__=Object.assign({flag:this.flag,active:this.active,failed:this.failed,reason:this.reason,tier:this.tier,review:this.review},extra||{});},
-  eligible(){return this.flag&&!this.failed&&Kick.opt.stad==='home'&&GAME_CORE.normalizeKickTime(Kick.opt.time)==='dusk';},
+  wantLook(){if(!this.flag||this.failed||Kick.opt.stad!=='home')return null;const time=GAME_CORE.normalizeKickTime(Kick.opt.time);return this.looks.includes(time)?time:null;},
   /* seeded generator and value noise: deterministic, independent of gameplay randomness */
   rng(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296;};},
   hash(x,y,z){let h=Math.imul(x,374761393)+Math.imul(y,668265263)+Math.imul(z,2147483647)|0;h=Math.imul(h^(h>>>13),1274126177);return((h^(h>>>16))>>>0)/4294967296;},
@@ -19,7 +23,13 @@ const KICK_FIDELITY={
     return L(L(L(H(xi,yi,zi),H(xi+1,yi,zi),u),L(H(xi,yi+1,zi),H(xi+1,yi+1,zi),u),v),L(L(H(xi,yi,zi+1),H(xi+1,yi,zi+1),u),L(H(xi,yi+1,zi+1),H(xi+1,yi+1,zi+1),u),v),w);},
   fbm(x,y,z,oct){let s=0,a=.5,f=1;for(let i=0;i<oct;i++){s+=a*this.noise(x*f,y*f,z*f);a*=.5;f*=2.03;}return s;},
   /* one analytic dusk sky, in linear light. Drives the backdrop, the reflection map and the fog colour. */
-  sky(dx,dy,dz,hdr){const S=this.SUN,mix=(a,b,t)=>a+(b-a)*t,sat=t=>t<0?0:t>1?1:t,hl=Math.hypot(dx,dz)||1e-6,sh=Math.hypot(S[0],S[2]);
+  sky(dx,dy,dz,hdr,night){const S=this.LOOKS.dusk.key,mix=(a,b,t)=>a+(b-a)*t,sat=t=>t<0?0:t>1?1:t,hl=Math.hypot(dx,dz)||1e-6,sh=Math.hypot(S[0],S[2]);
+    if(night){const e=dy;if(hdr&&e<-.01){const g=sat(1+e*3);return[mix(.004,.02,g),mix(.008,.03,g),mix(.006,.022,g)];}
+      /* night: near-black blue overhead, a faint warm town glow on the horizon, thin cloud lit from below (no stars: the lamps wash them out) */
+      const ee=Math.max(e,0),k1=1-Math.pow(1-sat(ee/.3),2),k2=sat((ee-.2)/.6);let r=mix(mix(.06,.014,k1),.0035,k2),g=mix(mix(.052,.019,k1),.0055,k2),b=mix(mix(.058,.042,k1),.016,k2);
+      let cloud=0;if(e>.02&&e<.7){const band=sat((e-.02)/.1)*sat((.7-e)/.4);cloud=sat((this.fbm(dx*1.7+3,dy*8.5,dz*1.7+19,4)-.45)*3.4)*band;r=mix(r,.05,cloud*.6);g=mix(g,.055,cloud*.6);b=mix(b,.075,cloud*.6);}
+      if(hdr)for(const[tx,tz]of this.TOWERS){const len=Math.hypot(tx,this.TOWER_H,tz),lamp=Math.pow(sat((dx*tx+dy*this.TOWER_H+dz*tz)/len),1400);r+=lamp*66;g+=lamp*70;b+=lamp*78;}
+      return[r,g,b];}
     const toward=((dx/hl)*(S[0]/sh)+(dz/hl)*(S[2]/sh))*.5+.5,cosSun=dx*S[0]+dy*S[1]+dz*S[2],e=dy;
     if(hdr&&e<-.01){const g=sat(1+e*3);return[mix(.012,.05,g),mix(.02,.055,g),mix(.018,.05,g)];}     /* reflection map only: dark ground bounce below the horizon */
     const tw=toward*toward,zen=[.03,.062,.21],mid=[.2,.19,.4],warm=[1.25,.56,.22],pink=[.78,.4,.42],dusk=[.4,.33,.46];
@@ -33,15 +43,18 @@ const KICK_FIDELITY={
     if(hdr){const disc=Math.pow(sat(cosSun),900);r+=disc*60;g+=disc*34;b+=disc*14;
       for(const[tx,tz]of this.TOWERS){const len=Math.hypot(tx,this.TOWER_H,tz),lamp=Math.pow(sat((dx*tx+dy*this.TOWER_H+dz*tz)/len),1400);r+=lamp*42;g+=lamp*44;b+=lamp*48;}}
     return[r,g,b];},
-  build(V3){const T=THREE,res=this.res={};
+  /* backdrop, reflection map and fog for one time of day, built the first time it is needed */
+  buildSky(V3,name){const T=THREE,night=name==='night',sky={};
     {const w=1024,h=512,c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d'),img=g.createImageData(w,h),d=img.data,enc=v=>{v=v/(1+v*.55);return 255*Math.pow(v<0?0:v>1?1:v,1/2.2);};   /* soft shoulder, then display gamma */
-      for(let y=0;y<h;y++){const el=(.5-(y+.5)/h)*Math.PI,ce=Math.cos(el),se=Math.sin(el);for(let x=0;x<w;x++){const az=((x+.5)/w-.5)*Math.PI*2,p=this.sky(Math.cos(az)*ce,se,Math.sin(az)*ce,false),i=(y*w+x)*4;d[i]=enc(p[0]);d[i+1]=enc(p[1]);d[i+2]=enc(p[2]);d[i+3]=255;}}
-      g.putImageData(img,0,0);const t=new T.CanvasTexture(c);t.colorSpace=T.SRGBColorSpace;t.mapping=T.EquirectangularReflectionMapping;res.backdrop=t;}
+      for(let y=0;y<h;y++){const el=(.5-(y+.5)/h)*Math.PI,ce=Math.cos(el),se=Math.sin(el);for(let x=0;x<w;x++){const az=((x+.5)/w-.5)*Math.PI*2,p=this.sky(Math.cos(az)*ce,se,Math.sin(az)*ce,false,night),i=(y*w+x)*4;d[i]=enc(p[0]);d[i+1]=enc(p[1]);d[i+2]=enc(p[2]);d[i+3]=255;}}
+      g.putImageData(img,0,0);const t=new T.CanvasTexture(c);t.colorSpace=T.SRGBColorSpace;t.mapping=T.EquirectangularReflectionMapping;sky.backdrop=t;}
     {const w=256,h=128,data=new Uint16Array(w*h*4),hf=T.DataUtils.toHalfFloat;
-      for(let y=0;y<h;y++){const el=((y+.5)/h-.5)*Math.PI,ce=Math.cos(el),se=Math.sin(el);for(let x=0;x<w;x++){const az=((x+.5)/w-.5)*Math.PI*2,p=this.sky(Math.cos(az)*ce,se,Math.sin(az)*ce,true),i=(y*w+x)*4;data[i]=hf(Math.min(p[0],60000));data[i+1]=hf(Math.min(p[1],60000));data[i+2]=hf(Math.min(p[2],60000));data[i+3]=hf(1);}}
+      for(let y=0;y<h;y++){const el=((y+.5)/h-.5)*Math.PI,ce=Math.cos(el),se=Math.sin(el);for(let x=0;x<w;x++){const az=((x+.5)/w-.5)*Math.PI*2,p=this.sky(Math.cos(az)*ce,se,Math.sin(az)*ce,true,night),i=(y*w+x)*4;data[i]=hf(Math.min(p[0],60000));data[i+1]=hf(Math.min(p[1],60000));data[i+2]=hf(Math.min(p[2],60000));data[i+3]=hf(1);}}
       const src=new T.DataTexture(data,w,h,T.RGBAFormat,T.HalfFloatType);src.mapping=T.EquirectangularReflectionMapping;src.colorSpace=T.LinearSRGBColorSpace;src.magFilter=src.minFilter=T.LinearFilter;src.needsUpdate=true;
-      const pm=new T.PMREMGenerator(V3.R);res.envRT=pm.fromEquirectangular(src);pm.dispose();src.dispose();}
-    {const hz=this.sky(.6,.004,-.8,false);res.fog=new T.Fog(new T.Color().setRGB(hz[0],hz[1],hz[2]),75,290);}
+      const pm=new T.PMREMGenerator(V3.R);sky.envRT=pm.fromEquirectangular(src);pm.dispose();src.dispose();}
+    {const hz=this.sky(.6,.004,-.8,false,night),range=this.LOOKS[name].fog;sky.fog=new T.Fog(new T.Color().setRGB(hz[0],hz[1],hz[2]),range[0],range[1]);}
+    return sky;},
+  build(V3){const T=THREE,res=this.res={sky:{}};
     res.floods=this.TOWERS.map(([x,z])=>{const l=new T.DirectionalLight(0xdfe9ff,.4);l.position.set(x,this.TOWER_H,z);l.target.position.set(0,0,0);l.castShadow=false;return l;});
     {const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d'),gr=g.createRadialGradient(32,32,0,32,32,32);gr.addColorStop(0,'rgba(255,255,255,1)');gr.addColorStop(.45,'rgba(255,255,255,.55)');gr.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gr;g.fillRect(0,0,64,64);
       const a=new T.CanvasTexture(c),geo=new T.PlaneGeometry(1,1);geo.rotateX(-Math.PI/2);res.blobTex=a;res.blobGeo=geo;
@@ -59,15 +72,15 @@ const KICK_FIDELITY={
     const L=res.lens={quad,scene,cam,w:0,h:0,scale:1,
       bright:mk('varying vec2 vUv;uniform sampler2D tScene;uniform vec2 texel;void main(){vec3 c=vec3(0.0);for(int i=0;i<4;i++){vec2 o=vec2(i==0||i==2?-1.0:1.0,i<2?-1.0:1.0)*texel;vec3 s=min(texture2D(tScene,vUv+o).rgb,vec3(6.0));float l=max(s.r,max(s.g,s.b));c+=s*smoothstep(1.35,2.6,l);}gl_FragColor=vec4(c*0.25,1.0);}',{tScene:{value:null},texel:{value:new T.Vector2()}}),
       blur:mk('varying vec2 vUv;uniform sampler2D tSrc;uniform vec2 dir;void main(){vec3 c=texture2D(tSrc,vUv).rgb*0.227;c+=(texture2D(tSrc,vUv+dir*1.385).rgb+texture2D(tSrc,vUv-dir*1.385).rgb)*0.316;c+=(texture2D(tSrc,vUv+dir*3.231).rgb+texture2D(tSrc,vUv-dir*3.231).rgb)*0.0703;gl_FragColor=vec4(c,1.0);}',{tSrc:{value:null},dir:{value:new T.Vector2()}}),
-      out:mk(`varying vec2 vUv;uniform sampler2D tScene;uniform sampler2D tBloom;uniform sampler2D tDepth;uniform mat4 invProj;uniform mat4 camWorld;uniform vec3 sunDir;uniform vec3 hazeWarm;uniform vec3 hazeCool;uniform float bloom;uniform float grain;uniform vec2 px;
+      out:mk(`varying vec2 vUv;uniform sampler2D tScene;uniform sampler2D tBloom;uniform sampler2D tDepth;uniform mat4 invProj;uniform mat4 camWorld;uniform vec3 sunDir;uniform vec3 hazeWarm;uniform vec3 hazeCool;uniform float bloom;uniform float hazeAmt;uniform float grain;uniform vec2 px;
 void main(){vec3 col=texture2D(tScene,vUv).rgb;float d=texture2D(tDepth,vUv).x;vec4 v=invProj*vec4(vUv*2.0-1.0,d*2.0-1.0,1.0);v/=v.w;vec3 ray=(camWorld*vec4(v.xyz,0.0)).xyz;float dist=length(ray);ray/=max(dist,0.001);vec3 eye=camWorld[3].xyz;
 float y0=max(eye.y,0.0),den=0.0026;float along=min(dist,420.0);float fall=0.045;float od=den*exp(-y0*fall)*(abs(ray.y)>0.0005?(1.0-exp(-ray.y*fall*along))/(ray.y*fall):along);float haze=1.0-exp(-max(od,0.0));
-float toSun=pow(max(dot(ray,sunDir),0.0),5.0);col=mix(col,mix(hazeCool,hazeWarm,toSun),haze*0.6);col+=texture2D(tBloom,vUv).rgb*bloom;
+float toSun=pow(max(dot(ray,sunDir),0.0),5.0);col=mix(col,mix(hazeCool,hazeWarm,toSun),haze*hazeAmt);col+=texture2D(tBloom,vUv).rgb*bloom;
 vec2 q=vUv-0.5;col*=1.0-dot(q,q)*0.38;float n=fract(sin(dot(floor(gl_FragCoord.xy),vec2(12.9898,78.233)))*43758.5453);col*=1.0+(n-0.5)*grain;
 gl_FragColor=vec4(col,1.0);
 #include <tonemapping_fragment>
 #include <colorspace_fragment>
-}`,{tScene:{value:null},tBloom:{value:null},tDepth:{value:null},invProj:{value:new T.Matrix4()},camWorld:{value:new T.Matrix4()},sunDir:{value:new T.Vector3(...this.SUN)},hazeWarm:{value:new T.Color().setRGB(1.05,.52,.24)},hazeCool:{value:new T.Color().setRGB(.2,.19,.3)},bloom:{value:.5},grain:{value:.035},px:{value:new T.Vector2()}},true)};
+}`,{tScene:{value:null},tBloom:{value:null},tDepth:{value:null},invProj:{value:new T.Matrix4()},camWorld:{value:new T.Matrix4()},sunDir:{value:new T.Vector3(...this.SUN)},hazeWarm:{value:new T.Color().setRGB(1.05,.52,.24)},hazeCool:{value:new T.Color().setRGB(.2,.19,.3)},bloom:{value:.5},hazeAmt:{value:.6},grain:{value:.035},px:{value:new T.Vector2()}},true)};
     L.size=(w,h)=>{if(L.w===w&&L.h===h)return;L.w=w;L.h=h;for(const k of['rt','b1','b2'])if(L[k])L[k].dispose();
       L.rt=new T.WebGLRenderTarget(w,h,{type:T.HalfFloatType,samples:innerWidth<=480?2:4,depthBuffer:true});L.rt.depthTexture=new T.DepthTexture(w,h);
       const bw=Math.max(2,w>>2),bh=Math.max(2,h>>2),o={type:T.HalfFloatType,depthBuffer:false,minFilter:T.LinearFilter,magFilter:T.LinearFilter};L.b1=new T.WebGLRenderTarget(bw,bh,o);L.b2=new T.WebGLRenderTarget(bw,bh,o);};
@@ -150,23 +163,25 @@ kfCol=mix(kfCol,kfWorn*(0.8+0.4*kfFine),kfWear*0.55);diffuseColor.rgb*=kfCol;`)
     res.towerGlows=V3.world.children.filter(ch=>ch.isSprite&&ch.userData.tower);
   },
   pitchLook(){const look=this.PITCH_LOOK[Kick.opt.pitch]||this.PITCH_LOOK.grass,U=this.res.pitchU,m=this.res.pitchMat;U.kfLight.value.setRGB(...look.light);U.kfDark.value.setRGB(...look.dark);U.kfWorn.value.setRGB(...look.worn);U.kfLean.value=look.lean;U.kfWet.value=look.wet;m.roughness=look.rough;},
-  activate(V3){if(!this.res)this.build(V3);const S=V3.S,mem=Number(navigator.deviceMemory||0),cores=Number(navigator.hardwareConcurrency||0);if(!this.ladderLocked&&this.tier<3&&((mem&&mem<4)||(cores&&cores<4))){this.tier=3;this.shadowSize(V3,1024);}
-    this.saved={environment:S.environment,envIntensity:S.environmentIntensity,far:V3.dl.shadow.camera.far,bias:V3.dl.shadow.bias,normalBias:V3.dl.shadow.normalBias};this.apply(V3);},
-  apply(V3){const S=V3.S,res=this.res;
-    if(S.background?.isTexture&&S.background!==res.backdrop)S.background.dispose();
-    S.background=res.backdrop;S.environment=res.envRT.texture;S.environmentIntensity=.5;S.fog=res.fog;
-    V3.hemi.intensity=.22;V3.ambient.intensity=.04;V3.dl.color.setHex(0xffa25c);V3.dl.intensity=4.4;V3.lampMat.emissiveIntensity=2.4;V3.R.toneMappingExposure=1;
+  activate(V3,name){if(!this.res)this.build(V3);const S=V3.S,mem=Number(navigator.deviceMemory||0),cores=Number(navigator.hardwareConcurrency||0);if(!this.ladderLocked&&this.tier<3&&((mem&&mem<4)||(cores&&cores<4))){this.tier=3;this.shadowSize(V3,1024);}
+    this.saved={environment:S.environment,envIntensity:S.environmentIntensity,far:V3.dl.shadow.camera.far,bias:V3.dl.shadow.bias,normalBias:V3.dl.shadow.normalBias};this.apply(V3,name);},
+  apply(V3,name){const S=V3.S,res=this.res,look=this.LOOKS[name],sky=res.sky[name]||(res.sky[name]=this.buildSky(V3,name));this.cur=name;this.SUN=look.key;res.backdrop=sky.backdrop;
+    if(S.background?.isTexture&&!Object.values(res.sky).some(entry=>entry.backdrop===S.background))S.background.dispose();
+    S.background=sky.backdrop;S.environment=sky.envRT.texture;S.environmentIntensity=look.env;S.fog=sky.fog;
+    V3.hemi.intensity=look.hemi;V3.ambient.intensity=look.ambient;V3.dl.color.setHex(look.keyColor);V3.dl.intensity=look.keyPower;V3.lampMat.emissiveIntensity=look.lamp;V3.R.toneMappingExposure=look.exposure;
+    res.floods.forEach((light,i)=>light.intensity=i===look.keyTower?0:look.flood);res.blobMat.opacity=look.blob;
+    {const u=res.lens.out.uniforms;u.sunDir.value.set(...look.key);u.hazeWarm.value.setRGB(...look.hazeWarm);u.hazeCool.value.setRGB(...look.hazeCool);u.bloom.value=look.bloom;u.hazeAmt.value=look.haze;}
     V3.dl.shadow.camera.far=330;V3.dl.shadow.camera.updateProjectionMatrix();V3.dl.shadow.bias=-.0007;V3.dl.shadow.normalBias=.04;
     res.floods.forEach(l=>{S.add(l);S.add(l.target);});S.add(res.blobs);
-    this.pitchLook();if(res.ground)res.ground.material=res.pitchMat;res.lines.forEach(l=>{l.material=res.lineMat;l.receiveShadow=true;});res.towerGlows.forEach(g=>g.scale.set(13,13,1));res.crowd.forEach(c=>{c.stand.add(c.backs);c.stand.add(c.mesh);});res.nets.forEach(n=>n.mesh.material=n.mat);
-    this.active=true;this.reason='active';this.publish({time:'dusk',venue:'home',passes:['light-and-sky','pitch-and-lines','crowd','lens'],crowd:this.res.crowdCount});},
+    this.pitchLook();if(res.ground)res.ground.material=res.pitchMat;res.lines.forEach(l=>{l.material=res.lineMat;l.receiveShadow=true;});res.towerGlows.forEach(g=>g.scale.set(look.glow,look.glow,1));res.crowd.forEach(c=>{c.stand.add(c.backs);c.stand.add(c.mesh);});res.nets.forEach(n=>n.mesh.material=n.mat);
+    this.active=true;this.reason='active';this.publish({time:name,venue:'home',passes:['light-and-sky','pitch-and-lines','crowd','lens'],crowd:this.res.crowdCount});},
   deactivate(V3,reason){if(!this.active)return;const S=V3.S,res=this.res;
     res.floods.forEach(l=>{S.remove(l);S.remove(l.target);});S.remove(res.blobs);
     if(res.ground)res.ground.material=V3.groundMat;res.lines.forEach(l=>{l.material=res.lineOld;l.receiveShadow=false;});res.towerGlows.forEach(g=>g.scale.set(26,26,1));res.crowd.forEach(c=>{c.stand.remove(c.backs);c.stand.remove(c.mesh);});res.nets.forEach(n=>n.mesh.material=n.old);this.shadowSize(V3,2048);
     S.environment=this.saved.environment;S.environmentIntensity=this.saved.envIntensity;S.background=null;
     V3.dl.shadow.camera.far=this.saved.far;V3.dl.shadow.camera.updateProjectionMatrix();V3.dl.shadow.bias=this.saved.bias;V3.dl.shadow.normalBias=this.saved.normalBias;
     this.active=false;this.reason=reason||'inactive';V3.skyKey='';V3.setSky();this.publish();},   /* setSky rebuilds today's backdrop, fog, light levels and exposure */
-  dispose(V3,reason){this.deactivate(V3,reason);const res=this.res;if(!res)return;res.backdrop.dispose();res.envRT.dispose();res.blobTex.dispose();res.blobGeo.dispose();res.blobMat.dispose();res.blobs.dispose();res.pitchMat.dispose();res.lineMat.dispose();res.crowdGeo.dispose();res.crowdMat.dispose();res.netTex.dispose();res.nets.forEach(n=>{n.mat.map.dispose();n.mat.dispose();});{const L=res.lens;for(const k of['rt','b1','b2'])if(L[k])L[k].dispose();L.bright.dispose();L.blur.dispose();L.out.dispose();L.quad.geometry.dispose();}res.crowd.forEach(c=>{c.mesh.geometry.dispose();c.mesh.dispose();c.backs.geometry.dispose();c.backs.dispose();});res.floods.forEach(l=>l.dispose());this.res=null;},
+  dispose(V3,reason){this.deactivate(V3,reason);const res=this.res;if(!res)return;Object.values(res.sky).forEach(entry=>{entry.backdrop.dispose();entry.envRT.dispose();});res.blobTex.dispose();res.blobGeo.dispose();res.blobMat.dispose();res.blobs.dispose();res.pitchMat.dispose();res.lineMat.dispose();res.crowdGeo.dispose();res.crowdMat.dispose();res.netTex.dispose();res.nets.forEach(n=>{n.mat.map.dispose();n.mat.dispose();});{const L=res.lens;for(const k of['rt','b1','b2'])if(L[k])L[k].dispose();L.bright.dispose();L.blur.dispose();L.out.dispose();L.quad.geometry.dispose();}res.crowd.forEach(c=>{c.mesh.geometry.dispose();c.mesh.dispose();c.backs.geometry.dispose();c.backs.dispose();});res.floods.forEach(l=>l.dispose());this.res=null;},
   fail(V3,error){this.failed=true;try{this.dispose(V3,'error');}catch(e){}this.reason='error';this.publish({error:String(error&&error.message||error).slice(0,120)});console.warn('Kick fidelity off',error);},
   attach(V3){if(this.review)window.__KICKLAB_KICK_REVIEW__={state:this.review,capture:()=>{const L=this.last;if(!L)return null;if(!this.draw(V3,L.D,0))V3.R.render(V3.S,V3.cam);return V3.cv3.toDataURL('image/png');},
       /* scene-state digest, used to prove that switching the experiment off leaves today's scene exactly as it was */
@@ -179,8 +194,8 @@ kfCol=mix(kfCol,kfWorn*(0.8+0.4*kfFine),kfWear*0.55);diffuseColor.rgb*=kfCol;`)
       if(pose)V3.cine=this.reviewCine={pos:new T.Vector3(...pose[0]),look:new T.Vector3(...pose[1]),fov:pose[2]};}
     else if(this.reviewCine&&V3.cine===this.reviewCine)V3.cine=this.reviewCine=null;
     if(!this.flag||this.failed)return;
-    try{const want=this.eligible();if(want&&!this.active)this.activate(V3);else if(!want&&this.active)this.deactivate(V3,'venue-or-time');
-      if(this.active&&V3.S.background!==this.res.backdrop)this.apply(V3);}   /* pitch option changed: the renderer rebuilt its sky, take it back */
+    try{const want=this.wantLook();if(want&&!this.active)this.activate(V3,want);else if(!want&&this.active)this.deactivate(V3,'venue-or-time');
+      if(this.active&&(want!==this.cur||V3.S.background!==this.res.backdrop))this.apply(V3,want);}   /* pitch option changed: the renderer rebuilt its sky, take it back */
     catch(error){this.fail(V3,error);}},
   crowdFrame(V3,D,rdt){const U=this.res.crowdU,still=reduce||PAUSE.on,cheer=still?0:Math.max(D===Kick&&Kick.cheerT>0?1:0,D.netT!=null?Math.max(0,1-D.netT/3):0);
     if(!still)U.kfTime.value=(U.kfTime.value+Math.min(rdt||0,.1))%1000;U.kfCheer.value+=(cheer-U.kfCheer.value)*Math.min(1,(rdt||0)*6);if(still)U.kfCheer.value=0;
@@ -192,7 +207,7 @@ kfCol=mix(kfCol,kfWorn*(0.8+0.4*kfFine),kfWear*0.55);diffuseColor.rgb*=kfCol;`)
     {const b=V3.ball.position;pts.push([b.x,b.z,.22,Math.max(0,b.y-.11),.2]);}
     let k=0;for(const[x,z,h,lift,w]of pts){if(k+6>160)break;const fade=1/(1+lift*1.6);
       o.position.set(x,.016,z);o.rotation.set(0,0,0);o.scale.set(w*1.25*fade,1,w*1.25*fade);o.updateMatrix();m.setMatrixAt(k++,o.matrix);m.setMatrixAt(k++,o.matrix);
-      for(const[tx,tz]of this.TOWERS){const dx=x-(tx+shift),dz=z-tz,dist=Math.hypot(dx,dz)||1,len=Math.min(3.4,h*dist/this.TOWER_H),off=lift*dist/this.TOWER_H;
+      for(let t=0;t<this.TOWERS.length;t++){if(t===this.LOOKS[this.cur].keyTower)continue;const[tx,tz]=this.TOWERS[t],dx=x-(tx+shift),dz=z-tz,dist=Math.hypot(dx,dz)||1,len=Math.min(3.4,h*dist/this.TOWER_H),off=lift*dist/this.TOWER_H;
         o.position.set(x+dx/dist*(off+len/2),.016,z+dz/dist*(off+len/2));o.rotation.set(0,Math.atan2(dx,dz),0);o.scale.set(w*.8*fade,1,len+w*.5);o.updateMatrix();m.setMatrixAt(k++,o.matrix);}}
     m.count=k;m.instanceMatrix.needsUpdate=true;},
   /* called in place of the plain render; returns false when the caller should render as today */
