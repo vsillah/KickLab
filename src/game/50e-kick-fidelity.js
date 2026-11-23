@@ -12,7 +12,7 @@ const KICK_FIDELITY={
   /* one parameter set per time of day. key = direction to the shadow-casting light: the low sun at dusk (today's bearing, 15 degrees up),
      one floodlight tower at night, the afternoon sun by day (today's bearing, 27 degrees up, so the stand roof draws a hard line on the pitch).
      star = whether figures throw the four floodlight shadows. keyTower names the tower the key light stands in for, so it gets no second, faked shadow. */
-  LOOKS:{day:{key:[-.57,.454,.684],keyTower:-1,star:false,keyColor:0xfff0d8,keyPower:3.5,flood:0,env:.75,hemi:.3,ambient:.05,lamp:.04,exposure:1,glow:.01,blob:.13,bloom:.22,haze:.22,hazeWarm:[.95,.93,.86],hazeCool:[.42,.6,.86],fog:[110,330]},
+  LOOKS:{day:{key:[-.57,.454,.684],keyTower:-1,star:false,keyColor:0xfff0d8,keyPower:3.6,flood:0,env:.55,hemi:.3,ambient:.05,lamp:.04,exposure:1,glow:.01,blob:.13,bloom:.22,haze:.13,hazeWarm:[.95,.93,.86],hazeCool:[.3,.52,.88],fog:[110,330]},
     dusk:{key:[-.793,.259,.551],keyTower:-1,star:true,keyColor:0xffa25c,keyPower:4.4,flood:.4,env:.5,hemi:.22,ambient:.04,lamp:2.4,exposure:1,glow:13,blob:.085,bloom:.5,haze:.6,hazeWarm:[1.05,.52,.24],hazeCool:[.2,.19,.3],fog:[75,290]},
     night:{key:[-.656,.453,-.604],keyTower:0,star:true,keyColor:0xe8efff,keyPower:1.55,flood:1.05,env:.42,hemi:.1,ambient:.03,lamp:4.2,exposure:1.06,glow:19,blob:.15,bloom:.85,haze:.42,hazeWarm:[.07,.085,.13],hazeCool:[.018,.026,.05],fog:[60,300]}},
   TOWERS:[[-50,-46],[-50,46],[50,-46],[50,46]],TOWER_H:34.5,
@@ -35,9 +35,9 @@ const KICK_FIDELITY={
     const toward=((dx/hl)*(S[0]/sh)+(dz/hl)*(S[2]/sh))*.5+.5,cosSun=dx*S[0]+dy*S[1]+dz*S[2],e=dy;
     if(name==='day'){if(hdr&&e<-.01){const g=sat(1+e*3);return[mix(.03,.11,g),mix(.05,.15,g),mix(.025,.09,g)];}
       /* day: deep blue overhead paling to a hazy horizon, a bright halo round the sun, fair-weather cloud with grey undersides */
-      const ee=Math.max(e,0),k=1-Math.pow(1-sat(ee/.55),2.2);let r=mix(.5,.04,k),g=mix(.7,.16,k),b=mix(.96,.62,k);
+      const ee=Math.max(e,0),k=1-Math.pow(1-sat(ee/.45),2.2);let r=mix(.3,.03,k),g=mix(.58,.14,k),b=mix(.98,.62,k);
       const halo=Math.pow(sat(cosSun),10)*.45+Math.pow(sat(cosSun),120)*2;r+=halo;g+=halo*.96;b+=halo*.86;
-      if(e>.03&&e<.85){const band=sat((e-.03)/.1)*sat((.85-e)/.4),n=this.fbm(dx*1.9+5,dy*5.5,dz*1.9+13,5),c=sat((n-.5)*5)*band;if(c>0){const top=sat(n*2.2-.75),w=mix(.55,1.35,top);r=mix(r,w,c*.9);g=mix(g,w*1.01,c*.9);b=mix(b,w*1.06,c*.9);}}
+      if(e>.03&&e<.85){const band=sat((e-.03)/.1)*sat((.85-e)/.4),n=this.fbm(dx*1.9+5,dy*5.5,dz*1.9+13,5),c=sat((n-.56)*5)*band;if(c>0){const top=sat(n*2.2-.75),w=mix(.55,1.35,top);r=mix(r,w,c*.9);g=mix(g,w*1.01,c*.9);b=mix(b,w*1.06,c*.9);}}
       if(hdr){const disc=Math.pow(sat(cosSun),900);r+=disc*110;g+=disc*104;b+=disc*92;}
       return[r,g,b];}
     if(hdr&&e<-.01){const g=sat(1+e*3);return[mix(.012,.05,g),mix(.02,.055,g),mix(.018,.05,g)];}     /* reflection map only: dark ground bounce below the horizon */
