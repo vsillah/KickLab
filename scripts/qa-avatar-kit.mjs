@@ -51,22 +51,20 @@ const dismissToasts = async () => {
   }
   await pause(500);
 };
+const homeUrl = `${baseUrl}?qa=avatar-kit-final&renderer=procedural`;
+// The Home chooser shows each lab as a full-card button (#lab-tab-fight, #lab-tab-race, #lab-tab-kick) with aria-pressed.
+// The cards are hidden inside a lab, so a switch between labs reloads the Home chooser first.
 const selectLab = async (name) => {
   const mode = name.toLowerCase();
-  // Labs are entered from the Home chooser's full-card buttons (#lab-tab-fight, #lab-tab-race, #lab-tab-kick), which carry
-  // aria-pressed rather than role=tab. The chooser is hidden during play, so a later switch returns to Home through
-  // "All labs" first and then enters the next lab from its card.
-  const card = page.locator(`[id^="lab-tab-"][data-mode="${mode}"]`);
-  if (await page.evaluate(() => document.documentElement.dataset.kicklabView === 'game')) {
-    await page.locator('#modeHomeButton').click();
+  const card = page.locator(`#lab-tab-${mode}`);
+  if (!(await card.isVisible())) {
+    await page.goto(homeUrl, { waitUntil: 'networkidle' });
+    await card.waitFor({ state: 'visible' });
   }
-  await card.waitFor({ state: 'visible' });
   await card.click();
-  await page.waitForFunction(
-    (key) => document.documentElement.dataset.kicklabView === 'game' && document.documentElement.dataset.kicklabMode === key,
-    mode,
-  );
+  await page.waitForFunction((expected) => document.documentElement.dataset.kicklabMode === expected, mode);
   if (await card.getAttribute('aria-pressed') !== 'true') throw new Error(`${name} lab did not become selected`);
+  await page.locator('.stage').waitFor({ state: 'visible' });
   await blurControls();
 };
 const openActivity = async (name) => {
@@ -99,7 +97,7 @@ const setEnvironment = async (name, id) => {
 
 // The rig audit below reads the procedural rig's joints. The GLB athlete is the default Kick player now and leaves that audit
 // empty, so this suite opts into the procedural rig, which remains the fallback on constrained devices.
-await page.goto(`${baseUrl}?qa=avatar-kit-final&renderer=procedural`, { waitUntil: 'networkidle' });
+await page.goto(homeUrl, { waitUntil: 'networkidle' });
 // The app opens on the Home chooser. Enter Fight and wait for the live stage before the first input and capture.
 await selectLab('Fight');
 await page.locator('.stage').waitFor({ state: 'visible' });
