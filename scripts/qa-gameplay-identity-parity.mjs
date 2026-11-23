@@ -2,6 +2,7 @@ import {createRequire} from 'node:module';
 import {existsSync,mkdirSync,writeFileSync,copyFileSync} from 'node:fs';
 import {execFileSync} from 'node:child_process';
 import {resolve,join} from 'node:path';
+import {portraitIdentity} from './lib/qa-portrait-identity.mjs';
 
 const {chromium}=createRequire(import.meta.url)('playwright');
 const head=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
@@ -22,6 +23,7 @@ try{
     const page=await context.newPage(),errors=[],url=new URL(base);
     url.searchParams.set('rev',head);url.searchParams.set('qa','gameplay-identity-parity');url.searchParams.set('wardrobeResultsQA','1');
     if(variant==='direction-c'){url.searchParams.set('renderer','direction-c');url.searchParams.set('quality','full');}
+    if(variant==='3d')url.searchParams.set('renderer','procedural');   // the GLB athlete is the default 3D player now; this variant keeps covering the procedural rig
     page.on('pageerror',error=>errors.push(error.message));
     await page.route('**/*',route=>{const target=route.request().url();if(target.startsWith(url.origin+'/')||target.startsWith('data:')||target.startsWith('blob:'))route.continue();else{report.external.push(`${name}/${id}/${tag}: ${target}`);route.abort();}});
     try{
@@ -31,8 +33,9 @@ try{
       await page.locator('#gamePacingOverlay').waitFor({state:'hidden',timeout:20000});
       if(variant==='direction-c')await page.waitForFunction(()=>['ready','ready-reduced-motion'].includes(window.__KICKLAB_DIRECTION_C__?.status),null,{timeout:20000});
       const state=await page.evaluate(()=>({overflow:document.documentElement.scrollWidth-innerWidth,hud:document.querySelector('#hudProfileAvatar .driver-avatar-image')?.getAttribute('src'),canvas:!!document.querySelector('#fboard canvas, #fboard'),fight:window.__KICKLAB_FIGHT_IDENTITY_AUDIT__,kick:window.__KICKLAB_GAMEPLAY_IDENTITY_AUDIT__,kickCanvas:window.__KICKLAB_KICK_CANVAS_IDENTITY_AUDIT__,direction:window.__KICKLAB_DIRECTION_C__?.playerIdentity}));
-      const expected=`assets/players/${lab==='fight'?'v2':'v1'}/${lab}/${id}.webp`;
-      if(state.hud!==expected||state.overflow>1||!state.canvas)throw Error(`active state ${JSON.stringify(state)}; expected ${expected}`);
+      // Portraits are the asset path until loaded, then a remembered data:image/webp copy; identity is judged by which avatar the portrait shows.
+      const hudPortrait=await portraitIdentity(page,'#hudProfileAvatar .driver-avatar-image',lab,ids);
+      if(hudPortrait.id!==id||state.overflow>1||!state.canvas)throw Error(`active state ${JSON.stringify({...state,hud:String(state.hud).slice(0,48)})}; HUD portrait ${JSON.stringify(hudPortrait)}; expected ${id}`);
       if(lab==='fight'&&state.fight?.avatar!==id)throw Error(`Fight body identity ${JSON.stringify(state.fight)}`);
       if(lab==='kick'&&variant==='3d'&&(state.kick?.avatar!==id||!state.kick.head||Math.abs(state.kick.head[0])>=1||Math.abs(state.kick.head[1])>=1))throw Error(`Kick 3D body visibility ${JSON.stringify(state.kick)}`);
       if(lab==='kick'&&variant==='2d'&&state.kickCanvas?.avatar!==id)throw Error(`Kick Canvas body identity ${JSON.stringify(state.kickCanvas)}`);
@@ -51,12 +54,12 @@ try{
       if(video)await page.waitForTimeout(850);
       const fixture=await page.evaluate(lab=>window.__KICKLAB_WARDROBE_RESULTS_QA__?.fixture(lab),lab);
       if(!fixture)throw Error('result fixture missing');
-      const result=await page.locator('#resultPlayer .driver-avatar-image').getAttribute('src');
-      if(result!==expected)throw Error(`result portrait ${result}; expected ${expected}`);
+      const resultPortrait=await portraitIdentity(page,'#resultPlayer .driver-avatar-image',lab,ids);
+      if(resultPortrait.id!==id)throw Error(`result portrait ${JSON.stringify(resultPortrait)}; expected ${id}`);
       await page.locator('#game-cockpit').screenshot({path:join(out,`${name}-${id}-${tag}-result.png`)});
       if(video)await page.waitForTimeout(850);
       if(errors.length)throw Error(`page errors: ${errors.join(' | ')}`);
-      report.checks.push({viewport:name,width,height,id,lab,variant,overflow:state.overflow,reducedMotion:name==='phone',active:true,result:true,...(variant==='direction-c'?{meshGeometry:state.direction.geometry}:{})});
+      report.checks.push({viewport:name,width,height,id,lab,variant,overflow:state.overflow,reducedMotion:name==='phone',active:true,result:true,hudPortrait:hudPortrait.form,resultPortrait:resultPortrait.form,...(variant==='direction-c'?{meshGeometry:state.direction.geometry}:{})});
     }catch(error){report.errors.push(`${name}/${id}/${tag}: ${error.stack||error}`);console.error(`${name}/${id}/${tag}: ${error.message}`);}
     const recording=page.video();await context.close();if(recording){const destination=join(out,`${name}-${id}-${tag}.webm`);copyFileSync(await recording.path(),destination);report.videos.push(destination);}
   }
@@ -83,7 +86,8 @@ try{
     await switchPage.reload();await switchPage.locator('#lab-tab-kick').click();await switchPage.locator('#gamePacingOverlay').waitFor({state:'hidden'});
     await switchPage.waitForFunction(()=>window.__KICKLAB_GAMEPLAY_IDENTITY_AUDIT__?.avatar==='trick');
     await switchPage.evaluate(()=>window.__KICKLAB_WARDROBE_RESULTS_QA__?.fixture('kick'));
-    if(await switchPage.locator('#resultPlayer .driver-avatar-image').getAttribute('src')!=='assets/players/v1/kick/trick.webp')throw Error('reloaded result identity mismatch');
+    const reloadedPortrait=await portraitIdentity(switchPage,'#resultPlayer .driver-avatar-image','kick',ids);
+    if(reloadedPortrait.id!=='trick')throw Error(`reloaded result identity mismatch ${JSON.stringify(reloadedPortrait)}`);
     report.checks.push({profileSwitch:true,from:'rocket',to:'trick',fightBody:true,kickReloadBody:true,kickResult:true});
   }catch(error){report.errors.push(`profile switch: ${error.stack||error}`);}
   await switching.close();

@@ -3,6 +3,7 @@ import { execFileSync } from 'node:child_process';
 import { join, resolve } from 'node:path';
 import { createRequire } from 'node:module';
 
+import { seedQaProfile } from './lib/qa-profile-bootstrap.mjs';
 const require=createRequire(import.meta.url);
 const {chromium}=require('playwright');
 const baseUrl=process.argv[2]||'http://127.0.0.1:4217/kicklab.html';
@@ -12,6 +13,8 @@ mkdirSync(recordingDir,{recursive:true});
 const executablePath=[process.env.KICKLAB_CHROMIUM_PATH,chromium.executablePath(),'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find(path=>path&&existsSync(path));
 if(!executablePath)throw new Error('No local Chrome or Chromium executable found.');
 const browser=await chromium.launch({headless:true,executablePath});
+// Every context starts with a complete device-local player; without one a lab tab click opens first-run profile setup.
+const openContext=browser.newContext.bind(browser);browser.newContext=async options=>{const context=await openContext(options);await context.addInitScript(seedQaProfile);return context;};
 const activities=[['free','Free kick'],['header','Header duel'],['run','1v1 Dribble'],['pass','Passing'],['combo','Combo attack'],['gk','Goalkeeper'],['pso','Penalty shootout'],['bar','Crossbar']];
 const viewports=[['desktop',1440,1000],['tablet',768,1024],['mobile',390,844]];
 const errors=[],externalRequests=new Set(),captures=[],audits=[],temporalMotion=[],contactFixtures=[],pacing={},fallbacks={},localOrigin=new URL(baseUrl).origin;
@@ -53,8 +56,8 @@ for(const [viewport,width,height] of viewports){
   await context.close();
 }
 
-async function fallback(label,setup,urlParams,assertion){const context=await browser.newContext({viewport:{width:390,height:844}}),page=await context.newPage();if(label!=='webglFailure')watch(page);if(setup)await page.addInitScript(setup);await page.goto(urlFor(urlParams),{waitUntil:'networkidle'});await dismissProfile(page);await page.locator('#lab-tab-kick').click();await page.waitForTimeout(1000);const value=await page.evaluate(()=>({athlete:window.__KICKLAB_DIRECTION_C__,cv3:!!document.querySelector('#cv3'),canvas:getComputedStyle(document.querySelector('#cv')).display}));fallbacks[label]=value;if(!assertion(value))throw new Error(`${label} failed: ${JSON.stringify(value)}`);await context.close();}
-await fallback('canvas',()=>localStorage.setItem('impactlab.v1',JSON.stringify({gfx:'2d'})),{},s=>s.athlete.status==='canvas'&&!s.cv3&&s.canvas==='block');
+async function fallback(label,setup,urlParams,assertion){const context=await browser.newContext({viewport:{width:390,height:844}}),page=await context.newPage();if(label!=='webglFailure')watch(page);if(setup)await page.addInitScript(...[].concat(setup));await page.goto(urlFor(urlParams),{waitUntil:'networkidle'});await dismissProfile(page);await page.locator('#lab-tab-kick').click();await page.waitForTimeout(1000);const value=await page.evaluate(()=>({athlete:window.__KICKLAB_DIRECTION_C__,cv3:!!document.querySelector('#cv3'),canvas:getComputedStyle(document.querySelector('#cv')).display}));fallbacks[label]=value;if(!assertion(value))throw new Error(`${label} failed: ${JSON.stringify(value)}`);await context.close();}
+await fallback('canvas',[seedQaProfile,{progress:{gfx:'2d'}}],{},s=>s.athlete.status==='canvas'&&!s.cv3&&s.canvas==='block');
 await fallback('reducedQuality',null,{quality:'low'},s=>s.athlete.status==='reduced-quality'&&s.athlete.loads===0);
 await fallback('webglFailure',()=>{const original=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(type,...args){return /^webgl/.test(type)?null:original.call(this,type,...args);};},{},s=>s.athlete.status==='webgl-unavailable'&&!s.cv3&&s.canvas==='block');
 {
